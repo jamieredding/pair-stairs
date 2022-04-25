@@ -1,2 +1,2 @@
-# java-template
+# pair-stairs
 
