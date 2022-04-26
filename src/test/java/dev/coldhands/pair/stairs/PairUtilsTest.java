@@ -32,21 +32,21 @@ class PairUtilsTest {
 
         assertThat(PairUtils.countPairs(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("andy"), 0),
-                        new PairCount(new Pair("andy", "cip"), 1),
-                        new PairCount(new Pair("andy", "jamie"), 1),
-                        new PairCount(new Pair("andy", "jorge"), 1),
-                        new PairCount(new Pair("andy", "reece"), 1),
-                        new PairCount(new Pair("cip"), 0),
-                        new PairCount(new Pair("cip", "jamie"), 0),
-                        new PairCount(new Pair("cip", "jorge"), 2),
-                        new PairCount(new Pair("cip", "reece"), 1),
-                        new PairCount(new Pair("jamie"), 2),
-                        new PairCount(new Pair("jamie", "jorge"), 0),
-                        new PairCount(new Pair("jamie", "reece"), 1),
-                        new PairCount(new Pair("jorge"), 1),
-                        new PairCount(new Pair("jorge", "reece"), 0),
-                        new PairCount(new Pair("reece"), 1)
+                        new PairCount(new Pair("andy"), 0, false),
+                        new PairCount(new Pair("andy", "cip"), 1, false),
+                        new PairCount(new Pair("andy", "jamie"), 1, false),
+                        new PairCount(new Pair("andy", "jorge"), 1, false),
+                        new PairCount(new Pair("andy", "reece"), 1, false),
+                        new PairCount(new Pair("cip"), 0, false),
+                        new PairCount(new Pair("cip", "jamie"), 0, false),
+                        new PairCount(new Pair("cip", "jorge"), 2, false),
+                        new PairCount(new Pair("cip", "reece"), 1, false),
+                        new PairCount(new Pair("jamie"), 2, false),
+                        new PairCount(new Pair("jamie", "jorge"), 0, false),
+                        new PairCount(new Pair("jamie", "reece"), 1, false),
+                        new PairCount(new Pair("jorge"), 1, false),
+                        new PairCount(new Pair("jorge", "reece"), 0, false),
+                        new PairCount(new Pair("reece"), 1, false)
                 );
     }
 }

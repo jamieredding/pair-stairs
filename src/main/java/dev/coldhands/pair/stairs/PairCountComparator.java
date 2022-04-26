@@ -8,10 +8,15 @@ import static java.util.Comparator.nullsLast;
 
 class PairCountComparator implements Comparator<PairCount> {
     private static final Comparator<PairCount> COMPARATOR =
-            comparing(secondPairMember(), putSoloPairsLast())
+            comparing(recentPairsLast())
+                    .thenComparing(secondPairMember(), putSoloPairsLast())
                     .thenComparing(PairCount::count)
                     .thenComparing(pairCount -> pairCount.pair().first())
                     .thenComparing(pairCount -> pairCount.pair().second());
+
+    private static Function<PairCount, Boolean> recentPairsLast() {
+        return PairCount::wasRecent;
+    }
 
     private static Comparator<String> putSoloPairsLast() {
         return nullsLast((o1, o2) -> 0);

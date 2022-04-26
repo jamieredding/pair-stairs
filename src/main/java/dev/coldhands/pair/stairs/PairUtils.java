@@ -34,7 +34,7 @@ class PairUtils {
                                     .filter(pairing -> pair.equivalentTo(pairing.pair()))
                                     .count();
 
-                            pairCounts.add(new PairCount(pair, (int) count));
+                            pairCounts.add(new PairCount(pair, (int) count, false));
                         }));
         return pairCounts;
     }

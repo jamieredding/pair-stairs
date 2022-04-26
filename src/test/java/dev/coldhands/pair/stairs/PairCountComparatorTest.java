@@ -15,20 +15,23 @@ class PairCountComparatorTest {
     static Stream<Arguments> compare() {
         return Stream.of(
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 0),
-                        new PairCount(new Pair("jorge", "reece"), 1)),
+                        new PairCount(new Pair("jamie", "jorge"), 0, false),
+                        new PairCount(new Pair("jorge", "reece"), 1, false)),
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 0),
-                        new PairCount(new Pair("jorge", "reece"), 0)),
+                        new PairCount(new Pair("jamie", "jorge"), 0, false),
+                        new PairCount(new Pair("jorge", "reece"), 0, false)),
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 0),
-                        new PairCount(new Pair("jamie", "reece"), 0)),
+                        new PairCount(new Pair("jamie", "jorge"), 0, false),
+                        new PairCount(new Pair("jamie", "reece"), 0, false)),
                 arguments(
-                        new PairCount(new Pair("jorge", "reece"), 1),
-                        new PairCount(new Pair("jamie"), 0)),
+                        new PairCount(new Pair("jorge", "reece"), 1, false),
+                        new PairCount(new Pair("jamie"), 0, false)),
                 arguments(
-                        new PairCount(new Pair("cip", "jamie"), 0),
-                        new PairCount(new Pair("andy", "cip"), 1))
+                        new PairCount(new Pair("cip", "jamie"), 0, false),
+                        new PairCount(new Pair("andy", "cip"), 1, false)),
+                arguments(
+                        new PairCount(new Pair("jamie", "jorge"), 1, false),
+                        new PairCount(new Pair("jorge", "reece"), 0, true))
         );
     }
 

@@ -1,4 +1,4 @@
 package dev.coldhands.pair.stairs;
 
-record PairCount(Pair pair, int count) {
+record PairCount(Pair pair, int count, boolean wasRecent) {
 }
