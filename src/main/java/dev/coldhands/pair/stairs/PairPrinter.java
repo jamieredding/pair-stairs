@@ -2,14 +2,14 @@ package dev.coldhands.pair.stairs;
 
 import com.jakewharton.picnic.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Comparator.*;
-
 class PairPrinter {
+
+    private static final CellStyle DATA_CELL_STYLE = new CellStyle.Builder()
+            .setAlignment(TextAlignment.MiddleCenter)
+            .build();
 
     static String draw(Set<String> developers, List<Pairing> pairings) {
         Table.Builder builder = new Table.Builder()
@@ -31,37 +31,31 @@ class PairPrinter {
     private static TableSection buildBody(Set<String> developers, List<Pairing> pairings) {
         TableSection.Builder builder = new TableSection.Builder();
 
-        Set<Pair> allPairs = PairUtils.allPairs(developers);
+        List<PairCount> pairCounts = PairUtils.countPairs(developers, pairings);
+        List<String> sortedDevelopers = developers.stream().sorted().toList();
 
-        int pad = 0;
-        var sorted = new ArrayList<>(developers);
-        Collections.sort(sorted);
+        int numberOfDataColumnsToFill = developers.size();
+        int pairCountsUpperIndex = numberOfDataColumnsToFill;
+        int pairCountsIndex = 0;
+        int leadingEmptyCellsToAdd = 0;
 
-        for (String dev : sorted) {
+        for(String dev : sortedDevelopers) {
             Row.Builder row = new Row.Builder();
             row.addCell(dev);
-
-            // ensure leading cells that have their data already printed
-            // are replaced with empty cells
-            for (int i = 0; i < pad; i++) {
+            for (int j = 0; j < leadingEmptyCellsToAdd; j++) {
                 row.addCell("");
             }
-            pad++;
+            leadingEmptyCellsToAdd++;
 
-            allPairs.stream()
-                    // find pairs where current dev is first,
-                    // where you aren't first will already have been printed
-                    .filter(pair -> pair.first().equals(dev))
-                    .sorted(comparing(Pair::first)
-                            .thenComparing(Pair::second, nullsFirst(naturalOrder())))
-                    .forEach(pair -> {
-                        long count = pairings.stream()
-                                .filter(pairing -> pair.equivalentTo(pairing.pair()))
-                                .count();
+            for (; pairCountsIndex < pairCountsUpperIndex; pairCountsIndex++) {
+                PairCount pairCount = pairCounts.get(pairCountsIndex);
+                row.addCell(new Cell.Builder(Long.toString(pairCount.count()))
+                                .setStyle(DATA_CELL_STYLE)
+                        .build());
+            }
 
-                        row.addCell(Long.toString(count));
-                    });
-
+            numberOfDataColumnsToFill -= 1;
+            pairCountsUpperIndex += numberOfDataColumnsToFill;
 
             builder.addRow(row.build());
         }

@@ -2,10 +2,9 @@ package dev.coldhands.pair.stairs;
 
 import com.google.common.collect.Sets;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
+import static java.util.Comparator.*;
 
 class PairUtils {
     static Set<Pair> allPairs(Set<String> developers) {
@@ -18,5 +17,25 @@ class PairUtils {
         developers.forEach(dev -> pairs.add(new Pair(dev)));
 
         return pairs;
+    }
+
+    public static List<PairCount> countPairs(Set<String> developers, List<Pairing> pairings) {
+        var pairCounts = new ArrayList<PairCount>();
+
+        Set<Pair> allPairs = PairUtils.allPairs(developers);
+
+        developers.stream().sorted()
+                .forEach(dev -> allPairs.stream()
+                        .filter(pair -> pair.first().equals(dev))
+                        .sorted(comparing(Pair::first)
+                                .thenComparing(Pair::second, nullsFirst(naturalOrder())))
+                        .forEach(pair -> {
+                            long count = pairings.stream()
+                                    .filter(pairing -> pair.equivalentTo(pairing.pair()))
+                                    .count();
+
+                            pairCounts.add(new PairCount(pair, (int) count));
+                        }));
+        return pairCounts;
     }
 }
