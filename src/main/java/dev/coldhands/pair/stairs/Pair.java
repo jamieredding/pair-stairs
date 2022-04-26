@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs;
 
 import java.util.Objects;
+import java.util.Set;
 
 record Pair(String first, String second) {
 
@@ -18,5 +19,10 @@ record Pair(String first, String second) {
                 ||
                (Objects.equals(first, pair.second) &&
                 Objects.equals(second, pair.first));
+    }
+
+    boolean canBeMadeFrom(Set<String> outstandingDevelopers) {
+        return outstandingDevelopers.contains(first) &&
+                (second == null || outstandingDevelopers.contains(second));
     }
 }
