@@ -7,15 +7,17 @@ import java.util.Set;
 class DecideOMatic {
     private final Set<String> allDevelopers;
     private final List<Pairing> pairings;
+    private final Set<String> availableDevelopers;
 
     public DecideOMatic(DateProvider dateProvider, Set<String> allDevelopers, List<Pairing> pairings, Set<String> availableDevelopers) {
         this.allDevelopers = allDevelopers;
         this.pairings = pairings;
+        this.availableDevelopers = availableDevelopers;
     }
 
     Set<Pair> getNextPairs() {
         List<PairCount> pairCounts = PairUtils.countPairs(allDevelopers, pairings);
-        Set<String> outstandingDevelopers = new HashSet<>(allDevelopers);
+        Set<String> outstandingDevelopers = new HashSet<>(availableDevelopers);
         Set<Pair> nextPairs = new HashSet<>();
         while (!outstandingDevelopers.isEmpty()) {
             Pair nextBestPair = selectBestPair(outstandingDevelopers, pairCounts);
