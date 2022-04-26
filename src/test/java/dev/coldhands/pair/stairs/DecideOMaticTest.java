@@ -1,11 +1,15 @@
 package dev.coldhands.pair.stairs;
 
+import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -69,6 +73,28 @@ class DecideOMaticTest {
         Set<Pair> actualPairs = underTest.getNextPairs();
         assertThat(actualPairs)
                 .containsOnly(expectedPairs);
+    }
+
+    @Test
+    @Disabled("not implemented")
+    void pairsShouldAlwaysRotate() {
+        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        LocalDate now = LocalDate.now();
+        List<Pairing> pairings = new ArrayList<>();
+
+        DecideOMatic underTest = new DecideOMatic(() -> now.plusDays(1), allDevelopers, pairings, allDevelopers);
+        Set<Pair> firstPairs = underTest.getNextPairs();
+        firstPairs.stream()
+                .map(pair -> new Pairing(now.plusDays(1), pair))
+                .forEach(pairings::add);
+
+        underTest = new DecideOMatic(() -> now.plusDays(2), allDevelopers, pairings, allDevelopers);
+        Set<Pair> nextPairs = underTest.getNextPairs();
+
+        Sets.SetView<Pair> intersection = Sets.intersection(firstPairs, nextPairs);
+
+        assertThat(intersection)
+                .isEmpty();
     }
 
     /*
