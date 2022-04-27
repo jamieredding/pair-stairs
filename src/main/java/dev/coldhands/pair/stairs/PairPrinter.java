@@ -39,7 +39,7 @@ class PairPrinter {
         int pairCountsIndex = 0;
         int leadingEmptyCellsToAdd = 0;
 
-        for(String dev : sortedDevelopers) {
+        for (String dev : sortedDevelopers) {
             Row.Builder row = new Row.Builder();
             row.addCell(dev);
             for (int j = 0; j < leadingEmptyCellsToAdd; j++) {
@@ -49,8 +49,10 @@ class PairPrinter {
 
             for (; pairCountsIndex < pairCountsUpperIndex; pairCountsIndex++) {
                 PairCount pairCount = pairCounts.get(pairCountsIndex);
-                row.addCell(new Cell.Builder(Long.toString(pairCount.count()))
-                                .setStyle(DATA_CELL_STYLE)
+                String content = Long.toString(pairCount.count()) +
+                                 (pairCount.wasRecent() ? " *" : "");
+                row.addCell(new Cell.Builder(content)
+                        .setStyle(DATA_CELL_STYLE)
                         .build());
             }
 

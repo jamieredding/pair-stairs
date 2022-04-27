@@ -2,9 +2,11 @@ package dev.coldhands.pair.stairs;
 
 import com.google.common.collect.Sets;
 
+import java.time.LocalDate;
 import java.util.*;
 
 import static java.util.Comparator.*;
+import static java.util.stream.Collectors.*;
 
 class PairUtils {
     static Set<Pair> allPairs(Set<String> developers) {
@@ -23,6 +25,11 @@ class PairUtils {
         var pairCounts = new ArrayList<PairCount>();
 
         Set<Pair> allPairs = PairUtils.allPairs(developers);
+        LocalDate mostRecentPair = pairings.stream()
+                .map(Pairing::date)
+                .sorted(reverseOrder())
+                .findFirst()
+                .orElse(null);
 
         developers.stream().sorted()
                 .forEach(dev -> allPairs.stream()
@@ -30,12 +37,18 @@ class PairUtils {
                         .sorted(comparing(Pair::first)
                                 .thenComparing(Pair::second, nullsFirst(naturalOrder())))
                         .forEach(pair -> {
-                            long count = pairings.stream()
+                            Collect result = pairings.stream()
                                     .filter(pairing -> pair.equivalentTo(pairing.pair()))
-                                    .count();
+                                    .collect(teeing(
+                                            counting(),
+                                            maxBy(comparing(Pairing::date)),
+                                            (a, b) -> new Collect(a, b.map(Pairing::date).orElse(null))));
 
-                            pairCounts.add(new PairCount(pair, (int) count, false));
+                            pairCounts.add(new PairCount(pair, (int) result.count, Objects.equals(mostRecentPair, result.mostRecentOccurrence)));
                         }));
         return pairCounts;
+    }
+
+    private record Collect(long count, LocalDate mostRecentOccurrence) {
     }
 }
