@@ -108,11 +108,4 @@ class DecideOMaticTest {
                 .containsOnly(new Pair("jorge", "reece"),
                         new Pair("jamie"));
     }
-
-    /*
-    todo
-     - allow picking of pairs
-     - offer multiple options
-     - show bad pairings
-     */
 }
