@@ -27,8 +27,7 @@ class PairUtils {
         Set<Pair> allPairs = PairUtils.allPairs(developers);
         LocalDate mostRecentPair = pairings.stream()
                 .map(Pairing::date)
-                .sorted(reverseOrder())
-                .findFirst()
+                .max(naturalOrder())
                 .orElse(null);
 
         developers.stream().sorted()
@@ -44,7 +43,8 @@ class PairUtils {
                                             maxBy(comparing(Pairing::date)),
                                             (a, b) -> new Collect(a, b.map(Pairing::date).orElse(null))));
 
-                            pairCounts.add(new PairCount(pair, (int) result.count, Objects.equals(mostRecentPair, result.mostRecentOccurrence)));
+                            boolean wasRecent = result.mostRecentOccurrence != null && Objects.equals(result.mostRecentOccurrence, mostRecentPair);
+                            pairCounts.add(new PairCount(pair, (int) result.count, wasRecent));
                         }));
         return pairCounts;
     }

@@ -49,4 +49,29 @@ class PairUtilsTest {
                         new PairCount(new Pair("reece"), 1, false)
                 );
     }
+
+    @Test
+    void noPairsShouldBeRecentIfNoneArePresentInPairings() {
+        List<Pairing> pairings = List.of();
+        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+
+        assertThat(PairUtils.countPairs(allDevelopers, pairings))
+                .containsOnly(
+                        new PairCount(new Pair("andy"), 0, false),
+                        new PairCount(new Pair("andy", "cip"), 0, false),
+                        new PairCount(new Pair("andy", "jamie"), 0, false),
+                        new PairCount(new Pair("andy", "jorge"), 0, false),
+                        new PairCount(new Pair("andy", "reece"), 0, false),
+                        new PairCount(new Pair("cip"), 0, false),
+                        new PairCount(new Pair("cip", "jamie"), 0, false),
+                        new PairCount(new Pair("cip", "jorge"), 0, false),
+                        new PairCount(new Pair("cip", "reece"), 0, false),
+                        new PairCount(new Pair("jamie"), 0, false),
+                        new PairCount(new Pair("jamie", "jorge"), 0, false),
+                        new PairCount(new Pair("jamie", "reece"), 0, false),
+                        new PairCount(new Pair("jorge"), 0, false),
+                        new PairCount(new Pair("jorge", "reece"), 0, false),
+                        new PairCount(new Pair("reece"), 0, false)
+                );
+    }
 }
