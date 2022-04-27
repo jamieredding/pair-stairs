@@ -17,8 +17,8 @@ class Simulation {
         Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
         List<Pairing> pairings = new ArrayList<>();
         Set<Pair> previousPairs = Set.of();
-        for (int i = 0; i < 100; i++) {
-            Set<Pair> nextPairs = simulateDay(allDevelopers, pairings);
+        for (int dayNumber = 0; dayNumber < 100; dayNumber++) {
+            Set<Pair> nextPairs = simulateDay(dayNumber, allDevelopers, pairings);
             printData(allDevelopers, pairings, nextPairs, previousPairs);
             previousPairs = nextPairs;
 
@@ -65,16 +65,16 @@ class Simulation {
         System.out.print("Pairs:");
         Sets.SetView<Pair> intersection = Sets.intersection(nextPairs, previousPairs);
         if (!intersection.isEmpty()){
-            System.out.print(" duplicate pair!: " + intersection);
+            throw new RuntimeException(" duplicate pair!: " + intersection);
         }
         System.out.println("\n" + table.build());
     }
 
-    private Set<Pair> simulateDay(Set<String> allDevelopers, List<Pairing> pairings) {
-        DecideOMatic decideOMatic = new DecideOMatic(allDevelopers, pairings, allDevelopers);
+    private Set<Pair> simulateDay(int dayIndex, Set<String> allDevelopers, List<Pairing> pairings) {
+        DecideOMatic decideOMatic = new DecideOMatic(pairings, allDevelopers);
         Set<Pair> nextPairs = decideOMatic.getNextPairs();
         nextPairs.stream()
-                .map(pair -> new Pairing(LocalDate.now(), pair))
+                .map(pair -> new Pairing(LocalDate.now().plusDays(dayIndex), pair))
                 .forEach(pairings::add);
         return nextPairs;
     }

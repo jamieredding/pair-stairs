@@ -4,6 +4,9 @@ import com.google.common.collect.Sets;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
@@ -47,6 +50,35 @@ class PairUtils {
                             pairCounts.add(new PairCount(pair, (int) result.count, wasRecent));
                         }));
         return pairCounts;
+    }
+
+    public static Set<Set<Pair>> calculateAllPairCombinations(Set<String> allDevelopers) {
+        Set<Pair> allPossiblePairs = Sets.combinations(allDevelopers, 2).stream()
+                .map(ArrayList::new)
+                .peek(Collections::sort)
+                .map(pairAsList -> new Pair(pairAsList.get(0), pairAsList.get(1)))
+                .collect(Collectors.toCollection(HashSet::new));
+
+        allDevelopers.forEach(dev -> allPossiblePairs.add(new Pair(dev)));
+
+        return Sets.combinations(allPossiblePairs, Math.ceilDiv(allDevelopers.size(), 2)).stream()
+                .filter(isValidPairCombination(allDevelopers))
+                .collect(toSet());
+    }
+
+    private static Predicate<Set<Pair>> isValidPairCombination(Set<String> allDevelopers) {
+        return pairCombination -> {
+            List<String> allDevsInPairs = pairCombination.stream()
+                    .mapMulti((Pair pair, Consumer<String> consumer) -> {
+                        consumer.accept(pair.first());
+                        if (pair.second() != null) {
+                            consumer.accept(pair.second());
+                        }
+                    })
+                    .toList();
+            return allDevsInPairs.size() == allDevelopers.size() &&
+                   new HashSet<>(allDevsInPairs).containsAll(allDevelopers);
+        };
     }
 
     private record Collect(long count, LocalDate mostRecentOccurrence) {

@@ -38,11 +38,6 @@ class PairCountComparatorTest {
     @ParameterizedTest
     @MethodSource
     void compare(PairCount first, PairCount second) {
-        Comparator<PairCount> comparator = new PairCountComparator();
-
-        assertThat(comparator.compare(first, second))
-                .isEqualTo(-comparator.compare(second, first))
-                .extracting(Integer::signum)
-                .isEqualTo(-1);
+        TestUtils.testComparator(new PairCountComparator(), first, second);
     }
 }

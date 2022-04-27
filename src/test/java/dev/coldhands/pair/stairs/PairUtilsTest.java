@@ -2,7 +2,6 @@ package dev.coldhands.pair.stairs;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -73,5 +72,46 @@ class PairUtilsTest {
                         new PairCount(new Pair("jorge", "reece"), 0, false),
                         new PairCount(new Pair("reece"), 0, false)
                 );
+    }
+
+    @Test
+    void calculateAllPairCombinations() {
+        Set<String> allDevelopers = Set.of("jamie", "jorge", "reece");
+        Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
+
+        assertThat(allPairCombinations)
+                .containsOnly(
+                        Set.of(new Pair("jamie", "jorge"),
+                                new Pair("reece")),
+                        Set.of(new Pair("jorge", "reece"),
+                                new Pair("jamie")),
+                        Set.of(new Pair("jamie", "reece"),
+                                new Pair("jorge")));
+    }
+
+    @Test
+    void calculateAllPairCombinationsOfAnEvenNumberOfDevelopers() {
+        Set<String> allDevelopers = Set.of("jamie", "jorge", "reece", "andy");
+        Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
+
+        assertThat(allPairCombinations)
+                .containsOnly(
+                        Set.of(new Pair("jamie", "jorge"),
+                                new Pair("andy", "reece")),
+                        Set.of(new Pair("jorge", "reece"),
+                                new Pair("andy", "jamie")),
+                        Set.of(new Pair("andy", "jorge"),
+                                new Pair("jamie", "reece")));
+    }
+
+    @Test
+    void calculateAllPairCombinationsWhereThereShouldBeThreePairsInEachPairing() {
+        Set<String> allDevelopers = Set.of("jamie", "jorge", "reece", "andy", "cip");
+        Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
+
+        assertThat(allPairCombinations)
+                .hasSize(15)
+                .allSatisfy(pairCombination ->
+                        assertThat(pairCombination).hasSize(3));
     }
 }

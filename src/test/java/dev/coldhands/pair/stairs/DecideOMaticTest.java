@@ -22,7 +22,7 @@ class DecideOMaticTest {
     void whenEveryoneIsIn() {
         Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
 
-        DecideOMatic underTest = new DecideOMatic(allDevelopers, EXAMPLE_PAIRINGS, allDevelopers);
+        DecideOMatic underTest = new DecideOMatic(EXAMPLE_PAIRINGS, allDevelopers);
 
         Set<Pair> actualPairs = underTest.getNextPairs();
         assertThat(actualPairs)
@@ -35,24 +35,24 @@ class DecideOMaticTest {
         return Stream.of(
                 arguments(Set.of("jorge", "jamie", "reece", "andy"),
                         new Pair[]{
-                                new Pair("jamie", "jorge"),
-                                new Pair("andy", "reece")}),
+                                new Pair("jorge", "reece"),
+                                new Pair("andy", "jamie")}),
                 arguments(Set.of("jorge", "jamie", "reece", "cip"),
                         new Pair[]{
                                 new Pair("cip", "jamie"),
                                 new Pair("jorge", "reece")}),
                 arguments(Set.of("jorge", "jamie", "andy", "cip"),
                         new Pair[]{
-                                new Pair("cip", "jamie"),
-                                new Pair("andy", "jorge")}),
+                                new Pair("andy", "cip"),
+                                new Pair("jamie", "jorge")}),
                 arguments(Set.of("jorge", "reece", "andy", "cip"),
                         new Pair[]{
                                 new Pair("jorge", "reece"),
                                 new Pair("andy", "cip")}),
                 arguments(Set.of("jamie", "reece", "andy", "cip"),
                         new Pair[]{
-                                new Pair("cip", "jamie"),
-                                new Pair("andy", "reece")}),
+                                new Pair("jamie", "reece"),
+                                new Pair("andy", "cip")}),
                 arguments(Set.of("jamie", "reece", "andy"),
                         new Pair[]{
                                 new Pair("andy", "jamie"),
@@ -63,9 +63,7 @@ class DecideOMaticTest {
     @ParameterizedTest
     @MethodSource
     void whenSomeoneIsOff(Set<String> availableDevelopers, Pair[] expectedPairs) {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
-
-        DecideOMatic underTest = new DecideOMatic(allDevelopers, EXAMPLE_PAIRINGS, availableDevelopers);
+        DecideOMatic underTest = new DecideOMatic(EXAMPLE_PAIRINGS, availableDevelopers);
 
         Set<Pair> actualPairs = underTest.getNextPairs();
         assertThat(actualPairs)
@@ -78,13 +76,13 @@ class DecideOMaticTest {
         LocalDate now = LocalDate.now();
         List<Pairing> pairings = new ArrayList<>();
 
-        DecideOMatic underTest = new DecideOMatic(allDevelopers, pairings, allDevelopers);
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers);
         Set<Pair> firstPairs = underTest.getNextPairs();
         firstPairs.stream()
                 .map(pair -> new Pairing(now.plusDays(1), pair))
                 .forEach(pairings::add);
 
-        underTest = new DecideOMatic(allDevelopers, pairings, allDevelopers);
+        underTest = new DecideOMatic(pairings, allDevelopers);
         Set<Pair> nextPairs = underTest.getNextPairs();
 
         Sets.SetView<Pair> intersection = Sets.intersection(firstPairs, nextPairs);
