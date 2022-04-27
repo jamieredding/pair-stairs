@@ -9,7 +9,7 @@ class DecideOMatic {
     private final List<Pairing> pairings;
     private final Set<String> availableDevelopers;
 
-    public DecideOMatic(DateProvider dateProvider, Set<String> allDevelopers, List<Pairing> pairings, Set<String> availableDevelopers) {
+    public DecideOMatic(Set<String> allDevelopers, List<Pairing> pairings, Set<String> availableDevelopers) {
         this.allDevelopers = allDevelopers;
         this.pairings = pairings;
         this.availableDevelopers = availableDevelopers;

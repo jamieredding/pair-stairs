@@ -71,7 +71,7 @@ class Simulation {
     }
 
     private Set<Pair> simulateDay(Set<String> allDevelopers, List<Pairing> pairings) {
-        DecideOMatic decideOMatic = new DecideOMatic(LocalDate::now, allDevelopers, pairings, allDevelopers);
+        DecideOMatic decideOMatic = new DecideOMatic(allDevelopers, pairings, allDevelopers);
         Set<Pair> nextPairs = decideOMatic.getNextPairs();
         nextPairs.stream()
                 .map(pair -> new Pairing(LocalDate.now(), pair))

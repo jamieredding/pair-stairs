@@ -1,7 +1,6 @@
 package dev.coldhands.pair.stairs;
 
 import com.google.common.collect.Sets;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,9 +21,8 @@ class DecideOMaticTest {
     @Test
     void whenEveryoneIsIn() {
         Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
-        DateProvider dateProvider = () -> LocalDate.now().plusDays(1);
 
-        DecideOMatic underTest = new DecideOMatic(dateProvider, allDevelopers, EXAMPLE_PAIRINGS, allDevelopers);
+        DecideOMatic underTest = new DecideOMatic(allDevelopers, EXAMPLE_PAIRINGS, allDevelopers);
 
         Set<Pair> actualPairs = underTest.getNextPairs();
         assertThat(actualPairs)
@@ -66,9 +64,8 @@ class DecideOMaticTest {
     @MethodSource
     void whenSomeoneIsOff(Set<String> availableDevelopers, Pair[] expectedPairs) {
         Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
-        DateProvider dateProvider = () -> LocalDate.now().plusDays(1);
 
-        DecideOMatic underTest = new DecideOMatic(dateProvider, allDevelopers, EXAMPLE_PAIRINGS, availableDevelopers);
+        DecideOMatic underTest = new DecideOMatic(allDevelopers, EXAMPLE_PAIRINGS, availableDevelopers);
 
         Set<Pair> actualPairs = underTest.getNextPairs();
         assertThat(actualPairs)
@@ -76,19 +73,18 @@ class DecideOMaticTest {
     }
 
     @Test
-    @Disabled("not implemented")
     void pairsShouldAlwaysRotate() {
         Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
         LocalDate now = LocalDate.now();
         List<Pairing> pairings = new ArrayList<>();
 
-        DecideOMatic underTest = new DecideOMatic(() -> now.plusDays(1), allDevelopers, pairings, allDevelopers);
+        DecideOMatic underTest = new DecideOMatic(allDevelopers, pairings, allDevelopers);
         Set<Pair> firstPairs = underTest.getNextPairs();
         firstPairs.stream()
                 .map(pair -> new Pairing(now.plusDays(1), pair))
                 .forEach(pairings::add);
 
-        underTest = new DecideOMatic(() -> now.plusDays(2), allDevelopers, pairings, allDevelopers);
+        underTest = new DecideOMatic(allDevelopers, pairings, allDevelopers);
         Set<Pair> nextPairs = underTest.getNextPairs();
 
         Sets.SetView<Pair> intersection = Sets.intersection(firstPairs, nextPairs);
