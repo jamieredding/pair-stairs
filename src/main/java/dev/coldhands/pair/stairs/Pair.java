@@ -25,4 +25,6 @@ record Pair(String first, String second) {
         return outstandingDevelopers.contains(first) &&
                 (second == null || outstandingDevelopers.contains(second));
     }
+
+    // todo add members method or something that prevents duplicate safety checking of first and second
 }

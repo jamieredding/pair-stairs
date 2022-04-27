@@ -91,6 +91,24 @@ class DecideOMaticTest {
                 .isEmpty();
     }
 
+    @Test
+    void doNotAllowNewJoinersToSolo() {
+        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
+        LocalDate now = LocalDate.now();
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "jamie", "reece"),
+                new Pairing(now.minusDays(1), "jorge"),
+                new Pairing(now.minusDays(2), "jorge", "reece"),
+                new Pairing(now.minusDays(2), "jamie"),
+                new Pairing(now.minusDays(3), "jamie", "reece"),
+                new Pairing(now.minusDays(3), "jorge"));
+
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("reece"));
+        assertThat(underTest.getNextPairs())
+                .containsOnly(new Pair("jorge", "reece"),
+                        new Pair("jamie"));
+    }
+
     /*
     todo
      - allow picking of pairs

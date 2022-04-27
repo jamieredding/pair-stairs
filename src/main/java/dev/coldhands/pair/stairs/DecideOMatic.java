@@ -3,17 +3,22 @@ package dev.coldhands.pair.stairs;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toSet;
 
 class DecideOMatic {
     private final List<Pairing> pairings;
     private final Set<String> availableDevelopers;
+    private final Set<String> newJoiners;
 
     public DecideOMatic(List<Pairing> pairings, Set<String> availableDevelopers) {
+        this(pairings, availableDevelopers, Set.of());
+    }
+
+    public DecideOMatic(List<Pairing> pairings, Set<String> availableDevelopers, Set<String> newJoiners) {
         this.pairings = pairings;
         this.availableDevelopers = availableDevelopers;
+        this.newJoiners = newJoiners;
     }
 
     Set<Pair> getNextPairs() {
@@ -33,12 +38,19 @@ class DecideOMatic {
         return allPairCombinations.stream()
                 .sorted(new PairCombinationComparator(allPairsSortedByPairCount))
                 .filter(hasNoRecentPairs(recentPairs))
+                .filter(hasNoSoloNewJoiners())
                 .findFirst()
                 .get();
     }
 
     private Predicate<? super Set<Pair>> hasNoRecentPairs(Set<Pair> recentPairs) {
         return pairs -> recentPairs.stream()
+                .noneMatch(pairs::contains);
+    }
+
+    private Predicate<? super Set<Pair>> hasNoSoloNewJoiners() {
+        return pairs -> newJoiners.stream()
+                .map(Pair::new)
                 .noneMatch(pairs::contains);
     }
 
