@@ -3,7 +3,7 @@ package dev.coldhands.pair.stairs;
 import java.util.Objects;
 import java.util.Set;
 
-record Pair(String first, String second) {
+public record Pair(String first, String second) {
 
     public Pair(String solo) {
         this(solo, null);

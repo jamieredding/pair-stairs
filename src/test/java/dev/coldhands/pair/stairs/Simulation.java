@@ -34,7 +34,7 @@ class Simulation {
     }
 
     private void printPairStairs(Set<String> allDevelopers, List<Pairing> pairings) {
-        System.out.println(PairPrinter.draw(allDevelopers, pairings));
+        System.out.println(PairPrinter.drawPairStairs(allDevelopers, pairings));
     }
 
     private void printPairs(Set<Pair> nextPairs, Set<Pair> previousPairs) {

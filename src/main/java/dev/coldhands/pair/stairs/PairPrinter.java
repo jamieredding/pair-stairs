@@ -5,13 +5,13 @@ import com.jakewharton.picnic.*;
 import java.util.List;
 import java.util.Set;
 
-class PairPrinter {
+public final class PairPrinter {
 
     private static final CellStyle DATA_CELL_STYLE = new CellStyle.Builder()
             .setAlignment(TextAlignment.MiddleCenter)
             .build();
 
-    static String draw(Set<String> developers, List<Pairing> pairings) {
+    public static String drawPairStairs(Set<String> developers, List<Pairing> pairings) {
         Table.Builder builder = new Table.Builder()
                 .setTableStyle(new TableStyle.Builder()
                         .setBorderStyle(BorderStyle.Hidden)

@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toSet;
 
-class DecideOMatic {
+public class DecideOMatic {
     private final List<Pairing> pairings;
     private final Set<String> availableDevelopers;
     private final Set<String> newJoiners;
@@ -21,7 +21,7 @@ class DecideOMatic {
         this.newJoiners = newJoiners;
     }
 
-    Set<Pair> getNextPairs() {
+    public Set<Pair> getNextPairs() {
         Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(availableDevelopers);
         List<PairCount> pairCounts = PairUtils.countPairs(availableDevelopers, pairings);
         Set<Pair> recentPairs = pairCounts.stream()

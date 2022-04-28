@@ -24,6 +24,6 @@ class TestData {
 
     @Test
     void showTestData() {
-        System.out.println(PairPrinter.draw(Set.of("jorge", "jamie", "reece", "andy", "cip"), EXAMPLE_PAIRINGS));
+        System.out.println(PairPrinter.drawPairStairs(Set.of("jorge", "jamie", "reece", "andy", "cip"), EXAMPLE_PAIRINGS));
     }
 }
