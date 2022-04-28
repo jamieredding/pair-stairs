@@ -109,4 +109,64 @@ class RunnerTest {
                         
                         """);
     }
+
+    @Test
+    void handleUserExhaustingPossiblePairs() throws IOException {
+        userInput
+                .append("n\n") // show next pair
+                .append("n\n") // show next pair
+                .append("n\n") // show a non existing pair
+                .append("1\n"); // choose a pair
+        userInput.flush();
+        int exitCode = underTest.execute("jamie", "jorge", "reece");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(out.toString())
+                .isEqualTo("""
+                        Possible pairs (lowest score is better)
+                                                
+                        1. score = 5
+                                                
+                        \s       jamie  jorge  reece\s
+                        \sjamie   1 *     0      0  \s
+                        \sjorge           0     1 * \s
+                        \sreece                  0  \s
+                                                
+                        See more options [n]
+                        or choose from options [c] ?
+                                                
+                        2. score = 5
+                                                
+                        \s       jamie  jorge  reece\s
+                        \sjamie    0      0     1 * \s
+                        \sjorge          1 *     0  \s
+                        \sreece                  0  \s
+                                                
+                        See more options [n]
+                        or choose from options [c] ?
+                                                
+                        3. score = 5
+                                                
+                        \s       jamie  jorge  reece\s
+                        \sjamie    0     1 *     0  \s
+                        \sjorge           0      0  \s
+                        \sreece                 1 * \s
+                                                
+                        See more options [n]
+                        or choose from options [c] ?
+                        
+                        That's all of the available pairs.
+                                                
+                        Choose a suggestion [1-3]:
+                                                
+                        Picked 1:
+                                                
+                        \s       jamie  jorge  reece\s
+                        \sjamie   1 *     0      0  \s
+                        \sjorge           0     1 * \s
+                        \sreece                  0  \s
+                        """);
+        assertThat(err.toString())
+                .isEmpty();
+    }
 }

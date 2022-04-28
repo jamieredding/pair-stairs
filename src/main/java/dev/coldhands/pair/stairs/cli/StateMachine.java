@@ -76,8 +76,12 @@ class StateMachine {
                 String selection = in.readLine();
                 switch (selection) {
                     case "n" -> {
-                        pairCombinationsIndex++;
-                        state = SHOW_NEXT_PAIR;
+                        if (pairCombinationsIndex == printableNextPairings.size() - 1) {
+                            state = SHOW_OUT_OF_PAIRS;
+                        } else {
+                            pairCombinationsIndex++;
+                            state = SHOW_NEXT_PAIR;
+                        }
                     }
                     case "c" -> {
                         state = ASK_FOR_A_PAIR;
@@ -89,6 +93,12 @@ class StateMachine {
                         state = PROCESS_INPUT_AFTER_NEXT_PAIR;
                     }
                 }
+            }
+            case SHOW_OUT_OF_PAIRS -> {
+                out.println("""
+                        That's all of the available pairs.
+                        """);
+                state = ASK_FOR_A_PAIR;
             }
             case ASK_FOR_A_PAIR -> {
                 out.println("""
