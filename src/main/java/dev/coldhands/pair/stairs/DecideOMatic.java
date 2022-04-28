@@ -2,9 +2,10 @@ package dev.coldhands.pair.stairs;
 
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
-import static java.util.stream.Collectors.toSet;
+import static dev.coldhands.pair.stairs.PairUtils.scorePairCombinationUsing;
+import static java.util.Comparator.*;
 
 public class DecideOMatic {
     private final List<Pairing> pairings;
@@ -21,37 +22,31 @@ public class DecideOMatic {
         this.newJoiners = newJoiners;
     }
 
-    public Set<Pair> getNextPairs() {
+    public List<ScoredPairCombination> getScoredPairCombinations() {
         Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(availableDevelopers);
         List<PairCount> pairCounts = PairUtils.countPairs(availableDevelopers, pairings);
-        Set<Pair> recentPairs = pairCounts.stream()
-                // todo if someone is off today, do we always still rotate?
-                .filter(PairCount::wasRecent)
-                .map(PairCount::pair)
-                .collect(toSet());
         List<Pair> allPairsSortedByPairCount = pairCounts
                 .stream()
-                .sorted(new PairCountComparator())
+                .sorted(new PairCountComparator(newJoiners))
                 .map(PairCount::pair)
                 .toList();
 
         return allPairCombinations.stream()
-                .sorted(new PairCombinationComparator(allPairsSortedByPairCount))
-                .filter(hasNoRecentPairs(recentPairs))
-                .filter(hasNoSoloNewJoiners())
+                .map(toScoredPairCombination(allPairsSortedByPairCount))
+                .sorted(comparing(ScoredPairCombination::score))
+                .toList();
+    }
+
+    private Function<Set<Pair>, ScoredPairCombination> toScoredPairCombination(List<Pair> allPairsSortedByPairCount) {
+        return pairCombination -> new ScoredPairCombination(pairCombination,
+                scorePairCombinationUsing(allPairsSortedByPairCount).score(pairCombination));
+    }
+
+    public Set<Pair> getNextPairs() {
+        return getScoredPairCombinations().stream()
+                .map(ScoredPairCombination::pairCombination)
                 .findFirst()
                 .get();
-    }
-
-    private Predicate<? super Set<Pair>> hasNoRecentPairs(Set<Pair> recentPairs) {
-        return pairs -> recentPairs.stream()
-                .noneMatch(pairs::contains);
-    }
-
-    private Predicate<? super Set<Pair>> hasNoSoloNewJoiners() {
-        return pairs -> newJoiners.stream()
-                .map(Pair::new)
-                .noneMatch(pairs::contains);
     }
 
 }

@@ -1,13 +1,14 @@
 package dev.coldhands.pair.stairs;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Comparator;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static dev.coldhands.pair.stairs.TestUtils.testComparator;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class PairCountComparatorTest {
@@ -38,6 +39,13 @@ class PairCountComparatorTest {
     @ParameterizedTest
     @MethodSource
     void compare(PairCount first, PairCount second) {
-        TestUtils.testComparator(new PairCountComparator(), first, second);
+        testComparator(new PairCountComparator(Set.of()), first, second);
+    }
+
+    @Test
+    void preferNonNewJoinersAsSolo() {
+        final PairCount first = new PairCount(new Pair("jamie"), 1, true);
+        final PairCount second = new PairCount(new Pair("cip"), 0, false);;
+        testComparator(new PairCountComparator(Set.of("cip")), first, second);
     }
 }

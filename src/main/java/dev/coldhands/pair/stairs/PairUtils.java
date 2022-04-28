@@ -81,6 +81,18 @@ class PairUtils {
         };
     }
 
+    static PairCombinationScorer scorePairCombinationUsing(List<Pair> pairsSortedByPairCount) {
+        return pairCombination -> pairCombination.stream()
+                .mapToInt(pairsSortedByPairCount::indexOf)
+                .sum();
+    }
+
+    @FunctionalInterface
+    interface PairCombinationScorer {
+
+        int score(Set<Pair> pairCombination);
+    }
+
     private record Collect(long count, LocalDate mostRecentOccurrence) {
     }
 }

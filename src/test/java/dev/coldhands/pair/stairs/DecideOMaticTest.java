@@ -108,4 +108,34 @@ class DecideOMaticTest {
                 .containsOnly(new Pair("jorge", "reece"),
                         new Pair("jamie"));
     }
+
+    @Test
+    void showAllPairsWithTheirScoreInOrder() {
+        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
+        LocalDate now = LocalDate.now();
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "jamie", "reece"),
+                new Pairing(now.minusDays(1), "jorge"),
+                new Pairing(now.minusDays(2), "jorge", "reece"),
+                new Pairing(now.minusDays(2), "jamie"));
+
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers);
+
+        List<ScoredPairCombination> actual = underTest.getScoredPairCombinations();
+        assertThat(actual)
+                .containsOnly(
+                        new ScoredPairCombination(
+                                Set.of(new Pair("jamie", "jorge"),
+                                        new Pair("reece")),
+                                2),
+                        new ScoredPairCombination(
+                                Set.of(new Pair("jorge", "reece"),
+                                        new Pair("jamie")),
+                                4),
+                        new ScoredPairCombination(
+                                Set.of(new Pair("jamie", "reece"),
+                                        new Pair("jorge")),
+                                9)
+                );
+    }
 }
