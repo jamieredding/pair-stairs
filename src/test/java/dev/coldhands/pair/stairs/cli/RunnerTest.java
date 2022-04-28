@@ -32,10 +32,28 @@ class RunnerTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(out.toString())
                 .isEqualTo("""
+                        Possible pairs (lowest score is better)
+                        
+                        best choice (5):
+                        
                         \s       jamie  jorge  reece\s
                         \sjamie   1 *     0      0  \s
                         \sjorge           0     1 * \s
                         \sreece                  0  \s
+                        
+                        alternative (5):
+                        
+                        \s       jamie  jorge  reece\s
+                        \sjamie    0      0     1 * \s
+                        \sjorge          1 *     0  \s
+                        \sreece                  0  \s
+                        
+                        yet another (5):
+                        
+                        \s       jamie  jorge  reece\s
+                        \sjamie    0     1 *     0  \s
+                        \sjorge           0      0  \s
+                        \sreece                 1 * \s
                         """);
         assertThat(err.toString()).isEmpty();
     }
