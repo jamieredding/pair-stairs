@@ -30,7 +30,7 @@ class RunnerTest {
 
     @Test
     void runWithThreeDevelopers() throws IOException {
-        userInput.append("2\n");
+        userInput.append("kjhasdskjh\nkjahsdkh\n0\n0.9\n4\n2\n");
         userInput.flush();
         int exitCode = underTest.execute("jamie", "jorge", "reece");
 
@@ -59,6 +59,26 @@ class RunnerTest {
                         \sjamie    0     1 *     0  \s
                         \sjorge           0      0  \s
                         \sreece                 1 * \s
+                        
+                        Choose a suggestion [1-3]:
+                        
+                        Invalid input.
+                        
+                        Choose a suggestion [1-3]:
+                        
+                        Invalid input.
+                        
+                        Choose a suggestion [1-3]:
+                        
+                        Invalid input.
+                        
+                        Choose a suggestion [1-3]:
+                        
+                        Invalid input.
+                        
+                        Choose a suggestion [1-3]:
+                        
+                        Invalid input.
                         
                         Choose a suggestion [1-3]:
                         

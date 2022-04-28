@@ -16,7 +16,7 @@ import static picocli.CommandLine.Parameters;
 
 class Runner implements Callable<Integer> {
 
-    private final InputStream in;
+    private final BufferedReader in;
     private final PrintWriter out;
     private final PrintWriter err;
 
@@ -24,7 +24,7 @@ class Runner implements Callable<Integer> {
     private Set<String> availableDevelopers;
 
     public Runner(InputStream in, PrintWriter out, PrintWriter err) {
-        this.in = in;
+        this.in = new BufferedReader(new InputStreamReader(in));
         this.out = out;
         this.err = err;
     }
@@ -55,12 +55,7 @@ class Runner implements Callable<Integer> {
             PrintableNextPairings yetAnother = printableNextPairings.get(2);
             out.println("3. yet another (%s):\n\n%s\n".formatted(yetAnother.score, drawPairStairs(availableDevelopers, yetAnother.pairings)));
 
-            out.println("Choose a suggestion [1-3]:\n");
-
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in));
-
-            String userInput = bufferedReader.readLine();
-            int userSelection = Integer.parseInt(userInput);
+            int userSelection = readUserInput("Choose a suggestion [1-3]:");
 
             out.println("Picked %s:\n".formatted(userSelection));
 
@@ -68,15 +63,30 @@ class Runner implements Callable<Integer> {
             out.println(drawPairStairs(availableDevelopers, nextPairing.pairings()));
 
             return 0;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace(err);
             return 1;
         } finally {
             try {
                 in.close();
             } catch (IOException e) {
-                throw new UncheckedIOException("Unable to close input stream", e);
+                e.printStackTrace(err);
             }
+        }
+    }
+
+    private int readUserInput(String prompt) throws IOException {
+        while (true) {
+            out.println(prompt + "\n");
+            String userInput = in.readLine();
+            try {
+                int selection = Integer.parseInt(userInput);
+                if (selection >= 1 && selection <= 3) {
+                    return selection;
+                }
+            } catch (Exception ignored) {
+            }
+            out.println("Invalid input.\n");
         }
     }
 
