@@ -59,7 +59,7 @@ class Runner implements Callable<Integer> {
     }
 
     public static void main(String... args) {
-        int exitCode = createCommandLine(System.in, new PrintWriter(System.out), new PrintWriter(System.err)).execute(args);
+        int exitCode = createCommandLine(System.in, new PrintWriter(System.out, true), new PrintWriter(System.err, true)).execute(args);
         System.exit(exitCode);
     }
 
