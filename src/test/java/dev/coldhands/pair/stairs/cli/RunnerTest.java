@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.cli;
 
 import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,6 +45,10 @@ class RunnerTest {
 
     @Test
     void runWithThreeDevelopers() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
         userInput
                 .append("n\n") // show next pair
                 .append("not valid\n") // not a valid option
@@ -115,7 +120,7 @@ class RunnerTest {
         assertThat(unWindows(err.toString()))
                 .isEqualTo("""
                         Invalid input.
-                        
+                                                
                         Invalid input.
                                                
                         Invalid input.
@@ -123,12 +128,16 @@ class RunnerTest {
                         Invalid input.
                                                
                         Invalid input.
-                        
+                                                
                         """);
     }
 
     @Test
     void handleUserExhaustingPossiblePairs() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
         userInput
                 .append("n\n") // show next pair
                 .append("n\n") // show next pair
@@ -182,9 +191,9 @@ class RunnerTest {
                         \sjamie   1 *     0      0  \s
                         \sjorge           0     1 * \s
                         \sreece                  0  \s
-                        
+                                                
                         Saved pairings to: %s
-                        
+                                                
                         """.formatted(dataFile));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
@@ -192,15 +201,15 @@ class RunnerTest {
 
     @Test
     void loadExistingPairingsFromFileAndPersistNewPairings() throws IOException {
-        Path dataFile = temp.resolve("data.json");
-
         LocalDate now = LocalDate.now();
 
         FileStorage fileStorage = new FileStorage(dataFile);
-        fileStorage.write(List.of(
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        fileStorage.write(new Configuration(allDevelopers,
+                List.of(
                         new Pairing(now.minusDays(1), "jamie", "reece"),
                         new Pairing(now.minusDays(1), "jorge")
-        ));
+                )));
 
         userInput
                 .append("c\n") // show next pair
@@ -231,16 +240,20 @@ class RunnerTest {
                         \sjamie   1 *     0      1  \s
                         \sjorge           1     1 * \s
                         \sreece                  0  \s
-                        
+                                                
                         Saved pairings to: %s
-                        
+                                                
                         """.formatted(dataFile));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
 
         assertThat(String.join("\n", Files.readAllLines(dataFile)))
                 .isEqualTo("""
-                                   [""" +
+                                   {""" +
+                           """
+                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                           """
+                                   "pairings":[""" +
                            """
                                    {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now.minusDays(1)) +
                            """
@@ -250,6 +263,6 @@ class RunnerTest {
                            """
                                    {"date":"%s","pair":{"first":"jamie","second":null}}""".formatted(now) +
                            """
-                                   ]""");
+                                   ]}""");
     }
 }

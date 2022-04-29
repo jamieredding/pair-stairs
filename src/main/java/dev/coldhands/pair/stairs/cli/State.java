@@ -2,7 +2,7 @@ package dev.coldhands.pair.stairs.cli;
 
 enum State {
     BEGIN,
-    LOAD_DATA_FILE,
+    LOAD_CONFIGURATION_FILE,
     CALCULATE_PAIRS,
     SHOW_RESULTS,
     SHOW_NEXT_PAIR,

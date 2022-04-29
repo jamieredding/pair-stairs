@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.persistance;
 
 import dev.coldhands.pair.stairs.Pair;
 import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.TestData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -33,11 +34,16 @@ class FileStorageTest {
         );
 
         FileStorage underTest = new FileStorage(dataFile);
-        underTest.write(pairings);
+        final Configuration configuration = new Configuration(List.of("jamie", "jorge", "reece"), pairings);
+        underTest.write(configuration);
 
         assertThat(String.join("\n", Files.readAllLines(dataFile)))
                 .isEqualTo("""
-                                   [""" +
+                                   {""" +
+                           """
+                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                           """
+                                   "pairings":[""" +
                            """
                                    {"date":"2022-04-29","pair":{"first":"jamie","second":"jorge"}},""" +
                            """
@@ -47,7 +53,7 @@ class FileStorageTest {
                            """
                                    {"date":"2022-04-28","pair":{"first":"jamie","second":null}}""" +
                            """
-                                   ]""");
+                                   ]}""");
     }
 
     @Test
@@ -59,15 +65,19 @@ class FileStorageTest {
         List<Pairing> pairings = List.of(new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie")));
 
         FileStorage underTest = new FileStorage(dataFile);
-        underTest.write(pairings);
+        underTest.write(new Configuration(List.of("jamie"), pairings));
 
         assertThat(String.join("\n", Files.readAllLines(dataFile)))
                 .isEqualTo("""
-                                   [""" +
+                                   {""" +
+                           """
+                                   "allDevelopers":["jamie"],""" +
+                           """
+                                   "pairings":[""" +
                            """
                                    {"date":"2022-04-28","pair":{"first":"jamie","second":null}}""" +
                            """
-                                   ]""");
+                                   ]}""");
     }
 
     @Test
@@ -80,22 +90,13 @@ class FileStorageTest {
                 new Pairing(LocalDate.of(2022, 4, 28), new Pair("jorge", "reece")),
                 new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie"))
         );
+        Configuration configuration = new Configuration(List.of("jamie", "jorge", "reece"), pairings);
 
         FileStorage underTest = new FileStorage(dataFile);
-        underTest.write(pairings);
-        List<Pairing> actual = underTest.read();
+        underTest.write(configuration);
+        Configuration actual = underTest.read();
 
-        assertThat(actual).isEqualTo(pairings);
-    }
-
-    @Test
-    void readReturnsEmptyDataWhenFileDoesNotExist() throws IOException {
-        Path dataFile = temp.resolve("data.json");
-
-        FileStorage underTest = new FileStorage(dataFile);
-        List<Pairing> actual = underTest.read();
-
-        assertThat(actual).isEmpty();
+        assertThat(actual).isEqualTo(configuration);
     }
 
     @Test

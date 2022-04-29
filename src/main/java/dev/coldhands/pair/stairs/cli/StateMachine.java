@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.DecideOMatic;
 import dev.coldhands.pair.stairs.PairPrinter;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.ScoredPairCombination;
+import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
 
 import java.io.BufferedReader;
@@ -29,7 +30,7 @@ class StateMachine {
     private final Path dataFile;
 
     private State state = BEGIN;
-    private List<Pairing> startingPairings;
+    private Configuration configuration;
     private int pairCombinationsIndex = 0;
     private List<PrintableNextPairings> printableNextPairings;
     private int selection;
@@ -51,16 +52,16 @@ class StateMachine {
     public void run() throws IOException {
         switch (state) {
             case BEGIN -> {
-                state = LOAD_DATA_FILE;
+                state = LOAD_CONFIGURATION_FILE;
             }
-            case LOAD_DATA_FILE -> {
-                startingPairings = fileStorage.read();
+            case LOAD_CONFIGURATION_FILE -> {
+                configuration = fileStorage.read();
                 state = CALCULATE_PAIRS;
             }
             case CALCULATE_PAIRS -> {
-                DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers);
+                DecideOMatic decideOMatic = new DecideOMatic(configuration.pairings(), availableDevelopers);
                 printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
-                        .map(toPrintableNextPairings(startingPairings))
+                        .map(toPrintableNextPairings(configuration.pairings()))
                         .toList();
                 state = SHOW_RESULTS;
             }
@@ -147,7 +148,7 @@ class StateMachine {
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(nextPairings.pairings());
+                fileStorage.write(new Configuration(configuration.allDevelopers(), nextPairings.pairings()));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));
