@@ -12,11 +12,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class FileStorageTest {
 
+    @TempDir
+    Path temp;
+
     @Test
-    void canWriteDataToFile(@TempDir Path temp) throws IOException {
+    void canWriteDataToFile() throws IOException {
         Path dataFile = temp.resolve("data.json");
 
         Files.createFile(dataFile);
@@ -47,7 +51,7 @@ class FileStorageTest {
     }
 
     @Test
-    void willOverwriteExistingFile(@TempDir Path temp) throws IOException {
+    void willOverwriteExistingFile() throws IOException {
         Path dataFile = temp.resolve("data.json");
 
         Files.writeString(dataFile, "some not valid json");
@@ -67,7 +71,7 @@ class FileStorageTest {
     }
 
     @Test
-    void canReadWrittenFile(@TempDir Path temp) throws IOException {
+    void canReadWrittenFile() throws IOException {
         Path dataFile = temp.resolve("data.json");
 
         List<Pairing> pairings = List.of(
@@ -82,5 +86,26 @@ class FileStorageTest {
         List<Pairing> actual = underTest.read();
 
         assertThat(actual).isEqualTo(pairings);
+    }
+
+    @Test
+    void readReturnsEmptyDataWhenFileDoesNotExist() throws IOException {
+        Path dataFile = temp.resolve("data.json");
+
+        FileStorage underTest = new FileStorage(dataFile);
+        List<Pairing> actual = underTest.read();
+
+        assertThat(actual).isEmpty();
+    }
+
+    @Test
+    void readThrowsExceptionWhenUnableToParseFileContent() throws IOException {
+        Path dataFile = temp.resolve("data.json");
+
+        Files.writeString(dataFile, "not json");
+
+        FileStorage underTest = new FileStorage(dataFile);
+        assertThatThrownBy(underTest::read)
+                .hasMessage("%s is not in the correct format. Will not read".formatted(dataFile));
     }
 }

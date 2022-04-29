@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.persistance;
 
+import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -28,7 +29,14 @@ class FileStorage {
     }
 
     public List<Pairing> read() throws IOException {
-        return objectMapper.readValue(Files.newInputStream(dataFile), new TypeReference<>() {
-        });
+        if (dataFile.toFile().exists()) {
+            try {
+                return objectMapper.readValue(Files.newInputStream(dataFile), new TypeReference<>() {
+                });
+            } catch (JacksonException e) {
+                throw new RuntimeException("%s is not in the correct format. Will not read".formatted(dataFile) ,e);
+            }
+        }
+        return List.of();
     }
 }
