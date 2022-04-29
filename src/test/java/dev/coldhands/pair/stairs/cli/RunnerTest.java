@@ -265,4 +265,49 @@ class RunnerTest {
                            """
                                    ]}""");
     }
+
+    @Test
+    void optionallySpecifyAbsentDevelopers() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
+        userInput
+                .append("c\n") // show next pair
+                .append("1\n"); // choose a pair
+        userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "-i", "andy", "reece");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Possible pairs (lowest score is better)
+                                                
+                        1. score = 0
+                                                
+                                andy  jamie  jorge  reece\s
+                        \sandy    0      0      0      0  \s
+                        \sjamie          0     1 *     0  \s
+                        \sjorge                 0      0  \s
+                        \sreece                        0  \s
+                                                
+                        See more options [n]
+                        or choose from options [c] ?
+                                                
+                        Choose a suggestion [1-1]:
+                                                
+                        Picked 1:
+                                                
+                                andy  jamie  jorge  reece\s
+                        \sandy    0      0      0      0  \s
+                        \sjamie          0     1 *     0  \s
+                        \sjorge                 0      0  \s
+                        \sreece                        0  \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+    }
 }

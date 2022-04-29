@@ -28,24 +28,27 @@ class StateMachine {
 
     private final FileStorage fileStorage;
     private final Path dataFile;
+    private final List<String> missingDevelopers;
 
     private State state = BEGIN;
-    private List<String> allDevelopers;
+    private Set<String> allDevelopers;
     private Set<String> availableDevelopers;
     private int pairCombinationsIndex = 0;
     private List<PrintableNextPairings> printableNextPairings;
     private int selection;
     private PrintableNextPairings nextPairings;
     private List<Pairing> startingPairings;
+    private Configuration configuration;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
                         PrintWriter err,
-                        Path dataFile) {
+                        Runner runner) {
         this.in = in;
         this.out = out;
         this.err = err;
-        this.dataFile = dataFile;
+        this.dataFile = runner.getDataFile();
+        this.missingDevelopers = runner.getMissingDevelopers();
         fileStorage = new FileStorage(this.dataFile);
     }
 
@@ -55,9 +58,10 @@ class StateMachine {
                 state = LOAD_CONFIGURATION_FILE;
             }
             case LOAD_CONFIGURATION_FILE -> {
-                var configuration = fileStorage.read();
-                allDevelopers = configuration.allDevelopers();
+                configuration = fileStorage.read();
+                allDevelopers = new HashSet<>(configuration.allDevelopers());
                 availableDevelopers = new HashSet<>(configuration.allDevelopers());
+                missingDevelopers.forEach(availableDevelopers::remove);
                 startingPairings = configuration.pairings();
                 state = CALCULATE_PAIRS;
             }
@@ -85,7 +89,7 @@ class StateMachine {
                         or choose from options [c] ?
                         """.formatted(pairCombinationsIndex + 1,
                         current.score(),
-                        PairPrinter.drawPairStairs(availableDevelopers, current.pairings())));
+                        PairPrinter.drawPairStairs(allDevelopers, current.pairings())));
                 state = PROCESS_INPUT_AFTER_NEXT_PAIR;
             }
             case PROCESS_INPUT_AFTER_NEXT_PAIR -> {
@@ -146,12 +150,12 @@ class StateMachine {
                         %s
                         """.formatted(
                         selection,
-                        PairPrinter.drawPairStairs(availableDevelopers, nextPairings.pairings())
+                        PairPrinter.drawPairStairs(allDevelopers, nextPairings.pairings())
                 ));
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(new Configuration(allDevelopers, nextPairings.pairings()));
+                fileStorage.write(new Configuration(configuration.allDevelopers(), nextPairings.pairings()));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));

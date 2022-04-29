@@ -4,6 +4,7 @@ import picocli.CommandLine;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.*;
@@ -16,6 +17,9 @@ class Runner implements Callable<Integer> {
 
     @Option(names = "-f", required = true, description = "data file to use for pairing persistence")
     private Path dataFile;
+
+    @Option(names = "-i", arity = "0..*", description = "developers to ignore from pairing")
+    private List<String> missingDevelopers = List.of();
 
     public Runner(InputStream in, PrintWriter out, PrintWriter err) {
         this.in = new BufferedReader(new InputStreamReader(in));
@@ -30,7 +34,7 @@ class Runner implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            runStateMachine(dataFile);
+            runStateMachine(this);
 
             return 0;
         } catch (Exception e) {
@@ -45,8 +49,8 @@ class Runner implements Callable<Integer> {
         }
     }
 
-    private void runStateMachine(Path dataFile) throws IOException {
-        StateMachine stateMachine = new StateMachine(in, out, err, dataFile);
+    private void runStateMachine(Runner runner) throws IOException {
+        StateMachine stateMachine = new StateMachine(in, out, err, runner);
         while (stateMachine.getState() != State.COMPLETE) {
             stateMachine.run();
         }
@@ -57,4 +61,11 @@ class Runner implements Callable<Integer> {
         System.exit(exitCode);
     }
 
+    public Path getDataFile() {
+        return dataFile;
+    }
+
+    public List<String> getMissingDevelopers() {
+        return missingDevelopers;
+    }
 }
