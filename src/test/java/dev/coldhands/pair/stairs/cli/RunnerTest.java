@@ -6,6 +6,7 @@ import picocli.CommandLine;
 
 import java.io.*;
 
+import static dev.coldhands.pair.stairs.TestUtils.unWindows;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RunnerTest {
@@ -44,7 +45,7 @@ class RunnerTest {
         int exitCode = underTest.execute("jamie", "jorge", "reece");
 
         assertThat(exitCode).isEqualTo(0);
-        assertThat(out.toString())
+        assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Possible pairs (lowest score is better)
                                                 
@@ -95,7 +96,7 @@ class RunnerTest {
                         \sjorge          1 *     0  \s
                         \sreece                  0  \s
                         """);
-        assertThat(err.toString())
+        assertThat(unWindows(err.toString()))
                 .isEqualTo("""
                         Invalid input.
                         
@@ -121,7 +122,7 @@ class RunnerTest {
         int exitCode = underTest.execute("jamie", "jorge", "reece");
 
         assertThat(exitCode).isEqualTo(0);
-        assertThat(out.toString())
+        assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Possible pairs (lowest score is better)
                                                 
@@ -154,7 +155,7 @@ class RunnerTest {
                                                 
                         See more options [n]
                         or choose from options [c] ?
-                        
+                                                
                         That's all of the available pairs.
                                                 
                         Choose a suggestion [1-3]:
@@ -166,7 +167,7 @@ class RunnerTest {
                         \sjorge           0     1 * \s
                         \sreece                  0  \s
                         """);
-        assertThat(err.toString())
+        assertThat(unWindows(err.toString()))
                 .isEmpty();
     }
 }
