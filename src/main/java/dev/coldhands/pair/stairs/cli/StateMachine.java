@@ -13,6 +13,7 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -25,26 +26,25 @@ class StateMachine {
     private final PrintWriter out;
     private final PrintWriter err;
 
-    private final Set<String> availableDevelopers;
     private final FileStorage fileStorage;
     private final Path dataFile;
 
     private State state = BEGIN;
-    private Configuration configuration;
+    private List<String> allDevelopers;
+    private Set<String> availableDevelopers;
     private int pairCombinationsIndex = 0;
     private List<PrintableNextPairings> printableNextPairings;
     private int selection;
     private PrintableNextPairings nextPairings;
+    private List<Pairing> startingPairings;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
                         PrintWriter err,
-                        Set<String> availableDevelopers,
                         Path dataFile) {
         this.in = in;
         this.out = out;
         this.err = err;
-        this.availableDevelopers = availableDevelopers;
         this.dataFile = dataFile;
         fileStorage = new FileStorage(this.dataFile);
     }
@@ -55,13 +55,16 @@ class StateMachine {
                 state = LOAD_CONFIGURATION_FILE;
             }
             case LOAD_CONFIGURATION_FILE -> {
-                configuration = fileStorage.read();
+                var configuration = fileStorage.read();
+                allDevelopers = configuration.allDevelopers();
+                availableDevelopers = new HashSet<>(configuration.allDevelopers());
+                startingPairings = configuration.pairings();
                 state = CALCULATE_PAIRS;
             }
             case CALCULATE_PAIRS -> {
-                DecideOMatic decideOMatic = new DecideOMatic(configuration.pairings(), availableDevelopers);
+                DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers);
                 printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
-                        .map(toPrintableNextPairings(configuration.pairings()))
+                        .map(toPrintableNextPairings(startingPairings))
                         .toList();
                 state = SHOW_RESULTS;
             }
@@ -148,7 +151,7 @@ class StateMachine {
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(new Configuration(configuration.allDevelopers(), nextPairings.pairings()));
+                fileStorage.write(new Configuration(allDevelopers, nextPairings.pairings()));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));

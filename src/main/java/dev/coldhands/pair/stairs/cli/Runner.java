@@ -4,20 +4,15 @@ import picocli.CommandLine;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.*;
-import static picocli.CommandLine.Parameters;
 
 class Runner implements Callable<Integer> {
 
     private final BufferedReader in;
     private final PrintWriter out;
     private final PrintWriter err;
-
-    @Parameters(arity = "3..*", description = "at least 3 developers must be available")
-    private Set<String> availableDevelopers;
 
     @Option(names = "-f", required = true, description = "data file to use for pairing persistence")
     private Path dataFile;
@@ -35,7 +30,7 @@ class Runner implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            runStateMachine(availableDevelopers, dataFile);
+            runStateMachine(dataFile);
 
             return 0;
         } catch (Exception e) {
@@ -50,8 +45,8 @@ class Runner implements Callable<Integer> {
         }
     }
 
-    private void runStateMachine(Set<String> availableDevelopers, Path dataFile) throws IOException {
-        StateMachine stateMachine = new StateMachine(in, out, err, availableDevelopers, dataFile);
+    private void runStateMachine(Path dataFile) throws IOException {
+        StateMachine stateMachine = new StateMachine(in, out, err, dataFile);
         while (stateMachine.getState() != State.COMPLETE) {
             stateMachine.run();
         }

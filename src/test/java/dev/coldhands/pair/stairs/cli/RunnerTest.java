@@ -60,7 +60,7 @@ class RunnerTest {
                 .append("4\n") // too high bound
                 .append("2\n"); // valid selection
         userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "jamie", "jorge", "reece");
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
@@ -144,7 +144,7 @@ class RunnerTest {
                 .append("n\n") // show a non-existing pair
                 .append("1\n"); // choose a pair
         userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "jamie", "jorge", "reece");
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
@@ -215,7 +215,7 @@ class RunnerTest {
                 .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "jamie", "jorge", "reece");
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
