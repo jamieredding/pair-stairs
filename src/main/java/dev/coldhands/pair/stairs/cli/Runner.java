@@ -1,17 +1,13 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.*;
 import picocli.CommandLine;
 
 import java.io.*;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
 
-import static dev.coldhands.pair.stairs.PairPrinter.drawPairStairs;
+import static picocli.CommandLine.*;
 import static picocli.CommandLine.Parameters;
 
 class Runner implements Callable<Integer> {
@@ -22,6 +18,9 @@ class Runner implements Callable<Integer> {
 
     @Parameters(arity = "3..*", description = "at least 3 developers must be available")
     private Set<String> availableDevelopers;
+
+    @Option(names = "-f", required = true, description = "data file to use for pairing persistence")
+    private Path dataFile;
 
     public Runner(InputStream in, PrintWriter out, PrintWriter err) {
         this.in = new BufferedReader(new InputStreamReader(in));
@@ -36,7 +35,7 @@ class Runner implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            runStateMachine(availableDevelopers);
+            runStateMachine(availableDevelopers, dataFile);
 
             return 0;
         } catch (Exception e) {
@@ -51,8 +50,8 @@ class Runner implements Callable<Integer> {
         }
     }
 
-    private void runStateMachine(Set<String> availableDevelopers) throws IOException {
-        StateMachine stateMachine = new StateMachine(in, out, err, availableDevelopers);
+    private void runStateMachine(Set<String> availableDevelopers, Path dataFile) throws IOException {
+        StateMachine stateMachine = new StateMachine(in, out, err, availableDevelopers, dataFile);
         while (stateMachine.getState() != State.COMPLETE) {
             stateMachine.run();
         }

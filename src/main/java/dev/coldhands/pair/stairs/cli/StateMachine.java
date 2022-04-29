@@ -4,10 +4,12 @@ import dev.coldhands.pair.stairs.DecideOMatic;
 import dev.coldhands.pair.stairs.PairPrinter;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.ScoredPairCombination;
+import dev.coldhands.pair.stairs.persistance.FileStorage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,27 +24,37 @@ class StateMachine {
     private final PrintWriter out;
     private final PrintWriter err;
 
-    private final List<Pairing> startingPairings = List.of();
     private final Set<String> availableDevelopers;
+    private final FileStorage fileStorage;
+    private final Path dataFile;
 
     private State state = BEGIN;
+    private List<Pairing> startingPairings;
     private int pairCombinationsIndex = 0;
     private List<PrintableNextPairings> printableNextPairings;
     private int selection;
+    private PrintableNextPairings nextPairings;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
                         PrintWriter err,
-                        Set<String> availableDevelopers) {
+                        Set<String> availableDevelopers,
+                        Path dataFile) {
         this.in = in;
         this.out = out;
         this.err = err;
         this.availableDevelopers = availableDevelopers;
+        this.dataFile = dataFile;
+        fileStorage = new FileStorage(this.dataFile);
     }
 
     public void run() throws IOException {
         switch (state) {
             case BEGIN -> {
+                state = LOAD_DATA_FILE;
+            }
+            case LOAD_DATA_FILE -> {
+                startingPairings = fileStorage.read();
                 state = CALCULATE_PAIRS;
             }
             case CALCULATE_PAIRS -> {
@@ -123,14 +135,22 @@ class StateMachine {
                 state = ASK_FOR_A_PAIR;
             }
             case SHOW_SELECTION -> {
-                var chosen = printableNextPairings.get(selection - 1);
+                nextPairings = printableNextPairings.get(selection - 1);
                 out.println("""
                         Picked %s:
                                                 
-                        %s""".formatted(
+                        %s
+                        """.formatted(
                         selection,
-                        PairPrinter.drawPairStairs(availableDevelopers, chosen.pairings())
+                        PairPrinter.drawPairStairs(availableDevelopers, nextPairings.pairings())
                 ));
+                state = SAVE_DATA_FILE;
+            }
+            case SAVE_DATA_FILE -> {
+                fileStorage.write(nextPairings.pairings());
+                out.println("""
+                        Saved pairings to: %s
+                        """.formatted(dataFile.toAbsolutePath().toString()));
                 state = COMPLETE;
             }
         }

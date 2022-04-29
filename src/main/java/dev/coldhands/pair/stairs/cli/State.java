@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.cli;
 
 enum State {
     BEGIN,
+    LOAD_DATA_FILE,
     CALCULATE_PAIRS,
     SHOW_RESULTS,
     SHOW_NEXT_PAIR,
@@ -10,5 +11,6 @@ enum State {
     ASK_FOR_A_PAIR,
     PROCESS_SELECTION,
     SHOW_SELECTION,
+    SAVE_DATA_FILE,
     COMPLETE
 }
