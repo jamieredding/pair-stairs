@@ -14,5 +14,5 @@
 - should expected single character inputs not require enter to be pressed.
 
 ### persistence
-- save pairings to somewhere
-- load pairings from somewhere
+- save pairings to external service
+- load pairings to external service
