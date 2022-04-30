@@ -349,7 +349,7 @@ class RunnerTest {
     }
 
     @Test
-    void allowOverridingWithYourOwnPairPick() throws IOException {
+    void allowOverridingWithYourOwnPairPick_oddNumberOfPairs() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
         List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy", "cip");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
@@ -422,5 +422,65 @@ class RunnerTest {
                 .isEmpty();
     }
 
-    // todo add test for picking even number of pairs
+    @Test
+    void allowOverridingWithYourOwnPairPick_evenNumberOfPairs() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
+        userInput
+                .append("o\n") // override
+                .append("1 2\n"); // choose andy and jamie as pair
+        userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                andy  jamie  jorge  reece\s
+                         andy    0      0      0      0  \s
+                         jamie          0      0      0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
+                                                
+                        Possible pairs (lowest score is better)
+                                                
+                        1. score = 5
+                                                
+                                andy  jamie  jorge  reece\s
+                         andy    0      0      0     1 * \s
+                         jamie          0     1 *     0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        [1] andy
+                        [2] jamie
+                        [3] jorge
+                        [4] reece
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'andy' and 'jamie'
+                        
+                        Picked custom pairs:
+                                                
+                                andy  jamie  jorge  reece\s
+                         andy    0     1 *     0      0  \s
+                         jamie          0      0      0  \s
+                         jorge                 0     1 * \s
+                         reece                        0  \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+    }
+
+    // todo validation in new user inputs
 }

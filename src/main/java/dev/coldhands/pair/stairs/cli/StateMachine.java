@@ -156,14 +156,20 @@ class StateMachine {
                 customDevelopersLeftToPick.removeAll(List.of(first, second));
                 customPickedPairs.add(new Pair(first, second));
 
-                if (customDevelopersLeftToPick.size() == 1) {
-                    customPickedPairs.add(new Pair(customDevelopersLeftToPick.remove(0)));
-                    state = SHOW_SELECTION;
-                } else {
+                if (customDevelopersLeftToPick.size() > 2) {
                     out.println("""
                             Remaining:
                             """);
                     state = SHOW_NUMBERED_DEVELOPERS_TO_PICK;
+                } else if (customDevelopersLeftToPick.size() == 2) {
+                    String remainingFirst = customDevelopersLeftToPick.remove(0);
+                    String remainingSecond = customDevelopersLeftToPick.remove(0);
+                    customPickedPairs.add(new Pair(remainingFirst, remainingSecond));
+                    state = SHOW_SELECTION;
+                } else {
+                    String remaining = customDevelopersLeftToPick.remove(0);
+                    customPickedPairs.add(new Pair(remaining));
+                    state = SHOW_SELECTION;
                 }
             }
             case SHOW_OUT_OF_PAIRS -> {
