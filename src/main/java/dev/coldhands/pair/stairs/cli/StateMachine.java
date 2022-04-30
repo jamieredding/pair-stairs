@@ -96,12 +96,18 @@ class StateMachine {
                                                 
                         %s
                                                 
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                        """.formatted(pairCombinationsIndex + 1,
+                        See more options [n]""".formatted(pairCombinationsIndex + 1, // todo,
+                                                                                     //  this should actually be an optional part
+                                                                                     //  of the next state
                         current.score(),
                         drawPairStairs(allDevelopers, current.pairings())));
+                state = SHOW_NEXT_PAIR_OPTIONS;
+            }
+            case SHOW_NEXT_PAIR_OPTIONS -> {
+                out.println("""
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                        """);
                 state = PROCESS_INPUT_AFTER_NEXT_PAIR;
             }
             case PROCESS_INPUT_AFTER_NEXT_PAIR -> {
@@ -185,7 +191,7 @@ class StateMachine {
                 out.println("""
                         That's all of the available pairs.
                         """);
-                state = ASK_FOR_A_PAIR;
+                state = SHOW_NEXT_PAIR_OPTIONS;
             }
             case ASK_FOR_A_PAIR -> {
                 out.println("""

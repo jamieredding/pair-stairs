@@ -143,7 +143,7 @@ class RunnerTest {
     }
 
     @Test
-    void handleUserExhaustingPossiblePairs() throws IOException {
+    void handleUserExhaustingPossiblePairsThenChoosingOneOfTheOfferings() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
         List<String> allDevelopers = List.of("jamie", "jorge", "reece");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
@@ -152,6 +152,7 @@ class RunnerTest {
                 .append("n\n") // show next pair
                 .append("n\n") // show next pair
                 .append("n\n") // show a non-existing pair
+                .append("c\n") // show a non-existing pair
                 .append("1\n"); // choose a pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
@@ -202,6 +203,9 @@ class RunnerTest {
                         Override with your own pairs [o]
                                                 
                         That's all of the available pairs.
+                        
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         Choose a suggestion [1-3]:
                                                 
@@ -211,6 +215,92 @@ class RunnerTest {
                          jamie   1 *     0      0  \s
                          jorge           0     1 * \s
                          reece                  0  \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+    }
+
+    @Test
+    void handleUserExhaustingPossiblePairsThenChoosingACustomPairing() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
+        userInput
+                .append("n\n") // show next pair
+                .append("n\n") // show next pair
+                .append("n\n") // show a non-existing pair
+                .append("o\n") // pick custom pair
+                .append("1 2\n"); // pick jamie and jorge
+        userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                jamie  jorge  reece\s
+                         jamie    0      0      0  \s
+                         jorge           0      0  \s
+                         reece                  0  \s
+                                                
+                        Possible pairs (lowest score is better)
+                                                
+                        1. score = 5
+                                                
+                                jamie  jorge  reece\s
+                         jamie   1 *     0      0  \s
+                         jorge           0     1 * \s
+                         reece                  0  \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        2. score = 5
+                                                
+                                jamie  jorge  reece\s
+                         jamie    0      0     1 * \s
+                         jorge          1 *     0  \s
+                         reece                  0  \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        3. score = 5
+                                                
+                                jamie  jorge  reece\s
+                         jamie    0     1 *     0  \s
+                         jorge           0      0  \s
+                         reece                 1 * \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        That's all of the available pairs.
+                        
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        [1] jamie
+                        [2] jorge
+                        [3] reece
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'jamie' and 'jorge'
+                                                
+                        Picked custom pairs:
+                                                
+                                jamie  jorge  reece\s
+                         jamie    0     1 *     0  \s
+                         jorge           0      0  \s
+                         reece                 1 * \s
                                                 
                         Saved pairings to: %s
                                                 
