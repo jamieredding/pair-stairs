@@ -67,42 +67,45 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0      0      0  \s
-                        \sjorge           0      0  \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie    0      0      0  \s
+                         jorge           0      0  \s
+                         reece                  0  \s
                         
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie   1 *     0      0  \s
-                        \sjorge           0     1 * \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie   1 *     0      0  \s
+                         jorge           0     1 * \s
+                         reece                  0  \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         2. score = 5
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0      0     1 * \s
-                        \sjorge          1 *     0  \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie    0      0     1 * \s
+                         jorge          1 *     0  \s
+                         reece                  0  \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         3. score = 5
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0     1 *     0  \s
-                        \sjorge           0      0  \s
-                        \sreece                 1 * \s
+                                jamie  jorge  reece\s
+                         jamie    0     1 *     0  \s
+                         jorge           0      0  \s
+                         reece                 1 * \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         Choose a suggestion [1-3]:
                                                 
@@ -116,10 +119,10 @@ class RunnerTest {
                                                 
                         Picked 2:
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0      0     1 * \s
-                        \sjorge          1 *     0  \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie    0      0     1 * \s
+                         jorge          1 *     0  \s
+                         reece                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -159,41 +162,44 @@ class RunnerTest {
                         Yesterday's pair stairs
                         
                                 jamie  jorge  reece\s
-                        \sjamie    0      0      0  \s
-                        \sjorge           0      0  \s
-                        \sreece                  0  \s
+                         jamie    0      0      0  \s
+                         jorge           0      0  \s
+                         reece                  0  \s
                         
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie   1 *     0      0  \s
-                        \sjorge           0     1 * \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie   1 *     0      0  \s
+                         jorge           0     1 * \s
+                         reece                  0  \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         2. score = 5
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0      0     1 * \s
-                        \sjorge          1 *     0  \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie    0      0     1 * \s
+                         jorge          1 *     0  \s
+                         reece                  0  \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         3. score = 5
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0     1 *     0  \s
-                        \sjorge           0      0  \s
-                        \sreece                 1 * \s
+                                jamie  jorge  reece\s
+                         jamie    0     1 *     0  \s
+                         jorge           0      0  \s
+                         reece                 1 * \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         That's all of the available pairs.
                                                 
@@ -201,10 +207,10 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie   1 *     0      0  \s
-                        \sjorge           0     1 * \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie   1 *     0      0  \s
+                         jorge           0     1 * \s
+                         reece                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -236,31 +242,32 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie    0      0     1 * \s
-                        \sjorge          1 *     0  \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie    0      0     1 * \s
+                         jorge          1 *     0  \s
+                         reece                  0  \s
                         
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 3
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie   1 *     0      1  \s
-                        \sjorge           1     1 * \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie   1 *     0      1  \s
+                         jorge           1     1 * \s
+                         reece                  0  \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         Choose a suggestion [1-1]:
                                                 
                         Picked 1:
                                                 
-                        \s       jamie  jorge  reece\s
-                        \sjamie   1 *     0      1  \s
-                        \sjorge           1     1 * \s
-                        \sreece                  0  \s
+                                jamie  jorge  reece\s
+                         jamie   1 *     0      1  \s
+                         jorge           1     1 * \s
+                         reece                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -305,33 +312,34 @@ class RunnerTest {
                         Yesterday's pair stairs
                                                 
                                 andy  jamie  jorge  reece\s
-                        \sandy    0      0      0      0  \s
-                        \sjamie          0      0      0  \s
-                        \sjorge                 0      0  \s
-                        \sreece                        0  \s
+                         andy    0      0      0      0  \s
+                         jamie          0      0      0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
                         
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 0
                                                 
                                 andy  jamie  jorge  reece\s
-                        \sandy    0      0      0      0  \s
-                        \sjamie          0     1 *     0  \s
-                        \sjorge                 0      0  \s
-                        \sreece                        0  \s
+                         andy    0      0      0      0  \s
+                         jamie          0     1 *     0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
                                                 
                         See more options [n]
-                        or choose from options [c] ?
+                        Choose from options [c]
+                        Override with your own pairs [o]
                                                 
                         Choose a suggestion [1-1]:
                                                 
                         Picked 1:
                                                 
                                 andy  jamie  jorge  reece\s
-                        \sandy    0      0      0      0  \s
-                        \sjamie          0     1 *     0  \s
-                        \sjorge                 0      0  \s
-                        \sreece                        0  \s
+                         andy    0      0      0      0  \s
+                         jamie          0     1 *     0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -339,4 +347,80 @@ class RunnerTest {
         assertThat(unWindows(err.toString()))
                 .isEmpty();
     }
+
+    @Test
+    void allowOverridingWithYourOwnPairPick() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy", "cip");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
+        userInput
+                .append("o\n") // override
+                .append("1 4\n") // choose andy and jorge as pair
+                .append("1 3\n"); // choose cip and reece as pair
+        userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                andy  cip  jamie  jorge  reece\s
+                         andy    0     0     0      0      0  \s
+                         cip           0     0      0      0  \s
+                         jamie               0      0      0  \s
+                         jorge                      0      0  \s
+                         reece                             0  \s
+                                                
+                        Possible pairs (lowest score is better)
+                        
+                        1. score = 20
+                                                
+                                andy  cip  jamie  jorge  reece\s
+                         andy    0     0     0      0     1 * \s
+                         cip           0     0     1 *     0  \s
+                         jamie              1 *     0      0  \s
+                         jorge                      0      0  \s
+                         reece                             0  \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        [1] andy
+                        [2] cip
+                        [3] jamie
+                        [4] jorge
+                        [5] reece
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'andy' and 'cip'
+                                                
+                        Remaining:
+                                                
+                        [1] cip
+                        [2] jamie
+                        [3] reece
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'cip' and 'jamie'
+                                                
+                        Picked custom pairs:
+                                                
+                                andy  cip  jamie  jorge  reece\s
+                         andy    0     0     0     1 *     0  \s
+                         cip           0     0      0     1 * \s
+                         jamie              1 *     0      0  \s
+                         jorge                      0      0  \s
+                         reece                             0  \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+    }
+
+    // todo add test for picking even number of pairs
 }
