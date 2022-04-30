@@ -4,7 +4,7 @@
 
 ### cli
 - wizard to create the first config file
-- allow missing config file at launch but create it by the end
+- fail if no config file and no devs at command line
 - show bad pairings
 - change to an event-ish loop
 - should expected single character inputs not require enter to be pressed.

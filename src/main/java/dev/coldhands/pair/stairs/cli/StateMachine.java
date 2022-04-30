@@ -10,6 +10,7 @@ import dev.coldhands.pair.stairs.persistance.FileStorage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
@@ -32,18 +33,17 @@ class StateMachine {
     private final Path dataFile;
     private final List<String> missingDevelopers;
     private final List<String> overrideDevelopers;
+    private final Set<Pair> customPickedPairs = new HashSet<>();
 
     private State state = BEGIN;
     private Set<String> allDevelopers;
     private Set<String> availableDevelopers;
     private List<String> customDevelopersLeftToPick;
-    private Set<Pair> customPickedPairs = new HashSet<>();
     private int pairCombinationsIndex = 0;
     private List<PrintableNextPairings> printableNextPairings;
     private int selection = -1;
     private List<Pairing> actualNextPairings;
     private List<Pairing> startingPairings;
-    private Configuration configuration;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
@@ -64,7 +64,12 @@ class StateMachine {
                 state = INITIALISE;
             }
             case INITIALISE -> {
-                configuration = fileStorage.read();
+                Configuration configuration;
+                try {
+                    configuration = fileStorage.read();
+                } catch (NoSuchFileException e) {
+                    configuration = new Configuration(List.of(), List.of());
+                }
                 allDevelopers = new LinkedHashSet<>(ofNullable(overrideDevelopers)
                         .map(devs -> devs.stream().sorted().toList())
                         .orElse(configuration.allDevelopers()));
