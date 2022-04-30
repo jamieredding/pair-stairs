@@ -1,6 +1,9 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.*;
+import dev.coldhands.pair.stairs.DecideOMatic;
+import dev.coldhands.pair.stairs.Pair;
+import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.ScoredPairCombination;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
 
@@ -14,7 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static dev.coldhands.pair.stairs.PairPrinter.*;
+import static dev.coldhands.pair.stairs.PairPrinter.drawPairStairs;
 import static dev.coldhands.pair.stairs.cli.State.*;
 import static java.util.stream.Collectors.toCollection;
 
@@ -148,13 +151,19 @@ class StateMachine {
             }
             case PROCESS_INPUT_FOR_PICKING_A_PAIR -> {
                 String userInput = in.readLine();
-                String[] choices = userInput.split(" ");
-                int firstIndex = Integer.parseInt(choices[0]) - 1;
-                int secondIndex = Integer.parseInt(choices[1]) - 1;
-                String first = customDevelopersLeftToPick.get(firstIndex);
-                String second = customDevelopersLeftToPick.get(secondIndex);
-                customDevelopersLeftToPick.removeAll(List.of(first, second));
-                customPickedPairs.add(new Pair(first, second));
+
+                Optional<Pair> potentialPair = parsePickedPair(userInput);
+                if (potentialPair.isEmpty()) {
+                    err.println("""
+                            Invalid input.
+                            """);
+                    state = SHOW_NUMBERED_DEVELOPERS_TO_PICK;
+                    break;
+                }
+                Pair pickedDevelopers = potentialPair.get();
+
+                customDevelopersLeftToPick.removeAll(List.of(pickedDevelopers.first(), pickedDevelopers.second()));
+                customPickedPairs.add(pickedDevelopers);
 
                 if (customDevelopersLeftToPick.size() > 2) {
                     out.println("""
@@ -228,6 +237,26 @@ class StateMachine {
                 state = COMPLETE;
             }
         }
+    }
+
+    private Optional<Pair> parsePickedPair(String userInput) {
+        Pair pickedDevelopers;
+        String[] choices = userInput.split(" ");
+        if (choices.length != 2) {
+            return Optional.empty();
+        }
+
+        try {
+            int firstIndex = Integer.parseInt(choices[0]) - 1;
+            int secondIndex = Integer.parseInt(choices[1]) - 1;
+            String first = customDevelopersLeftToPick.get(firstIndex);
+            String second = customDevelopersLeftToPick.get(secondIndex);
+            pickedDevelopers = new Pair(first, second);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+
+        return Optional.of(pickedDevelopers);
     }
 
     public State getState() {
