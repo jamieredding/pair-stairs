@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
+import static dev.coldhands.pair.stairs.PairPrinter.*;
 import static dev.coldhands.pair.stairs.cli.State.*;
 
 class StateMachine {
@@ -63,6 +64,14 @@ class StateMachine {
                 availableDevelopers = new HashSet<>(configuration.allDevelopers());
                 missingDevelopers.forEach(availableDevelopers::remove);
                 startingPairings = configuration.pairings();
+                state = SHOW_PREVIOUS_PAIR_STAIR;
+            }
+            case SHOW_PREVIOUS_PAIR_STAIR -> {
+                out.println("""
+                        Yesterday's pair stairs
+                        
+                        %s
+                        """.formatted(drawPairStairs(allDevelopers, startingPairings)));
                 state = CALCULATE_PAIRS;
             }
             case CALCULATE_PAIRS -> {
@@ -89,7 +98,7 @@ class StateMachine {
                         or choose from options [c] ?
                         """.formatted(pairCombinationsIndex + 1,
                         current.score(),
-                        PairPrinter.drawPairStairs(allDevelopers, current.pairings())));
+                        drawPairStairs(allDevelopers, current.pairings())));
                 state = PROCESS_INPUT_AFTER_NEXT_PAIR;
             }
             case PROCESS_INPUT_AFTER_NEXT_PAIR -> {
@@ -150,7 +159,7 @@ class StateMachine {
                         %s
                         """.formatted(
                         selection,
-                        PairPrinter.drawPairStairs(allDevelopers, nextPairings.pairings())
+                        drawPairStairs(allDevelopers, nextPairings.pairings())
                 ));
                 state = SAVE_DATA_FILE;
             }

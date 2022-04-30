@@ -65,6 +65,13 @@ class RunnerTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                        \s       jamie  jorge  reece\s
+                        \sjamie    0      0      0  \s
+                        \sjorge           0      0  \s
+                        \sreece                  0  \s
+                        
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
@@ -149,6 +156,13 @@ class RunnerTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
+                        Yesterday's pair stairs
+                        
+                                jamie  jorge  reece\s
+                        \sjamie    0      0      0  \s
+                        \sjorge           0      0  \s
+                        \sreece                  0  \s
+                        
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
@@ -220,6 +234,13 @@ class RunnerTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                        \s       jamie  jorge  reece\s
+                        \sjamie    0      0     1 * \s
+                        \sjorge          1 *     0  \s
+                        \sreece                  0  \s
+                        
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 3
@@ -281,6 +302,14 @@ class RunnerTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                andy  jamie  jorge  reece\s
+                        \sandy    0      0      0      0  \s
+                        \sjamie          0      0      0  \s
+                        \sjorge                 0      0  \s
+                        \sreece                        0  \s
+                        
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 0
