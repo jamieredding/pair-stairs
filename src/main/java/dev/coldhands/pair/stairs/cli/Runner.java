@@ -10,6 +10,7 @@ import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.*;
 
+@Command(name = "pair-stairs.sh")
 class Runner implements Callable<Integer> {
 
     private final BufferedReader in;

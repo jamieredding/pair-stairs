@@ -13,6 +13,5 @@
 - load pairings to external service
 
 ### packaging
-- create script to start app
 - improve usage output
-- package as a zip
+- check and download java in script on launch

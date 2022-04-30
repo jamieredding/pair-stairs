@@ -839,4 +839,13 @@ class RunnerTest {
         assertThat(dataFile).doesNotExist();
 
     }
+
+    @Test
+    void usageReportsTheScriptAsTheEntryPoint() {
+        int exitCode = underTest.execute();
+
+        assertThat(exitCode).isEqualTo(2);
+        assertThat(unWindows(err.toString()))
+                .contains("Usage: pair-stairs.sh");
+    }
 }
