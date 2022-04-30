@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.cli;
 
+import org.fusesource.jansi.AnsiConsole;
 import picocli.CommandLine;
 
 import java.io.*;
@@ -60,7 +61,9 @@ class Runner implements Callable<Integer> {
     }
 
     public static void main(String... args) {
+        AnsiConsole.systemInstall();
         int exitCode = createCommandLine(System.in, new PrintWriter(System.out, true), new PrintWriter(System.err, true)).execute(args);
+        AnsiConsole.systemUninstall();
         System.exit(exitCode);
     }
 
