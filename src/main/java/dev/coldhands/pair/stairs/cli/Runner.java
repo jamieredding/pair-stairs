@@ -21,6 +21,9 @@ class Runner implements Callable<Integer> {
     @Option(names = "-i", arity = "0..*", description = "developers to ignore from pairing")
     private List<String> missingDevelopers = List.of();
 
+    @Option(names = "--devs", arity = "0..*", description = "specify all developers")
+    private List<String> overrideDevelopers;
+
     public Runner(InputStream in, PrintWriter out, PrintWriter err) {
         this.in = new BufferedReader(new InputStreamReader(in));
         this.out = out;
@@ -67,5 +70,9 @@ class Runner implements Callable<Integer> {
 
     public List<String> getMissingDevelopers() {
         return missingDevelopers;
+    }
+
+    List<String> getOverrideDevelopers() {
+        return overrideDevelopers;
     }
 }

@@ -19,6 +19,7 @@ import java.util.stream.IntStream;
 
 import static dev.coldhands.pair.stairs.PairPrinter.drawPairStairs;
 import static dev.coldhands.pair.stairs.cli.State.*;
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
 
 class StateMachine {
@@ -30,6 +31,7 @@ class StateMachine {
     private final FileStorage fileStorage;
     private final Path dataFile;
     private final List<String> missingDevelopers;
+    private final List<String> overrideDevelopers;
 
     private State state = BEGIN;
     private Set<String> allDevelopers;
@@ -53,17 +55,20 @@ class StateMachine {
         this.dataFile = runner.getDataFile();
         this.missingDevelopers = runner.getMissingDevelopers();
         fileStorage = new FileStorage(this.dataFile);
+        overrideDevelopers = runner.getOverrideDevelopers();
     }
 
     public void run() throws IOException {
         switch (state) {
             case BEGIN -> {
-                state = LOAD_CONFIGURATION_FILE;
+                state = INITIALISE;
             }
-            case LOAD_CONFIGURATION_FILE -> {
+            case INITIALISE -> {
                 configuration = fileStorage.read();
-                allDevelopers = new HashSet<>(configuration.allDevelopers());
-                availableDevelopers = new HashSet<>(configuration.allDevelopers());
+                allDevelopers = new LinkedHashSet<>(ofNullable(overrideDevelopers)
+                        .map(devs -> devs.stream().sorted().toList())
+                        .orElse(configuration.allDevelopers()));
+                availableDevelopers = new HashSet<>(allDevelopers);
                 missingDevelopers.forEach(availableDevelopers::remove);
                 startingPairings = configuration.pairings();
                 state = SHOW_PREVIOUS_PAIR_STAIR;
@@ -97,8 +102,8 @@ class StateMachine {
                         %s
                                                 
                         See more options [n]""".formatted(pairCombinationsIndex + 1, // todo,
-                                                                                     //  this should actually be an optional part
-                                                                                     //  of the next state
+                        //  this should actually be an optional part
+                        //  of the next state
                         current.score(),
                         drawPairStairs(allDevelopers, current.pairings())));
                 state = SHOW_NEXT_PAIR_OPTIONS;
@@ -236,7 +241,7 @@ class StateMachine {
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(new Configuration(configuration.allDevelopers(), actualNextPairings));
+                fileStorage.write(new Configuration(allDevelopers.stream().toList(), actualNextPairings));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));

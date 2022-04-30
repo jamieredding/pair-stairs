@@ -698,4 +698,65 @@ class RunnerTest {
                                                 
                         """);
     }
+
+    @Test
+    void allowSpecifyAllDevelopersAtCommandLineAndOverwriteTheConfigFile() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
+        userInput
+                .append("c\n") // choose pair
+                .append("1\n"); // choose first option
+        userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(),
+                "--devs", "jamie", "jorge", "reece", "andy");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                andy  jamie  jorge  reece\s
+                         andy    0      0      0      0  \s
+                         jamie          0      0      0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
+                                                
+                        Possible pairs (lowest score is better)
+                                                
+                        1. score = 5
+                                                
+                                andy  jamie  jorge  reece\s
+                         andy    0      0      0     1 * \s
+                         jamie          0     1 *     0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        Choose a suggestion [1-1]:
+                                                
+                        Picked 1:
+                                                
+                                andy  jamie  jorge  reece\s
+                         andy    0      0      0     1 * \s
+                         jamie          0     1 *     0  \s
+                         jorge                 0      0  \s
+                         reece                        0  \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+
+
+        assertThat(fileStorage.read())
+                .isEqualTo(new Configuration(List.of("andy", "jamie", "jorge", "reece"),
+                        List.of(new Pairing(LocalDate.now(), "andy", "reece"),
+                                new Pairing(LocalDate.now(), "jamie", "jorge"))));
+    }
 }
