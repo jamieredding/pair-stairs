@@ -818,4 +818,25 @@ class RunnerTest {
                         List.of(new Pairing(LocalDate.now(), "andy", "reece"),
                                 new Pairing(LocalDate.now(), "jamie", "jorge"))));
     }
+
+    @Test
+    void errorIfNoConfigFileAndNoDevsSpecifiedAtCommandLine() {
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
+
+        assertThat(exitCode).isEqualTo(1);
+        assertThat(unWindows(out.toString()))
+                .isEmpty();
+        assertThat(unWindows(err.toString()))
+                .isEqualTo("""
+                        Unable to start.
+                        No pairs specified in %s
+                        
+                        Rerun and specify which devs to include via the '--devs' option
+                        
+                        """.formatted(dataFile.toAbsolutePath()));
+
+
+        assertThat(dataFile).doesNotExist();
+
+    }
 }

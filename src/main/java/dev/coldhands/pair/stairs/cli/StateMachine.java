@@ -73,6 +73,16 @@ class StateMachine {
                 allDevelopers = new LinkedHashSet<>(ofNullable(overrideDevelopers)
                         .map(devs -> devs.stream().sorted().toList())
                         .orElse(configuration.allDevelopers()));
+                if (allDevelopers.isEmpty()) {
+                    err.println("""
+                            Unable to start.
+                            No pairs specified in %s
+                                                    
+                            Rerun and specify which devs to include via the '--devs' option
+                            """.formatted(dataFile.toAbsolutePath()));
+                    state = FAILED;
+                    break;
+                }
                 availableDevelopers = new HashSet<>(allDevelopers);
                 missingDevelopers.forEach(availableDevelopers::remove);
                 startingPairings = configuration.pairings();

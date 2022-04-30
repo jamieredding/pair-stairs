@@ -37,9 +37,7 @@ class Runner implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
-            runStateMachine(this);
-
-            return 0;
+            return runStateMachine(this);
         } catch (Exception e) {
             e.printStackTrace(err);
             return 1;
@@ -52,11 +50,13 @@ class Runner implements Callable<Integer> {
         }
     }
 
-    private void runStateMachine(Runner runner) throws IOException {
+    private int runStateMachine(Runner runner) throws IOException {
         StateMachine stateMachine = new StateMachine(in, out, err, runner);
-        while (stateMachine.getState() != State.COMPLETE) {
+        while (stateMachine.getState() != State.COMPLETE &&
+               stateMachine.getState() != State.FAILED) {
             stateMachine.run();
         }
+        return stateMachine.getState() == State.COMPLETE ? 0 : 1;
     }
 
     public static void main(String... args) {

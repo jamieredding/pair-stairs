@@ -16,5 +16,6 @@ enum State {
     PROCESS_SELECTION,
     SHOW_SELECTION,
     SAVE_DATA_FILE,
-    COMPLETE
+    COMPLETE,
+    FAILED
 }
