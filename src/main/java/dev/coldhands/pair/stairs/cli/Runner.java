@@ -26,6 +26,9 @@ class Runner implements Callable<Integer> {
     @Option(names = "--devs", arity = "0..*", description = "specify all developers")
     private List<String> overrideDevelopers;
 
+    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message")
+    private boolean helpRequested;
+
     public Runner(InputStream in, PrintWriter out, PrintWriter err) {
         this.in = new BufferedReader(new InputStreamReader(in));
         this.out = out;

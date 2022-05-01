@@ -14,4 +14,5 @@
 
 ### packaging
 - improve usage output
+  - add sections for persistence and customisation
 - check and download java in script on launch

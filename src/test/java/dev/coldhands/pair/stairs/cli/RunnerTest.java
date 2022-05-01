@@ -6,6 +6,8 @@ import dev.coldhands.pair.stairs.persistance.FileStorage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import picocli.CommandLine;
 
 import java.io.*;
@@ -847,5 +849,20 @@ class RunnerTest {
         assertThat(exitCode).isEqualTo(2);
         assertThat(unWindows(err.toString()))
                 .contains("Usage: pair-stairs.sh");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "-h",
+            "--help"
+    })
+    void supportAHelpOption(String helpOption) {
+        int exitCode = underTest.execute(helpOption);
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .startsWith("Usage: pair-stairs.sh");
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
     }
 }
