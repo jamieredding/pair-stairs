@@ -73,7 +73,7 @@ class RunnerTest {
                          jamie    0      0      0  \s
                          jorge           0      0  \s
                          reece                  0  \s
-                        
+                                                
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
@@ -163,12 +163,12 @@ class RunnerTest {
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Yesterday's pair stairs
-                        
+                                                
                                 jamie  jorge  reece\s
                          jamie    0      0      0  \s
                          jorge           0      0  \s
                          reece                  0  \s
-                        
+                                                
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
@@ -205,7 +205,7 @@ class RunnerTest {
                         Override with your own pairs [o]
                                                 
                         That's all of the available pairs.
-                        
+                                                
                         Choose from options [c]
                         Override with your own pairs [o]
                                                 
@@ -286,7 +286,7 @@ class RunnerTest {
                         Override with your own pairs [o]
                                                 
                         That's all of the available pairs.
-                        
+                                                
                         Choose from options [c]
                         Override with your own pairs [o]
                                                 
@@ -338,7 +338,7 @@ class RunnerTest {
                          jamie    0      0     1 * \s
                          jorge          1 *     0  \s
                          reece                  0  \s
-                        
+                                                
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 3
@@ -408,7 +408,7 @@ class RunnerTest {
                          jamie          0      0      0  \s
                          jorge                 0      0  \s
                          reece                        0  \s
-                        
+                                                
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 0
@@ -466,7 +466,7 @@ class RunnerTest {
                          reece                             0  \s
                                                 
                         Possible pairs (lowest score is better)
-                        
+                                                
                         1. score = 20
                                                 
                                 andy  cip  jamie  jorge  reece\s
@@ -558,7 +558,7 @@ class RunnerTest {
                                                 
                         Type two numbers to choose them,
                         e.g. '1 2' for 'andy' and 'jamie'
-                        
+                                                
                         Picked custom pairs:
                                                 
                                 andy  jamie  jorge  reece\s
@@ -672,7 +672,7 @@ class RunnerTest {
                                                 
                         Type two numbers to choose them,
                         e.g. '1 2' for 'andy' and 'jamie'
-                        
+                                                
                         Picked custom pairs:
                                                 
                                 andy  jamie  jorge  reece\s
@@ -832,9 +832,9 @@ class RunnerTest {
                 .isEqualTo("""
                         Unable to start.
                         No pairs specified in %s
-                        
+                                                
                         Rerun and specify which devs to include via the '--devs' option
-                        
+                                                
                         """.formatted(dataFile.toAbsolutePath()));
 
 
@@ -843,26 +843,27 @@ class RunnerTest {
     }
 
     @Test
-    void usageReportsTheScriptAsTheEntryPoint() {
-        int exitCode = underTest.execute();
-
-        assertThat(exitCode).isEqualTo(2);
-        assertThat(unWindows(err.toString()))
-                .contains("Usage: pair-stairs.sh");
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {
-            "-h",
-            "--help"
-    })
-    void supportAHelpOption(String helpOption) {
-        int exitCode = underTest.execute(helpOption);
+    void usageText() {
+        int exitCode = underTest.execute("-h");
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
-                .startsWith("Usage: pair-stairs.sh");
-        assertThat(unWindows(err.toString()))
-                .isEmpty();
+                .isEqualTo("""
+                        Usage: pair-stairs.sh [-h] -f=FILE [-d[=DEV...]]... [-i[=DEV...]]...
+                        
+                        Generate a pair stair for today.
+                        
+                        Options:
+                        
+                          -f, --config-file=FILE   Data file to use for persistence.
+                                                   This will contain all pairings that occur
+                                                   and all of the developers to consider.
+                          -i, --ignore[=DEV...]    Developers to ignore from pairing.
+                                                   This is useful when someone is absent.
+                          -d, --devs[=DEV...]      Specify all developers to be shown in pair stairs.
+                                                   Only required on first run or to overwrite the
+                                                   developers that have been persisted.
+                          -h, --help               Display this help message.
+                        """);
     }
 }

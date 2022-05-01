@@ -10,23 +10,49 @@ import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.*;
 
-@Command(name = "pair-stairs.sh")
+@Command(name = "pair-stairs.sh",
+        descriptionHeading = "%n",
+        description = "Generate a pair stair for today.",
+        optionListHeading = "%nOptions:%n%n",
+        sortOptions = false)
 class Runner implements Callable<Integer> {
 
     private final BufferedReader in;
     private final PrintWriter out;
     private final PrintWriter err;
 
-    @Option(names = "-f", required = true, description = "data file to use for pairing persistence")
+    @Option(names = {"-f", "--config-file"},
+            required = true,
+            paramLabel = "FILE",
+            description = {
+                    "Data file to use for persistence.",
+                    "This will contain all pairings that occur",
+                    "and all of the developers to consider."
+            })
     private Path dataFile;
 
-    @Option(names = "-i", arity = "0..*", description = "developers to ignore from pairing")
+    @Option(names = {"-i", "--ignore"},
+            arity = "0..*",
+            paramLabel = "DEV",
+            description = {
+                    "Developers to ignore from pairing.",
+                    "This is useful when someone is absent."
+            })
     private List<String> missingDevelopers = List.of();
 
-    @Option(names = "--devs", arity = "0..*", description = "specify all developers")
+    @Option(names = {"-d", "--devs"},
+            arity = "0..*",
+            paramLabel = "DEV",
+            description = {
+                    "Specify all developers to be shown in pair stairs.",
+                    "Only required on first run or to overwrite the",
+                    "developers that have been persisted."
+            })
     private List<String> overrideDevelopers;
 
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "display this help message")
+    @Option(names = {"-h", "--help"},
+            usageHelp = true,
+            description = "Display this help message.")
     private boolean helpRequested;
 
     public Runner(InputStream in, PrintWriter out, PrintWriter err) {
