@@ -34,4 +34,8 @@ public class FileStorage {
             throw new RuntimeException("%s is not in the correct format. Will not read".formatted(dataFile), e);
         }
     }
+
+    public Path getDataFile() {
+        return dataFile;
+    }
 }

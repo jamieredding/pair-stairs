@@ -7,7 +7,6 @@ import dev.coldhands.pair.stairs.persistance.FileStorage;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -19,31 +18,23 @@ import static java.util.Optional.ofNullable;
 class Context {
 
     final FileStorage fileStorage;
-    final Path dataFile;
-    final List<String> missingDevelopers;
-    final List<String> overrideDevelopers;
-    final Set<Pair> customPickedPairs;
 
-    private State state;
     Set<String> allDevelopers;
     Set<String> availableDevelopers;
-    List<String> customDevelopersLeftToPick;
-    int pairCombinationsIndex;
-    List<PrintableNextPairings> printableNextPairings;
-    int selection;
-    List<Pairing> actualNextPairings;
-    List<Pairing> startingPairings;
     List<String> newJoiners;
+    List<Pairing> startingPairings;
+
+    final Set<Pair> customPickedPairs;
+    int pairCombinationsIndex;
+    int selection;
+    private State state;
+
+    List<String> customDevelopersLeftToPick;
+    List<PrintableNextPairings> printableNextPairings;
+    List<Pairing> actualNextPairings;
 
     private Context(Runner runner) {
-        this.dataFile = runner.getDataFile();
-        this.missingDevelopers = runner.getMissingDevelopers();
-        fileStorage = new FileStorage(this.dataFile);
-        overrideDevelopers = runner.getOverrideDevelopers();
-        newJoiners = runner.getNewJoiners();
-        state = SHOW_PREVIOUS_PAIR_STAIR;
-        pairCombinationsIndex = 0;
-        selection = -1;
+        fileStorage = new FileStorage(runner.getDataFile());
 
         Configuration configuration;
         try {
@@ -53,7 +44,20 @@ class Context {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        allDevelopers = new LinkedHashSet<>(ofNullable(overrideDevelopers)
+
+        allDevelopers = initialiseAllDevelopers(runner, configuration);
+        availableDevelopers = initialiseAvailableDevelopers(runner);
+        newJoiners = initialiseNewJoiners(runner, configuration);
+        startingPairings = configuration.pairings();
+
+        customPickedPairs = new HashSet<>();
+        pairCombinationsIndex = 0;
+        selection = -1;
+        state = SHOW_PREVIOUS_PAIR_STAIR;
+    }
+
+    private LinkedHashSet<String> initialiseAllDevelopers(Runner runner, Configuration configuration) {
+        var allDevelopers = new LinkedHashSet<>(ofNullable(runner.getOverrideDevelopers())
                 .map(devs -> devs.stream().sorted().toList())
                 .orElse(configuration.allDevelopers()));
         if (allDevelopers.isEmpty()) {
@@ -62,14 +66,20 @@ class Context {
                     No pairs specified in %s
                                             
                     Rerun and specify which devs to include via the '--devs' option
-                    """.formatted(dataFile.toAbsolutePath()));
+                    """.formatted(fileStorage.getDataFile().toAbsolutePath()));
         }
-        availableDevelopers = new HashSet<>(allDevelopers);
-        missingDevelopers.forEach(availableDevelopers::remove);
-        newJoiners = ofNullable(newJoiners)
+        return allDevelopers;
+    }
+
+    private HashSet<String> initialiseAvailableDevelopers(Runner runner) {
+        var availableDevelopers = new HashSet<>(allDevelopers);
+        runner.getMissingDevelopers().forEach(availableDevelopers::remove);
+        return availableDevelopers;
+    }
+
+    private List<String> initialiseNewJoiners(Runner runner, Configuration configuration) {
+        return ofNullable(runner.getNewJoiners())
                 .orElse(configuration.newJoiners());
-        startingPairings = configuration.pairings();
-        customPickedPairs = new HashSet<>();
     }
 
     public static Context from(Runner runner) {
