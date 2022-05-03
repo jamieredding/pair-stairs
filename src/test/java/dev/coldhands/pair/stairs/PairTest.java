@@ -15,11 +15,11 @@ class PairTest {
 
     @ParameterizedTest
     @CsvSource({
-            "jamie, jamie, jorge, true",
-            "jamie, jorge, jamie, true",
-            "jamie, jamie,, true",
-            "jamie, jorge, reece, false",
-            "jamie,,, false"
+            "c-dev, c-dev, d-dev, true",
+            "c-dev, d-dev, c-dev, true",
+            "c-dev, c-dev,, true",
+            "c-dev, d-dev, e-dev, false",
+            "c-dev,,, false"
     })
     void contains(String singleDev, String first, String second, boolean contains) {
         assertThat(new Pair(first, second).contains(singleDev)).isEqualTo(contains);
@@ -27,11 +27,11 @@ class PairTest {
 
     @ParameterizedTest
     @CsvSource({
-            "jamie, jorge, jamie, jorge, true",
-            "jamie, jorge, jorge, jamie, true",
-            "jamie,, jamie,, true",
-            "jamie,, jorge, reece, false",
-            "jamie,,jorge,, false"
+            "c-dev, d-dev, c-dev, d-dev, true",
+            "c-dev, d-dev, d-dev, c-dev, true",
+            "c-dev,, c-dev,, true",
+            "c-dev,, d-dev, e-dev, false",
+            "c-dev,,d-dev,, false"
     })
     void equivalentTo(String firstFirst, String firstSecond, String secondFirst, String secondSecond, boolean equivalentTo) {
         assertThat(new Pair(firstFirst, firstSecond).equivalentTo(new Pair(secondFirst, secondSecond))).isEqualTo(equivalentTo);
@@ -39,16 +39,16 @@ class PairTest {
 
     static Stream<Arguments> canBeMadeFrom() {
         return Stream.of(
-                arguments(new Pair("jamie", "jorge"), Set.of("jamie", "jorge"), true),
-                arguments(new Pair("jorge", "jamie"), Set.of("jamie", "jorge"), true),
-                arguments(new Pair("jorge", "jamie"), Set.of("jamie", "jorge", "reece"), true),
-                arguments(new Pair("jamie"), Set.of("jamie", "jorge", "reece"), true),
+                arguments(new Pair("c-dev", "d-dev"), Set.of("c-dev", "d-dev"), true),
+                arguments(new Pair("d-dev", "c-dev"), Set.of("c-dev", "d-dev"), true),
+                arguments(new Pair("d-dev", "c-dev"), Set.of("c-dev", "d-dev", "e-dev"), true),
+                arguments(new Pair("c-dev"), Set.of("c-dev", "d-dev", "e-dev"), true),
 
-                arguments(new Pair("jamie", "jorge"), Set.of("jamie", "reece"), false),
-                arguments(new Pair("jamie", "jorge"), Set.of("jorge", "reece"), false),
-                arguments(new Pair("jamie", "jorge"), Set.of("reece"), false),
-                arguments(new Pair("jamie", "jorge"), Set.of(), false),
-                arguments(new Pair("jamie"), Set.of(), false)
+                arguments(new Pair("c-dev", "d-dev"), Set.of("c-dev", "e-dev"), false),
+                arguments(new Pair("c-dev", "d-dev"), Set.of("d-dev", "e-dev"), false),
+                arguments(new Pair("c-dev", "d-dev"), Set.of("e-dev"), false),
+                arguments(new Pair("c-dev", "d-dev"), Set.of(), false),
+                arguments(new Pair("c-dev"), Set.of(), false)
         );
     }
 

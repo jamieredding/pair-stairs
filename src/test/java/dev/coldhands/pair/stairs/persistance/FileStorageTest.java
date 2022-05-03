@@ -26,16 +26,16 @@ class FileStorageTest {
         Files.createFile(dataFile);
 
         List<Pairing> pairings = List.of(
-                new Pairing(LocalDate.of(2022, 4, 29), new Pair("jamie", "jorge")),
-                new Pairing(LocalDate.of(2022, 4, 29), new Pair("reece")),
-                new Pairing(LocalDate.of(2022, 4, 28), new Pair("jorge", "reece")),
-                new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie"))
+                new Pairing(LocalDate.of(2022, 4, 29), new Pair("c-dev", "d-dev")),
+                new Pairing(LocalDate.of(2022, 4, 29), new Pair("e-dev")),
+                new Pairing(LocalDate.of(2022, 4, 28), new Pair("d-dev", "e-dev")),
+                new Pairing(LocalDate.of(2022, 4, 28), new Pair("c-dev"))
         );
 
         FileStorage underTest = new FileStorage(dataFile);
         final Configuration configuration = new Configuration(
-                List.of("jamie", "jorge", "reece"),
-                List.of("reece"),
+                List.of("c-dev", "d-dev", "e-dev"),
+                List.of("e-dev"),
                 pairings);
         underTest.write(configuration);
 
@@ -43,19 +43,19 @@ class FileStorageTest {
                 .isEqualTo("""
                                    {""" +
                            """
-                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                                   "allDevelopers":["c-dev","d-dev","e-dev"],""" +
                            """
-                                   "newJoiners":["reece"],""" +
+                                   "newJoiners":["e-dev"],""" +
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"2022-04-29","pair":{"first":"jamie","second":"jorge"}},""" +
+                                   {"date":"2022-04-29","pair":{"first":"c-dev","second":"d-dev"}},""" +
                            """
-                                   {"date":"2022-04-29","pair":{"first":"reece","second":null}},""" +
+                                   {"date":"2022-04-29","pair":{"first":"e-dev","second":null}},""" +
                            """
-                                   {"date":"2022-04-28","pair":{"first":"jorge","second":"reece"}},""" +
+                                   {"date":"2022-04-28","pair":{"first":"d-dev","second":"e-dev"}},""" +
                            """
-                                   {"date":"2022-04-28","pair":{"first":"jamie","second":null}}""" +
+                                   {"date":"2022-04-28","pair":{"first":"c-dev","second":null}}""" +
                            """
                                    ]}""");
     }
@@ -66,22 +66,22 @@ class FileStorageTest {
 
         Files.writeString(dataFile, "some not valid json");
 
-        List<Pairing> pairings = List.of(new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie")));
+        List<Pairing> pairings = List.of(new Pairing(LocalDate.of(2022, 4, 28), new Pair("c-dev")));
 
         FileStorage underTest = new FileStorage(dataFile);
-        underTest.write(new Configuration(List.of("jamie"), List.of(), pairings));
+        underTest.write(new Configuration(List.of("c-dev"), List.of(), pairings));
 
         assertThat(String.join("\n", Files.readAllLines(dataFile)))
                 .isEqualTo("""
                                    {""" +
                            """
-                                   "allDevelopers":["jamie"],""" +
+                                   "allDevelopers":["c-dev"],""" +
                            """
                                    "newJoiners":[],""" +
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"2022-04-28","pair":{"first":"jamie","second":null}}""" +
+                                   {"date":"2022-04-28","pair":{"first":"c-dev","second":null}}""" +
                            """
                                    ]}""");
     }
@@ -91,12 +91,12 @@ class FileStorageTest {
         Path dataFile = temp.resolve("data.json");
 
         List<Pairing> pairings = List.of(
-                new Pairing(LocalDate.of(2022, 4, 29), new Pair("jamie", "jorge")),
-                new Pairing(LocalDate.of(2022, 4, 29), new Pair("reece")),
-                new Pairing(LocalDate.of(2022, 4, 28), new Pair("jorge", "reece")),
-                new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie"))
+                new Pairing(LocalDate.of(2022, 4, 29), new Pair("c-dev", "d-dev")),
+                new Pairing(LocalDate.of(2022, 4, 29), new Pair("e-dev")),
+                new Pairing(LocalDate.of(2022, 4, 28), new Pair("d-dev", "e-dev")),
+                new Pairing(LocalDate.of(2022, 4, 28), new Pair("c-dev"))
         );
-        Configuration configuration = new Configuration(List.of("jamie", "jorge", "reece"), List.of("reece"), pairings);
+        Configuration configuration = new Configuration(List.of("c-dev", "d-dev", "e-dev"), List.of("e-dev"), pairings);
 
         FileStorage underTest = new FileStorage(dataFile);
         underTest.write(configuration);

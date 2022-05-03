@@ -19,15 +19,15 @@ class PairUtilsTest {
 
     @Test
     void calculateAllPossiblePairs() {
-        Set<Pair> actual = PairUtils.allPairs(Set.of("jamie", "jorge", "reece"));
+        Set<Pair> actual = PairUtils.allPairs(Set.of("c-dev", "d-dev", "e-dev"));
         assertThat(actual)
                 .containsOnly(
-                        new Pair("jamie"),
-                        new Pair("jorge"),
-                        new Pair("reece"),
-                        new Pair("jamie", "jorge"),
-                        new Pair("jamie", "reece"),
-                        new Pair("jorge", "reece")
+                        new Pair("c-dev"),
+                        new Pair("d-dev"),
+                        new Pair("e-dev"),
+                        new Pair("c-dev", "d-dev"),
+                        new Pair("c-dev", "e-dev"),
+                        new Pair("d-dev", "e-dev")
                 );
 
     }
@@ -35,86 +35,86 @@ class PairUtilsTest {
     @Test
     void countPairs() {
         List<Pairing> pairings = TestData.EXAMPLE_PAIRINGS;
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
         assertThat(PairUtils.countPairs(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("andy"), 0, false),
-                        new PairCount(new Pair("andy", "cip"), 1, false),
-                        new PairCount(new Pair("andy", "jamie"), 1, false),
-                        new PairCount(new Pair("andy", "jorge"), 1, false),
-                        new PairCount(new Pair("andy", "reece"), 1, true),
-                        new PairCount(new Pair("cip"), 0, false),
-                        new PairCount(new Pair("cip", "jamie"), 0, false),
-                        new PairCount(new Pair("cip", "jorge"), 2, true),
-                        new PairCount(new Pair("cip", "reece"), 1, false),
-                        new PairCount(new Pair("jamie"), 2, true),
-                        new PairCount(new Pair("jamie", "jorge"), 0, false),
-                        new PairCount(new Pair("jamie", "reece"), 1, false),
-                        new PairCount(new Pair("jorge"), 1, false),
-                        new PairCount(new Pair("jorge", "reece"), 0, false),
-                        new PairCount(new Pair("reece"), 1, false)
+                        new PairCount(new Pair("a-dev"), 0, false),
+                        new PairCount(new Pair("a-dev", "b-dev"), 1, false),
+                        new PairCount(new Pair("a-dev", "c-dev"), 1, false),
+                        new PairCount(new Pair("a-dev", "d-dev"), 1, false),
+                        new PairCount(new Pair("a-dev", "e-dev"), 1, true),
+                        new PairCount(new Pair("b-dev"), 0, false),
+                        new PairCount(new Pair("b-dev", "c-dev"), 0, false),
+                        new PairCount(new Pair("b-dev", "d-dev"), 2, true),
+                        new PairCount(new Pair("b-dev", "e-dev"), 1, false),
+                        new PairCount(new Pair("c-dev"), 2, true),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("c-dev", "e-dev"), 1, false),
+                        new PairCount(new Pair("d-dev"), 1, false),
+                        new PairCount(new Pair("d-dev", "e-dev"), 0, false),
+                        new PairCount(new Pair("e-dev"), 1, false)
                 );
     }
 
     @Test
     void noPairsShouldBeRecentIfNoneArePresentInPairings() {
         List<Pairing> pairings = List.of();
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
         assertThat(PairUtils.countPairs(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("andy"), 0, false),
-                        new PairCount(new Pair("andy", "cip"), 0, false),
-                        new PairCount(new Pair("andy", "jamie"), 0, false),
-                        new PairCount(new Pair("andy", "jorge"), 0, false),
-                        new PairCount(new Pair("andy", "reece"), 0, false),
-                        new PairCount(new Pair("cip"), 0, false),
-                        new PairCount(new Pair("cip", "jamie"), 0, false),
-                        new PairCount(new Pair("cip", "jorge"), 0, false),
-                        new PairCount(new Pair("cip", "reece"), 0, false),
-                        new PairCount(new Pair("jamie"), 0, false),
-                        new PairCount(new Pair("jamie", "jorge"), 0, false),
-                        new PairCount(new Pair("jamie", "reece"), 0, false),
-                        new PairCount(new Pair("jorge"), 0, false),
-                        new PairCount(new Pair("jorge", "reece"), 0, false),
-                        new PairCount(new Pair("reece"), 0, false)
+                        new PairCount(new Pair("a-dev"), 0, false),
+                        new PairCount(new Pair("a-dev", "b-dev"), 0, false),
+                        new PairCount(new Pair("a-dev", "c-dev"), 0, false),
+                        new PairCount(new Pair("a-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("a-dev", "e-dev"), 0, false),
+                        new PairCount(new Pair("b-dev"), 0, false),
+                        new PairCount(new Pair("b-dev", "c-dev"), 0, false),
+                        new PairCount(new Pair("b-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("b-dev", "e-dev"), 0, false),
+                        new PairCount(new Pair("c-dev"), 0, false),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("c-dev", "e-dev"), 0, false),
+                        new PairCount(new Pair("d-dev"), 0, false),
+                        new PairCount(new Pair("d-dev", "e-dev"), 0, false),
+                        new PairCount(new Pair("e-dev"), 0, false)
                 );
     }
 
     @Test
     void calculateAllPairCombinations() {
-        Set<String> allDevelopers = Set.of("jamie", "jorge", "reece");
+        Set<String> allDevelopers = Set.of("c-dev", "d-dev", "e-dev");
         Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
 
         assertThat(allPairCombinations)
                 .containsOnly(
-                        Set.of(new Pair("jamie", "jorge"),
-                                new Pair("reece")),
-                        Set.of(new Pair("jorge", "reece"),
-                                new Pair("jamie")),
-                        Set.of(new Pair("jamie", "reece"),
-                                new Pair("jorge")));
+                        Set.of(new Pair("c-dev", "d-dev"),
+                                new Pair("e-dev")),
+                        Set.of(new Pair("d-dev", "e-dev"),
+                                new Pair("c-dev")),
+                        Set.of(new Pair("c-dev", "e-dev"),
+                                new Pair("d-dev")));
     }
 
     @Test
     void calculateAllPairCombinationsOfAnEvenNumberOfDevelopers() {
-        Set<String> allDevelopers = Set.of("jamie", "jorge", "reece", "andy");
+        Set<String> allDevelopers = Set.of("c-dev", "d-dev", "e-dev", "a-dev");
         Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
 
         assertThat(allPairCombinations)
                 .containsOnly(
-                        Set.of(new Pair("jamie", "jorge"),
-                                new Pair("andy", "reece")),
-                        Set.of(new Pair("jorge", "reece"),
-                                new Pair("andy", "jamie")),
-                        Set.of(new Pair("andy", "jorge"),
-                                new Pair("jamie", "reece")));
+                        Set.of(new Pair("c-dev", "d-dev"),
+                                new Pair("a-dev", "e-dev")),
+                        Set.of(new Pair("d-dev", "e-dev"),
+                                new Pair("a-dev", "c-dev")),
+                        Set.of(new Pair("a-dev", "d-dev"),
+                                new Pair("c-dev", "e-dev")));
     }
 
     @Test
     void calculateAllPairCombinationsWhereThereShouldBeThreePairsInEachPairing() {
-        Set<String> allDevelopers = Set.of("jamie", "jorge", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("c-dev", "d-dev", "e-dev", "a-dev", "b-dev");
         Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
 
         assertThat(allPairCombinations)
@@ -128,38 +128,38 @@ class PairUtilsTest {
     static Stream<Arguments> compare() {
         return Stream.of(
                 arguments(
-                        List.of(new Pair("jamie", "jorge"),
-                                new Pair("jorge", "reece")),
-                        Set.of(new Pair("jamie", "jorge")),
-                        Set.of(new Pair("jorge", "reece")),
+                        List.of(new Pair("c-dev", "d-dev"),
+                                new Pair("d-dev", "e-dev")),
+                        Set.of(new Pair("c-dev", "d-dev")),
+                        Set.of(new Pair("d-dev", "e-dev")),
                         Set.of()),
                 arguments(
-                        List.of(new Pair("jamie", "jorge"),
-                                new Pair("jorge", "reece"),
-                                new Pair("andy", "reece"),
-                                new Pair("andy", "jamie")),
-                        Set.of(new Pair("jamie", "jorge"), new Pair("andy", "reece")),
-                        Set.of(new Pair("jorge", "reece"), new Pair("andy", "jamie")),
+                        List.of(new Pair("c-dev", "d-dev"),
+                                new Pair("d-dev", "e-dev"),
+                                new Pair("a-dev", "e-dev"),
+                                new Pair("a-dev", "c-dev")),
+                        Set.of(new Pair("c-dev", "d-dev"), new Pair("a-dev", "e-dev")),
+                        Set.of(new Pair("d-dev", "e-dev"), new Pair("a-dev", "c-dev")),
                         Set.of()),
                 arguments(
-                        List.of(new Pair("jorge", "reece"),
-                                new Pair("andy", "jamie"),
-                                new Pair("jamie", "jorge"),
-                                new Pair("andy", "reece")),
-                        Set.of(new Pair("jorge", "reece"), new Pair("andy", "jamie")),
-                        Set.of(new Pair("jamie", "jorge"), new Pair("andy", "reece")),
+                        List.of(new Pair("d-dev", "e-dev"),
+                                new Pair("a-dev", "c-dev"),
+                                new Pair("c-dev", "d-dev"),
+                                new Pair("a-dev", "e-dev")),
+                        Set.of(new Pair("d-dev", "e-dev"), new Pair("a-dev", "c-dev")),
+                        Set.of(new Pair("c-dev", "d-dev"), new Pair("a-dev", "e-dev")),
                         Set.of()),
                 arguments(
-                        List.of(new Pair("jamie", "jorge"),
-                                new Pair("jorge", "reece"),
-                                new Pair("jamie", "reece"),
-                                new Pair("andy", "reece"),
-                                new Pair("jorge"),
-                                new Pair("jamie"),
-                                new Pair("reece")),
-                        Set.of(new Pair("jamie", "reece"), new Pair("jorge")),
-                        Set.of(new Pair("jamie", "jorge"), new Pair("reece")),
-                        Set.of("jamie", "reece"))
+                        List.of(new Pair("c-dev", "d-dev"),
+                                new Pair("d-dev", "e-dev"),
+                                new Pair("c-dev", "e-dev"),
+                                new Pair("a-dev", "e-dev"),
+                                new Pair("d-dev"),
+                                new Pair("c-dev"),
+                                new Pair("e-dev")),
+                        Set.of(new Pair("c-dev", "e-dev"), new Pair("d-dev")),
+                        Set.of(new Pair("c-dev", "d-dev"), new Pair("e-dev")),
+                        Set.of("c-dev", "e-dev"))
         );
     }
 

@@ -48,7 +48,7 @@ class RunnerTest {
     @Test
     void runWithThreeDevelopers() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
@@ -69,19 +69,19 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0      0  \s
-                         jorge           0      0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0      0  \s
+                         d-dev           0      0  \s
+                         e-dev                  0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie   1 *     0      0  \s
-                         jorge           0     1 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     0  \s
+                         d-dev           0      0  \s
+                         e-dev                 1 * \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -89,10 +89,10 @@ class RunnerTest {
                                                 
                         2. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0     1 * \s
-                         jorge          1 *     0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0     1 * \s
+                         d-dev          1 *     0  \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -100,10 +100,10 @@ class RunnerTest {
                                                 
                         3. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0     1 *     0  \s
-                         jorge           0      0  \s
-                         reece                 1 * \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev   1 *     0      0  \s
+                         d-dev           0     1 * \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -121,10 +121,10 @@ class RunnerTest {
                                                 
                         Picked 2:
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0     1 * \s
-                         jorge          1 *     0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0     1 * \s
+                         d-dev          1 *     0  \s
+                         e-dev                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -147,7 +147,7 @@ class RunnerTest {
     @Test
     void handleUserExhaustingPossiblePairsThenChoosingOneOfTheOfferings() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
@@ -164,19 +164,19 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0      0  \s
-                         jorge           0      0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0      0  \s
+                         d-dev           0      0  \s
+                         e-dev                  0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie   1 *     0      0  \s
-                         jorge           0     1 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     0  \s
+                         d-dev           0      0  \s
+                         e-dev                 1 * \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -184,10 +184,10 @@ class RunnerTest {
                                                 
                         2. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0     1 * \s
-                         jorge          1 *     0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0     1 * \s
+                         d-dev          1 *     0  \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -195,10 +195,10 @@ class RunnerTest {
                                                 
                         3. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0     1 *     0  \s
-                         jorge           0      0  \s
-                         reece                 1 * \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev   1 *     0      0  \s
+                         d-dev           0     1 * \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -213,10 +213,10 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                jamie  jorge  reece\s
-                         jamie   1 *     0      0  \s
-                         jorge           0     1 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     0  \s
+                         d-dev           0      0  \s
+                         e-dev                 1 * \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -228,7 +228,7 @@ class RunnerTest {
     @Test
     void handleUserExhaustingPossiblePairsThenChoosingACustomPairing() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
@@ -236,7 +236,7 @@ class RunnerTest {
                 .append("n\n") // show next pair
                 .append("n\n") // show a non-existing pair
                 .append("o\n") // pick custom pair
-                .append("1 2\n"); // pick jamie and jorge
+                .append("1 2\n"); // pick c-dev and d-dev
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
@@ -245,19 +245,19 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0      0  \s
-                         jorge           0      0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0      0  \s
+                         d-dev           0      0  \s
+                         e-dev                  0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie   1 *     0      0  \s
-                         jorge           0     1 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     0  \s
+                         d-dev           0      0  \s
+                         e-dev                 1 * \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -265,10 +265,10 @@ class RunnerTest {
                                                 
                         2. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0     1 * \s
-                         jorge          1 *     0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0     1 * \s
+                         d-dev          1 *     0  \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -276,10 +276,10 @@ class RunnerTest {
                                                 
                         3. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0     1 *     0  \s
-                         jorge           0      0  \s
-                         reece                 1 * \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev   1 *     0      0  \s
+                         d-dev           0     1 * \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -290,19 +290,19 @@ class RunnerTest {
                         Choose from options [c]
                         Override with your own pairs [o]
                                                 
-                        [1] jamie
-                        [2] jorge
-                        [3] reece
+                        [1] c-dev
+                        [2] d-dev
+                        [3] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'jamie' and 'jorge'
+                        e.g. '1 2' for 'c-dev' and 'd-dev'
                                                 
                         Picked custom pairs:
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0     1 *     0  \s
-                         jorge           0      0  \s
-                         reece                 1 * \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     0  \s
+                         d-dev           0      0  \s
+                         e-dev                 1 * \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -316,11 +316,11 @@ class RunnerTest {
         LocalDate now = LocalDate.now();
 
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers,
                 List.of(
-                        new Pairing(now.minusDays(1), "jamie", "reece"),
-                        new Pairing(now.minusDays(1), "jorge")
+                        new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                        new Pairing(now.minusDays(1), "d-dev")
                 )));
 
         userInput
@@ -334,19 +334,19 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                jamie  jorge  reece\s
-                         jamie    0      0     1 * \s
-                         jorge          1 *     0  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0      0     1 * \s
+                         d-dev          1 *     0  \s
+                         e-dev                  0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 3
                                                 
-                                jamie  jorge  reece\s
-                         jamie   1 *     0      1  \s
-                         jorge           1     1 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     1  \s
+                         d-dev           1      0  \s
+                         e-dev                 1 * \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -356,10 +356,10 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                jamie  jorge  reece\s
-                         jamie   1 *     0      1  \s
-                         jorge           1     1 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    0     1 *     1  \s
+                         d-dev           1      0  \s
+                         e-dev                 1 * \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -371,19 +371,19 @@ class RunnerTest {
                 .isEqualTo("""
                                    {""" +
                            """
-                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                                   "allDevelopers":["c-dev","d-dev","e-dev"],""" +
                            """
                                    "newJoiners":[],""" +
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now.minusDays(1)) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":"e-dev"}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":null}},""".formatted(now.minusDays(1)) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":null}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":"reece"}},""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":"d-dev"}},""".formatted(now) +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":null}}""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"e-dev","second":null}}""".formatted(now) +
                            """
                                    ]}""");
     }
@@ -391,35 +391,35 @@ class RunnerTest {
     @Test
     void optionallySpecifyAbsentDevelopers() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
                 .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "-i", "andy", "reece");
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "-i", "a-dev", "e-dev");
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 0
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -429,11 +429,11 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -447,14 +447,14 @@ class RunnerTest {
         LocalDate now = LocalDate.now();
 
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers,
-                List.of("reece"),
+                List.of("e-dev"),
                 List.of(
-                        new Pairing(now.minusDays(1), "jamie", "reece"),
-                        new Pairing(now.minusDays(1), "jorge"),
-                        new Pairing(now.minusDays(2), "jorge", "reece"),
-                        new Pairing(now.minusDays(2), "jamie")
+                        new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                        new Pairing(now.minusDays(1), "d-dev"),
+                        new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                        new Pairing(now.minusDays(2), "c-dev")
                 )));
 
         userInput
@@ -468,19 +468,19 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                jamie  jorge  reece\s
-                         jamie    1      0     1 * \s
-                         jorge          1 *     1  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    1      0     1 * \s
+                         d-dev          1 *     1  \s
+                         e-dev                  0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 3
                                                 
-                                jamie  jorge  reece\s
-                         jamie   2 *     0      1  \s
-                         jorge           1     2 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev   2 *     0      1  \s
+                         d-dev           1     2 * \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -490,10 +490,10 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                jamie  jorge  reece\s
-                         jamie   2 *     0      1  \s
-                         jorge           1     2 * \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev   2 *     0      1  \s
+                         d-dev           1     2 * \s
+                         e-dev                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -505,23 +505,23 @@ class RunnerTest {
                 .isEqualTo("""
                                    {""" +
                            """
-                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                                   "allDevelopers":["c-dev","d-dev","e-dev"],""" +
                            """
-                                   "newJoiners":["reece"],""" +
+                                   "newJoiners":["e-dev"],""" +
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now.minusDays(1)) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":"e-dev"}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":null}},""".formatted(now.minusDays(1)) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":null}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":"reece"}},""".formatted(now.minusDays(2)) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":"e-dev"}},""".formatted(now.minusDays(2)) +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":null}},""".formatted(now.minusDays(2)) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":null}},""".formatted(now.minusDays(2)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":"reece"}},""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":"e-dev"}},""".formatted(now) +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":null}}""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":null}}""".formatted(now) +
                            """
                                    ]}""");
     }
@@ -531,40 +531,40 @@ class RunnerTest {
         LocalDate now = LocalDate.now();
 
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers,
                 List.of(),
                 List.of(
-                        new Pairing(now.minusDays(1), "jamie", "reece"),
-                        new Pairing(now.minusDays(1), "jorge"),
-                        new Pairing(now.minusDays(2), "jorge", "reece"),
-                        new Pairing(now.minusDays(2), "jamie")
+                        new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                        new Pairing(now.minusDays(1), "d-dev"),
+                        new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                        new Pairing(now.minusDays(2), "c-dev")
                 )));
 
         userInput
                 .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "--new", "jamie", "reece");
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "--new", "c-dev", "e-dev");
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                jamie  jorge  reece\s
-                         jamie    1      0     1 * \s
-                         jorge          1 *     1  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    1      0     1 * \s
+                         d-dev          1 *     1  \s
+                         e-dev                  0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                jamie  jorge  reece\s
-                         jamie    1      0     2 * \s
-                         jorge          2 *     1  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    1      0     2 * \s
+                         d-dev          2 *     1  \s
+                         e-dev                  0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -574,10 +574,10 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                jamie  jorge  reece\s
-                         jamie    1      0     2 * \s
-                         jorge          2 *     1  \s
-                         reece                  0  \s
+                                c-dev  d-dev  e-dev\s
+                         c-dev    1      0     2 * \s
+                         d-dev          2 *     1  \s
+                         e-dev                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -589,23 +589,23 @@ class RunnerTest {
                 .isEqualTo("""
                                    {""" +
                            """
-                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                                   "allDevelopers":["c-dev","d-dev","e-dev"],""" +
                            """
-                                   "newJoiners":["jamie","reece"],""" +
+                                   "newJoiners":["c-dev","e-dev"],""" +
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now.minusDays(1)) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":"e-dev"}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":null}},""".formatted(now.minusDays(1)) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":null}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":"reece"}},""".formatted(now.minusDays(2)) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":"e-dev"}},""".formatted(now.minusDays(2)) +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":null}},""".formatted(now.minusDays(2)) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":null}},""".formatted(now.minusDays(2)) +
                            """
-                                   {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":null}},""".formatted(now) +
                            """
-                                   {"date":"%s","pair":{"first":"jorge","second":null}}""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":"e-dev"}}""".formatted(now) +
                            """
                                    ]}""");
     }
@@ -613,13 +613,13 @@ class RunnerTest {
     @Test
     void allowOverridingWithYourOwnPairPick_oddNumberOfPairs() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy", "cip");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev", "b-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
                 .append("o\n") // override
-                .append("1 4\n") // choose andy and jorge as pair
-                .append("1 3\n"); // choose cip and reece as pair
+                .append("1 4\n") // choose a-dev and d-dev as pair
+                .append("1 3\n"); // choose b-dev and e-dev as pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
@@ -628,54 +628,54 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                andy  cip  jamie  jorge  reece\s
-                         andy    0     0     0      0      0  \s
-                         cip           0     0      0      0  \s
-                         jamie               0      0      0  \s
-                         jorge                      0      0  \s
-                         reece                             0  \s
+                                a-dev  b-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0      0  \s
+                         b-dev           0      0      0      0  \s
+                         c-dev                  0      0      0  \s
+                         d-dev                         0      0  \s
+                         e-dev                                0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 20
                                                 
-                                andy  cip  jamie  jorge  reece\s
-                         andy    0     0     0      0     1 * \s
-                         cip           0     0     1 *     0  \s
-                         jamie              1 *     0      0  \s
-                         jorge                      0      0  \s
-                         reece                             0  \s
+                                a-dev  b-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 *     0  \s
+                         b-dev           0     1 *     0      0  \s
+                         c-dev                  0      0      0  \s
+                         d-dev                         0      0  \s
+                         e-dev                               1 * \s
                                                 
                         See more options [n]
                         Choose from options [c]
                         Override with your own pairs [o]
                                                 
-                        [1] andy
-                        [2] cip
-                        [3] jamie
-                        [4] jorge
-                        [5] reece
+                        [1] a-dev
+                        [2] b-dev
+                        [3] c-dev
+                        [4] d-dev
+                        [5] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'cip'
+                        e.g. '1 2' for 'a-dev' and 'b-dev'
                                                 
                         Remaining:
                                                 
-                        [1] cip
-                        [2] jamie
-                        [3] reece
+                        [1] b-dev
+                        [2] c-dev
+                        [3] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'cip' and 'jamie'
+                        e.g. '1 2' for 'b-dev' and 'c-dev'
                                                 
                         Picked custom pairs:
                                                 
-                                andy  cip  jamie  jorge  reece\s
-                         andy    0     0     0     1 *     0  \s
-                         cip           0     0      0     1 * \s
-                         jamie              1 *     0      0  \s
-                         jorge                      0      0  \s
-                         reece                             0  \s
+                                a-dev  b-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 *     0  \s
+                         b-dev           0      0      0     1 * \s
+                         c-dev                 1 *     0      0  \s
+                         d-dev                         0      0  \s
+                         e-dev                                0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -687,12 +687,12 @@ class RunnerTest {
     @Test
     void allowOverridingWithYourOwnPairPick_evenNumberOfPairs() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
                 .append("o\n") // override
-                .append("1 2\n"); // choose andy and jamie as pair
+                .append("1 2\n"); // choose a-dev and c-dev as pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
@@ -701,41 +701,41 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0     1 * \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 * \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
                         Override with your own pairs [o]
                                                 
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
                                                 
                         Picked custom pairs:
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0     1 *     0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0     1 * \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0     1 *     0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0     1 * \s
+                         e-dev                         0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -747,7 +747,7 @@ class RunnerTest {
     @Test
     void allowOverridingWithYourOwnPairPick_validation() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
@@ -758,7 +758,7 @@ class RunnerTest {
                 .append("0.1 2\n")
                 .append("0 1\n")
                 .append("1 5\n")
-                .append("1 2\n"); // choose andy and jamie as pair
+                .append("1 2\n"); // choose a-dev and c-dev as pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
@@ -767,89 +767,89 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0     1 * \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 * \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
                         Override with your own pairs [o]
                                                 
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
                                                 
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
-                                                
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
-                                                
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
                                                 
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
-                                                
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
-                                                
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
                                                 
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
-                                                
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
-                                                
-                        [1] andy
-                        [2] jamie
-                        [3] jorge
-                        [4] reece
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
                                                 
                         Type two numbers to choose them,
-                        e.g. '1 2' for 'andy' and 'jamie'
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                                
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                                
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                                
+                        [1] a-dev
+                        [2] c-dev
+                        [3] d-dev
+                        [4] e-dev
+                                                
+                        Type two numbers to choose them,
+                        e.g. '1 2' for 'a-dev' and 'c-dev'
                                                 
                         Picked custom pairs:
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0     1 *     0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0     1 * \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0     1 *     0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0     1 * \s
+                         e-dev                         0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -874,7 +874,7 @@ class RunnerTest {
     @Test
     void allowSpecifyAllDevelopersAtCommandLineAndOverwriteTheConfigFile() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
@@ -882,28 +882,28 @@ class RunnerTest {
                 .append("1\n"); // choose first option
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(),
-                "--devs", "jamie", "jorge", "reece", "andy");
+                "--devs", "c-dev", "d-dev", "e-dev", "a-dev");
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0     1 * \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 * \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -913,11 +913,11 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0     1 * \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 * \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -927,9 +927,9 @@ class RunnerTest {
 
 
         assertThat(fileStorage.read())
-                .isEqualTo(new Configuration(List.of("andy", "jamie", "jorge", "reece"),
-                        List.of(new Pairing(LocalDate.now(), "andy", "reece"),
-                                new Pairing(LocalDate.now(), "jamie", "jorge"))));
+                .isEqualTo(new Configuration(List.of("a-dev", "c-dev", "d-dev", "e-dev"),
+                        List.of(new Pairing(LocalDate.now(), "a-dev", "e-dev"),
+                                new Pairing(LocalDate.now(), "c-dev", "d-dev"))));
     }
 
     @Test
@@ -941,28 +941,28 @@ class RunnerTest {
                 .append("1\n"); // choose first option
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(),
-                "--devs", "jamie", "jorge", "reece", "andy");
+                "--devs", "c-dev", "d-dev", "e-dev", "a-dev");
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(out.toString()))
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0      0  \s
-                         jamie          0      0      0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Possible pairs (lowest score is better)
                                                 
                         1. score = 5
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0     1 * \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 * \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         See more options [n]
                         Choose from options [c]
@@ -972,11 +972,11 @@ class RunnerTest {
                                                 
                         Picked 1:
                                                 
-                                andy  jamie  jorge  reece\s
-                         andy    0      0      0     1 * \s
-                         jamie          0     1 *     0  \s
-                         jorge                 0      0  \s
-                         reece                        0  \s
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0     1 * \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -986,9 +986,9 @@ class RunnerTest {
 
 
         assertThat(fileStorage.read())
-                .isEqualTo(new Configuration(List.of("andy", "jamie", "jorge", "reece"),
-                        List.of(new Pairing(LocalDate.now(), "andy", "reece"),
-                                new Pairing(LocalDate.now(), "jamie", "jorge"))));
+                .isEqualTo(new Configuration(List.of("a-dev", "c-dev", "d-dev", "e-dev"),
+                        List.of(new Pairing(LocalDate.now(), "a-dev", "e-dev"),
+                                new Pairing(LocalDate.now(), "c-dev", "d-dev"))));
     }
 
     @Test

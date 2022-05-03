@@ -8,22 +8,22 @@ import java.util.Set;
 
 class TestData {
     static final List<Pairing> EXAMPLE_PAIRINGS = List.of(
-            new Pairing(LocalDate.now(), "jamie"),
-            new Pairing(LocalDate.now(), "jorge", "cip"),
-            new Pairing(LocalDate.now(), "andy", "reece"),
-            new Pairing(LocalDate.now().minusDays(3), "jorge"),
-            new Pairing(LocalDate.now().minusDays(3), "jamie", "reece"),
-            new Pairing(LocalDate.now().minusDays(3), "andy", "cip"),
-            new Pairing(LocalDate.now().minusDays(4), "jamie"),
-            new Pairing(LocalDate.now().minusDays(4), "jorge", "andy"),
-            new Pairing(LocalDate.now().minusDays(4), "reece", "cip"),
-            new Pairing(LocalDate.now().minusDays(6), "reece"),
-            new Pairing(LocalDate.now().minusDays(6), "jamie", "andy"),
-            new Pairing(LocalDate.now().minusDays(6), "jorge", "cip")
+            new Pairing(LocalDate.now(), "c-dev"),
+            new Pairing(LocalDate.now(), "d-dev", "b-dev"),
+            new Pairing(LocalDate.now(), "a-dev", "e-dev"),
+            new Pairing(LocalDate.now().minusDays(3), "d-dev"),
+            new Pairing(LocalDate.now().minusDays(3), "c-dev", "e-dev"),
+            new Pairing(LocalDate.now().minusDays(3), "a-dev", "b-dev"),
+            new Pairing(LocalDate.now().minusDays(4), "c-dev"),
+            new Pairing(LocalDate.now().minusDays(4), "d-dev", "a-dev"),
+            new Pairing(LocalDate.now().minusDays(4), "e-dev", "b-dev"),
+            new Pairing(LocalDate.now().minusDays(6), "e-dev"),
+            new Pairing(LocalDate.now().minusDays(6), "c-dev", "a-dev"),
+            new Pairing(LocalDate.now().minusDays(6), "d-dev", "b-dev")
     );
 
     @Test
     void showTestData() {
-        System.out.println(PairPrinter.drawPairStairs(Set.of("jorge", "jamie", "reece", "andy", "cip"), EXAMPLE_PAIRINGS));
+        System.out.println(PairPrinter.drawPairStairs(Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev"), EXAMPLE_PAIRINGS));
     }
 }

@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs;
 
 import com.google.common.collect.Sets;
 import com.jakewharton.picnic.*;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -13,8 +14,9 @@ import java.util.Set;
 class Simulation {
 
     @Test
+    @Disabled
     void name() throws Exception {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
         List<Pairing> pairings = new ArrayList<>();
         Set<Pair> previousPairs = Set.of();
         for (int dayNumber = 0; dayNumber < 100; dayNumber++) {
@@ -64,7 +66,7 @@ class Simulation {
 
         System.out.print("Pairs:");
         Sets.SetView<Pair> intersection = Sets.intersection(nextPairs, previousPairs);
-        if (!intersection.isEmpty()){
+        if (!intersection.isEmpty()) {
             throw new RuntimeException(" duplicate pair!: " + intersection);
         }
         System.out.println("\n" + table.build());

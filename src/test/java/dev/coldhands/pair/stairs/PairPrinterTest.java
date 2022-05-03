@@ -12,15 +12,15 @@ class PairPrinterTest {
     @Test
     void drawPairStairs() {
         List<Pairing> pairings = TestData.EXAMPLE_PAIRINGS;
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
         assertThat(PairPrinter.drawPairStairs(allDevelopers, pairings))
                 .isEqualTo("""
-                        \s       andy  cip  jamie  jorge  reece\s
-                        \sandy    0     1     1      1     1 * \s
-                        \scip           0     0     2 *     1  \s
-                        \sjamie              2 *     0      1  \s
-                        \sjorge                      1      0  \s
-                        \sreece                             1  \s""");
+                        \s       a-dev  b-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      1      1      1     1 * \s
+                         b-dev           0      0     2 *     1  \s
+                         c-dev                 2 *     0      1  \s
+                         d-dev                         1      0  \s
+                         e-dev                                1  \s""");
     }
 }

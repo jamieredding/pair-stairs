@@ -20,43 +20,43 @@ class DecideOMaticTest {
 
     @Test
     void whenEveryoneIsIn() {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
         DecideOMatic underTest = new DecideOMatic(EXAMPLE_PAIRINGS, allDevelopers);
 
         Set<Pair> actualPairs = underTest.getNextPairs();
         assertThat(actualPairs)
-                .containsOnly(new Pair("cip", "jamie"),
-                        new Pair("jorge", "reece"),
-                        new Pair("andy"));
+                .containsOnly(new Pair("b-dev", "c-dev"),
+                        new Pair("d-dev", "e-dev"),
+                        new Pair("a-dev"));
     }
 
     static Stream<Arguments> whenSomeoneIsOff() {
         return Stream.of(
-                arguments(Set.of("jorge", "jamie", "reece", "andy"),
+                arguments(Set.of("d-dev", "c-dev", "e-dev", "a-dev"),
                         new Pair[]{
-                                new Pair("jorge", "reece"),
-                                new Pair("andy", "jamie")}),
-                arguments(Set.of("jorge", "jamie", "reece", "cip"),
+                                new Pair("d-dev", "e-dev"),
+                                new Pair("a-dev", "c-dev")}),
+                arguments(Set.of("d-dev", "c-dev", "e-dev", "b-dev"),
                         new Pair[]{
-                                new Pair("cip", "jamie"),
-                                new Pair("jorge", "reece")}),
-                arguments(Set.of("jorge", "jamie", "andy", "cip"),
+                                new Pair("b-dev", "c-dev"),
+                                new Pair("d-dev", "e-dev")}),
+                arguments(Set.of("d-dev", "c-dev", "a-dev", "b-dev"),
                         new Pair[]{
-                                new Pair("andy", "cip"),
-                                new Pair("jamie", "jorge")}),
-                arguments(Set.of("jorge", "reece", "andy", "cip"),
+                                new Pair("a-dev", "b-dev"),
+                                new Pair("c-dev", "d-dev")}),
+                arguments(Set.of("d-dev", "e-dev", "a-dev", "b-dev"),
                         new Pair[]{
-                                new Pair("jorge", "reece"),
-                                new Pair("andy", "cip")}),
-                arguments(Set.of("jamie", "reece", "andy", "cip"),
+                                new Pair("d-dev", "e-dev"),
+                                new Pair("a-dev", "b-dev")}),
+                arguments(Set.of("c-dev", "e-dev", "a-dev", "b-dev"),
                         new Pair[]{
-                                new Pair("jamie", "reece"),
-                                new Pair("andy", "cip")}),
-                arguments(Set.of("jamie", "reece", "andy"),
+                                new Pair("a-dev", "c-dev"),
+                                new Pair("b-dev", "e-dev")}),
+                arguments(Set.of("c-dev", "e-dev", "a-dev"),
                         new Pair[]{
-                                new Pair("andy", "jamie"),
-                                new Pair("reece")})
+                                new Pair("c-dev", "e-dev"),
+                                new Pair("a-dev")})
         );
     }
 
@@ -72,7 +72,7 @@ class DecideOMaticTest {
 
     @Test
     void pairsShouldAlwaysRotate() {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece", "andy", "cip");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
         LocalDate now = LocalDate.now();
         List<Pairing> pairings = new ArrayList<>();
 
@@ -93,47 +93,47 @@ class DecideOMaticTest {
 
     @Test
     void doNotAllowNewJoinersToSolo() {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev");
         LocalDate now = LocalDate.now();
         List<Pairing> pairings = List.of(
-                new Pairing(now.minusDays(1), "jamie", "reece"),
-                new Pairing(now.minusDays(1), "jorge"),
-                new Pairing(now.minusDays(2), "jorge", "reece"),
-                new Pairing(now.minusDays(2), "jamie"),
-                new Pairing(now.minusDays(3), "jamie", "reece"),
-                new Pairing(now.minusDays(3), "jorge"));
+                new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(1), "d-dev"),
+                new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                new Pairing(now.minusDays(2), "c-dev"),
+                new Pairing(now.minusDays(3), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(3), "d-dev"));
 
-        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("reece"));
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("e-dev"));
         assertThat(underTest.getNextPairs())
-                .containsOnly(new Pair("jorge", "reece"),
-                        new Pair("jamie"));
+                .containsOnly(new Pair("d-dev", "e-dev"),
+                        new Pair("c-dev"));
     }
 
     @Test
     void doNotAllowNewJoinersToSoloEvenWhenTheyHaveInThePast() {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev");
         LocalDate now = LocalDate.now();
         List<Pairing> pairings = List.of(
-                new Pairing(now.minusDays(1), "jamie", "reece"),
-                new Pairing(now.minusDays(1), "jorge"),
-                new Pairing(now.minusDays(2), "jorge", "reece"),
-                new Pairing(now.minusDays(2), "jamie"));
+                new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(1), "d-dev"),
+                new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                new Pairing(now.minusDays(2), "c-dev"));
 
-        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("jamie", "reece"));
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("c-dev", "e-dev"));
         assertThat(underTest.getNextPairs())
-                .containsOnly(new Pair("jamie", "reece"),
-                        new Pair("jorge"));
+                .containsOnly(new Pair("c-dev", "e-dev"),
+                        new Pair("d-dev"));
     }
 
     @Test
     void showAllPairsWithTheirScoreInOrder() {
-        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
+        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev");
         LocalDate now = LocalDate.now();
         List<Pairing> pairings = List.of(
-                new Pairing(now.minusDays(1), "jamie", "reece"),
-                new Pairing(now.minusDays(1), "jorge"),
-                new Pairing(now.minusDays(2), "jorge", "reece"),
-                new Pairing(now.minusDays(2), "jamie"));
+                new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(1), "d-dev"),
+                new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                new Pairing(now.minusDays(2), "c-dev"));
 
         DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers);
 
@@ -141,16 +141,16 @@ class DecideOMaticTest {
         assertThat(actual)
                 .containsOnly(
                         new ScoredPairCombination(
-                                Set.of(new Pair("jamie", "jorge"),
-                                        new Pair("reece")),
+                                Set.of(new Pair("c-dev", "d-dev"),
+                                        new Pair("e-dev")),
                                 2),
                         new ScoredPairCombination(
-                                Set.of(new Pair("jorge", "reece"),
-                                        new Pair("jamie")),
+                                Set.of(new Pair("d-dev", "e-dev"),
+                                        new Pair("c-dev")),
                                 4),
                         new ScoredPairCombination(
-                                Set.of(new Pair("jamie", "reece"),
-                                        new Pair("jorge")),
+                                Set.of(new Pair("c-dev", "e-dev"),
+                                        new Pair("d-dev")),
                                 9)
                 );
     }

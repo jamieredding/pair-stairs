@@ -16,23 +16,23 @@ class PairCountComparatorTest {
     static Stream<Arguments> compare() {
         return Stream.of(
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 0, false),
-                        new PairCount(new Pair("jorge", "reece"), 1, false)),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("d-dev", "e-dev"), 1, false)),
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 0, false),
-                        new PairCount(new Pair("jorge", "reece"), 0, false)),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("d-dev", "e-dev"), 0, false)),
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 0, false),
-                        new PairCount(new Pair("jamie", "reece"), 0, false)),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
+                        new PairCount(new Pair("c-dev", "e-dev"), 0, false)),
                 arguments(
-                        new PairCount(new Pair("jorge", "reece"), 1, false),
-                        new PairCount(new Pair("jamie"), 0, false)),
+                        new PairCount(new Pair("d-dev", "e-dev"), 1, false),
+                        new PairCount(new Pair("c-dev"), 0, false)),
                 arguments(
-                        new PairCount(new Pair("cip", "jamie"), 0, false),
-                        new PairCount(new Pair("andy", "cip"), 1, false)),
+                        new PairCount(new Pair("b-dev", "c-dev"), 0, false),
+                        new PairCount(new Pair("a-dev", "b-dev"), 1, false)),
                 arguments(
-                        new PairCount(new Pair("jamie", "jorge"), 1, false),
-                        new PairCount(new Pair("jorge", "reece"), 0, true))
+                        new PairCount(new Pair("c-dev", "d-dev"), 1, false),
+                        new PairCount(new Pair("d-dev", "e-dev"), 0, true))
         );
     }
 
@@ -44,8 +44,8 @@ class PairCountComparatorTest {
 
     @Test
     void preferNonNewJoinersAsSolo() {
-        final PairCount first = new PairCount(new Pair("jamie"), 1, true);
-        final PairCount second = new PairCount(new Pair("cip"), 0, false);;
-        testComparator(new PairCountComparator(Set.of("cip")), first, second);
+        final PairCount first = new PairCount(new Pair("c-dev"), 1, true);
+        final PairCount second = new PairCount(new Pair("b-dev"), 0, false);;
+        testComparator(new PairCountComparator(Set.of("b-dev")), first, second);
     }
 }
