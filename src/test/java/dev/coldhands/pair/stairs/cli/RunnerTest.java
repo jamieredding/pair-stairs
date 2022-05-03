@@ -443,6 +443,90 @@ class RunnerTest {
     }
 
     @Test
+    void supportReadingNewJoinersFromConfiguration() throws IOException {
+        LocalDate now = LocalDate.now();
+
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("jamie", "jorge", "reece");
+        fileStorage.write(new Configuration(allDevelopers,
+                List.of("reece"),
+                List.of(
+                        new Pairing(now.minusDays(1), "jamie", "reece"),
+                        new Pairing(now.minusDays(1), "jorge"),
+                        new Pairing(now.minusDays(2), "jorge", "reece"),
+                        new Pairing(now.minusDays(2), "jamie")
+                )));
+
+        userInput
+                .append("c\n") // show next pair
+                .append("1\n"); // choose a pair
+        userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                jamie  jorge  reece\s
+                         jamie    1      0     1 * \s
+                         jorge          1 *     1  \s
+                         reece                  0  \s
+                                                
+                        Possible pairs (lowest score is better)
+                                                
+                        1. score = 3
+                                                
+                                jamie  jorge  reece\s
+                         jamie   2 *     0      1  \s
+                         jorge           1     2 * \s
+                         reece                  0  \s
+                                                
+                        See more options [n]
+                        Choose from options [c]
+                        Override with your own pairs [o]
+                                                
+                        Choose a suggestion [1-1]:
+                                                
+                        Picked 1:
+                                                
+                                jamie  jorge  reece\s
+                         jamie   2 *     0      1  \s
+                         jorge           1     2 * \s
+                         reece                  0  \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+
+        assertThat(String.join("\n", Files.readAllLines(dataFile)))
+                .isEqualTo("""
+                                   {""" +
+                           """
+                                   "allDevelopers":["jamie","jorge","reece"],""" +
+                           """
+                                   "newJoiners":["reece"],""" +
+                           """
+                                   "pairings":[""" +
+                           """
+                                   {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now.minusDays(1)) +
+                           """
+                                   {"date":"%s","pair":{"first":"jorge","second":null}},""".formatted(now.minusDays(1)) +
+                           """
+                                   {"date":"%s","pair":{"first":"jorge","second":"reece"}},""".formatted(now.minusDays(2)) +
+                           """
+                                   {"date":"%s","pair":{"first":"jamie","second":null}},""".formatted(now.minusDays(2)) +
+                           """
+                                   {"date":"%s","pair":{"first":"jorge","second":"reece"}},""".formatted(now) +
+                           """
+                                   {"date":"%s","pair":{"first":"jamie","second":null}}""".formatted(now) +
+                           """
+                                   ]}""");
+    }
+
+    @Test
     void allowOverridingWithYourOwnPairPick_oddNumberOfPairs() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
         List<String> allDevelopers = List.of("jamie", "jorge", "reece", "andy", "cip");

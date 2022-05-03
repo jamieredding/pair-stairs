@@ -44,6 +44,7 @@ class StateMachine {
     private int selection = -1;
     private List<Pairing> actualNextPairings;
     private List<Pairing> startingPairings;
+    private Set<String> newJoiners;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
@@ -85,6 +86,7 @@ class StateMachine {
                 }
                 availableDevelopers = new HashSet<>(allDevelopers);
                 missingDevelopers.forEach(availableDevelopers::remove);
+                newJoiners = new LinkedHashSet<>(configuration.newJoiners());
                 startingPairings = configuration.pairings();
                 state = SHOW_PREVIOUS_PAIR_STAIR;
             }
@@ -97,7 +99,7 @@ class StateMachine {
                 state = CALCULATE_PAIRS;
             }
             case CALCULATE_PAIRS -> {
-                DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers);
+                DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, newJoiners);
                 printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
                         .map(toPrintableNextPairings(startingPairings))
                         .toList();
@@ -256,7 +258,7 @@ class StateMachine {
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(new Configuration(allDevelopers.stream().toList(), List.of(), actualNextPairings));
+                fileStorage.write(new Configuration(allDevelopers.stream().toList(), newJoiners.stream().toList(), actualNextPairings));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));
