@@ -131,22 +131,35 @@ class PairUtilsTest {
                         List.of(new Pair("jamie", "jorge"),
                                 new Pair("jorge", "reece")),
                         Set.of(new Pair("jamie", "jorge")),
-                        Set.of(new Pair("jorge", "reece"))),
+                        Set.of(new Pair("jorge", "reece")),
+                        Set.of()),
                 arguments(
                         List.of(new Pair("jamie", "jorge"),
                                 new Pair("jorge", "reece"),
                                 new Pair("andy", "reece"),
                                 new Pair("andy", "jamie")),
                         Set.of(new Pair("jamie", "jorge"), new Pair("andy", "reece")),
-                        Set.of(new Pair("jorge", "reece"), new Pair("andy", "jamie"))),
+                        Set.of(new Pair("jorge", "reece"), new Pair("andy", "jamie")),
+                        Set.of()),
                 arguments(
                         List.of(new Pair("jorge", "reece"),
                                 new Pair("andy", "jamie"),
                                 new Pair("jamie", "jorge"),
                                 new Pair("andy", "reece")),
                         Set.of(new Pair("jorge", "reece"), new Pair("andy", "jamie")),
-                        Set.of(new Pair("jamie", "jorge"), new Pair("andy", "reece"))
-                )
+                        Set.of(new Pair("jamie", "jorge"), new Pair("andy", "reece")),
+                        Set.of()),
+                arguments(
+                        List.of(new Pair("jamie", "jorge"),
+                                new Pair("jorge", "reece"),
+                                new Pair("jamie", "reece"),
+                                new Pair("andy", "reece"),
+                                new Pair("jorge"),
+                                new Pair("jamie"),
+                                new Pair("reece")),
+                        Set.of(new Pair("jamie", "reece"), new Pair("jorge")),
+                        Set.of(new Pair("jamie", "jorge"), new Pair("reece")),
+                        Set.of("jamie", "reece"))
         );
     }
 
@@ -154,8 +167,9 @@ class PairUtilsTest {
     @MethodSource
     void compare(List<Pair> pairsSortedByPairCount,
                  Set<Pair> pairCombination1,
-                 Set<Pair> pairCombination2) {
-        var underTest = Comparator.comparing(scorePairCombinationUsing(pairsSortedByPairCount)::score);
+                 Set<Pair> pairCombination2,
+                 Set<String> newJoiners) {
+        var underTest = Comparator.comparing(scorePairCombinationUsing(pairsSortedByPairCount, newJoiners)::score);
 
         testComparator(underTest, pairCombination1, pairCombination2);
     }

@@ -110,6 +110,22 @@ class DecideOMaticTest {
     }
 
     @Test
+    void doNotAllowNewJoinersToSoloEvenWhenTheyHaveInThePast() {
+        Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
+        LocalDate now = LocalDate.now();
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "jamie", "reece"),
+                new Pairing(now.minusDays(1), "jorge"),
+                new Pairing(now.minusDays(2), "jorge", "reece"),
+                new Pairing(now.minusDays(2), "jamie"));
+
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("jamie", "reece"));
+        assertThat(underTest.getNextPairs())
+                .containsOnly(new Pair("jamie", "reece"),
+                        new Pair("jorge"));
+    }
+
+    @Test
     void showAllPairsWithTheirScoreInOrder() {
         Set<String> allDevelopers = Set.of("jorge", "jamie", "reece");
         LocalDate now = LocalDate.now();

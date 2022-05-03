@@ -39,7 +39,7 @@ public class DecideOMatic {
 
     private Function<Set<Pair>, ScoredPairCombination> toScoredPairCombination(List<Pair> allPairsSortedByPairCount) {
         return pairCombination -> new ScoredPairCombination(pairCombination,
-                scorePairCombinationUsing(allPairsSortedByPairCount).score(pairCombination));
+                scorePairCombinationUsing(allPairsSortedByPairCount, newJoiners).score(pairCombination));
     }
 
     public Set<Pair> getNextPairs() {
