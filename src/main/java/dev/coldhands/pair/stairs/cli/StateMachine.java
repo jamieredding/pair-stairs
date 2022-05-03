@@ -5,13 +5,10 @@ import dev.coldhands.pair.stairs.Pair;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.ScoredPairCombination;
 import dev.coldhands.pair.stairs.persistance.Configuration;
-import dev.coldhands.pair.stairs.persistance.FileStorage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -20,7 +17,6 @@ import java.util.stream.IntStream;
 
 import static dev.coldhands.pair.stairs.PairPrinter.drawPairStairs;
 import static dev.coldhands.pair.stairs.cli.State.*;
-import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toCollection;
 
 class StateMachine {
@@ -29,22 +25,7 @@ class StateMachine {
     private final PrintWriter out;
     private final PrintWriter err;
 
-    private final FileStorage fileStorage;
-    private final Path dataFile;
-    private final List<String> missingDevelopers;
-    private final List<String> overrideDevelopers;
-    private final Set<Pair> customPickedPairs = new HashSet<>();
-
-    private State state = INITIALISE;
-    private Set<String> allDevelopers;
-    private Set<String> availableDevelopers;
-    private List<String> customDevelopersLeftToPick;
-    private int pairCombinationsIndex = 0;
-    private List<PrintableNextPairings> printableNextPairings;
-    private int selection = -1;
-    private List<Pairing> actualNextPairings;
-    private List<Pairing> startingPairings;
-    private List<String> newJoiners;
+    private final Context context;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
@@ -53,38 +34,7 @@ class StateMachine {
         this.in = in;
         this.out = out;
         this.err = err;
-        this.dataFile = runner.getDataFile();
-        this.missingDevelopers = runner.getMissingDevelopers();
-        fileStorage = new FileStorage(this.dataFile);
-        overrideDevelopers = runner.getOverrideDevelopers();
-        newJoiners = runner.getNewJoiners();
-    }
-
-    private State initialiseStateMachine() throws IOException {
-        Configuration configuration;
-        try {
-            configuration = fileStorage.read();
-        } catch (NoSuchFileException e) {
-            configuration = new Configuration(List.of(), List.of(), List.of());
-        }
-        allDevelopers = new LinkedHashSet<>(ofNullable(overrideDevelopers)
-                .map(devs -> devs.stream().sorted().toList())
-                .orElse(configuration.allDevelopers()));
-        if (allDevelopers.isEmpty()) {
-            err.println("""
-                    Unable to start.
-                    No pairs specified in %s
-                                            
-                    Rerun and specify which devs to include via the '--devs' option
-                    """.formatted(dataFile.toAbsolutePath()));
-            return FAILED;
-        }
-        availableDevelopers = new HashSet<>(allDevelopers);
-        missingDevelopers.forEach(availableDevelopers::remove);
-        newJoiners = ofNullable(newJoiners)
-                .orElse(configuration.newJoiners());
-        startingPairings = configuration.pairings();
-        return SHOW_PREVIOUS_PAIR_STAIR;
+        this.context = Context.from(runner);
     }
 
     private State showPreviousPairStair() {
@@ -92,14 +42,14 @@ class StateMachine {
                 Yesterday's pair stairs
                                         
                 %s
-                """.formatted(drawPairStairs(allDevelopers, startingPairings)));
+                """.formatted(drawPairStairs(context.allDevelopers, context.startingPairings)));
         return CALCULATE_PAIRS;
     }
 
     private State calculatePairs() {
-        DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, new HashSet<>(newJoiners));
-        printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
-                .map(toPrintableNextPairings(startingPairings))
+        DecideOMatic decideOMatic = new DecideOMatic(context.startingPairings, context.availableDevelopers, new HashSet<>(context.newJoiners));
+        context.printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
+                .map(toPrintableNextPairings(context.startingPairings))
                 .toList();
         return SHOW_RESULTS;
     }
@@ -112,17 +62,17 @@ class StateMachine {
     }
 
     private State showNextPair() {
-        var current = printableNextPairings.get(pairCombinationsIndex);
+        var current = context.printableNextPairings.get(context.pairCombinationsIndex);
         out.println("""
                 %s. score = %s
                                         
                 %s
                                         
-                See more options [n]""".formatted(pairCombinationsIndex + 1, // todo,
+                See more options [n]""".formatted(context.pairCombinationsIndex + 1, // todo,
                 //  this should actually be an optional part
                 //  of the next state
                 current.score(),
-                drawPairStairs(allDevelopers, current.pairings())));
+                drawPairStairs(context.allDevelopers, current.pairings())));
         return SHOW_NEXT_PAIR_OPTIONS;
     }
 
@@ -138,10 +88,10 @@ class StateMachine {
         String selection = in.readLine();
         switch (selection) {
             case "n" -> {
-                if (pairCombinationsIndex == printableNextPairings.size() - 1) {
+                if (context.pairCombinationsIndex == context.printableNextPairings.size() - 1) {
                     return SHOW_OUT_OF_PAIRS;
                 } else {
-                    pairCombinationsIndex++;
+                    context.pairCombinationsIndex++;
                     return SHOW_NEXT_PAIR;
                 }
             }
@@ -149,7 +99,7 @@ class StateMachine {
                 return ASK_FOR_A_PAIR;
             }
             case "o" -> {
-                customDevelopersLeftToPick = availableDevelopers.stream()
+                context.customDevelopersLeftToPick = context.availableDevelopers.stream()
                         .sorted()
                         .collect(toCollection(LinkedList::new));
                 return SHOW_NUMBERED_DEVELOPERS_TO_PICK;
@@ -164,8 +114,8 @@ class StateMachine {
     }
 
     private State showNumberedDevelopersToPick() {
-        String formattedRemainingDevelopers = IntStream.rangeClosed(1, customDevelopersLeftToPick.size())
-                .mapToObj(i -> "[%s] %s".formatted(i, customDevelopersLeftToPick.get(i - 1)))
+        String formattedRemainingDevelopers = IntStream.rangeClosed(1, context.customDevelopersLeftToPick.size())
+                .mapToObj(i -> "[%s] %s".formatted(i, context.customDevelopersLeftToPick.get(i - 1)))
                 .collect(Collectors.joining("\n"));
 
         out.println("""
@@ -175,8 +125,8 @@ class StateMachine {
                 e.g. '1 2' for '%s' and '%s'
                 """.formatted(
                 formattedRemainingDevelopers,
-                customDevelopersLeftToPick.get(0),
-                customDevelopersLeftToPick.get(1)
+                context.customDevelopersLeftToPick.get(0),
+                context.customDevelopersLeftToPick.get(1)
         ));
         return PROCESS_INPUT_FOR_PICKING_A_PAIR;
     }
@@ -193,22 +143,22 @@ class StateMachine {
         }
         Pair pickedDevelopers = potentialPair.get();
 
-        customDevelopersLeftToPick.removeAll(List.of(pickedDevelopers.first(), pickedDevelopers.second()));
-        customPickedPairs.add(pickedDevelopers);
+        context.customDevelopersLeftToPick.removeAll(List.of(pickedDevelopers.first(), pickedDevelopers.second()));
+        context.customPickedPairs.add(pickedDevelopers);
 
-        if (customDevelopersLeftToPick.size() > 2) {
+        if (context.customDevelopersLeftToPick.size() > 2) {
             out.println("""
                     Remaining:
                     """);
             return SHOW_NUMBERED_DEVELOPERS_TO_PICK;
-        } else if (customDevelopersLeftToPick.size() == 2) {
-            String remainingFirst = customDevelopersLeftToPick.remove(0);
-            String remainingSecond = customDevelopersLeftToPick.remove(0);
-            customPickedPairs.add(new Pair(remainingFirst, remainingSecond));
+        } else if (context.customDevelopersLeftToPick.size() == 2) {
+            String remainingFirst = context.customDevelopersLeftToPick.remove(0);
+            String remainingSecond = context.customDevelopersLeftToPick.remove(0);
+            context.customPickedPairs.add(new Pair(remainingFirst, remainingSecond));
             return SHOW_SELECTION;
         } else {
-            String remaining = customDevelopersLeftToPick.remove(0);
-            customPickedPairs.add(new Pair(remaining));
+            String remaining = context.customDevelopersLeftToPick.remove(0);
+            context.customPickedPairs.add(new Pair(remaining));
             return SHOW_SELECTION;
         }
     }
@@ -223,7 +173,7 @@ class StateMachine {
     private State askForAPair() {
         out.println("""
                 Choose a suggestion [%s-%s]:
-                """.formatted(1, pairCombinationsIndex + 1));
+                """.formatted(1, context.pairCombinationsIndex + 1));
         return PROCESS_SELECTION;
     }
 
@@ -231,8 +181,8 @@ class StateMachine {
         String userInput = in.readLine();
         try {
             int selection = Integer.parseInt(userInput);
-            if (selection >= 1 && selection <= pairCombinationsIndex + 1) {
-                this.selection = selection;
+            if (selection >= 1 && selection <= context.pairCombinationsIndex + 1) {
+                this.context.selection = selection;
                 return SHOW_SELECTION;
             }
         } catch (Exception ignored) {
@@ -245,13 +195,13 @@ class StateMachine {
 
     private State showSelection() {
         String selectionMessage;
-        if (selection == -1) {
+        if (context.selection == -1) {
             selectionMessage = "custom pairs";
-            actualNextPairings = new ArrayList<>(startingPairings);
-            customPickedPairs.forEach(pair -> actualNextPairings.add(new Pairing(LocalDate.now(), pair)));
+            context.actualNextPairings = new ArrayList<>(context.startingPairings);
+            context.customPickedPairs.forEach(pair -> context.actualNextPairings.add(new Pairing(LocalDate.now(), pair)));
         } else {
-            selectionMessage = String.valueOf(selection);
-            actualNextPairings = printableNextPairings.get(selection - 1).pairings();
+            selectionMessage = String.valueOf(context.selection);
+            context.actualNextPairings = context.printableNextPairings.get(context.selection - 1).pairings();
         }
         out.println("""
                 Picked %s:
@@ -259,22 +209,21 @@ class StateMachine {
                 %s
                 """.formatted(
                 selectionMessage,
-                drawPairStairs(allDevelopers, actualNextPairings)
+                drawPairStairs(context.allDevelopers, context.actualNextPairings)
         ));
         return SAVE_DATA_FILE;
     }
 
     private State saveDataFile() throws IOException {
-        fileStorage.write(new Configuration(allDevelopers.stream().toList(), newJoiners, actualNextPairings));
+        context.fileStorage.write(new Configuration(context.allDevelopers.stream().toList(), context.newJoiners, context.actualNextPairings));
         out.println("""
                 Saved pairings to: %s
-                """.formatted(dataFile.toAbsolutePath().toString()));
+                """.formatted(context.dataFile.toAbsolutePath().toString()));
         return COMPLETE;
     }
 
     public void run() throws IOException {
-        state = switch (state) {
-            case INITIALISE -> initialiseStateMachine();
+        context.setState(switch (context.getState()) {
             case SHOW_PREVIOUS_PAIR_STAIR -> showPreviousPairStair();
             case CALCULATE_PAIRS -> calculatePairs();
             case SHOW_RESULTS -> showResults();
@@ -288,8 +237,8 @@ class StateMachine {
             case PROCESS_SELECTION -> processSelection();
             case SHOW_SELECTION -> showSelection();
             case SAVE_DATA_FILE -> saveDataFile();
-            default -> throw new IllegalStateException("Unexpected value: " + state);
-        };
+            default -> throw new IllegalStateException("Unexpected value: " + context.getState());
+        });
     }
 
     private Optional<Pair> parsePickedPair(String userInput) {
@@ -302,8 +251,8 @@ class StateMachine {
         try {
             int firstIndex = Integer.parseInt(choices[0]) - 1;
             int secondIndex = Integer.parseInt(choices[1]) - 1;
-            String first = customDevelopersLeftToPick.get(firstIndex);
-            String second = customDevelopersLeftToPick.get(secondIndex);
+            String first = context.customDevelopersLeftToPick.get(firstIndex);
+            String second = context.customDevelopersLeftToPick.get(secondIndex);
             pickedDevelopers = new Pair(first, second);
         } catch (Exception e) {
             return Optional.empty();
@@ -313,7 +262,7 @@ class StateMachine {
     }
 
     public State getState() {
-        return state;
+        return context.getState();
     }
 
     private Function<ScoredPairCombination, PrintableNextPairings> toPrintableNextPairings(List<Pairing> startingPairings) {

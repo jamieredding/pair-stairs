@@ -95,12 +95,16 @@ class Runner implements Callable<Integer> {
     }
 
     private int runStateMachine(Runner runner) throws IOException {
-        StateMachine stateMachine = new StateMachine(in, out, err, runner);
-        while (stateMachine.getState() != State.COMPLETE &&
-               stateMachine.getState() != State.FAILED) {
-            stateMachine.run();
+        try {
+            final StateMachine stateMachine = new StateMachine(in, out, err, runner);
+            while (stateMachine.getState() != State.COMPLETE) {
+                stateMachine.run();
+            }
+            return 0;
+        } catch (StateMachineException e) {
+            err.println(e.getMessage());
+            return 1;
         }
-        return stateMachine.getState() == State.COMPLETE ? 0 : 1;
     }
 
     public static void main(String... args) {
