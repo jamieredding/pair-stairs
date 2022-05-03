@@ -373,6 +373,8 @@ class RunnerTest {
                            """
                                    "allDevelopers":["jamie","jorge","reece"],""" +
                            """
+                                   "newJoiners":[],""" +
+                           """
                                    "pairings":[""" +
                            """
                                    {"date":"%s","pair":{"first":"jamie","second":"reece"}},""".formatted(now.minusDays(1)) +

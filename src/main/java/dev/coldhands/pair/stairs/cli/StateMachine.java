@@ -68,7 +68,7 @@ class StateMachine {
                 try {
                     configuration = fileStorage.read();
                 } catch (NoSuchFileException e) {
-                    configuration = new Configuration(List.of(), List.of());
+                    configuration = new Configuration(List.of(), List.of(), List.of());
                 }
                 allDevelopers = new LinkedHashSet<>(ofNullable(overrideDevelopers)
                         .map(devs -> devs.stream().sorted().toList())
@@ -256,7 +256,7 @@ class StateMachine {
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(new Configuration(allDevelopers.stream().toList(), actualNextPairings));
+                fileStorage.write(new Configuration(allDevelopers.stream().toList(), List.of(), actualNextPairings));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));

@@ -33,7 +33,10 @@ class FileStorageTest {
         );
 
         FileStorage underTest = new FileStorage(dataFile);
-        final Configuration configuration = new Configuration(List.of("jamie", "jorge", "reece"), pairings);
+        final Configuration configuration = new Configuration(
+                List.of("jamie", "jorge", "reece"),
+                List.of("reece"),
+                pairings);
         underTest.write(configuration);
 
         assertThat(String.join("\n", Files.readAllLines(dataFile)))
@@ -41,6 +44,8 @@ class FileStorageTest {
                                    {""" +
                            """
                                    "allDevelopers":["jamie","jorge","reece"],""" +
+                           """
+                                   "newJoiners":["reece"],""" +
                            """
                                    "pairings":[""" +
                            """
@@ -64,13 +69,15 @@ class FileStorageTest {
         List<Pairing> pairings = List.of(new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie")));
 
         FileStorage underTest = new FileStorage(dataFile);
-        underTest.write(new Configuration(List.of("jamie"), pairings));
+        underTest.write(new Configuration(List.of("jamie"), List.of(), pairings));
 
         assertThat(String.join("\n", Files.readAllLines(dataFile)))
                 .isEqualTo("""
                                    {""" +
                            """
                                    "allDevelopers":["jamie"],""" +
+                           """
+                                   "newJoiners":[],""" +
                            """
                                    "pairings":[""" +
                            """
@@ -89,7 +96,7 @@ class FileStorageTest {
                 new Pairing(LocalDate.of(2022, 4, 28), new Pair("jorge", "reece")),
                 new Pairing(LocalDate.of(2022, 4, 28), new Pair("jamie"))
         );
-        Configuration configuration = new Configuration(List.of("jamie", "jorge", "reece"), pairings);
+        Configuration configuration = new Configuration(List.of("jamie", "jorge", "reece"), List.of("reece"), pairings);
 
         FileStorage underTest = new FileStorage(dataFile);
         underTest.write(configuration);
