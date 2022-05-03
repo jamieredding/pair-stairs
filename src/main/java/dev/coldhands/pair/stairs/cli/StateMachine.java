@@ -44,7 +44,7 @@ class StateMachine {
     private int selection = -1;
     private List<Pairing> actualNextPairings;
     private List<Pairing> startingPairings;
-    private Set<String> newJoiners;
+    private List<String> newJoiners;
 
     public StateMachine(BufferedReader in,
                         PrintWriter out,
@@ -57,6 +57,7 @@ class StateMachine {
         this.missingDevelopers = runner.getMissingDevelopers();
         fileStorage = new FileStorage(this.dataFile);
         overrideDevelopers = runner.getOverrideDevelopers();
+        newJoiners = runner.getNewJoiners();
     }
 
     public void run() throws IOException {
@@ -86,7 +87,8 @@ class StateMachine {
                 }
                 availableDevelopers = new HashSet<>(allDevelopers);
                 missingDevelopers.forEach(availableDevelopers::remove);
-                newJoiners = new LinkedHashSet<>(configuration.newJoiners());
+                newJoiners = ofNullable(newJoiners)
+                        .orElse(configuration.newJoiners());
                 startingPairings = configuration.pairings();
                 state = SHOW_PREVIOUS_PAIR_STAIR;
             }
@@ -99,7 +101,7 @@ class StateMachine {
                 state = CALCULATE_PAIRS;
             }
             case CALCULATE_PAIRS -> {
-                DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, newJoiners);
+                DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, new HashSet<>(newJoiners));
                 printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
                         .map(toPrintableNextPairings(startingPairings))
                         .toList();
@@ -258,7 +260,7 @@ class StateMachine {
                 state = SAVE_DATA_FILE;
             }
             case SAVE_DATA_FILE -> {
-                fileStorage.write(new Configuration(allDevelopers.stream().toList(), newJoiners.stream().toList(), actualNextPairings));
+                fileStorage.write(new Configuration(allDevelopers.stream().toList(), newJoiners, actualNextPairings));
                 out.println("""
                         Saved pairings to: %s
                         """.formatted(dataFile.toAbsolutePath().toString()));

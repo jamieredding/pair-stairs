@@ -14,7 +14,8 @@ import static picocli.CommandLine.*;
         descriptionHeading = "%n",
         description = "Generate a pair stair for today.",
         optionListHeading = "%nOptions:%n%n",
-        sortOptions = false)
+        sortOptions = false,
+        abbreviateSynopsis = true)
 class Runner implements Callable<Integer> {
 
     private final BufferedReader in;
@@ -49,6 +50,18 @@ class Runner implements Callable<Integer> {
                     "developers that have been persisted."
             })
     private List<String> overrideDevelopers;
+
+    @Option(names = {"-n", "--new"},
+            arity = "0..*",
+            paramLabel = "DEV",
+            description = {
+                    "Specify new joiners.",
+                    "This is useful to prevent new joiners from",
+                    "working solo.",
+                    "Only required on first run or to overwrite the",
+                    "new joiners that have been persisted."
+            })
+    private List<String> newJoiners;
 
     @Option(names = {"-h", "--help"},
             usageHelp = true,
@@ -107,5 +120,9 @@ class Runner implements Callable<Integer> {
 
     List<String> getOverrideDevelopers() {
         return overrideDevelopers;
+    }
+
+    public List<String> getNewJoiners() {
+        return newJoiners;
     }
 }
