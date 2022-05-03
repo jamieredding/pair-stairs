@@ -1,17 +1,17 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.DecideOMatic;
 import dev.coldhands.pair.stairs.Pair;
 import dev.coldhands.pair.stairs.Pairing;
-import dev.coldhands.pair.stairs.ScoredPairCombination;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,32 +37,21 @@ class StateMachine {
         this.context = Context.from(runner);
     }
 
-    private State showPreviousPairStair() {
+    // todo give better name
+    private State header() {
         out.println("""
                 Yesterday's pair stairs
                                         
                 %s
-                """.formatted(drawPairStairs(context.allDevelopers, context.startingPairings)));
-        return CALCULATE_PAIRS;
-    }
-
-    private State calculatePairs() {
-        DecideOMatic decideOMatic = new DecideOMatic(context.startingPairings, context.availableDevelopers, new HashSet<>(context.newJoiners));
-        context.printableNextPairings = decideOMatic.getScoredPairCombinations().stream()
-                .map(toPrintableNextPairings(context.startingPairings))
-                .toList();
-        return SHOW_RESULTS;
-    }
-
-    private State showResults() {
-        out.println("""
+                
                 Possible pairs (lowest score is better)
-                """);
+                """.formatted(drawPairStairs(context.allDevelopers, context.startingPairings)));
+
         return SHOW_NEXT_PAIR;
     }
 
     private State showNextPair() {
-        var current = context.printableNextPairings.get(context.pairCombinationsIndex);
+        var current = context.possibleScoredPairings.get(context.pairCombinationsIndex);
         out.println("""
                 %s. score = %s
                                         
@@ -88,7 +77,7 @@ class StateMachine {
         String selection = in.readLine();
         switch (selection) {
             case "n" -> {
-                if (context.pairCombinationsIndex == context.printableNextPairings.size() - 1) {
+                if (context.pairCombinationsIndex == context.possibleScoredPairings.size() - 1) {
                     return SHOW_OUT_OF_PAIRS;
                 } else {
                     context.pairCombinationsIndex++;
@@ -201,7 +190,7 @@ class StateMachine {
             context.customPickedPairs.forEach(pair -> context.actualNextPairings.add(new Pairing(LocalDate.now(), pair)));
         } else {
             selectionMessage = String.valueOf(context.selection);
-            context.actualNextPairings = context.printableNextPairings.get(context.selection - 1).pairings();
+            context.actualNextPairings = context.possibleScoredPairings.get(context.selection - 1).pairings();
         }
         out.println("""
                 Picked %s:
@@ -224,9 +213,7 @@ class StateMachine {
 
     public void run() throws IOException {
         context.setState(switch (context.getState()) {
-            case SHOW_PREVIOUS_PAIR_STAIR -> showPreviousPairStair();
-            case CALCULATE_PAIRS -> calculatePairs();
-            case SHOW_RESULTS -> showResults();
+            case HEADER -> header();
             case SHOW_NEXT_PAIR -> showNextPair();
             case SHOW_NEXT_PAIR_OPTIONS -> showNextPairOptions();
             case PROCESS_INPUT_AFTER_NEXT_PAIR -> processInputAfterNextPair();
@@ -263,13 +250,5 @@ class StateMachine {
 
     public State getState() {
         return context.getState();
-    }
-
-    private Function<ScoredPairCombination, PrintableNextPairings> toPrintableNextPairings(List<Pairing> startingPairings) {
-        return scoredPairCombination -> {
-            var predictedNextPairings = new ArrayList<>(startingPairings);
-            scoredPairCombination.pairCombination().forEach(pair -> predictedNextPairings.add(new Pairing(LocalDate.now(), pair)));
-            return new PrintableNextPairings(predictedNextPairings, scoredPairCombination.score());
-        };
     }
 }

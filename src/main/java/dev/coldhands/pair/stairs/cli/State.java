@@ -1,9 +1,7 @@
 package dev.coldhands.pair.stairs.cli;
 
 enum State {
-    SHOW_PREVIOUS_PAIR_STAIR,
-    CALCULATE_PAIRS,
-    SHOW_RESULTS,
+    HEADER,
     SHOW_NEXT_PAIR,
     SHOW_NEXT_PAIR_OPTIONS,
     PROCESS_INPUT_AFTER_NEXT_PAIR,

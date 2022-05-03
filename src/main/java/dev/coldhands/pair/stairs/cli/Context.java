@@ -1,18 +1,19 @@
 package dev.coldhands.pair.stairs.cli;
 
+import dev.coldhands.pair.stairs.DecideOMatic;
 import dev.coldhands.pair.stairs.Pair;
 import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.ScoredPairCombination;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.function.Function;
 
-import static dev.coldhands.pair.stairs.cli.State.SHOW_PREVIOUS_PAIR_STAIR;
+import static dev.coldhands.pair.stairs.cli.State.HEADER;
 import static java.util.Optional.ofNullable;
 
 class Context {
@@ -30,7 +31,7 @@ class Context {
     private State state;
 
     List<String> customDevelopersLeftToPick;
-    List<PrintableNextPairings> printableNextPairings;
+    List<PossibleScoredPairings> possibleScoredPairings;
     List<Pairing> actualNextPairings;
 
     private Context(Runner runner) {
@@ -49,11 +50,13 @@ class Context {
         availableDevelopers = initialiseAvailableDevelopers(runner);
         newJoiners = initialiseNewJoiners(runner, configuration);
         startingPairings = configuration.pairings();
+        possibleScoredPairings = computePossibleScoredPairings();
 
+        // todo move these closer to where they are needed in the state machine
         customPickedPairs = new HashSet<>();
         pairCombinationsIndex = 0;
         selection = -1;
-        state = SHOW_PREVIOUS_PAIR_STAIR;
+        state = HEADER;
     }
 
     private LinkedHashSet<String> initialiseAllDevelopers(Runner runner, Configuration configuration) {
@@ -80,6 +83,21 @@ class Context {
     private List<String> initialiseNewJoiners(Runner runner, Configuration configuration) {
         return ofNullable(runner.getNewJoiners())
                 .orElse(configuration.newJoiners());
+    }
+
+    private List<PossibleScoredPairings> computePossibleScoredPairings() {
+        DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, new HashSet<>(newJoiners));
+        return decideOMatic.getScoredPairCombinations().stream()
+                .map(addNewPairCombinationTo(startingPairings))
+                .toList();
+    }
+
+    private Function<ScoredPairCombination, PossibleScoredPairings> addNewPairCombinationTo(List<Pairing> startingPairings) {
+        return scoredPairCombination -> {
+            var possiblePairings = new ArrayList<>(startingPairings);
+            scoredPairCombination.pairCombination().forEach(pair -> possiblePairings.add(new Pairing(LocalDate.now(), pair)));
+            return new PossibleScoredPairings(possiblePairings, scoredPairCombination.score());
+        };
     }
 
     public static Context from(Runner runner) {
