@@ -23,4 +23,38 @@ class PairPrinterTest {
                          d-dev                         1      0  \s
                          e-dev                                1  \s""");
     }
+
+    @Test
+    void drawPairChoices_oddNumberOfPairs() {
+        List<ScoredPairCombination> toPrint = List.of(
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-b"),
+                        new Pair("dev-c", "dev-d"),
+                        new Pair("dev-e")
+                ), 10),
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-e"),
+                        new Pair("dev-b", "dev-c"),
+                        new Pair("dev-d")
+                ), 15),
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-d"),
+                        new Pair("dev-d", "dev-e"),
+                        new Pair("dev-c")
+                ), 30),
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-c"),
+                        new Pair("dev-d", "dev-e"),
+                        new Pair("dev-b")
+                ), 40)
+        );
+
+        assertThat(PairPrinter.drawPairChoices(toPrint))
+                .isEqualTo("""
+                        \s             1             2             3      \s
+                        \sPair a  dev-a  dev-b  dev-a  dev-e  dev-a  dev-d\s
+                        \sPair b  dev-c  dev-d  dev-b  dev-c  dev-d  dev-e\s
+                        \sPair c     dev-e         dev-d         dev-c    \s
+                        \s             10            15            30     \s""");
+    }
 }

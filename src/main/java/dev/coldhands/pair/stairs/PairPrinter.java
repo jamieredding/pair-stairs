@@ -5,6 +5,9 @@ import com.jakewharton.picnic.*;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.Comparator.comparing;
+import static java.util.Comparator.nullsLast;
+
 public final class PairPrinter {
 
     private static final CellStyle DATA_CELL_STYLE = new CellStyle.Builder()
@@ -77,4 +80,85 @@ public final class PairPrinter {
                 .build();
     }
 
+    public static String drawPairChoices(List<ScoredPairCombination> scoredPairCombinations) {
+        Table.Builder builder = new Table.Builder()
+                .setTableStyle(new TableStyle.Builder()
+                        .setBorderStyle(BorderStyle.Hidden)
+                        .build())
+                .setCellStyle(new CellStyle.Builder()
+                        .setPaddingLeft(1)
+                        .setPaddingRight(1)
+                        .setAlignment(TextAlignment.MiddleCenter)
+                        .build());
+
+        int numberOfOptions = 3;
+        int numberOfPairs = 3;
+
+        record PrintableScoredPairCombination(List<Pair> pairs,
+                                              int score){}
+
+        List<PrintableScoredPairCombination> toPrint = scoredPairCombinations.stream()
+                .map(spc -> new PrintableScoredPairCombination(
+                        spc.pairCombination().stream()
+                                .sorted(comparing(Pair::second, nullsLast((o1, o2) -> 0))
+                                        .thenComparing(Pair::first))
+                                .toList(),
+                        spc.score()
+                ))
+                .toList();
+
+        final TableSection.Builder body = new TableSection.Builder();
+
+        addPairIndexRow(body, numberOfOptions);
+
+        for (int i = 0; i < numberOfPairs; i++) {
+            Row.Builder row = new Row.Builder();
+            row.addCell("Pair " + toLetter(i));
+            for (int optionIndex = 0; optionIndex < numberOfOptions; optionIndex++) {
+                PrintableScoredPairCombination option = toPrint.get(optionIndex);
+                Pair pair = option.pairs().get(i);
+                if (pair.second() == null) {
+                    row.addCell(twoColumnCell(pair.first()));
+                }else {
+                    row.addCell(pair.first());
+                    row.addCell(pair.second());
+                }
+            }
+            body.addRow(row.build());
+        }
+
+        Row.Builder bottomRow = new Row.Builder();
+        bottomRow.addCell("");
+        for (int i = 0; i < numberOfOptions; i++) {
+            PrintableScoredPairCombination option = toPrint.get(i);
+            bottomRow.addCell(twoColumnCell(String.valueOf(option.score)));
+        }
+
+        body.addRow(bottomRow.build());
+        builder.setBody(body.build());
+
+        return builder.build().toString();
+    }
+
+    private static String toLetter(int i) {
+        return String.valueOf((char) (i + 'a'));
+    }
+
+    private static Cell twoColumnCell(String value) {
+        return new Cell.Builder(value)
+                .setColumnSpan(2)
+                .build();
+    }
+
+    private static void addPairIndexRow(TableSection.Builder builder, int numberOfPairs) {
+        Row.Builder row = new Row.Builder();
+
+        row.addCell("");
+
+        for (int i = 0; i < numberOfPairs; i++) {
+            row.addCell(twoColumnCell(String.valueOf(i + 1)));
+        }
+
+        builder.addRow(row.build());
+    }
 }
