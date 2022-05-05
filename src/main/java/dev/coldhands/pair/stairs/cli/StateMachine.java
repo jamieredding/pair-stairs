@@ -8,13 +8,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static dev.coldhands.pair.stairs.PairPrinter.drawPairChoices;
 import static dev.coldhands.pair.stairs.PairPrinter.drawPairStairs;
 import static dev.coldhands.pair.stairs.cli.State.*;
 import static java.util.stream.Collectors.toCollection;
@@ -37,55 +35,32 @@ class StateMachine {
         this.context = Context.from(runner);
     }
 
-    // todo give better name
-    private State header() {
+    private State initialOutput() {
         out.println("""
                 Yesterday's pair stairs
                                         
                 %s
-                
-                Possible pairs (lowest score is better)
-                """.formatted(drawPairStairs(context.allDevelopers, context.startingPairings)));
-
-        return SHOW_NEXT_PAIR;
-    }
-
-    private State showNextPair() {
-        var current = context.possibleScoredPairings.get(context.pairCombinationsIndex);
-        out.println("""
-                %s. score = %s
-                                        
+                                
+                Options (lowest score is better)
+                                
                 %s
-                                        
-                See more options [n]""".formatted(context.pairCombinationsIndex + 1, // todo,
-                //  this should actually be an optional part
-                //  of the next state
-                current.score(),
-                drawPairStairs(context.allDevelopers, current.pairings())));
-        return SHOW_NEXT_PAIR_OPTIONS;
+                """.formatted(
+                drawPairStairs(context.allDevelopers, context.startingPairings),
+                drawPairChoices(context.scoredPairCombinations, 3)));
+
+        return OFFER_USER_CHOICE;
     }
 
-    private State showNextPairOptions() {
+    private State offerUserChoice() throws IOException {
         out.println("""
-                Choose from options [c]
-                Override with your own pairs [o]
+                Choose a suggestion [1-3]:
+                Or override with your own pairs [o]
                 """);
-        return PROCESS_INPUT_AFTER_NEXT_PAIR;
-    }
-
-    private State processInputAfterNextPair() throws IOException {
         String selection = in.readLine();
         switch (selection) {
-            case "n" -> {
-                if (context.pairCombinationsIndex == context.possibleScoredPairings.size() - 1) {
-                    return SHOW_OUT_OF_PAIRS;
-                } else {
-                    context.pairCombinationsIndex++;
-                    return SHOW_NEXT_PAIR;
-                }
-            }
-            case "c" -> {
-                return ASK_FOR_A_PAIR;
+            case "1", "2", "3" -> {
+                context.selection = Integer.parseInt(selection);
+                return SHOW_SELECTION;
             }
             case "o" -> {
                 context.customDevelopersLeftToPick = context.availableDevelopers.stream()
@@ -97,7 +72,7 @@ class StateMachine {
                 err.println("""
                         Invalid input.
                         """);
-                return PROCESS_INPUT_AFTER_NEXT_PAIR;
+                return OFFER_USER_CHOICE;
             }
         }
     }
@@ -152,46 +127,19 @@ class StateMachine {
         }
     }
 
-    private State showOutOfPairs() {
-        out.println("""
-                That's all of the available pairs.
-                """);
-        return SHOW_NEXT_PAIR_OPTIONS;
-    }
-
-    private State askForAPair() {
-        out.println("""
-                Choose a suggestion [%s-%s]:
-                """.formatted(1, context.pairCombinationsIndex + 1));
-        return PROCESS_SELECTION;
-    }
-
-    private State processSelection() throws IOException {
-        String userInput = in.readLine();
-        try {
-            int selection = Integer.parseInt(userInput);
-            if (selection >= 1 && selection <= context.pairCombinationsIndex + 1) {
-                this.context.selection = selection;
-                return SHOW_SELECTION;
-            }
-        } catch (Exception ignored) {
-        }
-        err.println("""
-                Invalid input.
-                """);
-        return ASK_FOR_A_PAIR;
-    }
-
     private State showSelection() {
         String selectionMessage;
+        Set<Pair> selectedPairs;
         if (context.selection == -1) {
             selectionMessage = "custom pairs";
-            context.actualNextPairings = new ArrayList<>(context.startingPairings);
-            context.customPickedPairs.forEach(pair -> context.actualNextPairings.add(new Pairing(LocalDate.now(), pair)));
+            selectedPairs = context.customPickedPairs;
         } else {
             selectionMessage = String.valueOf(context.selection);
-            context.actualNextPairings = context.possibleScoredPairings.get(context.selection - 1).pairings();
+            selectedPairs = context.scoredPairCombinations.get(context.selection - 1).pairCombination();
         }
+        context.actualNextPairings = new ArrayList<>(context.startingPairings);
+        selectedPairs.forEach(pair -> context.actualNextPairings.add(new Pairing(LocalDate.now(), pair)));
+
         out.println("""
                 Picked %s:
                                         
@@ -213,15 +161,10 @@ class StateMachine {
 
     public void run() throws IOException {
         context.setState(switch (context.getState()) {
-            case HEADER -> header();
-            case SHOW_NEXT_PAIR -> showNextPair();
-            case SHOW_NEXT_PAIR_OPTIONS -> showNextPairOptions();
-            case PROCESS_INPUT_AFTER_NEXT_PAIR -> processInputAfterNextPair();
+            case INITIAL_OUTPUT -> initialOutput();
+            case OFFER_USER_CHOICE -> offerUserChoice();
             case SHOW_NUMBERED_DEVELOPERS_TO_PICK -> showNumberedDevelopersToPick();
             case PROCESS_INPUT_FOR_PICKING_A_PAIR -> processInputForPickingAPair();
-            case SHOW_OUT_OF_PAIRS -> showOutOfPairs();
-            case ASK_FOR_A_PAIR -> askForAPair();
-            case PROCESS_SELECTION -> processSelection();
             case SHOW_SELECTION -> showSelection();
             case SAVE_DATA_FILE -> saveDataFile();
             default -> throw new IllegalStateException("Unexpected value: " + context.getState());

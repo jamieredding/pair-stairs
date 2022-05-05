@@ -92,7 +92,7 @@ public final class PairPrinter {
 
     private static void addLastRowWithScoresForEachOption(int optionsToShow, TableSection.Builder body, List<PrintableScoredPairCombination> toPrint) {
         Row.Builder bottomRow = new Row.Builder();
-        bottomRow.addCell("");
+        bottomRow.addCell("score");
         for (int i = 0; i < optionsToShow; i++) {
             PrintableScoredPairCombination option = toPrint.get(i);
             bottomRow.addCell(twoColumnCell(String.valueOf(option.score)));

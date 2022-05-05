@@ -55,7 +55,7 @@ class PairPrinterTest {
                         \sPair a  dev-a  dev-b  dev-a  dev-e  dev-a  dev-d\s
                         \sPair b  dev-c  dev-d  dev-b  dev-c  dev-d  dev-e\s
                         \sPair c     dev-e         dev-d         dev-c    \s
-                        \s             10            15            30     \s""");
+                        \sscore        10            15            30     \s""");
     }
 
     @Test
@@ -80,7 +80,7 @@ class PairPrinterTest {
                         \s             1             2             3      \s
                         \sPair a  dev-a  dev-b  dev-a  dev-e  dev-a  dev-d\s
                         \sPair b  dev-c  dev-d  dev-b  dev-c  dev-d  dev-e\s
-                        \s             10            15            30     \s""");
+                        \sscore        10            15            30     \s""");
     }
 
     @Test
@@ -101,6 +101,6 @@ class PairPrinterTest {
                         \s             1      \s
                         \sPair a  dev-a  dev-b\s
                         \sPair b  dev-c  dev-d\s
-                        \s             10     \s""");
+                        \sscore        10     \s""");
     }
 }

@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
@@ -46,14 +47,10 @@ class RunnerTest {
     @Test
     void runWithThreeDevelopers() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
+        List<String> allDevelopers = List.of("a-dev", "b-dev", "c-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
-                .append("n\n") // show next pair
-                .append("not valid\n") // not a valid option
-                .append("n\n") // show next pair
-                .append("c\n") // choose from options
                 .append("kjhasdskjh\n") // not a number
                 .append("0.9\n") // not an integer
                 .append("0\n") // too low bound
@@ -67,62 +64,39 @@ class RunnerTest {
                 .isEqualTo("""
                         Yesterday's pair stairs
                                                 
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0      0  \s
-                         d-dev           0      0  \s
-                         e-dev                  0  \s
+                                a-dev  b-dev  c-dev\s
+                         a-dev    0      0      0  \s
+                         b-dev           0      0  \s
+                         c-dev                  0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     0  \s
-                         d-dev           0      0  \s
-                         e-dev                 1 * \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        2. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0     1 * \s
-                         d-dev          1 *     0  \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        3. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev   1 *     0      0  \s
-                         d-dev           0     1 * \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
+                                      1             2             3      \s
+                         Pair a  a-dev  c-dev  b-dev  c-dev  a-dev  b-dev\s
+                         Pair b     b-dev         a-dev         c-dev    \s
+                         score        5             5             5      \s
                                                 
                         Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Picked 2:
                                                 
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0     1 * \s
-                         d-dev          1 *     0  \s
-                         e-dev                  0  \s
+                                a-dev  b-dev  c-dev\s
+                         a-dev   1 *     0      0  \s
+                         b-dev           0     1 * \s
+                         c-dev                  0  \s
                                                 
                         Saved pairings to: %s
                                                 
@@ -131,8 +105,6 @@ class RunnerTest {
                 .isEqualTo("""
                         Invalid input.
                                                 
-                        Invalid input.
-                                               
                         Invalid input.
                                                
                         Invalid input.
@@ -140,173 +112,6 @@ class RunnerTest {
                         Invalid input.
                                                 
                         """);
-    }
-
-    @Test
-    void handleUserExhaustingPossiblePairsThenChoosingOneOfTheOfferings() throws IOException {
-        FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
-        fileStorage.write(new Configuration(allDevelopers, List.of()));
-
-        userInput
-                .append("n\n") // show next pair
-                .append("n\n") // show next pair
-                .append("n\n") // show a non-existing pair
-                .append("c\n") // show a non-existing pair
-                .append("1\n"); // choose a pair
-        userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
-
-        assertThat(exitCode).isEqualTo(0);
-        assertThat(unWindows(out.toString()))
-                .isEqualTo("""
-                        Yesterday's pair stairs
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0      0  \s
-                         d-dev           0      0  \s
-                         e-dev                  0  \s
-                                                
-                        Possible pairs (lowest score is better)
-                                                
-                        1. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     0  \s
-                         d-dev           0      0  \s
-                         e-dev                 1 * \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        2. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0     1 * \s
-                         d-dev          1 *     0  \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        3. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev   1 *     0      0  \s
-                         d-dev           0     1 * \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        That's all of the available pairs.
-                                                
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-3]:
-                                                
-                        Picked 1:
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     0  \s
-                         d-dev           0      0  \s
-                         e-dev                 1 * \s
-                                                
-                        Saved pairings to: %s
-                                                
-                        """.formatted(dataFile));
-        assertThat(unWindows(err.toString()))
-                .isEmpty();
-    }
-
-    @Test
-    void handleUserExhaustingPossiblePairsThenChoosingACustomPairing() throws IOException {
-        FileStorage fileStorage = new FileStorage(dataFile);
-        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
-        fileStorage.write(new Configuration(allDevelopers, List.of()));
-
-        userInput
-                .append("n\n") // show next pair
-                .append("n\n") // show next pair
-                .append("n\n") // show a non-existing pair
-                .append("o\n") // pick custom pair
-                .append("1 2\n"); // pick c-dev and d-dev
-        userInput.flush();
-        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
-
-        assertThat(exitCode).isEqualTo(0);
-        assertThat(unWindows(out.toString()))
-                .isEqualTo("""
-                        Yesterday's pair stairs
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0      0  \s
-                         d-dev           0      0  \s
-                         e-dev                  0  \s
-                                                
-                        Possible pairs (lowest score is better)
-                                                
-                        1. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     0  \s
-                         d-dev           0      0  \s
-                         e-dev                 1 * \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        2. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0     1 * \s
-                         d-dev          1 *     0  \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        3. score = 5
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev   1 *     0      0  \s
-                         d-dev           0     1 * \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        That's all of the available pairs.
-                                                
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        [1] c-dev
-                        [2] d-dev
-                        [3] e-dev
-                                                
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'c-dev' and 'd-dev'
-                                                
-                        Picked custom pairs:
-                                                
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     0  \s
-                         d-dev           0      0  \s
-                         e-dev                 1 * \s
-                                                
-                        Saved pairings to: %s
-                                                
-                        """.formatted(dataFile));
-        assertThat(unWindows(err.toString()))
-                .isEmpty();
     }
 
     @Test
@@ -322,7 +127,6 @@ class RunnerTest {
                 )));
 
         userInput
-                .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
@@ -337,20 +141,15 @@ class RunnerTest {
                          d-dev          1 *     0  \s
                          e-dev                  0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 3
+                                      1             2             3      \s
+                         Pair a  c-dev  d-dev  d-dev  e-dev  c-dev  e-dev\s
+                         Pair b     e-dev         c-dev         d-dev    \s
+                         score        3             3             9      \s
                                                 
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     1  \s
-                         d-dev           1      0  \s
-                         e-dev                 1 * \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-1]:
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Picked 1:
                                                 
@@ -387,13 +186,14 @@ class RunnerTest {
     }
 
     @Test
+    // todo
+    @Disabled("shouldnt even offer a choice, just pick as the only option")
     void optionallySpecifyAbsentDevelopers() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
-                .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "-i", "a-dev", "e-dev");
@@ -456,7 +256,6 @@ class RunnerTest {
                 )));
 
         userInput
-                .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
@@ -471,20 +270,15 @@ class RunnerTest {
                          d-dev          1 *     1  \s
                          e-dev                  0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 3
+                                      1             2             3      \s
+                         Pair a  d-dev  e-dev  c-dev  e-dev  c-dev  d-dev\s
+                         Pair b     c-dev         d-dev         e-dev    \s
+                         score        3             7             11     \s
                                                 
-                                c-dev  d-dev  e-dev\s
-                         c-dev   2 *     0      1  \s
-                         d-dev           1     2 * \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-1]:
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Picked 1:
                                                 
@@ -540,7 +334,6 @@ class RunnerTest {
                 )));
 
         userInput
-                .append("c\n") // show next pair
                 .append("1\n"); // choose a pair
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "--new", "c-dev", "e-dev");
@@ -555,20 +348,15 @@ class RunnerTest {
                          d-dev          1 *     1  \s
                          e-dev                  0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 5
+                                      1             2             3      \s
+                         Pair a  c-dev  e-dev  c-dev  d-dev  d-dev  e-dev\s
+                         Pair b     d-dev         e-dev         c-dev    \s
+                         score        5             10            12     \s
                                                 
-                                c-dev  d-dev  e-dev\s
-                         c-dev    1      0     2 * \s
-                         d-dev          2 *     1  \s
-                         e-dev                  0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-1]:
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Picked 1:
                                                 
@@ -633,20 +421,16 @@ class RunnerTest {
                          d-dev                         0      0  \s
                          e-dev                                0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 20
+                                      1             2             3      \s
+                         Pair a  a-dev  d-dev  a-dev  c-dev  a-dev  d-dev\s
+                         Pair b  b-dev  c-dev  b-dev  d-dev  b-dev  e-dev\s
+                         Pair c     e-dev         e-dev         c-dev    \s
+                         score        20            20            20     \s
                                                 
-                                a-dev  b-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 *     0  \s
-                         b-dev           0     1 *     0      0  \s
-                         c-dev                  0      0      0  \s
-                         d-dev                         0      0  \s
-                         e-dev                               1 * \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         [1] a-dev
                         [2] b-dev
@@ -705,19 +489,15 @@ class RunnerTest {
                          d-dev                  0      0  \s
                          e-dev                         0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 5
+                                      1             2             3      \s
+                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
+                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
+                         score        5             5             5      \s
                                                 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 * \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         [1] a-dev
                         [2] c-dev
@@ -771,19 +551,15 @@ class RunnerTest {
                          d-dev                  0      0  \s
                          e-dev                         0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 5
+                                      1             2             3      \s
+                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
+                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
+                         score        5             5             5      \s
                                                 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 * \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         [1] a-dev
                         [2] c-dev
@@ -876,7 +652,6 @@ class RunnerTest {
         fileStorage.write(new Configuration(allDevelopers, List.of()));
 
         userInput
-                .append("c\n") // choose pair
                 .append("1\n"); // choose first option
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(),
@@ -893,21 +668,15 @@ class RunnerTest {
                          d-dev                  0      0  \s
                          e-dev                         0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 5
+                                      1             2             3      \s
+                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
+                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
+                         score        5             5             5      \s
                                                 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 * \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-1]:
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Picked 1:
                                                 
@@ -935,7 +704,6 @@ class RunnerTest {
         FileStorage fileStorage = new FileStorage(dataFile);
 
         userInput
-                .append("c\n") // choose pair
                 .append("1\n"); // choose first option
         userInput.flush();
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(),
@@ -952,21 +720,15 @@ class RunnerTest {
                          d-dev                  0      0  \s
                          e-dev                         0  \s
                                                 
-                        Possible pairs (lowest score is better)
+                        Options (lowest score is better)
                                                 
-                        1. score = 5
+                                      1             2             3      \s
+                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
+                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
+                         score        5             5             5      \s
                                                 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 * \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-1]:
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
                                                 
                         Picked 1:
                                                 

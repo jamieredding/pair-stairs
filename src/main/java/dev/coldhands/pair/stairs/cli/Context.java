@@ -9,11 +9,12 @@ import dev.coldhands.pair.stairs.persistance.FileStorage;
 
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.function.Function;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
-import static dev.coldhands.pair.stairs.cli.State.HEADER;
+import static dev.coldhands.pair.stairs.cli.State.INITIAL_OUTPUT;
 import static java.util.Optional.ofNullable;
 
 class Context {
@@ -31,7 +32,7 @@ class Context {
     private State state;
 
     List<String> customDevelopersLeftToPick;
-    List<PossibleScoredPairings> possibleScoredPairings;
+    List<ScoredPairCombination> scoredPairCombinations;
     List<Pairing> actualNextPairings;
 
     private Context(Runner runner) {
@@ -50,13 +51,13 @@ class Context {
         availableDevelopers = initialiseAvailableDevelopers(runner);
         newJoiners = initialiseNewJoiners(runner, configuration);
         startingPairings = configuration.pairings();
-        possibleScoredPairings = computePossibleScoredPairings();
+        scoredPairCombinations = computeScoredPairCombinations();
 
         // todo move these closer to where they are needed in the state machine
         customPickedPairs = new HashSet<>();
         pairCombinationsIndex = 0;
         selection = -1;
-        state = HEADER;
+        state = INITIAL_OUTPUT;
     }
 
     private LinkedHashSet<String> initialiseAllDevelopers(Runner runner, Configuration configuration) {
@@ -85,19 +86,9 @@ class Context {
                 .orElse(configuration.newJoiners());
     }
 
-    private List<PossibleScoredPairings> computePossibleScoredPairings() {
+    private List<ScoredPairCombination> computeScoredPairCombinations() {
         DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, new HashSet<>(newJoiners));
-        return decideOMatic.getScoredPairCombinations().stream()
-                .map(addNewPairCombinationTo(startingPairings))
-                .toList();
-    }
-
-    private Function<ScoredPairCombination, PossibleScoredPairings> addNewPairCombinationTo(List<Pairing> startingPairings) {
-        return scoredPairCombination -> {
-            var possiblePairings = new ArrayList<>(startingPairings);
-            scoredPairCombination.pairCombination().forEach(pair -> possiblePairings.add(new Pairing(LocalDate.now(), pair)));
-            return new PossibleScoredPairings(possiblePairings, scoredPairCombination.score());
-        };
+        return decideOMatic.getScoredPairCombinations();
     }
 
     public static Context from(Runner runner) {
