@@ -49,12 +49,58 @@ class PairPrinterTest {
                 ), 40)
         );
 
-        assertThat(PairPrinter.drawPairChoices(toPrint))
+        assertThat(PairPrinter.drawPairChoices(toPrint, 3))
                 .isEqualTo("""
                         \s             1             2             3      \s
                         \sPair a  dev-a  dev-b  dev-a  dev-e  dev-a  dev-d\s
                         \sPair b  dev-c  dev-d  dev-b  dev-c  dev-d  dev-e\s
                         \sPair c     dev-e         dev-d         dev-c    \s
                         \s             10            15            30     \s""");
+    }
+
+    @Test
+    void drawPairChoices_evenNumberOfPairs() {
+        List<ScoredPairCombination> toPrint = List.of(
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-b"),
+                        new Pair("dev-c", "dev-d")
+                ), 10),
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-e"),
+                        new Pair("dev-b", "dev-c")
+                ), 15),
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-d"),
+                        new Pair("dev-d", "dev-e")
+                ), 30)
+        );
+
+        assertThat(PairPrinter.drawPairChoices(toPrint, 3))
+                .isEqualTo("""
+                        \s             1             2             3      \s
+                        \sPair a  dev-a  dev-b  dev-a  dev-e  dev-a  dev-d\s
+                        \sPair b  dev-c  dev-d  dev-b  dev-c  dev-d  dev-e\s
+                        \s             10            15            30     \s""");
+    }
+
+    @Test
+    void drawPairChoicesCanSpecifyANumberOfOptionsToShow() {
+        List<ScoredPairCombination> toPrint = List.of(
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-b"),
+                        new Pair("dev-c", "dev-d")
+                ), 10),
+                new ScoredPairCombination(Set.of(
+                        new Pair("dev-a", "dev-e"),
+                        new Pair("dev-b", "dev-c")
+                ), 15)
+        );
+
+        assertThat(PairPrinter.drawPairChoices(toPrint, 1))
+                .isEqualTo("""
+                        \s             1      \s
+                        \sPair a  dev-a  dev-b\s
+                        \sPair b  dev-c  dev-d\s
+                        \s             10     \s""");
     }
 }

@@ -80,7 +80,7 @@ public final class PairPrinter {
                 .build();
     }
 
-    public static String drawPairChoices(List<ScoredPairCombination> scoredPairCombinations) {
+    public static String drawPairChoices(List<ScoredPairCombination> scoredPairCombinations, int optionsToShow) {
         Table.Builder builder = new Table.Builder()
                 .setTableStyle(new TableStyle.Builder()
                         .setBorderStyle(BorderStyle.Hidden)
@@ -91,8 +91,10 @@ public final class PairPrinter {
                         .setAlignment(TextAlignment.MiddleCenter)
                         .build());
 
-        int numberOfOptions = 3;
-        int numberOfPairs = 3;
+        int numberOfPairs = scoredPairCombinations.stream()
+                .mapToInt(combination -> combination.pairCombination().size())
+                .findFirst()
+                .getAsInt();
 
         record PrintableScoredPairCombination(List<Pair> pairs,
                                               int score){}
@@ -109,12 +111,12 @@ public final class PairPrinter {
 
         final TableSection.Builder body = new TableSection.Builder();
 
-        addPairIndexRow(body, numberOfOptions);
+        addPairIndexRow(body, optionsToShow);
 
         for (int i = 0; i < numberOfPairs; i++) {
             Row.Builder row = new Row.Builder();
             row.addCell("Pair " + toLetter(i));
-            for (int optionIndex = 0; optionIndex < numberOfOptions; optionIndex++) {
+            for (int optionIndex = 0; optionIndex < optionsToShow; optionIndex++) {
                 PrintableScoredPairCombination option = toPrint.get(optionIndex);
                 Pair pair = option.pairs().get(i);
                 if (pair.second() == null) {
@@ -129,7 +131,7 @@ public final class PairPrinter {
 
         Row.Builder bottomRow = new Row.Builder();
         bottomRow.addCell("");
-        for (int i = 0; i < numberOfOptions; i++) {
+        for (int i = 0; i < optionsToShow; i++) {
             PrintableScoredPairCombination option = toPrint.get(i);
             bottomRow.addCell(twoColumnCell(String.valueOf(option.score)));
         }
