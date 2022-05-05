@@ -15,17 +15,9 @@ public final class PairPrinter {
             .build();
 
     public static String drawPairStairs(Set<String> developers, List<Pairing> pairings) {
-        Table.Builder builder = new Table.Builder()
-                .setTableStyle(new TableStyle.Builder()
-                        .setBorderStyle(BorderStyle.Hidden)
-                        .build())
-                .setCellStyle(new CellStyle.Builder()
-                        .setPaddingLeft(1)
-                        .setPaddingRight(1)
-                        .build())
+        Table.Builder builder = standardTableLayout();
 
-                .setHeader(buildHeader(developers));
-
+        builder.setHeader(buildHeader(developers));
         builder.setBody(buildBody(developers, pairings));
 
         return builder.build().toString();
@@ -81,54 +73,24 @@ public final class PairPrinter {
     }
 
     public static String drawPairChoices(List<ScoredPairCombination> scoredPairCombinations, int optionsToShow) {
-        Table.Builder builder = new Table.Builder()
-                .setTableStyle(new TableStyle.Builder()
-                        .setBorderStyle(BorderStyle.Hidden)
-                        .build())
-                .setCellStyle(new CellStyle.Builder()
-                        .setPaddingLeft(1)
-                        .setPaddingRight(1)
-                        .setAlignment(TextAlignment.MiddleCenter)
-                        .build());
+        final int numberOfPairs = scoredPairCombinations.get(0).pairCombination().size();
+        final List<PrintableScoredPairCombination> toPrint = sortPairsWithinEachCombination(scoredPairCombinations);
 
-        int numberOfPairs = scoredPairCombinations.stream()
-                .mapToInt(combination -> combination.pairCombination().size())
-                .findFirst()
-                .getAsInt();
-
-        record PrintableScoredPairCombination(List<Pair> pairs,
-                                              int score){}
-
-        List<PrintableScoredPairCombination> toPrint = scoredPairCombinations.stream()
-                .map(spc -> new PrintableScoredPairCombination(
-                        spc.pairCombination().stream()
-                                .sorted(comparing(Pair::second, nullsLast((o1, o2) -> 0))
-                                        .thenComparing(Pair::first))
-                                .toList(),
-                        spc.score()
-                ))
-                .toList();
-
+        final Table.Builder builder = standardTableLayout();
         final TableSection.Builder body = new TableSection.Builder();
 
         addPairIndexRow(body, optionsToShow);
 
-        for (int i = 0; i < numberOfPairs; i++) {
-            Row.Builder row = new Row.Builder();
-            row.addCell("Pair " + toLetter(i));
-            for (int optionIndex = 0; optionIndex < optionsToShow; optionIndex++) {
-                PrintableScoredPairCombination option = toPrint.get(optionIndex);
-                Pair pair = option.pairs().get(i);
-                if (pair.second() == null) {
-                    row.addCell(twoColumnCell(pair.first()));
-                }else {
-                    row.addCell(pair.first());
-                    row.addCell(pair.second());
-                }
-            }
-            body.addRow(row.build());
-        }
+        addARowForEachPairInEachOption(optionsToShow, body, numberOfPairs, toPrint);
 
+        addLastRowWithScoresForEachOption(optionsToShow, body, toPrint);
+
+        builder.setBody(body.build());
+
+        return builder.build().toString();
+    }
+
+    private static void addLastRowWithScoresForEachOption(int optionsToShow, TableSection.Builder body, List<PrintableScoredPairCombination> toPrint) {
         Row.Builder bottomRow = new Row.Builder();
         bottomRow.addCell("");
         for (int i = 0; i < optionsToShow; i++) {
@@ -137,9 +99,48 @@ public final class PairPrinter {
         }
 
         body.addRow(bottomRow.build());
-        builder.setBody(body.build());
+    }
 
-        return builder.build().toString();
+    private static void addARowForEachPairInEachOption(int optionsToShow, TableSection.Builder body, int numberOfPairs, List<PrintableScoredPairCombination> toPrint) {
+        for (int i = 0; i < numberOfPairs; i++) {
+            Row.Builder row = new Row.Builder();
+            row.addCell("Pair " + toLetter(i));
+            for (int optionIndex = 0; optionIndex < optionsToShow; optionIndex++) {
+                PrintableScoredPairCombination option = toPrint.get(optionIndex);
+                Pair pair = option.pairs().get(i);
+                if (pair.second() == null) {
+                    row.addCell(twoColumnCell(pair.first()));
+                } else {
+                    row.addCell(pair.first());
+                    row.addCell(pair.second());
+                }
+            }
+            body.addRow(row.build());
+        }
+    }
+
+    private static List<PrintableScoredPairCombination> sortPairsWithinEachCombination(List<ScoredPairCombination> scoredPairCombinations) {
+        return scoredPairCombinations.stream()
+                .map(spc -> new PrintableScoredPairCombination(
+                        spc.pairCombination().stream()
+                                .sorted(comparing(Pair::second, nullsLast((o1, o2) -> 0))
+                                        .thenComparing(Pair::first))
+                                .toList(),
+                        spc.score()
+                ))
+                .toList();
+    }
+
+    private static Table.Builder standardTableLayout() {
+        return new Table.Builder()
+                .setTableStyle(new TableStyle.Builder()
+                        .setBorderStyle(BorderStyle.Hidden)
+                        .build())
+                .setCellStyle(new CellStyle.Builder()
+                        .setPaddingLeft(1)
+                        .setPaddingRight(1)
+                        .setAlignment(TextAlignment.MiddleCenter)
+                        .build());
     }
 
     private static String toLetter(int i) {
@@ -162,5 +163,8 @@ public final class PairPrinter {
         }
 
         builder.addRow(row.build());
+    }
+
+    private record PrintableScoredPairCombination(List<Pair> pairs, int score) {
     }
 }
