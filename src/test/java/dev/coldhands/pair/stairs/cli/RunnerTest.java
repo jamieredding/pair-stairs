@@ -4,7 +4,6 @@ import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
@@ -186,9 +185,7 @@ class RunnerTest {
     }
 
     @Test
-    // todo
-    @Disabled("shouldnt even offer a choice, just pick as the only option")
-    void optionallySpecifyAbsentDevelopers() throws IOException {
+    void optionallySpecifyAbsentDeveloper() throws IOException {
         FileStorage fileStorage = new FileStorage(dataFile);
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
         fileStorage.write(new Configuration(allDevelopers, List.of()));
@@ -196,6 +193,50 @@ class RunnerTest {
         userInput
                 .append("1\n"); // choose a pair
         userInput.flush();
+        int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "-i", "a-dev");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(out.toString()))
+                .isEqualTo("""
+                        Yesterday's pair stairs
+                                                
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0      0      0  \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
+                                                
+                        Options (lowest score is better)
+                                                
+                                      1             2             3      \s
+                         Pair a  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
+                         Pair b     e-dev         d-dev         c-dev    \s
+                         score        5             5             5      \s
+                                                
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
+                                                
+                        Picked 1:
+                                                
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0      0      0  \s
+                         c-dev           0     1 *     0  \s
+                         d-dev                  0      0  \s
+                         e-dev                        1 * \s
+                                                
+                        Saved pairings to: %s
+                                                
+                        """.formatted(dataFile));
+        assertThat(unWindows(err.toString()))
+                .isEmpty();
+    }
+
+    @Test
+    void ifOnlyOneOptionIsAvailableThenJustPrintThat() throws IOException {
+        FileStorage fileStorage = new FileStorage(dataFile);
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
+        fileStorage.write(new Configuration(allDevelopers, List.of()));
+
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString(), "-i", "a-dev", "e-dev");
 
         assertThat(exitCode).isEqualTo(0);
@@ -209,23 +250,7 @@ class RunnerTest {
                          d-dev                  0      0  \s
                          e-dev                         0  \s
                                                 
-                        Possible pairs (lowest score is better)
-                                                
-                        1. score = 0
-                                                
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-                                                
-                        See more options [n]
-                        Choose from options [c]
-                        Override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-1]:
-                                                
-                        Picked 1:
+                        Only one option:
                                                 
                                 a-dev  c-dev  d-dev  e-dev\s
                          a-dev    0      0      0      0  \s

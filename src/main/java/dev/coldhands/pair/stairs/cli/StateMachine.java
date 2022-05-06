@@ -40,15 +40,21 @@ class StateMachine {
                 Yesterday's pair stairs
                                         
                 %s
-                                
-                Options (lowest score is better)
-                                
-                %s
                 """.formatted(
-                drawPairStairs(context.allDevelopers, context.startingPairings),
-                drawPairChoices(context.scoredPairCombinations, 3)));
+                drawPairStairs(context.allDevelopers, context.startingPairings)));
+        if (context.scoredPairCombinations.size() == 1) {
+            context.selection = 1;
+            return SHOW_SELECTION;
+        } else {
+            out.println("""               
+                    Options (lowest score is better)
+                                    
+                    %s
+                    """.formatted(
+                    drawPairChoices(context.scoredPairCombinations, 3)));
+            return OFFER_USER_CHOICE;
+        }
 
-        return OFFER_USER_CHOICE;
     }
 
     private State offerUserChoice() throws IOException {
@@ -131,17 +137,19 @@ class StateMachine {
         String selectionMessage;
         Set<Pair> selectedPairs;
         if (context.selection == -1) {
-            selectionMessage = "custom pairs";
+            selectionMessage = "Picked custom pairs";
             selectedPairs = context.customPickedPairs;
         } else {
-            selectionMessage = String.valueOf(context.selection);
+            selectionMessage = context.scoredPairCombinations.size() == 1 ?
+                    "Only one option"
+                    : "Picked " + context.selection;
             selectedPairs = context.scoredPairCombinations.get(context.selection - 1).pairCombination();
         }
         context.actualNextPairings = new ArrayList<>(context.startingPairings);
         selectedPairs.forEach(pair -> context.actualNextPairings.add(new Pairing(LocalDate.now(), pair)));
 
         out.println("""
-                Picked %s:
+                %s:
                                         
                 %s
                 """.formatted(
