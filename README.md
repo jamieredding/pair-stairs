@@ -3,9 +3,6 @@
 ## todo
 
 ### cli
-- show bad pairings
-- change to an event-ish loop
-- should expected single character inputs not require enter to be pressed.
 - handle ctrl+c
 
 ### persistence
