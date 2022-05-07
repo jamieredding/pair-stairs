@@ -674,6 +674,68 @@ interface RunnerContractTest {
     }
 
     @Test
+    default void ignoreTodaysPairsInCaseItIsRunTwiceInOneDay(StdIO stdIO) throws Exception {
+        List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
+        LocalDate now = LocalDate.now();
+        persistConfiguration(new Configuration(allDevelopers, List.of(
+                new Pairing(now, "a-dev", "e-dev"),
+                new Pairing(now, "c-dev", "d-dev")
+        )));
+
+        stdIO.inputWriter()
+                .append("2\n"); // choose second option
+        stdIO.inputWriter().flush();
+
+
+        int exitCode = executeUnderTest(
+                "--devs", "c-dev", "d-dev", "e-dev", "a-dev");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(stdIO.out().toString()))
+                .isEqualTo("""
+                        Options (lowest score is better)
+
+                                      1             2             3      \s
+                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
+                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
+                         score        5             5             5      \s
+
+                        Choose a suggestion [1-3]:
+                        Or override with your own pairs [o]
+
+                        Picked 2:
+
+                                a-dev  c-dev  d-dev  e-dev\s
+                         a-dev    0      0     1 *     0  \s
+                         c-dev           0      0     1 * \s
+                         d-dev                  0      0  \s
+                         e-dev                         0  \s
+
+                        Saved pairings to: %s
+
+                        """.formatted(storage().describe()));
+        assertThat(unWindows(stdIO.err().toString()))
+                .isEmpty();
+
+
+        assertThat(readPersistedData())
+                .isEqualTo("""
+                                   {""" +
+                           """
+                                   "allDevelopers":["a-dev","c-dev","d-dev","e-dev"],""" +
+                           """
+                                   "newJoiners":[],""" +
+                           """
+                                   "pairings":[""" +
+                           """
+                                   {"date":"%s","pair":{"first":"a-dev","second":"d-dev"}},""".formatted(now) +
+                           """
+                                   {"date":"%s","pair":{"first":"c-dev","second":"e-dev"}}""".formatted(now) +
+                           """
+                                   ]}""");
+    }
+
+    @Test
     default void errorIfNoConfigFileAndNoDevsSpecifiedAtCommandLine(StdIO stdIO) {
         int exitCode = executeUnderTest();
 

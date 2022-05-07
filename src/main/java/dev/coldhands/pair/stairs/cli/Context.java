@@ -10,10 +10,8 @@ import dev.coldhands.pair.stairs.persistance.FileStorage;
 import dev.coldhands.pair.stairs.persistance.Storage;
 
 import java.nio.file.NoSuchFileException;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
 
 import static dev.coldhands.pair.stairs.cli.State.INITIAL_OUTPUT;
 import static java.util.Optional.ofNullable;
@@ -56,7 +54,7 @@ class Context {
         allDevelopers = initialiseAllDevelopers(runner, configuration);
         availableDevelopers = initialiseAvailableDevelopers(runner);
         newJoiners = initialiseNewJoiners(runner, configuration);
-        startingPairings = configuration.pairings();
+        startingPairings = initialiseStartingPairings(configuration);
         scoredPairCombinations = computeScoredPairCombinations();
 
         // todo move these closer to where they are needed in the state machine
@@ -64,6 +62,13 @@ class Context {
         pairCombinationsIndex = 0;
         selection = -1;
         state = INITIAL_OUTPUT;
+    }
+
+    private List<Pairing> initialiseStartingPairings(Configuration configuration) {
+        LocalDate now = LocalDate.now();
+        return configuration.pairings().stream()
+                .filter(pairing -> !Objects.equals(pairing.date(), now))
+                .toList();
     }
 
     private LinkedHashSet<String> initialiseAllDevelopers(Runner runner, Configuration configuration) {
