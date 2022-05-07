@@ -4,10 +4,11 @@ import dev.coldhands.pair.stairs.DecideOMatic;
 import dev.coldhands.pair.stairs.Pair;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.ScoredPairCombination;
+import dev.coldhands.pair.stairs.persistance.ArtifactoryStorage;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;
+import dev.coldhands.pair.stairs.persistance.Storage;
 
-import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -19,7 +20,7 @@ import static java.util.Optional.ofNullable;
 
 class Context {
 
-    final FileStorage fileStorage;
+    final Storage storage;
 
     Set<String> allDevelopers;
     Set<String> availableDevelopers;
@@ -36,14 +37,19 @@ class Context {
     List<Pairing> actualNextPairings;
 
     private Context(Runner runner) {
-        fileStorage = new FileStorage(runner.getDataFile());
+        Runner.Persistence persistence = runner.getPersistence();
+        if (persistence.dataFile != null) {
+            storage = new FileStorage(persistence.dataFile);
+        } else {
+            storage = new ArtifactoryStorage(persistence.artifactoryLocation, runner.getEnvironment());
+        }
 
         Configuration configuration;
         try {
-            configuration = fileStorage.read();
+            configuration = storage.read();
         } catch (NoSuchFileException e) {
             configuration = new Configuration(List.of(), List.of(), List.of());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -70,7 +76,7 @@ class Context {
                     No pairs specified in %s
                                             
                     Rerun and specify which devs to include via the '--devs' option
-                    """.formatted(fileStorage.describe()));
+                    """.formatted(storage.describe()));
         }
         return allDevelopers;
     }

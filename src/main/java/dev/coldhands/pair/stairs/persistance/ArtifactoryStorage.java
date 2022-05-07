@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.NoSuchFileException;
 import java.util.Base64;
 import java.util.Map;
 
@@ -25,10 +26,6 @@ public class ArtifactoryStorage implements Storage {
     private final HttpClient httpClient;
     private String username;
     private String password;
-
-    public ArtifactoryStorage(String fileUrl) {
-        this(fileUrl, System.getenv());
-    }
 
     public ArtifactoryStorage(String fileUrl, Map<String, String> environment) {
         this.fileUrl = fileUrl;
@@ -52,6 +49,10 @@ public class ArtifactoryStorage implements Storage {
                         .uri(URI.create(fileUrl))
                         .build(),
                 ofInputStream());
+
+        if (response.statusCode() == 404) {
+            throw new NoSuchFileException(fileUrl);
+        }
 
         return objectMapper.readValue(response.body(), Configuration.class);
     }

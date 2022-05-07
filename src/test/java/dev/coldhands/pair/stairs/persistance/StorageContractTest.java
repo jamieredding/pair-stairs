@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.Pairing;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -96,6 +97,12 @@ interface StorageContractTest {
 
         assertThatThrownBy(underTest()::read)
                 .isNotNull();
+    }
+
+    @Test
+    default void readThrowsNoSuchFileExceptionWhenUnableToReadFile() {
+        assertThatThrownBy(underTest()::read)
+                .isInstanceOf(NoSuchFileException.class);
     }
 
     @Test

@@ -6,6 +6,7 @@ import picocli.CommandLine;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 
 import static picocli.CommandLine.*;
@@ -15,22 +16,53 @@ import static picocli.CommandLine.*;
         description = "Generate a pair stair for today.",
         optionListHeading = "%nOptions:%n%n",
         sortOptions = false,
-        abbreviateSynopsis = true)
+        abbreviateSynopsis = true,
+        footer = {
+                "%nExamples:%n",
+                "First run with file persistence",
+                "    pair-stairs.sh \\",
+                "      -f /path/to/config.json \\",
+                "      -d dev1 -d dev2 -d dev3",
+                "",
+                "First run with artifactory persistence",
+                "    pair-stairs.sh \\",
+                "      -a http://artifactory/libs-snapshots-local/my/config.json \\",
+                "      -d dev1 -d dev2 -d dev3"
+        })
 class Runner implements Callable<Integer> {
 
     private final BufferedReader in;
     private final PrintWriter out;
     private final PrintWriter err;
+    private final Map<String, String> environment;
 
-    @Option(names = {"-f", "--config-file"},
-            required = true,
-            paramLabel = "FILE",
-            description = {
-                    "Data file to use for persistence.",
-                    "This will contain all pairings that occur",
-                    "and all of the developers to consider."
-            })
-    private Path dataFile;
+    @ArgGroup(exclusive = true, multiplicity = "1", heading = "%nPersistence%n%n")
+    private Persistence persistence;
+
+    static class Persistence {
+        @Option(names = {"-f", "--config-file"},
+                required = true,
+                paramLabel = "FILE",
+                description = {
+                        "Data file to use for persistence.",
+                        "This will contain all pairings that occur",
+                        "and all of the developers to consider."
+                })
+        Path dataFile;
+
+        @Option(names = {"-a", "--artifactory-location"},
+                required = true,
+                paramLabel = "URL",
+                description = {
+                        "URL to config file to use for persistence.",
+                        "Must be an artifactory instance.",
+                        "Will use basic auth credentials from",
+                        "the following environment variables: ",
+                        "ARTIFACTORY_USERNAME and ARTIFACTORY_PASSWORD"
+                })
+        String artifactoryLocation;
+
+    }
 
     @Option(names = {"-i", "--ignore"},
             arity = "0..*",
@@ -68,14 +100,15 @@ class Runner implements Callable<Integer> {
             description = "Display this help message.")
     private boolean helpRequested;
 
-    public Runner(InputStream in, PrintWriter out, PrintWriter err) {
+    public Runner(InputStream in, PrintWriter out, PrintWriter err, Map<String, String> environment) {
         this.in = new BufferedReader(new InputStreamReader(in));
         this.out = out;
         this.err = err;
+        this.environment = environment;
     }
 
-    public static CommandLine createCommandLine(InputStream in, PrintWriter out, PrintWriter err) {
-        return new CommandLine(new Runner(in, out, err));
+    public static CommandLine createCommandLine(InputStream in, PrintWriter out, PrintWriter err, Map<String, String> environment) {
+        return new CommandLine(new Runner(in, out, err, environment));
     }
 
     @Override
@@ -94,7 +127,7 @@ class Runner implements Callable<Integer> {
         }
     }
 
-    private int runStateMachine(Runner runner) throws IOException {
+    private int runStateMachine(Runner runner) throws Exception {
         try {
             final StateMachine stateMachine = new StateMachine(in, out, err, runner);
             while (stateMachine.getState() != State.COMPLETE) {
@@ -109,13 +142,13 @@ class Runner implements Callable<Integer> {
 
     public static void main(String... args) {
         AnsiConsole.systemInstall();
-        int exitCode = createCommandLine(System.in, new PrintWriter(System.out, true), new PrintWriter(System.err, true)).execute(args);
+        int exitCode = createCommandLine(
+                System.in,
+                new PrintWriter(System.out, true),
+                new PrintWriter(System.err, true),
+                System.getenv()).execute(args);
         AnsiConsole.systemUninstall();
         System.exit(exitCode);
-    }
-
-    public Path getDataFile() {
-        return dataFile;
     }
 
     public List<String> getMissingDevelopers() {
@@ -128,5 +161,13 @@ class Runner implements Callable<Integer> {
 
     public List<String> getNewJoiners() {
         return newJoiners;
+    }
+
+    public Persistence getPersistence() {
+        return persistence;
+    }
+
+    public Map<String, String> getEnvironment() {
+        return environment;
     }
 }

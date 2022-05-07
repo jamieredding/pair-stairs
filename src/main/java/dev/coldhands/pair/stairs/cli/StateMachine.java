@@ -159,15 +159,15 @@ class StateMachine {
         return SAVE_DATA_FILE;
     }
 
-    private State saveDataFile() throws IOException {
-        context.fileStorage.write(new Configuration(context.allDevelopers.stream().toList(), context.newJoiners, context.actualNextPairings));
+    private State saveDataFile() throws Exception {
+        context.storage.write(new Configuration(context.allDevelopers.stream().toList(), context.newJoiners, context.actualNextPairings));
         out.println("""
                 Saved pairings to: %s
-                """.formatted(context.fileStorage.describe()));
+                """.formatted(context.storage.describe()));
         return COMPLETE;
     }
 
-    public void run() throws IOException {
+    public void run() throws Exception {
         context.setState(switch (context.getState()) {
             case INITIAL_OUTPUT -> initialOutput();
             case OFFER_USER_CHOICE -> offerUserChoice();
