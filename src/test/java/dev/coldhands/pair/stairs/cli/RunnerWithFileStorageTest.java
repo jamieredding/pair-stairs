@@ -7,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.io.TempDir;
 import picocli.CommandLine;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -23,7 +22,7 @@ class RunnerWithFileStorageTest implements RunnerContractTest {
     private Storage storage;
 
     @BeforeEach
-    void setUp(StdIO stdIO) throws IOException {
+    void setUp(StdIO stdIO) {
         underTest = Runner.createCommandLine(stdIO.in(), stdIO.outWriter(), stdIO.errWriter(), Map.of());
         underTest.setOut(stdIO.outWriter());
         underTest.setErr(stdIO.errWriter());
