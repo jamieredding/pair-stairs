@@ -98,9 +98,17 @@ interface StorageContractTest {
                 .isNotNull();
     }
 
+    @Test
+    default void describePersistenceLocation() {
+        assertThat(underTest().describe())
+                .isEqualTo(storageDescription());
+    }
+
     Storage underTest();
 
     String readPersistedData() throws IOException;
 
     void writePersistedData(String data) throws IOException;
+
+    String storageDescription();
 }

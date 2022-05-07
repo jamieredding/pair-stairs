@@ -99,7 +99,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEqualTo("""
                         Invalid input.
@@ -159,7 +159,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
 
@@ -226,7 +226,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
     }
@@ -260,7 +260,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
     }
@@ -314,7 +314,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
 
@@ -392,7 +392,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
 
@@ -486,7 +486,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
     }
@@ -542,7 +542,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
     }
@@ -652,7 +652,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEqualTo("""
                         Invalid input.
@@ -713,7 +713,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
 
@@ -765,7 +765,7 @@ class RunnerTest {
                                                 
                         Saved pairings to: %s
                                                 
-                        """.formatted(dataFile));
+                        """.formatted(fileStorage.describe()));
         assertThat(unWindows(err.toString()))
                 .isEmpty();
 
@@ -778,6 +778,7 @@ class RunnerTest {
 
     @Test
     void errorIfNoConfigFileAndNoDevsSpecifiedAtCommandLine() {
+        FileStorage fileStorage = new FileStorage(dataFile);
         int exitCode = underTest.execute("-f", dataFile.toAbsolutePath().toString());
 
         assertThat(exitCode).isEqualTo(1);
@@ -790,7 +791,7 @@ class RunnerTest {
                                                 
                         Rerun and specify which devs to include via the '--devs' option
                                                 
-                        """.formatted(dataFile.toAbsolutePath()));
+                        """.formatted(fileStorage.describe()));
 
 
         assertThat(dataFile).doesNotExist();

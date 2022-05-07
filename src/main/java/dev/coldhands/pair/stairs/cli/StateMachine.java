@@ -163,7 +163,7 @@ class StateMachine {
         context.fileStorage.write(new Configuration(context.allDevelopers.stream().toList(), context.newJoiners, context.actualNextPairings));
         out.println("""
                 Saved pairings to: %s
-                """.formatted(context.fileStorage.getDataFile().toAbsolutePath().toString()));
+                """.formatted(context.fileStorage.describe()));
         return COMPLETE;
     }
 

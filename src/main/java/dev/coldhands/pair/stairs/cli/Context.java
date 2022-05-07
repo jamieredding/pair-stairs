@@ -70,7 +70,7 @@ class Context {
                     No pairs specified in %s
                                             
                     Rerun and specify which devs to include via the '--devs' option
-                    """.formatted(fileStorage.getDataFile().toAbsolutePath()));
+                    """.formatted(fileStorage.describe()));
         }
         return allDevelopers;
     }

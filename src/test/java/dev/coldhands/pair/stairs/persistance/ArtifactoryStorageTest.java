@@ -18,6 +18,7 @@ class ArtifactoryStorageTest implements StorageContractTest {
     private static final String FILE_PATH = "/upload/path/config.json";
     private static final int HIGHEST_PRIORITY = 1;
     private Storage underTest;
+    private String uploadLocation;
 
     @BeforeEach
     void setUp(WireMockRuntimeInfo wireMockRuntimeInfo) {
@@ -31,6 +32,7 @@ class ArtifactoryStorageTest implements StorageContractTest {
                 .withBasicAuth("username", "password")
                 .willReturn(aResponse()
                         .withStatus(200)));
+        uploadLocation = wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH;
     }
 
     @AfterEach
@@ -58,5 +60,10 @@ class ArtifactoryStorageTest implements StorageContractTest {
                 .withBasicAuth("username", "password")
                 .willReturn(aResponse()
                         .withBody(data)));
+    }
+
+    @Override
+    public String storageDescription() {
+        return "Artifactory -> " + uploadLocation;
     }
 }

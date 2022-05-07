@@ -1,7 +1,9 @@
 package dev.coldhands.pair.stairs.persistance;
 
-interface Storage {
+public interface Storage {
     void write(Configuration pairings) throws Exception;
 
     Configuration read() throws Exception;
+
+    String describe();
 }

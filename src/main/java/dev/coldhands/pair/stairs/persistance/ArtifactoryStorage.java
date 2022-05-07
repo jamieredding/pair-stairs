@@ -18,7 +18,7 @@ import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.net.http.HttpResponse.BodyHandlers.ofInputStream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-class ArtifactoryStorage implements Storage {
+public class ArtifactoryStorage implements Storage {
 
     private final ObjectMapper objectMapper = objectMapper();
     private final String fileUrl;
@@ -54,6 +54,11 @@ class ArtifactoryStorage implements Storage {
                 ofInputStream());
 
         return objectMapper.readValue(response.body(), Configuration.class);
+    }
+
+    @Override
+    public String describe() {
+        return "Artifactory -> " + fileUrl;
     }
 
     private byte[] serialise(Configuration configuration) {

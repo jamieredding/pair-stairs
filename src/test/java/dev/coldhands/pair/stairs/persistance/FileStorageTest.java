@@ -35,4 +35,9 @@ class FileStorageTest implements StorageContractTest {
     public void writePersistedData(String data) throws IOException {
         Files.writeString(dataFile, data);
     }
+
+    @Override
+    public String storageDescription() {
+        return "File -> " + dataFile.toAbsolutePath();
+    }
 }
