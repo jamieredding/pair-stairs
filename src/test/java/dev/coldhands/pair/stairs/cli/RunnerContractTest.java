@@ -33,13 +33,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-                                                
-                                a-dev  b-dev  c-dev\s
-                         a-dev    0      0      0  \s
-                         b-dev           0      0  \s
-                         c-dev                  0  \s
-                                                
                         Options (lowest score is better)
                                                 
                                       1             2             3      \s
@@ -104,13 +97,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0      0     1 * \s
-                         d-dev          1 *     0  \s
-                         e-dev                  0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -168,14 +154,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -211,14 +189,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-
                         Only one option:
 
                                 a-dev  c-dev  d-dev  e-dev\s
@@ -256,13 +226,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                c-dev  d-dev  e-dev\s
-                         c-dev    1      0     1 * \s
-                         d-dev          1 *     1  \s
-                         e-dev                  0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -333,13 +296,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                c-dev  d-dev  e-dev\s
-                         c-dev    1      0     1 * \s
-                         d-dev          1 *     1  \s
-                         e-dev                  0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -403,15 +359,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  b-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0      0  \s
-                         b-dev           0      0      0      0  \s
-                         c-dev                  0      0      0  \s
-                         d-dev                         0      0  \s
-                         e-dev                                0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -471,14 +418,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -532,14 +471,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -648,14 +579,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s
@@ -708,14 +631,6 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Yesterday's pair stairs
-
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
-
                         Options (lowest score is better)
 
                                       1             2             3      \s

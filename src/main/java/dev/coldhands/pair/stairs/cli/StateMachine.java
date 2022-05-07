@@ -36,12 +36,6 @@ class StateMachine {
     }
 
     private State initialOutput() {
-        out.println("""
-                Yesterday's pair stairs
-                                        
-                %s
-                """.formatted(
-                drawPairStairs(context.allDevelopers, context.startingPairings)));
         if (context.scoredPairCombinations.size() == 1) {
             context.selection = 1;
             return SHOW_SELECTION;
