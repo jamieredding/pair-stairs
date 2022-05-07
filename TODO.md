@@ -1,6 +1,4 @@
-# pair-stairs
-
-## todo
+# todo
 
 ### persistence
 - allow user provided Storage implementation
