@@ -4,7 +4,7 @@
 
     <groupId>dev.coldhands</groupId>
     <artifactId>pair-stairs</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -216,6 +216,6 @@
         <url>https://github.com/jamieredding/pair-stairs</url>
         <connection>scm:git:git://github.com/jamieredding/pair-stairs.git</connection>
         <developerConnection>scm:git:git@github.com:jamieredding/pair-stairs.git</developerConnection>
-        <tag>1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 </project>
