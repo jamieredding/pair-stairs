@@ -149,6 +149,7 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <tagNameFormat>@{project.version}</tagNameFormat>
+                        <signTag>true</signTag>
                     </configuration>
                 </plugin>
             </plugins>
