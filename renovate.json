@@ -1,1 +1,8 @@
-{}
+{
+  "packageRules": [
+    {
+      "matchPackagePrefixes": ["ch.qos.logback"],
+      "groupName": "logback"
+    }
+  ]
+}
