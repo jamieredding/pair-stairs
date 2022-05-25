@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.cli;
 
+import dev.coldhands.pair.stairs.DecideOMatic;
+import dev.coldhands.pair.stairs.PairPrinter;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.Storage;
@@ -8,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import picocli.CommandLine;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import static dev.coldhands.pair.stairs.TestUtils.unWindows;
@@ -19,7 +22,8 @@ interface RunnerContractTest {
     @Test
     default void runWithThreeDevelopers(StdIO stdIO) throws Exception {
         List<String> allDevelopers = List.of("a-dev", "b-dev", "c-dev");
-        persistConfiguration(new Configuration(allDevelopers, List.of()));
+        List<Pairing> pairings = List.of();
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("kjhasdskjh\n") // not a number
@@ -33,38 +37,36 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
-                                                
-                                      1             2             3      \s
-                         Pair a  a-dev  c-dev  b-dev  c-dev  a-dev  b-dev\s
-                         Pair b     b-dev         a-dev         c-dev    \s
-                         score        5             5             5      \s
-                                                
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
-                                                
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
-                                                
-                        Picked 2:
-                                                
-                                a-dev  b-dev  c-dev\s
-                         a-dev   1 *     0      0  \s
-                         b-dev           0     1 * \s
-                         c-dev                  0  \s
-                                                
-                        Saved pairings to: %s
-                                                
-                        """.formatted(storage().describe()));
+                                   Options (lowest score is better)
+                                                           
+                                   """ + pairChoices(pairings, allDevelopers) + """  
+                                       
+                                                         
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
+                                                           
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
+                                                           
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
+                                                           
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
+                                                           
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
+                                                           
+                                   Picked 2:
+                                                           
+                                           a-dev  b-dev  c-dev\s
+                                    a-dev   1 *     0      0  \s
+                                    b-dev           0     1 * \s
+                                    c-dev                  0  \s
+                                                           
+                                   Saved pairings to: %s
+                                                           
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEqualTo("""
                         Invalid input.
@@ -83,11 +85,11 @@ interface RunnerContractTest {
         LocalDate now = LocalDate.now();
 
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
-        persistConfiguration(new Configuration(allDevelopers,
-                List.of(
-                        new Pairing(now.minusDays(1), "c-dev", "e-dev"),
-                        new Pairing(now.minusDays(1), "d-dev")
-                )));
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(1), "d-dev")
+        );
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("1\n"); // choose a pair
@@ -99,10 +101,8 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  c-dev  d-dev  d-dev  e-dev  c-dev  e-dev\s
-                         Pair b     e-dev         c-dev         d-dev    \s
-                         score        3             3             9      \s
+                        """ + pairChoices(pairings, allDevelopers) + """
+                        
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -144,7 +144,8 @@ interface RunnerContractTest {
     @Test
     default void optionallySpecifyAbsentDeveloper(StdIO stdIO) throws Exception {
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
-        persistConfiguration(new Configuration(allDevelopers, List.of()));
+        List<Pairing> pairings = List.of();
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("1\n"); // choose a pair
@@ -155,11 +156,9 @@ interface RunnerContractTest {
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
                         Options (lowest score is better)
-
-                                      1             2             3      \s
-                         Pair a  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
-                         Pair b     e-dev         d-dev         c-dev    \s
-                         score        5             5             5      \s
+                        
+                        """ + pairChoices(pairings, List.of("c-dev", "d-dev", "e-dev")) + """
+                        
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -209,14 +208,14 @@ interface RunnerContractTest {
         LocalDate now = LocalDate.now();
 
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
-        persistConfiguration(new Configuration(allDevelopers,
-                List.of("e-dev"),
-                List.of(
-                        new Pairing(now.minusDays(1), "c-dev", "e-dev"),
-                        new Pairing(now.minusDays(1), "d-dev"),
-                        new Pairing(now.minusDays(2), "d-dev", "e-dev"),
-                        new Pairing(now.minusDays(2), "c-dev")
-                )));
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(1), "d-dev"),
+                new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                new Pairing(now.minusDays(2), "c-dev")
+        );
+        List<String> newJoiners = List.of("e-dev");
+        persistConfiguration(new Configuration(allDevelopers, newJoiners, pairings));
 
         stdIO.inputWriter()
                 .append("1\n"); // choose a pair
@@ -227,11 +226,9 @@ interface RunnerContractTest {
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
                         Options (lowest score is better)
-
-                                      1             2             3      \s
-                         Pair a  d-dev  e-dev  c-dev  e-dev  c-dev  d-dev\s
-                         Pair b     c-dev         d-dev         e-dev    \s
-                         score        3             7             11     \s
+                                                           
+                        """ + pairChoices(pairings, allDevelopers, newJoiners) + """
+                        
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -279,14 +276,15 @@ interface RunnerContractTest {
         LocalDate now = LocalDate.now();
 
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "c-dev", "e-dev"),
+                new Pairing(now.minusDays(1), "d-dev"),
+                new Pairing(now.minusDays(2), "d-dev", "e-dev"),
+                new Pairing(now.minusDays(2), "c-dev")
+        );
         persistConfiguration(new Configuration(allDevelopers,
                 List.of(),
-                List.of(
-                        new Pairing(now.minusDays(1), "c-dev", "e-dev"),
-                        new Pairing(now.minusDays(1), "d-dev"),
-                        new Pairing(now.minusDays(2), "d-dev", "e-dev"),
-                        new Pairing(now.minusDays(2), "c-dev")
-                )));
+                pairings));
 
         stdIO.inputWriter()
                 .append("1\n"); // choose a pair
@@ -297,11 +295,9 @@ interface RunnerContractTest {
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
                         Options (lowest score is better)
+                        
+                        """ + pairChoices(pairings, allDevelopers, List.of("c-dev", "e-dev")) + """
 
-                                      1             2             3      \s
-                         Pair a  c-dev  e-dev  c-dev  d-dev  d-dev  e-dev\s
-                         Pair b     d-dev         e-dev         c-dev    \s
-                         score        5             10            12     \s
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -347,7 +343,8 @@ interface RunnerContractTest {
     @Test
     default void allowOverridingWithYourOwnPairPick_oddNumberOfPairs(StdIO stdIO) throws Exception {
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev", "b-dev");
-        persistConfiguration(new Configuration(allDevelopers, List.of()));
+        List<Pairing> pairings = List.of();
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("o\n") // override
@@ -361,11 +358,8 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  a-dev  d-dev  a-dev  c-dev  a-dev  d-dev\s
-                         Pair b  b-dev  c-dev  b-dev  d-dev  b-dev  e-dev\s
-                         Pair c     e-dev         e-dev         c-dev    \s
-                         score        20            20            20     \s
+                        """ + pairChoices(pairings, allDevelopers) + """
+
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -407,7 +401,8 @@ interface RunnerContractTest {
     @Test
     default void allowOverridingWithYourOwnPairPick_evenNumberOfPairs(StdIO stdIO) throws Exception {
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
-        persistConfiguration(new Configuration(allDevelopers, List.of()));
+        List<Pairing> pairings = List.of();
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("o\n") // override
@@ -420,10 +415,8 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
-                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
-                         score        5             5             5      \s
+                        """ + pairChoices(pairings, allDevelopers) + """
+
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -454,7 +447,8 @@ interface RunnerContractTest {
     @Test
     default void allowOverridingWithYourOwnPairPick_validation(StdIO stdIO) throws Exception {
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev", "a-dev");
-        persistConfiguration(new Configuration(allDevelopers, List.of()));
+        List<Pairing> pairings = List.of();
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("o\n") // override
@@ -473,10 +467,8 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
-                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
-                         score        5             5             5      \s
+                        """ + pairChoices(pairings, allDevelopers) + """
+
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -568,7 +560,8 @@ interface RunnerContractTest {
     @Test
     default void allowSpecifyAllDevelopersAtCommandLineAndOverwriteTheConfigFile(StdIO stdIO) throws Exception {
         List<String> allDevelopers = List.of("c-dev", "d-dev", "e-dev");
-        persistConfiguration(new Configuration(allDevelopers, List.of()));
+        List<Pairing> pairings = List.of();
+        persistConfiguration(new Configuration(allDevelopers, pairings));
 
         stdIO.inputWriter()
                 .append("1\n"); // choose first option
@@ -581,10 +574,8 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
-                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
-                         score        5             5             5      \s
+                        """ + pairChoices(pairings, List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
+
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -633,10 +624,8 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
-                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
-                         score        5             5             5      \s
+                        """ + pairChoices(List.of(), List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
+
 
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
@@ -686,7 +675,6 @@ interface RunnerContractTest {
                 .append("2\n"); // choose second option
         stdIO.inputWriter().flush();
 
-
         int exitCode = executeUnderTest(
                 "--devs", "c-dev", "d-dev", "e-dev", "a-dev");
 
@@ -695,11 +683,9 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                                      1             2             3      \s
-                         Pair a  a-dev  e-dev  a-dev  d-dev  a-dev  c-dev\s
-                         Pair b  c-dev  d-dev  c-dev  e-dev  d-dev  e-dev\s
-                         score        5             5             5      \s
-
+                        """ + pairChoices(List.of(), List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
+        
+        
                         Choose a suggestion [1-3]:
                         Or override with your own pairs [o]
 
@@ -812,4 +798,13 @@ interface RunnerContractTest {
     CommandLine underTest();
 
     Storage storage();
+
+    private String pairChoices(List<Pairing> pairings, List<String> allDevelopers) {
+        return pairChoices(pairings, allDevelopers, List.of());
+    }
+
+    private String pairChoices(List<Pairing> pairings, List<String> allDevelopers, List<String> newJoiners) {
+        return PairPrinter.drawPairChoices(new DecideOMatic(pairings, new HashSet<>(allDevelopers), new HashSet<>(newJoiners))
+                .getScoredPairCombinations(), 3);
+    }
 }
