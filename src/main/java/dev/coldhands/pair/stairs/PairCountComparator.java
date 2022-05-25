@@ -16,24 +16,34 @@ class PairCountComparator implements Comparator<PairCount> {
     }
 
     public static int score(PairCount toScore, Set<String> newJoiners) {
+        var pair = toScore.pair();
         int score = 0;
 
-        if (toScore.pair().second() == null) {
-            // solo new joiners last
-            if (newJoiners.contains(toScore.pair().first())) {
-                score += 100000;
-            } else {
-                // solo pairs last
-                score += 100;
-            }
+        if (pairIsASoloNewJoiner(pair, newJoiners)) {
+            score += 100000;
         }
-        // recent pairs last
+
         if (toScore.wasRecent()) {
             score += 10000;
         }
+
+        if (pairIsASoloNonNewJoiner(pair, newJoiners)) {
+            score += 100;
+        }
+
         //compare count
         score += toScore.count();
 
         return score;
+    }
+
+    private static boolean pairIsASoloNewJoiner(Pair pair, Set<String> newJoiners) {
+        return pair.second() == null &&
+               newJoiners.contains(pair.first());
+    }
+
+    private static boolean pairIsASoloNonNewJoiner(Pair pair, Set<String> newJoiners) {
+        return pair.second() == null &&
+               !newJoiners.contains(pair.first());
     }
 }
