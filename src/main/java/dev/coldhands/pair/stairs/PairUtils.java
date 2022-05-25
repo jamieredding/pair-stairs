@@ -91,15 +91,9 @@ class PairUtils {
         };
     }
 
-    static PairCombinationScorer scorePairCombinationUsing(List<Pair> pairsSortedByPairCount, Set<String> newJoiners) {
+    static PairCombinationScorer scorePairCombinationUsing(Map<Pair, Integer> pairsSortedByPairCount) {
         return pairCombination -> pairCombination.stream()
-                .mapToInt(pair -> {
-                    int position = pairsSortedByPairCount.indexOf(pair);
-                    if (pair.second() == null && newJoiners.contains(pair.first())) {
-                        position += pairsSortedByPairCount.size();
-                    }
-                    return position;
-                })
+                .mapToInt(pairsSortedByPairCount::get)
                 .sum();
     }
 

@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -56,5 +57,15 @@ class PairTest {
     @MethodSource
     void canBeMadeFrom(Pair pair, Set<String> outstandingDevelopers, boolean canBeMadeFrom) {
         assertThat(pair.canBeMadeFrom(outstandingDevelopers)).isEqualTo(canBeMadeFrom);
+    }
+
+    @Test
+    void membersWhenAPair() {
+        assertThat(new Pair("a-dev", "b-dev").members()).containsOnly("a-dev", "b-dev");
+    }
+
+    @Test
+    void membersWhenSolo() {
+        assertThat(new Pair("a-dev").members()).containsOnly("a-dev");
     }
 }

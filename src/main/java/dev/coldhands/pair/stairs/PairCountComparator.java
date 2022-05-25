@@ -2,44 +2,38 @@ package dev.coldhands.pair.stairs;
 
 import java.util.Comparator;
 import java.util.Set;
-import java.util.function.Function;
-
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.nullsLast;
 
 class PairCountComparator implements Comparator<PairCount> {
-    private final Comparator<PairCount> comparator;
+    private final Set<String> newJoiners;
 
     public PairCountComparator(Set<String> newJoiners) {
-        comparator = comparing(soloNewJoinersLast(newJoiners))
-                .thenComparing(recentPairsLast())
-                .thenComparing(secondPairMember(), putSoloPairsLast())
-                .thenComparing(PairCount::count)
-                .thenComparing(pairCount -> pairCount.pair().first())
-                .thenComparing(pairCount -> pairCount.pair().second());
-    }
-
-    private static Function<PairCount, Boolean> soloNewJoinersLast(Set<String> newJoiners) {
-        return pairCount -> {
-            Pair pair = pairCount.pair();
-            return pair.second() == null && newJoiners.contains(pair.first());
-        };
-    }
-
-    private static Function<PairCount, Boolean> recentPairsLast() {
-        return PairCount::wasRecent;
-    }
-
-    private static Comparator<String> putSoloPairsLast() {
-        return nullsLast((o1, o2) -> 0);
-    }
-
-    private static Function<PairCount, String> secondPairMember() {
-        return pairCount -> pairCount.pair().second();
+        this.newJoiners = newJoiners;
     }
 
     @Override
     public int compare(PairCount o1, PairCount o2) {
-        return comparator.compare(o1, o2);
+        return Comparator.<PairCount, Integer>comparing(pairCount -> score(pairCount, newJoiners)).compare(o1, o2);
+    }
+
+    public static int score(PairCount toScore, Set<String> newJoiners) {
+        int score = 0;
+
+        if (toScore.pair().second() == null) {
+            // solo new joiners last
+            if (newJoiners.contains(toScore.pair().first())) {
+                score += 100000;
+            } else {
+                // solo pairs last
+                score += 100;
+            }
+        }
+        // recent pairs last
+        if (toScore.wasRecent()) {
+            score += 10000;
+        }
+        //compare count
+        score += toScore.count();
+
+        return score;
     }
 }

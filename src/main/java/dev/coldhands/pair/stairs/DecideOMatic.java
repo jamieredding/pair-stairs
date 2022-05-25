@@ -1,11 +1,14 @@
 package dev.coldhands.pair.stairs;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import static dev.coldhands.pair.stairs.PairCountComparator.score;
 import static dev.coldhands.pair.stairs.PairUtils.scorePairCombinationUsing;
-import static java.util.Comparator.*;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toMap;
 
 public class DecideOMatic {
     private final List<Pairing> pairings;
@@ -24,22 +27,23 @@ public class DecideOMatic {
 
     public List<ScoredPairCombination> getScoredPairCombinations() {
         Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(availableDevelopers);
-        List<PairCount> pairCounts = PairUtils.countPairs(availableDevelopers, pairings);
-        List<Pair> allPairsSortedByPairCount = pairCounts
-                .stream()
-                .sorted(new PairCountComparator(newJoiners))
-                .map(PairCount::pair)
-                .toList();
+        Map<Pair, Integer> allPairsAndTheirScore = getAllPairsAndTheirScore();
 
         return allPairCombinations.stream()
-                .map(toScoredPairCombination(allPairsSortedByPairCount))
+                .map(toScoredPairCombination(allPairsAndTheirScore))
                 .sorted(comparing(ScoredPairCombination::score))
                 .toList();
     }
 
-    private Function<Set<Pair>, ScoredPairCombination> toScoredPairCombination(List<Pair> allPairsSortedByPairCount) {
+    Map<Pair, Integer> getAllPairsAndTheirScore() {
+        return PairUtils.countPairs(availableDevelopers, pairings)
+                .stream()
+                .collect(toMap(PairCount::pair, pairCount -> score(pairCount, newJoiners)));
+    }
+
+    private Function<Set<Pair>, ScoredPairCombination> toScoredPairCombination(Map<Pair, Integer> allPairsAndTheirScore) {
         return pairCombination -> new ScoredPairCombination(pairCombination,
-                scorePairCombinationUsing(allPairsSortedByPairCount, newJoiners).score(pairCombination));
+                scorePairCombinationUsing(allPairsAndTheirScore).score(pairCombination));
     }
 
     public Set<Pair> getNextPairs() {

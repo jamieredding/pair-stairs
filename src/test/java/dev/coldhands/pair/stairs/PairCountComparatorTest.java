@@ -19,12 +19,6 @@ class PairCountComparatorTest {
                         new PairCount(new Pair("c-dev", "d-dev"), 0, false),
                         new PairCount(new Pair("d-dev", "e-dev"), 1, false)),
                 arguments(
-                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
-                        new PairCount(new Pair("d-dev", "e-dev"), 0, false)),
-                arguments(
-                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
-                        new PairCount(new Pair("c-dev", "e-dev"), 0, false)),
-                arguments(
                         new PairCount(new Pair("d-dev", "e-dev"), 1, false),
                         new PairCount(new Pair("c-dev"), 0, false)),
                 arguments(

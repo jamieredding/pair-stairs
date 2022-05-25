@@ -43,8 +43,8 @@ class DecideOMaticTest {
                                 new Pair("d-dev", "e-dev")}),
                 arguments(Set.of("d-dev", "c-dev", "a-dev", "b-dev"),
                         new Pair[]{
-                                new Pair("a-dev", "b-dev"),
-                                new Pair("c-dev", "d-dev")}),
+                                new Pair("a-dev", "d-dev"),
+                                new Pair("b-dev", "c-dev")}),
                 arguments(Set.of("d-dev", "e-dev", "a-dev", "b-dev"),
                         new Pair[]{
                                 new Pair("d-dev", "e-dev"),
@@ -143,15 +143,15 @@ class DecideOMaticTest {
                         new ScoredPairCombination(
                                 Set.of(new Pair("c-dev", "d-dev"),
                                         new Pair("e-dev")),
-                                2),
+                                100),
                         new ScoredPairCombination(
                                 Set.of(new Pair("d-dev", "e-dev"),
                                         new Pair("c-dev")),
-                                4),
+                                102),
                         new ScoredPairCombination(
                                 Set.of(new Pair("c-dev", "e-dev"),
                                         new Pair("d-dev")),
-                                9)
+                                20102)
                 );
     }
 }

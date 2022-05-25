@@ -7,6 +7,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -128,35 +129,29 @@ class PairUtilsTest {
     static Stream<Arguments> compare() {
         return Stream.of(
                 arguments(
-                        List.of(new Pair("c-dev", "d-dev"),
-                                new Pair("d-dev", "e-dev")),
-                        Set.of(new Pair("c-dev", "d-dev")),
-                        Set.of(new Pair("d-dev", "e-dev")),
-                        Set.of()),
-                arguments(
-                        List.of(new Pair("c-dev", "d-dev"),
-                                new Pair("d-dev", "e-dev"),
-                                new Pair("a-dev", "e-dev"),
-                                new Pair("a-dev", "c-dev")),
+                        Map.of(new Pair("c-dev", "d-dev"), 0,
+                                new Pair("d-dev", "e-dev"), 0,
+                                new Pair("a-dev", "e-dev"), 100,
+                                new Pair("a-dev", "c-dev"), 1000),
                         Set.of(new Pair("c-dev", "d-dev"), new Pair("a-dev", "e-dev")),
                         Set.of(new Pair("d-dev", "e-dev"), new Pair("a-dev", "c-dev")),
                         Set.of()),
                 arguments(
-                        List.of(new Pair("d-dev", "e-dev"),
-                                new Pair("a-dev", "c-dev"),
-                                new Pair("c-dev", "d-dev"),
-                                new Pair("a-dev", "e-dev")),
+                        Map.of(new Pair("d-dev", "e-dev"), 0,
+                                new Pair("a-dev", "c-dev"), 100,
+                                new Pair("c-dev", "d-dev"), 1000,
+                                new Pair("a-dev", "e-dev"), 10000),
                         Set.of(new Pair("d-dev", "e-dev"), new Pair("a-dev", "c-dev")),
                         Set.of(new Pair("c-dev", "d-dev"), new Pair("a-dev", "e-dev")),
                         Set.of()),
                 arguments(
-                        List.of(new Pair("c-dev", "d-dev"),
-                                new Pair("d-dev", "e-dev"),
-                                new Pair("c-dev", "e-dev"),
-                                new Pair("a-dev", "e-dev"),
-                                new Pair("d-dev"),
-                                new Pair("c-dev"),
-                                new Pair("e-dev")),
+                        Map.of(new Pair("c-dev", "d-dev"), 0,
+                                new Pair("d-dev", "e-dev"), 0,
+                                new Pair("c-dev", "e-dev"), 100,
+                                new Pair("a-dev", "e-dev"), 1000,
+                                new Pair("d-dev"), 10000,
+                                new Pair("c-dev"), 10000,
+                                new Pair("e-dev"), 100000),
                         Set.of(new Pair("c-dev", "e-dev"), new Pair("d-dev")),
                         Set.of(new Pair("c-dev", "d-dev"), new Pair("e-dev")),
                         Set.of("c-dev", "e-dev"))
@@ -165,11 +160,10 @@ class PairUtilsTest {
 
     @ParameterizedTest
     @MethodSource
-    void compare(List<Pair> pairsSortedByPairCount,
+    void compare(Map<Pair, Integer> allPairsAndTheirScore,
                  Set<Pair> pairCombination1,
-                 Set<Pair> pairCombination2,
-                 Set<String> newJoiners) {
-        var underTest = Comparator.comparing(scorePairCombinationUsing(pairsSortedByPairCount, newJoiners)::score);
+                 Set<Pair> pairCombination2) {
+        var underTest = Comparator.comparing(scorePairCombinationUsing(allPairsAndTheirScore)::score);
 
         testComparator(underTest, pairCombination1, pairCombination2);
     }
