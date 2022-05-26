@@ -5,34 +5,89 @@ import com.jakewharton.picnic.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import java.time.Duration;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+
+import static java.util.stream.Collectors.joining;
 
 class Simulation {
 
     @Test
     @Disabled
     void name() throws Exception {
-        Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
+        List<String> allDevelopers = List.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
         List<Pairing> pairings = new ArrayList<>();
         Set<Pair> previousPairs = Set.of();
-        for (int dayNumber = 0; dayNumber < 100; dayNumber++) {
-            Set<Pair> nextPairs = simulateDay(dayNumber, allDevelopers, pairings);
-            printData(allDevelopers, pairings, nextPairs, previousPairs);
+        Random random = new Random();
+
+
+        int daysToSimulate = (int) ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.now().plusYears(10));
+
+        for (int dayNumber = 0; dayNumber < daysToSimulate; dayNumber++) {
+            Set<String> availableDevelopers = pickAvailable(random, allDevelopers);
+
+            DecideOMatic decideOMatic = new DecideOMatic(pairings, availableDevelopers, Set.of());
+//            DecideOMatic decideOMatic = new DecideOMatic(pairings, availableDevelopers, Set.of("e-dev"));
+
+            List<ScoredPairCombination> scoredPairCombinations = decideOMatic.getScoredPairCombinations();
+            Map<Pair, Integer> allPairsAndTheirScore = decideOMatic.getAllPairsAndTheirScore();
+
+            Set<Pair> nextPairs = scoredPairCombinations.stream()
+                    .map(ScoredPairCombination::pairCombination)
+                    .findFirst().get();
+
+            addToPairings(pairings, dayNumber, nextPairs);
+//            printData(new HashSet<>(allDevelopers), pairings, nextPairs, scoredPairCombinations, previousPairs, allPairsAndTheirScore);
             previousPairs = nextPairs;
 
-            Thread.sleep(Duration.ofMillis(300).toMillis());
+            if (dayNumber == daysToSimulate - 1) {
+                printData(new HashSet<>(allDevelopers), pairings, nextPairs, scoredPairCombinations, Set.of(), allPairsAndTheirScore);
+            }
         }
+
+        calculatePercentOccurrenceOfEachPair(allDevelopers, pairings, daysToSimulate);
     }
 
-    private void printData(Set<String> allDevelopers, List<Pairing> pairings, Set<Pair> nextPairs, Set<Pair> previousPairs) {
+    private void calculatePercentOccurrenceOfEachPair(List<String> allDevelopers, List<Pairing> pairings, int daysToSimulate) {
+        PairUtils.countPairs(new HashSet<>(allDevelopers), pairings)
+                .stream()
+                .map(pc -> "%s -> %s -> %s".formatted(pc.pair(), pc.count(), ((double) pc.count()) / daysToSimulate))
+                .forEach(System.out::println);
+
+        System.out.println(PairUtils.countPairs(new HashSet<>(allDevelopers), pairings)
+                .stream()
+                        .filter(pairCount -> pairCount.pair().second() != null)
+                .map(pc -> ((double) pc.count()) / daysToSimulate)
+                .map(d -> d.toString().substring(0, 4))
+                .collect(joining(",")));
+    }
+
+    private void addToPairings(List<Pairing> pairings, int dayNumber, Set<Pair> nextPairs) {
+        nextPairs.stream()
+                .map(pair -> new Pairing(LocalDate.now().plusDays(dayNumber), pair))
+                .forEach(pairings::add);
+    }
+
+    private Set<String> pickAvailable(Random random, List<String> allDevelopers) {
+        ArrayList<String> devs = new ArrayList<>(allDevelopers);
+        int i = random.nextInt(10);
+        if (i < allDevelopers.size()) {
+            String absent = devs.remove(i);
+            System.out.println("absent: " + absent);
+        }
+        return new HashSet<>(devs);
+    }
+
+    private void printData(Set<String> allDevelopers, List<Pairing> pairings, Set<Pair> nextPairs, List<ScoredPairCombination> scoredPairCombinations, Set<Pair> previousPairs, Map<Pair, Integer> allPairsAndTheirScore) {
         printPairs(nextPairs, previousPairs);
         System.out.print("\n--------------\n\n");
+        scoredPairCombinations.stream()
+                        .limit(3)
+                                .forEach(spc -> System.out.println(spc.scoreBreakdown(allPairsAndTheirScore)));
+        System.out.print("\n--------------\n\n");
         printPairStairs(allDevelopers, pairings);
-
+        System.out.print("\n--------------\n--------------\n");
     }
 
     private void printPairStairs(Set<String> allDevelopers, List<Pairing> pairings) {
@@ -72,12 +127,4 @@ class Simulation {
         System.out.println("\n" + table.build());
     }
 
-    private Set<Pair> simulateDay(int dayIndex, Set<String> allDevelopers, List<Pairing> pairings) {
-        DecideOMatic decideOMatic = new DecideOMatic(pairings, allDevelopers);
-        Set<Pair> nextPairs = decideOMatic.getNextPairs();
-        nextPairs.stream()
-                .map(pair -> new Pairing(LocalDate.now().plusDays(dayIndex), pair))
-                .forEach(pairings::add);
-        return nextPairs;
-    }
 }

@@ -14,4 +14,3 @@
 - show whole score breakdown in pairCounts printing
 
 ### scoring
-- take into account the last date of each pair, not just yesterday's pair

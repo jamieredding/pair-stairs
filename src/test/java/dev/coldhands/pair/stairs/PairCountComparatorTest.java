@@ -43,4 +43,18 @@ class PairCountComparatorTest {
         final PairCount second = new PairCount(new Pair("b-dev"), 0, LocalDate.now().minusDays(1));
         testComparator(new PairCountComparator(Set.of("b-dev"), LocalDate.now()), first, second);
     }
+
+    @Test
+    void preferPairThatHasAnOlderLastPairingDate() {
+        final PairCount first = new PairCount(new Pair("b-dev", "c-dev"), 2, LocalDate.now().minusDays(3));
+        final PairCount second = new PairCount(new Pair("a-dev", "b-dev"), 2, LocalDate.now().minusDays(2));
+        testComparator(new PairCountComparator(Set.of(), LocalDate.now()), first, second);
+    }
+
+    @Test
+    void preferPairThatHasNotPairedOverOneThatHasPaired() {
+        final PairCount first = new PairCount(new Pair("b-dev", "c-dev"), 0, null);
+        final PairCount second = new PairCount(new Pair("a-dev", "b-dev"), 2, LocalDate.now().minusDays(2));
+        testComparator(new PairCountComparator(Set.of(), LocalDate.now()), first, second);
+    }
 }

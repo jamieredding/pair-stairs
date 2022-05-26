@@ -94,7 +94,7 @@ class PairUtils {
 
     public static Optional<LocalDate> mostRecentDate(List<PairCount> pairCounts) {
         return pairCounts.stream()
-                .map(PairCount::mostRecentOccurrence)
+                .map(PairCount::lastPairingDate)
                 .filter(Objects::nonNull)
                 .max(naturalOrder());
     }

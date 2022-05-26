@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Set;
 
@@ -34,14 +35,34 @@ class PairCountComparator implements Comparator<PairCount> {
             score += 100;
         }
 
-        //compare count
-        score += toScore.count();
+        if (pair.members().size() == 2) {
+            score -= getNumberOfDaysSinceMostRecentDate(toScore, mostRecentDate);
+        }
 
         return score;
     }
 
+    private static long getNumberOfDaysSinceMostRecentDate(PairCount toScore, LocalDate mostRecentDate) {
+        return toScore.getLastPairingDate().stream()
+                .mapToLong(lastPairingDate ->
+                        ChronoUnit.DAYS.between(lastPairingDate, mostRecentDate))
+                .findFirst()
+                /*
+                This or else value only applies when a pair has never happened.
+
+                The specific value just has to be larger than any possible value that would be
+                calculated between the lastPairingDate and mostRecentDate.
+
+                This is to ensure that each pair will be picked at least once before going
+                into the normal rotation of being picked.
+
+                99 was chosen as it seems unlikely that a pair would naturally not pair for 100 days.
+                 */
+                .orElse(99);
+    }
+
     private static boolean mostRecentOccurrenceIsMostRecentDate(PairCount toScore, LocalDate mostRecentDate) {
-        return toScore.getMostRecentOccurrence()
+        return toScore.getLastPairingDate()
                 .filter(date -> date.equals(mostRecentDate))
                 .isPresent();
     }
