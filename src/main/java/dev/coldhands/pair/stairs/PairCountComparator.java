@@ -15,6 +15,7 @@ class PairCountComparator implements Comparator<PairCount> {
     }
 
     @Override
+    // todo make the comparator test code only
     public int compare(PairCount o1, PairCount o2) {
         return Comparator.<PairCount, Integer>comparing(pairCount -> score(pairCount, newJoiners, mostRecentDate)).compare(o1, o2);
     }
