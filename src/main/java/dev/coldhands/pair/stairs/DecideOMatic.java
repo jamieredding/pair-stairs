@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,9 +37,12 @@ public class DecideOMatic {
     }
 
     Map<Pair, Integer> getAllPairsAndTheirScore() {
-        return PairUtils.countPairs(availableDevelopers, pairings)
+        List<PairCount> pairCounts = PairUtils.countPairs(availableDevelopers, pairings);
+        LocalDate mostRecentDate = PairUtils.mostRecentDate(pairCounts).orElse(null);
+
+        return pairCounts
                 .stream()
-                .collect(toMap(PairCount::pair, pairCount -> score(pairCount, newJoiners)));
+                .collect(toMap(PairCount::pair, pairCount -> score(pairCount, newJoiners, mostRecentDate)));
     }
 
     private Function<Set<Pair>, ScoredPairCombination> toScoredPairCombination(Map<Pair, Integer> allPairsAndTheirScore) {

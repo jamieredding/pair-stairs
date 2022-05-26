@@ -1,4 +1,11 @@
 package dev.coldhands.pair.stairs;
 
-record PairCount(Pair pair, int count, boolean wasRecent) {
+import java.time.LocalDate;
+import java.util.Optional;
+
+record PairCount(Pair pair, int count, LocalDate mostRecentOccurrence) {
+
+    Optional<LocalDate> getMostRecentOccurrence() {
+        return Optional.ofNullable(mostRecentOccurrence);
+    }
 }

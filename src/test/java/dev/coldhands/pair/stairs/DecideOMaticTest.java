@@ -92,6 +92,18 @@ class DecideOMaticTest {
     }
 
     @Test
+    void whenNoExistingPairingsChooseACombination() {
+        Set<String> allDevelopers = Set.of("a-dev", "b-dev", "c-dev");
+        List<Pairing> pairings = new ArrayList<>();
+
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers);
+        assertThat(underTest.getNextPairs().stream()
+                .flatMap(pair -> pair.members().stream())
+                .toList())
+                .containsOnly("a-dev", "b-dev", "c-dev");
+    }
+
+    @Test
     void doNotAllowNewJoinersToSolo() {
         Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev");
         LocalDate now = LocalDate.now();

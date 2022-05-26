@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs;
 
 import java.util.Comparator;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,5 +18,22 @@ public final class TestUtils {
 
     public static String unWindows(String s) {
         return s.replaceAll("\r\n", "\n");
+    }
+
+    public static List<Pairing> normalise(List<Pairing> badlyOrderedPairNames) {
+        return badlyOrderedPairNames.stream()
+                .map(pairing -> new Pairing(pairing.date(), normalise(pairing.pair())))
+                .toList();
+    }
+
+    public static Pair normalise(Pair pair) {
+        String first = pair.first();
+        if (pair.second() != null) {
+            int compare = first.compareTo(pair.second());
+            if (compare > 0) {
+                return new Pair(pair.second(), pair.first());
+            }
+        }
+        return pair;
     }
 }

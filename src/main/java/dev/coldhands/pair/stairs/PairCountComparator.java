@@ -1,21 +1,24 @@
 package dev.coldhands.pair.stairs;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Set;
 
 class PairCountComparator implements Comparator<PairCount> {
     private final Set<String> newJoiners;
+    private final LocalDate mostRecentDate;
 
-    public PairCountComparator(Set<String> newJoiners) {
+    public PairCountComparator(Set<String> newJoiners, LocalDate mostRecentDate) {
         this.newJoiners = newJoiners;
+        this.mostRecentDate = mostRecentDate;
     }
 
     @Override
     public int compare(PairCount o1, PairCount o2) {
-        return Comparator.<PairCount, Integer>comparing(pairCount -> score(pairCount, newJoiners)).compare(o1, o2);
+        return Comparator.<PairCount, Integer>comparing(pairCount -> score(pairCount, newJoiners, mostRecentDate)).compare(o1, o2);
     }
 
-    public static int score(PairCount toScore, Set<String> newJoiners) {
+    public static int score(PairCount toScore, Set<String> newJoiners, LocalDate mostRecentDate) {
         var pair = toScore.pair();
         int score = 0;
 
@@ -23,7 +26,7 @@ class PairCountComparator implements Comparator<PairCount> {
             score += 100000;
         }
 
-        if (toScore.wasRecent()) {
+        if (mostRecentOccurrenceIsMostRecentDate(toScore, mostRecentDate)) {
             score += 10000;
         }
 
@@ -35,6 +38,12 @@ class PairCountComparator implements Comparator<PairCount> {
         score += toScore.count();
 
         return score;
+    }
+
+    private static boolean mostRecentOccurrenceIsMostRecentDate(PairCount toScore, LocalDate mostRecentDate) {
+        return toScore.getMostRecentOccurrence()
+                .filter(date -> date.equals(mostRecentDate))
+                .isPresent();
     }
 
     private static boolean pairIsASoloNewJoiner(Pair pair, Set<String> newJoiners) {

@@ -28,10 +28,6 @@ class PairUtils {
         var pairCounts = new ArrayList<PairCount>();
 
         Set<Pair> allPairs = PairUtils.allPairs(developers);
-        LocalDate mostRecentPair = pairings.stream()
-                .map(Pairing::date)
-                .max(naturalOrder())
-                .orElse(null);
 
         developers.stream().sorted()
                 .forEach(dev -> allPairs.stream()
@@ -46,8 +42,7 @@ class PairUtils {
                                             maxBy(comparing(Pairing::date)),
                                             (a, b) -> new Collect(a, b.map(Pairing::date).orElse(null))));
 
-                            boolean wasRecent = result.mostRecentOccurrence != null && Objects.equals(result.mostRecentOccurrence, mostRecentPair);
-                            pairCounts.add(new PairCount(pair, (int) result.count, wasRecent));
+                            pairCounts.add(new PairCount(pair, (int) result.count, result.mostRecentOccurrence));
                         }));
         return pairCounts;
     }
@@ -95,6 +90,13 @@ class PairUtils {
         return pairCombination -> pairCombination.stream()
                 .mapToInt(pairsSortedByPairCount::get)
                 .sum();
+    }
+
+    public static Optional<LocalDate> mostRecentDate(List<PairCount> pairCounts) {
+        return pairCounts.stream()
+                .map(PairCount::mostRecentOccurrence)
+                .filter(Objects::nonNull)
+                .max(naturalOrder());
     }
 
     @FunctionalInterface

@@ -5,13 +5,14 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Set;
 
+import static dev.coldhands.pair.stairs.TestUtils.normalise;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PairPrinterTest {
 
     @Test
     void drawPairStairs() {
-        List<Pairing> pairings = TestData.EXAMPLE_PAIRINGS;
+        List<Pairing> pairings = normalise(TestData.EXAMPLE_PAIRINGS);
         Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
         assertThat(PairPrinter.drawPairStairs(allDevelopers, pairings))

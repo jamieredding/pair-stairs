@@ -5,6 +5,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -40,21 +41,21 @@ class PairUtilsTest {
 
         assertThat(PairUtils.countPairs(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("a-dev"), 0, false),
-                        new PairCount(new Pair("a-dev", "b-dev"), 1, false),
-                        new PairCount(new Pair("a-dev", "c-dev"), 1, false),
-                        new PairCount(new Pair("a-dev", "d-dev"), 1, false),
-                        new PairCount(new Pair("a-dev", "e-dev"), 1, true),
-                        new PairCount(new Pair("b-dev"), 0, false),
-                        new PairCount(new Pair("b-dev", "c-dev"), 0, false),
-                        new PairCount(new Pair("b-dev", "d-dev"), 2, true),
-                        new PairCount(new Pair("b-dev", "e-dev"), 1, false),
-                        new PairCount(new Pair("c-dev"), 2, true),
-                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
-                        new PairCount(new Pair("c-dev", "e-dev"), 1, false),
-                        new PairCount(new Pair("d-dev"), 1, false),
-                        new PairCount(new Pair("d-dev", "e-dev"), 0, false),
-                        new PairCount(new Pair("e-dev"), 1, false)
+                        new PairCount(new Pair("a-dev"), 0, null),
+                        new PairCount(new Pair("a-dev", "b-dev"), 1, LocalDate.now().minusDays(3)),
+                        new PairCount(new Pair("a-dev", "c-dev"), 1, LocalDate.now().minusDays(6)),
+                        new PairCount(new Pair("a-dev", "d-dev"), 1, LocalDate.now().minusDays(4)),
+                        new PairCount(new Pair("a-dev", "e-dev"), 1, LocalDate.now()),
+                        new PairCount(new Pair("b-dev"), 0, null),
+                        new PairCount(new Pair("b-dev", "c-dev"), 0, null),
+                        new PairCount(new Pair("b-dev", "d-dev"), 2, LocalDate.now()),
+                        new PairCount(new Pair("b-dev", "e-dev"), 1, LocalDate.now().minusDays(4)),
+                        new PairCount(new Pair("c-dev"), 2, LocalDate.now()),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, null),
+                        new PairCount(new Pair("c-dev", "e-dev"), 1, LocalDate.now().minusDays(3)),
+                        new PairCount(new Pair("d-dev"), 1, LocalDate.now().minusDays(3)),
+                        new PairCount(new Pair("d-dev", "e-dev"), 0, null),
+                        new PairCount(new Pair("e-dev"), 1, LocalDate.now().minusDays(6))
                 );
     }
 
@@ -65,21 +66,21 @@ class PairUtilsTest {
 
         assertThat(PairUtils.countPairs(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("a-dev"), 0, false),
-                        new PairCount(new Pair("a-dev", "b-dev"), 0, false),
-                        new PairCount(new Pair("a-dev", "c-dev"), 0, false),
-                        new PairCount(new Pair("a-dev", "d-dev"), 0, false),
-                        new PairCount(new Pair("a-dev", "e-dev"), 0, false),
-                        new PairCount(new Pair("b-dev"), 0, false),
-                        new PairCount(new Pair("b-dev", "c-dev"), 0, false),
-                        new PairCount(new Pair("b-dev", "d-dev"), 0, false),
-                        new PairCount(new Pair("b-dev", "e-dev"), 0, false),
-                        new PairCount(new Pair("c-dev"), 0, false),
-                        new PairCount(new Pair("c-dev", "d-dev"), 0, false),
-                        new PairCount(new Pair("c-dev", "e-dev"), 0, false),
-                        new PairCount(new Pair("d-dev"), 0, false),
-                        new PairCount(new Pair("d-dev", "e-dev"), 0, false),
-                        new PairCount(new Pair("e-dev"), 0, false)
+                        new PairCount(new Pair("a-dev"), 0, null),
+                        new PairCount(new Pair("a-dev", "b-dev"), 0, null),
+                        new PairCount(new Pair("a-dev", "c-dev"), 0, null),
+                        new PairCount(new Pair("a-dev", "d-dev"), 0, null),
+                        new PairCount(new Pair("a-dev", "e-dev"), 0, null),
+                        new PairCount(new Pair("b-dev"), 0, null),
+                        new PairCount(new Pair("b-dev", "c-dev"), 0, null),
+                        new PairCount(new Pair("b-dev", "d-dev"), 0, null),
+                        new PairCount(new Pair("b-dev", "e-dev"), 0, null),
+                        new PairCount(new Pair("c-dev"), 0, null),
+                        new PairCount(new Pair("c-dev", "d-dev"), 0, null),
+                        new PairCount(new Pair("c-dev", "e-dev"), 0, null),
+                        new PairCount(new Pair("d-dev"), 0, null),
+                        new PairCount(new Pair("d-dev", "e-dev"), 0, null),
+                        new PairCount(new Pair("e-dev"), 0, null)
                 );
     }
 
@@ -124,8 +125,6 @@ class PairUtilsTest {
                         assertThat(pairCombination).hasSize(3));
     }
 
-
-
     static Stream<Arguments> compare() {
         return Stream.of(
                 arguments(
@@ -166,5 +165,15 @@ class PairUtilsTest {
         var underTest = Comparator.comparing(scorePairCombinationUsing(allPairsAndTheirScore)::score);
 
         testComparator(underTest, pairCombination1, pairCombination2);
+    }
+
+    @Test
+    void mostRecentDate() {
+        assertThat(PairUtils.mostRecentDate(List.of(
+                new PairCount(new Pair("a-dev"), 1, LocalDate.now().minusDays(1)),
+                new PairCount(new Pair("b-dev"), 2, LocalDate.now()),
+                new PairCount(new Pair("c-dev"), 3, LocalDate.now().minusDays(2)),
+                new PairCount(new Pair("c-dev"), 0, null))))
+                .contains(LocalDate.now());
     }
 }

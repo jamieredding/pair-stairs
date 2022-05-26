@@ -2,6 +2,9 @@ package dev.coldhands.pair.stairs;
 
 import com.jakewharton.picnic.*;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +29,7 @@ public final class PairPrinter {
     private static TableSection buildBody(Set<String> developers, List<Pairing> pairings) {
         TableSection.Builder builder = new TableSection.Builder();
 
+        Set<Pair> mostRecentPairs = findMostRecentPairs(pairings);
         List<PairCount> pairCounts = PairUtils.countPairs(developers, pairings);
         List<String> sortedDevelopers = developers.stream().sorted().toList();
 
@@ -45,7 +49,7 @@ public final class PairPrinter {
             for (; pairCountsIndex < pairCountsUpperIndex; pairCountsIndex++) {
                 PairCount pairCount = pairCounts.get(pairCountsIndex);
                 String content = Long.toString(pairCount.count()) +
-                                 (pairCount.wasRecent() ? " *" : "");
+                                 (mostRecentPairs.contains(pairCount.pair()) ? " *" : "");
                 row.addCell(new Cell.Builder(content)
                         .setStyle(DATA_CELL_STYLE)
                         .build());
@@ -58,6 +62,22 @@ public final class PairPrinter {
         }
 
         return builder.build();
+    }
+
+    // todo, the most recent date should be passed into this class using PairUtils.mostRecentDate
+    //   or something similar
+    private static Set<Pair> findMostRecentPairs(List<Pairing> pairings) {
+        var pairingsByDay = new HashMap<LocalDate, Set<Pair>>();
+        var mostRecentDate = LocalDate.MIN;
+        for (final Pairing pairing : pairings) {
+            pairingsByDay.computeIfAbsent(pairing.date(), date -> new HashSet<>())
+                    .add(pairing.pair());
+            if (pairing.date().isAfter(mostRecentDate)) {
+                mostRecentDate = pairing.date();
+            }
+        }
+
+        return pairingsByDay.get(mostRecentDate);
     }
 
     private static TableSection buildHeader(Set<String> developers) {
