@@ -14,3 +14,6 @@
 - show whole score breakdown in pairCounts printing
 
 ### scoring
+
+### logging
+- add debug logging for artifactory to help with debugging
