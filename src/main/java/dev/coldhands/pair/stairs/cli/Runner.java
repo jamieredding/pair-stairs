@@ -1,6 +1,9 @@
 package dev.coldhands.pair.stairs.cli;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.fusesource.jansi.AnsiConsole;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.io.*;
@@ -9,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static picocli.CommandLine.*;
 
 @Command(name = "pair-stairs.sh",
@@ -95,6 +99,10 @@ class Runner implements Callable<Integer> {
             })
     private List<String> newJoiners;
 
+    @Option(names = "--verbose",
+            description = "Enable verbose output.")
+    private boolean isVerbose;
+
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "Display this help message.")
@@ -114,6 +122,11 @@ class Runner implements Callable<Integer> {
     @Override
     public Integer call() {
         try {
+            if (isVerbose) {
+                Logger logger = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
+                logger.setLevel(Level.DEBUG);
+            }
+
             return runStateMachine(this);
         } catch (Exception e) {
             e.printStackTrace(err);

@@ -1,23 +1,40 @@
 package dev.coldhands.pair.stairs.cli;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import dev.coldhands.pair.stairs.DecideOMatic;
 import dev.coldhands.pair.stairs.PairPrinter;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.Storage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static dev.coldhands.pair.stairs.TestUtils.unWindows;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 @ExtendWith(StdIOExtension.class)
 interface RunnerContractTest {
+
+    Logger LOGGER = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
+
+    @AfterEach
+    default void resetLoggingLevel() {
+        LOGGER.setLevel(Level.INFO);
+    }
 
     @Test
     default void runWithThreeDevelopers(StdIO stdIO) throws Exception {
@@ -201,6 +218,26 @@ interface RunnerContractTest {
                         """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
+    }
+
+    static Stream<Arguments> canSetLoggingLevelFromArgument() {
+        return Stream.of(
+                arguments(new String[]{"--verbose"}, Level.DEBUG),
+                arguments(new String[]{}, Level.INFO)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource
+    default void canSetLoggingLevelFromArgument(String[] args, Level logLevel) throws Exception {
+        List<String> allDevelopers = List.of("a-dev", "b-dev");
+        persistConfiguration(new Configuration(allDevelopers, List.of()));
+
+        int exitCode = executeUnderTest(args);
+
+        assertThat(exitCode).isEqualTo(0);
+
+        assertThat(LOGGER.getLevel()).isEqualTo(logLevel);
     }
 
     @Test
@@ -761,6 +798,7 @@ interface RunnerContractTest {
                                                    working solo.
                                                    Only required on first run or to overwrite the
                                                    new joiners that have been persisted.
+                              --verbose            Enable verbose output.
                           -h, --help               Display this help message.
                                                 
                         Persistence
