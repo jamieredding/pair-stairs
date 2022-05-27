@@ -16,4 +16,4 @@
 ### scoring
 
 ### logging
-- add debug logging for artifactory to help with debugging
+- add option to show scores of all pairs before the options to pick

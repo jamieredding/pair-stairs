@@ -1,9 +1,10 @@
 package dev.coldhands.pair.stairs.persistance;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -15,11 +16,12 @@ import java.util.Map;
 
 import static dev.coldhands.pair.stairs.persistance.ConfigurationUtils.objectMapper;
 import static java.net.http.HttpRequest.BodyPublishers.ofByteArray;
-import static java.net.http.HttpResponse.BodyHandlers.discarding;
-import static java.net.http.HttpResponse.BodyHandlers.ofInputStream;
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ArtifactoryStorage implements Storage {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactoryStorage.class);
 
     private final ObjectMapper objectMapper = objectMapper();
     private final String fileUrl;
@@ -36,25 +38,35 @@ public class ArtifactoryStorage implements Storage {
 
     @Override
     public void write(Configuration pairings) throws Exception {
-        httpClient.send(basicAuthRequest()
-                        .PUT(ofByteArray(serialise(pairings)))
-                        .uri(URI.create(fileUrl)).build(),
-                discarding());
+        sendAndAuditRequest(basicAuthRequest()
+                .PUT(ofByteArray(serialise(pairings)))
+                .uri(URI.create(fileUrl)).build());
     }
 
     @Override
     public Configuration read() throws Exception {
-        HttpResponse<InputStream> response = httpClient.send(basicAuthRequest()
-                        .GET()
-                        .uri(URI.create(fileUrl))
-                        .build(),
-                ofInputStream());
+        HttpResponse<String> response = sendAndAuditRequest(basicAuthRequest()
+                .GET()
+                .uri(URI.create(fileUrl))
+                .build());
 
         if (response.statusCode() == 404) {
             throw new NoSuchFileException(fileUrl);
         }
 
         return objectMapper.readValue(response.body(), Configuration.class);
+    }
+
+    private HttpResponse<String> sendAndAuditRequest(HttpRequest request) throws IOException, InterruptedException {
+        LOGGER.debug("Request: %s %s".formatted(request.method(), request.uri()));
+
+        HttpResponse<String> response = httpClient.send(request,
+                ofString());
+
+        LOGGER.debug("Response: [%s]%s".formatted(
+                response.statusCode(),
+                response.body().isEmpty() ? "" : " " + response.body()));
+        return response;
     }
 
     @Override

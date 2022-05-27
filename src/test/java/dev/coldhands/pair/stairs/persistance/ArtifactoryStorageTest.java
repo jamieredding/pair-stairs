@@ -1,24 +1,34 @@
 package dev.coldhands.pair.stairs.persistance;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.allRequests;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @WireMockTest
 class ArtifactoryStorageTest implements StorageContractTest {
 
     private static final String FILE_PATH = "/upload/path/config.json";
     private static final int HIGHEST_PRIORITY = 1;
+    private final Logger logger = (Logger) LoggerFactory.getLogger(ArtifactoryStorage.class);
     private Storage underTest;
     private String uploadLocation;
+    private ListAppender<ILoggingEvent> appender;
 
     @BeforeEach
     void setUp(WireMockRuntimeInfo wireMockRuntimeInfo) {
@@ -33,11 +43,18 @@ class ArtifactoryStorageTest implements StorageContractTest {
                 .willReturn(aResponse()
                         .withStatus(200)));
         uploadLocation = wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH;
+
+        appender = new ListAppender<>();
+        appender.start();
+        logger.addAppender(appender);
     }
 
     @AfterEach
     void tearDown() {
         WireMock.reset();
+        logger.detachAppender(appender);
+        Logger logger = (Logger) LoggerFactory.getLogger(ArtifactoryStorage.class);
+        logger.setLevel(Level.INFO);
     }
 
     @Override
@@ -65,5 +82,50 @@ class ArtifactoryStorageTest implements StorageContractTest {
     @Override
     public String storageDescription() {
         return "Artifactory -> " + uploadLocation;
+    }
+
+    @Test
+    void readFromArtifactoryHttpRequestsAreLoggedWhenDebugEnabled(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+        Configuration configuration = new Configuration(List.of(), List.of());
+
+        underTest().write(configuration);
+        String persistedData = readPersistedData();
+        writePersistedData(persistedData);
+
+        Logger logger = (Logger) LoggerFactory.getLogger(ArtifactoryStorage.class);
+        logger.setLevel(Level.DEBUG);
+
+        underTest.read();
+
+        assertThat(appender.list)
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getFormattedMessage()).isEqualTo("Request: GET " + wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH);
+                })
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getFormattedMessage()).isEqualTo("Response: [200] " + persistedData);
+                });
+    }
+
+    @Test
+    void writeFromArtifactoryHttpRequestsAreLoggedWhenDebugEnabled(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+        Configuration configuration = new Configuration(List.of(), List.of());
+
+
+        Logger logger = (Logger) LoggerFactory.getLogger(ArtifactoryStorage.class);
+        logger.setLevel(Level.DEBUG);
+
+        underTest().write(configuration);
+
+        assertThat(appender.list)
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getFormattedMessage()).isEqualTo("Request: PUT " + wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH);
+                })
+                .anySatisfy(event -> {
+                    assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getFormattedMessage()).isEqualTo("Response: [200]");
+                });
     }
 }
