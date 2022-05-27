@@ -1,0 +1,2 @@
+Implementation-Title: pair-stairs
+Implementation-Version: manifestVersion

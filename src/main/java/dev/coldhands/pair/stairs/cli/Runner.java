@@ -21,6 +21,7 @@ import static picocli.CommandLine.*;
         optionListHeading = "%nOptions:%n%n",
         sortOptions = false,
         abbreviateSynopsis = true,
+        versionProvider = ManifestVersionProvider.class,
         footer = {
                 "%nExamples:%n",
                 "First run with file persistence",
@@ -107,6 +108,11 @@ class Runner implements Callable<Integer> {
             usageHelp = true,
             description = "Display this help message.")
     private boolean helpRequested;
+
+    @Option(names = "--version",
+            versionHelp = true,
+            description = "Display version information and exit.")
+    private boolean versionRequested;
 
     public Runner(InputStream in, PrintWriter out, PrintWriter err, Map<String, String> environment) {
         this.in = new BufferedReader(new InputStreamReader(in));

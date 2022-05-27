@@ -16,6 +16,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -118,22 +122,22 @@ interface RunnerContractTest {
                 .isEqualTo("""
                         Options (lowest score is better)
 
-                        """ + pairChoices(pairings, allDevelopers) + """
-                        
+                                   """ + pairChoices(pairings, allDevelopers) + """
+                                                           
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 1:
+                                   Picked 1:
 
-                                c-dev  d-dev  e-dev\s
-                         c-dev    0     1 *     1  \s
-                         d-dev           1      0  \s
-                         e-dev                 1 * \s
+                                           c-dev  d-dev  e-dev\s
+                                    c-dev    0     1 *     1  \s
+                                    d-dev           1      0  \s
+                                    e-dev                 1 * \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
 
@@ -172,25 +176,25 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
-                        
-                        """ + pairChoices(pairings, List.of("c-dev", "d-dev", "e-dev")) + """
-                        
+                                   Options (lowest score is better)
+                                                           
+                                   """ + pairChoices(pairings, List.of("c-dev", "d-dev", "e-dev")) + """
+                                                           
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 1:
+                                   Picked 1:
 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0      0  \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                        1 * \s
+                                           a-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0      0      0      0  \s
+                                    c-dev           0     1 *     0  \s
+                                    d-dev                  0      0  \s
+                                    e-dev                        1 * \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
     }
@@ -262,24 +266,24 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
+                                                                      
+                                   """ + pairChoices(pairings, allDevelopers, newJoiners) + """
                                                            
-                        """ + pairChoices(pairings, allDevelopers, newJoiners) + """
-                        
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 1:
+                                   Picked 1:
 
-                                c-dev  d-dev  e-dev\s
-                         c-dev   2 *     0      1  \s
-                         d-dev           1     2 * \s
-                         e-dev                  0  \s
+                                           c-dev  d-dev  e-dev\s
+                                    c-dev   2 *     0      1  \s
+                                    d-dev           1     2 * \s
+                                    e-dev                  0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
 
@@ -331,24 +335,24 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
-                        
-                        """ + pairChoices(pairings, allDevelopers, List.of("c-dev", "e-dev")) + """
+                                   Options (lowest score is better)
+                                                           
+                                   """ + pairChoices(pairings, allDevelopers, List.of("c-dev", "e-dev")) + """
 
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 1:
+                                   Picked 1:
 
-                                c-dev  d-dev  e-dev\s
-                         c-dev    1      0     2 * \s
-                         d-dev          2 *     1  \s
-                         e-dev                  0  \s
+                                           c-dev  d-dev  e-dev\s
+                                    c-dev    1      0     2 * \s
+                                    d-dev          2 *     1  \s
+                                    e-dev                  0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
 
@@ -393,44 +397,44 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
 
-                        """ + pairChoices(pairings, allDevelopers) + """
+                                   """ + pairChoices(pairings, allDevelopers) + """
 
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        [1] a-dev
-                        [2] b-dev
-                        [3] c-dev
-                        [4] d-dev
-                        [5] e-dev
+                                   [1] a-dev
+                                   [2] b-dev
+                                   [3] c-dev
+                                   [4] d-dev
+                                   [5] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'b-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'b-dev'
 
-                        Remaining:
+                                   Remaining:
 
-                        [1] b-dev
-                        [2] c-dev
-                        [3] e-dev
+                                   [1] b-dev
+                                   [2] c-dev
+                                   [3] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'b-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'b-dev' and 'c-dev'
 
-                        Picked custom pairs:
+                                   Picked custom pairs:
 
-                                a-dev  b-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 *     0  \s
-                         b-dev           0      0      0     1 * \s
-                         c-dev                 1 *     0      0  \s
-                         d-dev                         0      0  \s
-                         e-dev                                0  \s
+                                           a-dev  b-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0      0      0     1 *     0  \s
+                                    b-dev           0      0      0     1 * \s
+                                    c-dev                 1 *     0      0  \s
+                                    d-dev                         0      0  \s
+                                    e-dev                                0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
     }
@@ -450,33 +454,33 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
 
-                        """ + pairChoices(pairings, allDevelopers) + """
+                                   """ + pairChoices(pairings, allDevelopers) + """
 
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        Picked custom pairs:
+                                   Picked custom pairs:
 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0     1 *     0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0     1 * \s
-                         e-dev                         0  \s
+                                           a-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0     1 *     0      0  \s
+                                    c-dev           0      0      0  \s
+                                    d-dev                  0     1 * \s
+                                    e-dev                         0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
     }
@@ -502,81 +506,81 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
 
-                        """ + pairChoices(pairings, allDevelopers) + """
+                                   """ + pairChoices(pairings, allDevelopers) + """
 
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        [1] a-dev
-                        [2] c-dev
-                        [3] d-dev
-                        [4] e-dev
+                                   [1] a-dev
+                                   [2] c-dev
+                                   [3] d-dev
+                                   [4] e-dev
 
-                        Type two numbers to choose them,
-                        e.g. '1 2' for 'a-dev' and 'c-dev'
+                                   Type two numbers to choose them,
+                                   e.g. '1 2' for 'a-dev' and 'c-dev'
 
-                        Picked custom pairs:
+                                   Picked custom pairs:
 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0     1 *     0      0  \s
-                         c-dev           0      0      0  \s
-                         d-dev                  0     1 * \s
-                         e-dev                         0  \s
+                                           a-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0     1 *     0      0  \s
+                                    c-dev           0      0      0  \s
+                                    d-dev                  0     1 * \s
+                                    e-dev                         0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEqualTo("""
                         Invalid input.
@@ -609,25 +613,25 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
 
-                        """ + pairChoices(pairings, List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
+                                   """ + pairChoices(pairings, List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
 
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 1:
+                                   Picked 1:
 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 * \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
+                                           a-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0      0      0     1 * \s
+                                    c-dev           0     1 *     0  \s
+                                    d-dev                  0      0  \s
+                                    e-dev                         0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
 
@@ -659,25 +663,25 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
 
-                        """ + pairChoices(List.of(), List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
+                                   """ + pairChoices(List.of(), List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
 
 
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 1:
+                                   Picked 1:
 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0      0     1 * \s
-                         c-dev           0     1 *     0  \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
+                                           a-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0      0      0     1 * \s
+                                    c-dev           0     1 *     0  \s
+                                    d-dev                  0      0  \s
+                                    e-dev                         0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
 
@@ -718,25 +722,25 @@ interface RunnerContractTest {
         assertThat(exitCode).isEqualTo(0);
         assertThat(unWindows(stdIO.out().toString()))
                 .isEqualTo("""
-                        Options (lowest score is better)
+                                   Options (lowest score is better)
 
-                        """ + pairChoices(List.of(), List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
-        
-        
-                        Choose a suggestion [1-3]:
-                        Or override with your own pairs [o]
+                                   """ + pairChoices(List.of(), List.of("c-dev", "d-dev", "e-dev", "a-dev")) + """
+                                           
+                                           
+                                   Choose a suggestion [1-3]:
+                                   Or override with your own pairs [o]
 
-                        Picked 2:
+                                   Picked 2:
 
-                                a-dev  c-dev  d-dev  e-dev\s
-                         a-dev    0      0     1 *     0  \s
-                         c-dev           0      0     1 * \s
-                         d-dev                  0      0  \s
-                         e-dev                         0  \s
+                                           a-dev  c-dev  d-dev  e-dev\s
+                                    a-dev    0      0     1 *     0  \s
+                                    c-dev           0      0     1 * \s
+                                    d-dev                  0      0  \s
+                                    e-dev                         0  \s
 
-                        Saved pairings to: %s
+                                   Saved pairings to: %s
 
-                        """.formatted(storage().describe()));
+                                   """.formatted(storage().describe()));
         assertThat(unWindows(stdIO.err().toString()))
                 .isEmpty();
 
@@ -800,6 +804,7 @@ interface RunnerContractTest {
                                                    new joiners that have been persisted.
                               --verbose            Enable verbose output.
                           -h, --help               Display this help message.
+                              --version            Display version information and exit.
                                                 
                         Persistence
                                                 
@@ -825,6 +830,38 @@ interface RunnerContractTest {
                               -a http://artifactory/libs-snapshots-local/my/config.json \\
                               -d dev1 -d dev2 -d dev3
                         """);
+    }
+
+    @Test
+    default void versionOutput(StdIO stdIO) {
+        givenTheManifestContainsLine("Implementation-Version: manifestVersion");
+        givenTheManifestContainsLine("Implementation-Title: pair-stairs");
+
+        int exitCode = underTest().execute("--version");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(stdIO.out().toString()))
+                .isEqualTo("""
+                        manifestVersion
+                        """);
+    }
+
+    static void givenTheManifestContainsLine(String manifestLine) {
+        ClassLoader classLoader = RunnerContractTest.class.getClassLoader();
+        boolean found = classLoader.resources("META-INF/MANIFEST.MF")
+                .anyMatch(url -> {
+                    try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()))) {
+                        return bufferedReader.lines()
+                                .anyMatch(line -> line.equals(manifestLine));
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                });
+
+        assertThat(found)
+                .describedAs("manifest to contain line " + manifestLine)
+                .isTrue();
+
     }
 
     void persistConfiguration(Configuration pairings) throws Exception;
