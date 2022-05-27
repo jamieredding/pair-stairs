@@ -5,22 +5,22 @@ import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Set;
 
-class PairCountComparator implements Comparator<PairCount> {
+class PairStatsComparator implements Comparator<PairStats> {
     private final Set<String> newJoiners;
     private final LocalDate mostRecentDate;
 
-    public PairCountComparator(Set<String> newJoiners, LocalDate mostRecentDate) {
+    public PairStatsComparator(Set<String> newJoiners, LocalDate mostRecentDate) {
         this.newJoiners = newJoiners;
         this.mostRecentDate = mostRecentDate;
     }
 
     @Override
     // todo make the comparator test code only
-    public int compare(PairCount o1, PairCount o2) {
-        return Comparator.<PairCount, Integer>comparing(pairCount -> score(pairCount, newJoiners, mostRecentDate)).compare(o1, o2);
+    public int compare(PairStats o1, PairStats o2) {
+        return Comparator.<PairStats, Integer>comparing(pairStats -> score(pairStats, newJoiners, mostRecentDate)).compare(o1, o2);
     }
 
-    public static int score(PairCount toScore, Set<String> newJoiners, LocalDate mostRecentDate) {
+    public static int score(PairStats toScore, Set<String> newJoiners, LocalDate mostRecentDate) {
         var pair = toScore.pair();
         int score = 0;
 
@@ -43,7 +43,7 @@ class PairCountComparator implements Comparator<PairCount> {
         return score;
     }
 
-    private static long getNumberOfDaysSinceMostRecentDate(PairCount toScore, LocalDate mostRecentDate) {
+    private static long getNumberOfDaysSinceMostRecentDate(PairStats toScore, LocalDate mostRecentDate) {
         return toScore.getLastPairingDate().stream()
                 .mapToLong(lastPairingDate ->
                         ChronoUnit.DAYS.between(lastPairingDate, mostRecentDate))
@@ -62,7 +62,7 @@ class PairCountComparator implements Comparator<PairCount> {
                 .orElse(99);
     }
 
-    private static boolean mostRecentOccurrenceIsMostRecentDate(PairCount toScore, LocalDate mostRecentDate) {
+    private static boolean mostRecentOccurrenceIsMostRecentDate(PairStats toScore, LocalDate mostRecentDate) {
         return toScore.getLastPairingDate()
                 .filter(date -> date.equals(mostRecentDate))
                 .isPresent();

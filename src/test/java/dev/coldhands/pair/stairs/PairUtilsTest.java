@@ -39,23 +39,23 @@ class PairUtilsTest {
         List<Pairing> pairings = TestData.EXAMPLE_PAIRINGS;
         Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
-        assertThat(PairUtils.countPairs(allDevelopers, pairings))
+        assertThat(PairUtils.calculatePairStats(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("a-dev"), 0, null),
-                        new PairCount(new Pair("a-dev", "b-dev"), 1, LocalDate.now().minusDays(3)),
-                        new PairCount(new Pair("a-dev", "c-dev"), 1, LocalDate.now().minusDays(6)),
-                        new PairCount(new Pair("a-dev", "d-dev"), 1, LocalDate.now().minusDays(4)),
-                        new PairCount(new Pair("a-dev", "e-dev"), 1, LocalDate.now()),
-                        new PairCount(new Pair("b-dev"), 0, null),
-                        new PairCount(new Pair("b-dev", "c-dev"), 0, null),
-                        new PairCount(new Pair("b-dev", "d-dev"), 2, LocalDate.now()),
-                        new PairCount(new Pair("b-dev", "e-dev"), 1, LocalDate.now().minusDays(4)),
-                        new PairCount(new Pair("c-dev"), 2, LocalDate.now()),
-                        new PairCount(new Pair("c-dev", "d-dev"), 0, null),
-                        new PairCount(new Pair("c-dev", "e-dev"), 1, LocalDate.now().minusDays(3)),
-                        new PairCount(new Pair("d-dev"), 1, LocalDate.now().minusDays(3)),
-                        new PairCount(new Pair("d-dev", "e-dev"), 0, null),
-                        new PairCount(new Pair("e-dev"), 1, LocalDate.now().minusDays(6))
+                        new PairStats(new Pair("a-dev"), 0, null),
+                        new PairStats(new Pair("a-dev", "b-dev"), 1, LocalDate.now().minusDays(3)),
+                        new PairStats(new Pair("a-dev", "c-dev"), 1, LocalDate.now().minusDays(6)),
+                        new PairStats(new Pair("a-dev", "d-dev"), 1, LocalDate.now().minusDays(4)),
+                        new PairStats(new Pair("a-dev", "e-dev"), 1, LocalDate.now()),
+                        new PairStats(new Pair("b-dev"), 0, null),
+                        new PairStats(new Pair("b-dev", "c-dev"), 0, null),
+                        new PairStats(new Pair("b-dev", "d-dev"), 2, LocalDate.now()),
+                        new PairStats(new Pair("b-dev", "e-dev"), 1, LocalDate.now().minusDays(4)),
+                        new PairStats(new Pair("c-dev"), 2, LocalDate.now()),
+                        new PairStats(new Pair("c-dev", "d-dev"), 0, null),
+                        new PairStats(new Pair("c-dev", "e-dev"), 1, LocalDate.now().minusDays(3)),
+                        new PairStats(new Pair("d-dev"), 1, LocalDate.now().minusDays(3)),
+                        new PairStats(new Pair("d-dev", "e-dev"), 0, null),
+                        new PairStats(new Pair("e-dev"), 1, LocalDate.now().minusDays(6))
                 );
     }
 
@@ -64,23 +64,23 @@ class PairUtilsTest {
         List<Pairing> pairings = List.of();
         Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
-        assertThat(PairUtils.countPairs(allDevelopers, pairings))
+        assertThat(PairUtils.calculatePairStats(allDevelopers, pairings))
                 .containsOnly(
-                        new PairCount(new Pair("a-dev"), 0, null),
-                        new PairCount(new Pair("a-dev", "b-dev"), 0, null),
-                        new PairCount(new Pair("a-dev", "c-dev"), 0, null),
-                        new PairCount(new Pair("a-dev", "d-dev"), 0, null),
-                        new PairCount(new Pair("a-dev", "e-dev"), 0, null),
-                        new PairCount(new Pair("b-dev"), 0, null),
-                        new PairCount(new Pair("b-dev", "c-dev"), 0, null),
-                        new PairCount(new Pair("b-dev", "d-dev"), 0, null),
-                        new PairCount(new Pair("b-dev", "e-dev"), 0, null),
-                        new PairCount(new Pair("c-dev"), 0, null),
-                        new PairCount(new Pair("c-dev", "d-dev"), 0, null),
-                        new PairCount(new Pair("c-dev", "e-dev"), 0, null),
-                        new PairCount(new Pair("d-dev"), 0, null),
-                        new PairCount(new Pair("d-dev", "e-dev"), 0, null),
-                        new PairCount(new Pair("e-dev"), 0, null)
+                        new PairStats(new Pair("a-dev"), 0, null),
+                        new PairStats(new Pair("a-dev", "b-dev"), 0, null),
+                        new PairStats(new Pair("a-dev", "c-dev"), 0, null),
+                        new PairStats(new Pair("a-dev", "d-dev"), 0, null),
+                        new PairStats(new Pair("a-dev", "e-dev"), 0, null),
+                        new PairStats(new Pair("b-dev"), 0, null),
+                        new PairStats(new Pair("b-dev", "c-dev"), 0, null),
+                        new PairStats(new Pair("b-dev", "d-dev"), 0, null),
+                        new PairStats(new Pair("b-dev", "e-dev"), 0, null),
+                        new PairStats(new Pair("c-dev"), 0, null),
+                        new PairStats(new Pair("c-dev", "d-dev"), 0, null),
+                        new PairStats(new Pair("c-dev", "e-dev"), 0, null),
+                        new PairStats(new Pair("d-dev"), 0, null),
+                        new PairStats(new Pair("d-dev", "e-dev"), 0, null),
+                        new PairStats(new Pair("e-dev"), 0, null)
                 );
     }
 
@@ -170,10 +170,10 @@ class PairUtilsTest {
     @Test
     void mostRecentDate() {
         assertThat(PairUtils.mostRecentDate(List.of(
-                new PairCount(new Pair("a-dev"), 1, LocalDate.now().minusDays(1)),
-                new PairCount(new Pair("b-dev"), 2, LocalDate.now()),
-                new PairCount(new Pair("c-dev"), 3, LocalDate.now().minusDays(2)),
-                new PairCount(new Pair("c-dev"), 0, null))))
+                new PairStats(new Pair("a-dev"), 1, LocalDate.now().minusDays(1)),
+                new PairStats(new Pair("b-dev"), 2, LocalDate.now()),
+                new PairStats(new Pair("c-dev"), 3, LocalDate.now().minusDays(2)),
+                new PairStats(new Pair("c-dev"), 0, null))))
                 .contains(LocalDate.now());
     }
 }

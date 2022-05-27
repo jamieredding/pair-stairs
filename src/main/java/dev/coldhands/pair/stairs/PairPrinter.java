@@ -30,12 +30,12 @@ public final class PairPrinter {
         TableSection.Builder builder = new TableSection.Builder();
 
         Set<Pair> mostRecentPairs = findMostRecentPairs(pairings);
-        List<PairCount> pairCounts = PairUtils.countPairs(developers, pairings);
+        List<PairStats> allPairStats = PairUtils.calculatePairStats(developers, pairings);
         List<String> sortedDevelopers = developers.stream().sorted().toList();
 
         int numberOfDataColumnsToFill = developers.size();
-        int pairCountsUpperIndex = numberOfDataColumnsToFill;
-        int pairCountsIndex = 0;
+        int pairStatsUpperIndex = numberOfDataColumnsToFill;
+        int pairStatsIndex = 0;
         int leadingEmptyCellsToAdd = 0;
 
         for (String dev : sortedDevelopers) {
@@ -46,17 +46,17 @@ public final class PairPrinter {
             }
             leadingEmptyCellsToAdd++;
 
-            for (; pairCountsIndex < pairCountsUpperIndex; pairCountsIndex++) {
-                PairCount pairCount = pairCounts.get(pairCountsIndex);
-                String content = Long.toString(pairCount.count()) +
-                                 (mostRecentPairs.contains(pairCount.pair()) ? " *" : "");
+            for (; pairStatsIndex < pairStatsUpperIndex; pairStatsIndex++) {
+                PairStats pairStats = allPairStats.get(pairStatsIndex);
+                String content = Long.toString(pairStats.count()) +
+                                 (mostRecentPairs.contains(pairStats.pair()) ? " *" : "");
                 row.addCell(new Cell.Builder(content)
                         .setStyle(DATA_CELL_STYLE)
                         .build());
             }
 
             numberOfDataColumnsToFill -= 1;
-            pairCountsUpperIndex += numberOfDataColumnsToFill;
+            pairStatsUpperIndex += numberOfDataColumnsToFill;
 
             builder.addRow(row.build());
         }

@@ -3,8 +3,7 @@ package dev.coldhands.pair.stairs;
 import java.time.LocalDate;
 import java.util.Optional;
 
-record PairCount(Pair pair,
-                 // todo is this required any more
+record PairStats(Pair pair,
                  int count,
                  LocalDate lastPairingDate) {
 

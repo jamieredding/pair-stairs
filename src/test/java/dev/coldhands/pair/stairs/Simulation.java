@@ -50,14 +50,14 @@ class Simulation {
     }
 
     private void calculatePercentOccurrenceOfEachPair(List<String> allDevelopers, List<Pairing> pairings, int daysToSimulate) {
-        PairUtils.countPairs(new HashSet<>(allDevelopers), pairings)
+        PairUtils.calculatePairStats(new HashSet<>(allDevelopers), pairings)
                 .stream()
                 .map(pc -> "%s -> %s -> %s".formatted(pc.pair(), pc.count(), ((double) pc.count()) / daysToSimulate))
                 .forEach(System.out::println);
 
-        System.out.println(PairUtils.countPairs(new HashSet<>(allDevelopers), pairings)
+        System.out.println(PairUtils.calculatePairStats(new HashSet<>(allDevelopers), pairings)
                 .stream()
-                        .filter(pairCount -> pairCount.pair().second() != null)
+                .filter(pairStats -> pairStats.pair().second() != null)
                 .map(pc -> ((double) pc.count()) / daysToSimulate)
                 .map(d -> d.toString().substring(0, 4))
                 .collect(joining(",")));
@@ -83,8 +83,8 @@ class Simulation {
         printPairs(nextPairs, previousPairs);
         System.out.print("\n--------------\n\n");
         scoredPairCombinations.stream()
-                        .limit(3)
-                                .forEach(spc -> System.out.println(spc.scoreBreakdown(allPairsAndTheirScore)));
+                .limit(3)
+                .forEach(spc -> System.out.println(spc.scoreBreakdown(allPairsAndTheirScore)));
         System.out.print("\n--------------\n\n");
         printPairStairs(allDevelopers, pairings);
         System.out.print("\n--------------\n--------------\n");

@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static dev.coldhands.pair.stairs.PairCountComparator.score;
+import static dev.coldhands.pair.stairs.PairStatsComparator.score;
 import static dev.coldhands.pair.stairs.PairUtils.scorePairCombinationUsing;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
@@ -44,12 +44,12 @@ public class DecideOMatic {
     }
 
     Map<Pair, Integer> getAllPairsAndTheirScore() {
-        List<PairCount> pairCounts = PairUtils.countPairs(availableDevelopers, pairings);
-        LocalDate mostRecentDate = PairUtils.mostRecentDate(pairCounts).orElse(null);
+        List<PairStats> allPairStats = PairUtils.calculatePairStats(availableDevelopers, pairings);
+        LocalDate mostRecentDate = PairUtils.mostRecentDate(allPairStats).orElse(null);
 
-        var allPairsAndTheirScore = pairCounts
+        var allPairsAndTheirScore = allPairStats
                 .stream()
-                .collect(toMap(PairCount::pair, pairCount -> score(pairCount, newJoiners, mostRecentDate)));
+                .collect(toMap(PairStats::pair, pairStats -> score(pairStats, newJoiners, mostRecentDate)));
 
         if (LOGGER.isDebugEnabled()) {
             log(allPairsAndTheirScore);

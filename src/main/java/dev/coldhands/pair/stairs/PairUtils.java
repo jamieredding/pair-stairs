@@ -24,8 +24,8 @@ class PairUtils {
         return pairs;
     }
 
-    public static List<PairCount> countPairs(Set<String> developers, List<Pairing> pairings) {
-        var pairCounts = new ArrayList<PairCount>();
+    public static List<PairStats> calculatePairStats(Set<String> developers, List<Pairing> pairings) {
+        var allPairStats = new ArrayList<PairStats>();
 
         Set<Pair> allPairs = PairUtils.allPairs(developers);
 
@@ -42,9 +42,9 @@ class PairUtils {
                                             maxBy(comparing(Pairing::date)),
                                             (a, b) -> new Collect(a, b.map(Pairing::date).orElse(null))));
 
-                            pairCounts.add(new PairCount(pair, (int) result.count, result.mostRecentOccurrence));
+                            allPairStats.add(new PairStats(pair, (int) result.count, result.mostRecentOccurrence));
                         }));
-        return pairCounts;
+        return allPairStats;
     }
 
     public static Set<Set<Pair>> calculateAllPairCombinations(Set<String> allDevelopers) {
@@ -86,15 +86,15 @@ class PairUtils {
         };
     }
 
-    static PairCombinationScorer scorePairCombinationUsing(Map<Pair, Integer> pairsSortedByPairCount) {
+    static PairCombinationScorer scorePairCombinationUsing(Map<Pair, Integer> allPairsAndTheirScore) {
         return pairCombination -> pairCombination.stream()
-                .mapToInt(pairsSortedByPairCount::get)
+                .mapToInt(allPairsAndTheirScore::get)
                 .sum();
     }
 
-    public static Optional<LocalDate> mostRecentDate(List<PairCount> pairCounts) {
-        return pairCounts.stream()
-                .map(PairCount::lastPairingDate)
+    public static Optional<LocalDate> mostRecentDate(List<PairStats> pairStats) {
+        return pairStats.stream()
+                .map(PairStats::lastPairingDate)
                 .filter(Objects::nonNull)
                 .max(naturalOrder());
     }

@@ -27,7 +27,6 @@ public record Pair(String first, String second) {
                (second == null || outstandingDevelopers.contains(second));
     }
 
-    // todo look for places to use this
     List<String> members() {
         if (second == null) {
             return List.of(first);
