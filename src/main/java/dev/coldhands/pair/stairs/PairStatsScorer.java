@@ -2,23 +2,9 @@ package dev.coldhands.pair.stairs;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.Set;
 
-class PairStatsComparator implements Comparator<PairStats> {
-    private final Set<String> newJoiners;
-    private final LocalDate mostRecentDate;
-
-    public PairStatsComparator(Set<String> newJoiners, LocalDate mostRecentDate) {
-        this.newJoiners = newJoiners;
-        this.mostRecentDate = mostRecentDate;
-    }
-
-    @Override
-    // todo make the comparator test code only
-    public int compare(PairStats o1, PairStats o2) {
-        return Comparator.<PairStats, Integer>comparing(pairStats -> score(pairStats, newJoiners, mostRecentDate)).compare(o1, o2);
-    }
+class PairStatsScorer {
 
     public static int score(PairStats toScore, Set<String> newJoiners, LocalDate mostRecentDate) {
         var pair = toScore.pair();

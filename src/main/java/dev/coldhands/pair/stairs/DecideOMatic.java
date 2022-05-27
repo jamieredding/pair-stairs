@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static dev.coldhands.pair.stairs.PairStatsComparator.score;
+import static dev.coldhands.pair.stairs.PairStatsScorer.score;
 import static dev.coldhands.pair.stairs.PairUtils.scorePairCombinationUsing;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;

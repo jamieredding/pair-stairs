@@ -6,13 +6,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static dev.coldhands.pair.stairs.PairStatsScorer.score;
 import static dev.coldhands.pair.stairs.TestUtils.testComparator;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-class PairStatsComparatorTest {
+class PairStatsScorerTest {
 
     static Stream<Arguments> compare() {
         return Stream.of(
@@ -56,5 +58,15 @@ class PairStatsComparatorTest {
         final PairStats first = new PairStats(new Pair("b-dev", "c-dev"), 0, null);
         final PairStats second = new PairStats(new Pair("a-dev", "b-dev"), 2, LocalDate.now().minusDays(2));
         testComparator(new PairStatsComparator(Set.of(), LocalDate.now()), first, second);
+    }
+
+    private record PairStatsComparator(Set<String> newJoiners,
+                                       LocalDate mostRecentDate) implements Comparator<PairStats> {
+
+        @Override
+        public int compare(PairStats o1, PairStats o2) {
+            return Comparator.<PairStats, Integer>comparing(pairStats -> score(pairStats, newJoiners, mostRecentDate))
+                    .compare(o1, o2);
+        }
     }
 }
