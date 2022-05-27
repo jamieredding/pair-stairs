@@ -64,8 +64,6 @@ public final class PairPrinter {
         return builder.build();
     }
 
-    // todo, the most recent date should be passed into this class using PairUtils.mostRecentDate
-    //   or something similar
     private static Set<Pair> findMostRecentPairs(List<Pairing> pairings) {
         var pairingsByDay = new HashMap<LocalDate, Set<Pair>>();
         var mostRecentDate = LocalDate.MIN;
