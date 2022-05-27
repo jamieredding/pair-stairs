@@ -5,12 +5,11 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.extension.*;
-import org.junit.jupiter.api.extension.support.TypeBasedParameterResolver;
 import org.slf4j.LoggerFactory;
 
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
-public class LoggingExtension extends TypeBasedParameterResolver<ListAppender<ILoggingEvent>> implements BeforeEachCallback, AfterEachCallback {
+public class LoggingExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
     final Logger LOGGER = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
 
     @Override
@@ -22,6 +21,7 @@ public class LoggingExtension extends TypeBasedParameterResolver<ListAppender<IL
 
         getStore(context).put(ListAppender.class, appender);
         getStore(context).put(Level.class, LOGGER.getLevel());
+        getStore(context).put(Logger.class, LOGGER);
     }
 
     @Override
@@ -35,8 +35,17 @@ public class LoggingExtension extends TypeBasedParameterResolver<ListAppender<IL
     }
 
     @Override
-    public ListAppender<ILoggingEvent> resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
-        return getAppender(extensionContext);
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        Class<?> type = parameterContext.getParameter().getType();
+
+        return type == ListAppender.class || type == Logger.class;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
+        Class<?> type = parameterContext.getParameter().getType();
+
+        return getStore(extensionContext).get(type);
     }
 
     private ExtensionContext.Store getStore(ExtensionContext context) {

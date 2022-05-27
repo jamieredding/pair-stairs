@@ -11,9 +11,7 @@
 - auto updating
 
 ### visualising
-- show whole score breakdown in pairCounts printing
 
 ### scoring
 
 ### logging
-- add option to show scores of all pairs before the options to pick

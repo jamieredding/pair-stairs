@@ -95,10 +95,12 @@ class ArtifactoryStorageTest implements StorageContractTest {
         assertThat(appender.list)
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
                     assertThat(event.getFormattedMessage()).isEqualTo("Request: GET " + wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH);
                 })
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
                     assertThat(event.getFormattedMessage()).isEqualTo("Response: [200] " + persistedData);
                 });
     }
@@ -117,10 +119,12 @@ class ArtifactoryStorageTest implements StorageContractTest {
         assertThat(appender.list)
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
                     assertThat(event.getFormattedMessage()).isEqualTo("Request: PUT " + wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH);
                 })
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
+                    assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
                     assertThat(event.getFormattedMessage()).isEqualTo("Response: [200]");
                 });
     }
