@@ -8,9 +8,11 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import com.github.tomakehurst.wiremock.verification.LoggedRequest;
+import dev.coldhands.pair.stairs.LoggingExtension;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
@@ -21,14 +23,13 @@ import static com.github.tomakehurst.wiremock.matching.RequestPatternBuilder.all
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WireMockTest
+@ExtendWith(LoggingExtension.class)
 class ArtifactoryStorageTest implements StorageContractTest {
 
     private static final String FILE_PATH = "/upload/path/config.json";
     private static final int HIGHEST_PRIORITY = 1;
-    private final Logger logger = (Logger) LoggerFactory.getLogger(ArtifactoryStorage.class);
     private Storage underTest;
     private String uploadLocation;
-    private ListAppender<ILoggingEvent> appender;
 
     @BeforeEach
     void setUp(WireMockRuntimeInfo wireMockRuntimeInfo) {
@@ -43,18 +44,11 @@ class ArtifactoryStorageTest implements StorageContractTest {
                 .willReturn(aResponse()
                         .withStatus(200)));
         uploadLocation = wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH;
-
-        appender = new ListAppender<>();
-        appender.start();
-        logger.addAppender(appender);
     }
 
     @AfterEach
     void tearDown() {
         WireMock.reset();
-        logger.detachAppender(appender);
-        Logger logger = (Logger) LoggerFactory.getLogger(ArtifactoryStorage.class);
-        logger.setLevel(Level.INFO);
     }
 
     @Override
@@ -85,7 +79,8 @@ class ArtifactoryStorageTest implements StorageContractTest {
     }
 
     @Test
-    void readFromArtifactoryHttpRequestsAreLoggedWhenDebugEnabled(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+    void readFromArtifactoryHttpRequestsAreLoggedWhenDebugEnabled(WireMockRuntimeInfo wireMockRuntimeInfo,
+                                                                  ListAppender<ILoggingEvent> appender) throws Exception {
         Configuration configuration = new Configuration(List.of(), List.of());
 
         underTest().write(configuration);
@@ -109,7 +104,8 @@ class ArtifactoryStorageTest implements StorageContractTest {
     }
 
     @Test
-    void writeFromArtifactoryHttpRequestsAreLoggedWhenDebugEnabled(WireMockRuntimeInfo wireMockRuntimeInfo) throws Exception {
+    void writeFromArtifactoryHttpRequestsAreLoggedWhenDebugEnabled(WireMockRuntimeInfo wireMockRuntimeInfo,
+                                                                   ListAppender<ILoggingEvent> appender) throws Exception {
         Configuration configuration = new Configuration(List.of(), List.of());
 
 
