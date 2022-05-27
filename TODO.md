@@ -9,6 +9,7 @@
 ### packaging
 - check and download java in script on launch
 - auto updating
+- add a script that runs the jar inside a java 17 docker container
 
 ### visualising
 
