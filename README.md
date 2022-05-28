@@ -11,7 +11,7 @@ See `--help` for available options.
 
 ### Option 1: Docker
 
-There is a [`docker-pair-stairs.sh`](src/scripts/docker-pair-stairs.sh) script that you can run and pass your arguments to directly.
+Download [`pair-stairs.sh`](src/scripts/pair-stairs.sh) from releases.
 
 This script will create a directory next to the script and mount this into the container.
 This allows you to use file storage and still access the config file that is created.
@@ -20,14 +20,16 @@ Note: you will need to specify the path to the config file relative to where the
 
 Eg.
 ```shell
-./docker-pair-stairs.sh -f data/config.json -d dev-a dev-b dev-c dev-d
+./pair-stairs.sh -f data/config.json -d dev-a dev-b dev-c dev-d
 ```
 
 ### Option 2: Non-Docker
 
+Download the zip file and unzip.
+
 Ensure the `java` in your current shell is Java 17 or higher.
 
-Use [`pair-stairs.sh`](src/scripts/pair-stairs.sh) or update it to pass some of your default options in.
+Use [`pair-stairs.sh`](src/scripts/non-docker-pair-stairs.sh) or update it to pass some of your default options in.
 
 Eg.
 ```shell

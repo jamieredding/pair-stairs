@@ -13,14 +13,14 @@
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
-        <fileSet>
-            <directory>src/scripts</directory>
-            <includes>
-                <include>*.sh</include>
-            </includes>
+    </fileSets>
+    <files>
+        <file>
+            <source>src/scripts/non-docker-pair-stairs.sh</source>
+            <outputDirectory>/</outputDirectory>
+            <destName>pair-stairs.sh</destName>
             <filtered>true</filtered>
             <fileMode>0744</fileMode>
-            <outputDirectory>/</outputDirectory>
-        </fileSet>
-    </fileSets>
+        </file>
+    </files>
 </assembly>
