@@ -18,7 +18,7 @@
         <maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
         <maven-release-plugin.version>3.0.0-M6</maven-release-plugin.version>
 
-        <junit-jupiter-api.version>5.8.2</junit-jupiter-api.version>
+        <junit-jupiter-api.version>5.9.0</junit-jupiter-api.version>
         <assertj-core.version>3.23.1</assertj-core.version>
         <picnic.version>0.6.0</picnic.version>
         <guava.version>31.1-jre</guava.version>
