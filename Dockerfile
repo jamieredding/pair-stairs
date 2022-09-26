@@ -1,4 +1,4 @@
-FROM eclipse-temurin:18-jre-alpine
+FROM eclipse-temurin:19-jre-alpine
 
 LABEL org.opencontainers.image.source="https://github.com/jamieredding/pair-stairs"
 
