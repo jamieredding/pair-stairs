@@ -24,7 +24,7 @@
         <guava.version>31.1-jre</guava.version>
         <picocli.version>4.7.3</picocli.version>
         <jackson-databind.version>2.15.1</jackson-databind.version>
-        <jackson-datatype-jsr310.version>2.15.0</jackson-datatype-jsr310.version>
+        <jackson-datatype-jsr310.version>2.15.1</jackson-datatype-jsr310.version>
         <jansi.version>2.4.0</jansi.version>
         <wiremock.version>2.35.0</wiremock.version>
     </properties>
