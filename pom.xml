@@ -21,7 +21,7 @@
         <junit-jupiter-api.version>5.9.3</junit-jupiter-api.version>
         <assertj-core.version>3.24.2</assertj-core.version>
         <picnic.version>0.6.0</picnic.version>
-        <guava.version>32.1.0-jre</guava.version>
+        <guava.version>32.1.1-jre</guava.version>
         <picocli.version>4.7.4</picocli.version>
         <jackson-databind.version>2.15.2</jackson-databind.version>
         <jackson-datatype-jsr310.version>2.15.2</jackson-datatype-jsr310.version>
