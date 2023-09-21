@@ -144,6 +144,38 @@ class DecideOMaticTest {
     }
 
     @Test
+    void preferPairingNewJoinersWithNonNewJoinersInsteadOfMakingANewJoinerPair() {
+        Set<String> allDevelopers = Set.of("a-dev", "b-dev", "c-dev", "d-dev");
+        LocalDate now = LocalDate.now();
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "a-dev", "b-dev"),
+                new Pairing(now.minusDays(1), "c-dev", "d-dev"),
+                new Pairing(now.minusDays(2), "a-dev", "c-dev"),
+                new Pairing(now.minusDays(2), "b-dev", "d-dev"));
+
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("b-dev", "c-dev"));
+        assertThat(underTest.getNextPairs())
+                .containsOnly(new Pair("a-dev", "c-dev"),
+                        new Pair("b-dev", "d-dev"));
+    }
+
+    @Test
+    void preferPairingTwoNewJoinersOverSoloNewJoiner() {
+        Set<String> allDevelopers = Set.of("a-dev", "b-dev", "c-dev");
+        LocalDate now = LocalDate.now();
+        List<Pairing> pairings = List.of(
+                new Pairing(now.minusDays(1), "a-dev", "b-dev"),
+                new Pairing(now.minusDays(1), "c-dev"),
+                new Pairing(now.minusDays(2), "a-dev", "c-dev"),
+                new Pairing(now.minusDays(2), "b-dev"));
+
+        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers, Set.of("b-dev", "c-dev"));
+        assertThat(underTest.getNextPairs())
+                .containsOnly(new Pair("b-dev", "c-dev"),
+                        new Pair("a-dev"));
+    }
+
+    @Test
     void showAllPairsWithTheirScoreInOrder() {
         Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev");
         LocalDate now = LocalDate.now();
@@ -196,7 +228,7 @@ class DecideOMaticTest {
                     assertThat(event.getLoggerName()).isEqualTo(DecideOMatic.class.getName());
                     assertThat(event.getFormattedMessage()).isEqualTo("""
                             Pairs and their score:
-                            
+                                                        
                             a-dev c-dev -> -99
                             b-dev c-dev -> -1
                             a-dev -> 100

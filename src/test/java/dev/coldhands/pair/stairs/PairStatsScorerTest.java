@@ -60,6 +60,27 @@ class PairStatsScorerTest {
         testComparator(new PairStatsComparator(Set.of(), LocalDate.now()), first, second);
     }
 
+    @Test
+    void preferRecentlyPairedOverPairingTwoNewJoiners() {
+        final PairStats first = new PairStats(new Pair("a-dev", "b-dev"), 2, LocalDate.now().minusDays(2));
+        final PairStats second = new PairStats(new Pair("b-dev", "c-dev"), 0, null);
+        testComparator(new PairStatsComparator(Set.of("b-dev", "c-dev"), LocalDate.now()), first, second);
+    }
+
+    @Test
+    void preferTwoNewJoinersOverSoloNewJoiner() {
+        final PairStats first = new PairStats(new Pair("a-dev", "b-dev"), 0, null);
+        final PairStats second = new PairStats(new Pair("a-dev"), 0, null);
+        testComparator(new PairStatsComparator(Set.of("a-dev", "b-dev"), LocalDate.now()), first, second);
+    }
+
+    @Test
+    void preferRecentTwoNewJoinersOverSoloNewJoiner() {
+        final PairStats first = new PairStats(new Pair("a-dev", "b-dev"), 0, LocalDate.now());
+        final PairStats second = new PairStats(new Pair("a-dev"), 0, null);
+        testComparator(new PairStatsComparator(Set.of("a-dev", "b-dev"), LocalDate.now()), first, second);
+    }
+
     private record PairStatsComparator(Set<String> newJoiners,
                                        LocalDate mostRecentDate) implements Comparator<PairStats> {
 

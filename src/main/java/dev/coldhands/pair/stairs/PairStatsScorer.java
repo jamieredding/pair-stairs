@@ -14,6 +14,10 @@ class PairStatsScorer {
             score += 100000;
         }
 
+        if (pairIsTwoNewJoiners(pair, newJoiners)) {
+            score += 50000;
+        }
+
         if (mostRecentOccurrenceIsMostRecentDate(toScore, mostRecentDate)) {
             score += 10000;
         }
@@ -56,11 +60,17 @@ class PairStatsScorer {
 
     private static boolean pairIsASoloNewJoiner(Pair pair, Set<String> newJoiners) {
         return pair.second() == null &&
-               newJoiners.contains(pair.first());
+                newJoiners.contains(pair.first());
+    }
+
+    private static boolean pairIsTwoNewJoiners(Pair pair, Set<String> newJoiners) {
+        return pair.members().size() == 2 &&
+                newJoiners.contains(pair.first()) &&
+                newJoiners.contains(pair.second());
     }
 
     private static boolean pairIsASoloNonNewJoiner(Pair pair, Set<String> newJoiners) {
         return pair.second() == null &&
-               !newJoiners.contains(pair.first());
+                !newJoiners.contains(pair.first());
     }
 }
