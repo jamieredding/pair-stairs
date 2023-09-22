@@ -28,12 +28,11 @@ import java.util.stream.Stream;
 import static dev.coldhands.pair.stairs.TestUtils.unWindows;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 @ExtendWith(StdIOExtension.class)
 interface RunnerContractTest {
 
-    Logger LOGGER = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
+    Logger LOGGER = (Logger) LoggerFactory.getLogger("dev.coldhands");
 
     @AfterEach
     default void resetLoggingLevel() {

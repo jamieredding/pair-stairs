@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 import static picocli.CommandLine.*;
 
 @Command(name = "pair-stairs.sh",
@@ -129,7 +128,7 @@ class Runner implements Callable<Integer> {
     public Integer call() {
         try {
             if (isVerbose) {
-                Logger logger = (Logger) LoggerFactory.getLogger(ROOT_LOGGER_NAME);
+                Logger logger = (Logger) LoggerFactory.getLogger("dev.coldhands");
                 logger.setLevel(Level.DEBUG);
             }
 
