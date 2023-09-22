@@ -7,20 +7,11 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>target</directory>
+            <directory>target/${distribution-directory}</directory>
             <includes>
-                <include>${project.artifactId}-${project.version}.jar</include>
+                <include>**/*</include>
             </includes>
             <outputDirectory>/</outputDirectory>
         </fileSet>
     </fileSets>
-    <files>
-        <file>
-            <source>src/scripts/non-docker-pair-stairs.sh</source>
-            <outputDirectory>/</outputDirectory>
-            <destName>pair-stairs.sh</destName>
-            <filtered>true</filtered>
-            <fileMode>0744</fileMode>
-        </file>
-    </files>
 </assembly>

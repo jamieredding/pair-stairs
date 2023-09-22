@@ -1,22 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.coldhands</groupId>
     <artifactId>pair-stairs</artifactId>
     <version>1.2.1-SNAPSHOT</version>
+    <name>pair-stairs</name>
 
     <properties>
+        <scriptName>${project.artifactId}.sh</scriptName>
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
+        <distribution-directory>${project.artifactId}-dist</distribution-directory>
+
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <versions-maven-plugin.version>2.16.1</versions-maven-plugin.version>
         <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
 
         <junit-jupiter-api.version>5.10.0</junit-jupiter-api.version>
         <assertj-core.version>3.24.2</assertj-core.version>
@@ -85,6 +93,12 @@
             <version>${wiremock.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>2.11.5</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -104,6 +118,14 @@
     </dependencies>
 
     <build>
+
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
+
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -152,39 +174,47 @@
             </plugins>
         </pluginManagement>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>${maven-shade-plugin.version}</version>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
                 <configuration>
-                    <minimizeJar>true</minimizeJar>
-                    <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <manifestEntries>
-                                <Main-Class>dev.coldhands.pair.stairs.cli.Runner</Main-Class>
-                                <Implementation-Title>${project.artifactId}</Implementation-Title>
-                                <Implementation-Version>${project.version}</Implementation-Version>
-                            </manifestEntries>
-                        </transformer>
-                    </transformers>
+                    <archive>
+                        <manifest>
+                            <mainClass>dev.coldhands.pair.stairs.cli.Runner</mainClass>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>${appassembler-maven-plugin.version}</version>
                 <executions>
                     <execution>
-                        <id>distribution</id>
+                        <id>create-scripts</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>assemble</goal>
                         </goals>
-                    </execution>
-                    <execution>
-                        <id>docker</id>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>${project.artifactId}</finalName>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <platforms>
+                        <platform>unix</platform>
+                    </platforms>
+                    <programs>
+                        <program>
+                            <mainClass>dev.coldhands.pair.stairs.cli.Runner</mainClass>
+                            <id>${scriptName}</id>
+                        </program>
+                    </programs>
+                    <extraJvmArguments>--enable-preview</extraJvmArguments>
+                    <assembleDirectory>${project.build.directory}/${distribution-directory}</assembleDirectory>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -206,8 +236,44 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <configuration>
+                    <argLine>
+                        --enable-preview
+                    </argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>skipUnitTests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <skipTests>true</skipTests>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <licenses>
         <license>
