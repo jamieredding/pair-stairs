@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.coldhands</groupId>
     <artifactId>pair-stairs</artifactId>
-    <version>1.3.1-SNAPSHOT</version>
+    <version>1.3.1</version>
     <name>pair-stairs</name>
 
     <properties>
@@ -331,11 +330,10 @@
                         <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
-                                <move file="${project.build.directory}/docker-container-launcher.sh"
-                                      tofile="${project.build.directory}/${scriptName}"/>
+                                <move file="${project.build.directory}/docker-container-launcher.sh" tofile="${project.build.directory}/${scriptName}" />
                                 <exec executable="chmod">
-                                    <arg value="+x"/>
-                                    <arg file="${project.build.directory}/${scriptName}"/>
+                                    <arg value="+x" />
+                                    <arg file="${project.build.directory}/${scriptName}" />
                                 </exec>
                             </target>
                         </configuration>
@@ -385,6 +383,6 @@
         <url>https://github.com/jamieredding/pair-stairs</url>
         <connection>scm:git:git://github.com/jamieredding/pair-stairs.git</connection>
         <developerConnection>scm:git:git@github.com:jamieredding/pair-stairs.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>1.3.1</tag>
     </scm>
 </project>
