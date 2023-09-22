@@ -1,17 +1,11 @@
 package dev.coldhands.pair.stairs.cli;
 
-import net.lingala.zip4j.ZipFile;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -19,59 +13,24 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import static java.nio.file.FileVisitResult.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class RunnerIT {
+abstract class RunnerContractIT {
 
-    private static final Properties PROPERTIES = loadProperties();
-    private static final String BASE_DIR = "target/";
-    private static final String EXTRACTED_ZIP_DIR = BASE_DIR + PROPERTIES.getProperty("finalName");
-    private static final String PATH_TO_SCRIPT = EXTRACTED_ZIP_DIR + "/bin/" + PROPERTIES.getProperty("scriptName");
-    private static final Path CONFIG_FILE_PATH = Path.of(EXTRACTED_ZIP_DIR + "/config.json");
+    static final Properties PROPERTIES = loadProperties();
 
-    @BeforeAll
-    static void unzipPackagedApplication() throws IOException {
-        try (final ZipFile zip = new ZipFile(BASE_DIR + PROPERTIES.getProperty("finalName") + ".zip")) {
-            zip.extractAll(BASE_DIR);
-        }
-    }
+    abstract Path getConfigFilePath();
+
+    abstract String getPathToScript();
 
     @AfterEach
-    void deleteConfigFile() throws IOException {
-        Files.deleteIfExists(CONFIG_FILE_PATH);
-    }
-
-    @AfterAll
-    static void deleteUnzippedDirectory() throws IOException {
-        Files.walkFileTree(Path.of(EXTRACTED_ZIP_DIR), new FileVisitor<>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                return CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) {
-                return TERMINATE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
-                return CONTINUE;
-            }
-        });
+    final void deleteConfigFile() throws IOException {
+        Files.deleteIfExists(getConfigFilePath());
     }
 
     @Test
-    void runHelpOption() throws IOException, ExecutionException, InterruptedException {
-        ProcessResult result = runProcess(PATH_TO_SCRIPT, "--help");
+    final void runHelpOption() throws IOException, ExecutionException, InterruptedException {
+        ProcessResult result = runProcess(getPathToScript(), "--help");
 
         assertThat(result.stderr).isEmpty();
         assertThat(result.stdout).startsWith("Usage: pair-stairs.sh [OPTIONS]");
@@ -79,8 +38,8 @@ public class RunnerIT {
     }
 
     @Test
-    void runVersionOption() throws IOException, ExecutionException, InterruptedException {
-        ProcessResult result = runProcess(PATH_TO_SCRIPT, "--version");
+    final void runVersionOption() throws IOException, ExecutionException, InterruptedException {
+        ProcessResult result = runProcess(getPathToScript(), "--version");
 
         assertThat(result.stderr).isEmpty();
         assertThat(result.stdout).startsWith(PROPERTIES.getProperty("version"));
@@ -88,9 +47,9 @@ public class RunnerIT {
     }
 
     @Test
-    void smokeTest() throws IOException, ExecutionException, InterruptedException {
-        ProcessResult result = runProcess(PATH_TO_SCRIPT,
-                "-f", CONFIG_FILE_PATH.toString(),
+    final void smokeTest() throws IOException, ExecutionException, InterruptedException {
+        ProcessResult result = runProcess(getPathToScript(),
+                "-f", getConfigFilePath().toString(),
                 "-d", "a-dev",
                 "-d", "b-dev");
 
@@ -98,17 +57,17 @@ public class RunnerIT {
         assertThat(result.stdout).startsWith("Only one option:");
         assertThat(result.exitCode).isEqualTo(0);
 
-        assertThat(CONFIG_FILE_PATH)
+        assertThat(getConfigFilePath())
                 .exists()
                 .content()
                 .contains("a-dev", "b-dev");
     }
 
     @Test
-    void smokeTestWithVerboseOption() throws IOException, ExecutionException, InterruptedException {
-        ProcessResult result = runProcess(PATH_TO_SCRIPT,
+    final void smokeTestWithVerboseOption() throws IOException, ExecutionException, InterruptedException {
+        ProcessResult result = runProcess(getPathToScript(),
                 "--verbose",
-                "-f", CONFIG_FILE_PATH.toString(),
+                "-f", getConfigFilePath().toString(),
                 "-d", "a-dev",
                 "-d", "b-dev");
 
@@ -128,7 +87,7 @@ public class RunnerIT {
     private static Properties loadProperties() {
         Properties properties = new Properties();
         try {
-            properties.load(RunnerIT.class.getClassLoader().getResourceAsStream("integration-test.properties"));
+            properties.load(RunnerContractIT.class.getClassLoader().getResourceAsStream("integration-test.properties"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
