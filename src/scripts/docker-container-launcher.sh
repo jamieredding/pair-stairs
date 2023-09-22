@@ -12,5 +12,5 @@ docker run \
   --name "pair-stairs" \
   -v "${DATA_DIR}":/opt/data \
   --user "$(id -u):$(id -g)" \
-  ghcr.io/jamieredding/pair-stairs:latest \
+  ${dockerImageName}:${project.version} \
   "$@"

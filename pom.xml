@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.coldhands</groupId>
@@ -24,6 +25,7 @@
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <appassembler-maven-plugin.version>2.1.0</appassembler-maven-plugin.version>
 
         <junit-jupiter-api.version>5.10.0</junit-jupiter-api.version>
@@ -295,6 +297,33 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>src/scripts</directory>
+                                    <filtering>true</filtering>
+                                    <includes>
+                                        <include>docker-container-launcher.sh</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>${maven-antrun-plugin.version}</version>
                 <executions>
@@ -302,10 +331,11 @@
                         <phase>pre-integration-test</phase>
                         <configuration>
                             <target>
-                                <copy file="src/scripts/docker-container-launcher.sh" tofile="${project.build.directory}/${scriptName}" />
+                                <move file="${project.build.directory}/docker-container-launcher.sh"
+                                      tofile="${project.build.directory}/${scriptName}"/>
                                 <exec executable="chmod">
-                                    <arg value="+x" />
-                                    <arg file="${project.build.directory}/${scriptName}" />
+                                    <arg value="+x"/>
+                                    <arg file="${project.build.directory}/${scriptName}"/>
                                 </exec>
                             </target>
                         </configuration>
