@@ -11,7 +11,7 @@ See `--help` for available options.
 
 ### Option 1: Docker
 
-Download [`pair-stairs.sh`](src/scripts/pair-stairs.sh) from releases.
+Download the latest [`pair-stairs.sh`](https://github.com/jamieredding/pair-stairs/releases/latest) from releases.
 
 This script will create a directory next to the script and mount this into the container.
 This allows you to use file storage and still access the config file that is created.
@@ -29,7 +29,7 @@ Download the zip file and unzip.
 
 Ensure the `java` in your current shell is Java 17 or higher.
 
-Use [`pair-stairs.sh`](src/scripts/non-docker-pair-stairs.sh) or update it to pass some of your default options in.
+Use `bin/pair-stairs.sh` or update it to pass some of your default options in.
 
 Eg.
 ```shell
@@ -43,6 +43,8 @@ The basic requirements to build are:
     - This can be downloaded and managed with [SDKMAN](https://sdkman.io/install)
 - Maven
     - This can be downloaded and managed with the included Maven wrapper script
+- Docker
+    - Required to build the docker image
 
 Once SDKMAN has been installed, run `sdk env` to download and initialise your environment with the same
 version of Java used in the project.

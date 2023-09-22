@@ -10,12 +10,12 @@
 
     <properties>
         <scriptName>${project.artifactId}.sh</scriptName>
+        <distributionDir>${project.artifactId}-dist</distributionDir>
+        <dockerImageName>ghcr.io/jamieredding/pair-stairs</dockerImageName>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-
-        <distribution-directory>${project.artifactId}-dist</distribution-directory>
 
         <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.1.2</maven-failsafe-plugin.version>
@@ -24,6 +24,7 @@
         <maven-shade-plugin.version>3.5.0</maven-shade-plugin.version>
         <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
 
         <junit-jupiter-api.version>5.10.0</junit-jupiter-api.version>
@@ -173,8 +174,8 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
 
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -213,9 +214,10 @@
                         </program>
                     </programs>
                     <extraJvmArguments>--enable-preview</extraJvmArguments>
-                    <assembleDirectory>${project.build.directory}/${distribution-directory}</assembleDirectory>
+                    <assembleDirectory>${project.build.directory}/${distributionDir}</assembleDirectory>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -255,6 +257,67 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.13</version>
+                <configuration>
+                    <repository>${dockerImageName}</repository>
+                    <buildArgs>
+                        <DISTRIBUTION_DIR>${distributionDir}</DISTRIBUTION_DIR>
+                    </buildArgs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>build-tag-version</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>tag</goal>
+                        </goals>
+                        <configuration>
+                            <pullNewerImage>true</pullNewerImage>
+                            <tag>${project.version}</tag>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>tag-latest</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>tag</goal>
+                        </goals>
+                        <configuration>
+                            <tag>latest</tag>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${maven-antrun-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>pre-integration-test</phase>
+                        <configuration>
+                            <target>
+                                <copy file="src/scripts/docker-container-launcher.sh"
+                                      tofile="${project.build.directory}/${scriptName}"/>
+                                <exec executable="chmod">
+                                    <arg value="+x"/>
+                                    <arg file="${project.build.directory}/${scriptName}"/>
+                                </exec>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

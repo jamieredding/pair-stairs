@@ -19,6 +19,10 @@ abstract class RunnerContractIT {
 
     static final Properties PROPERTIES = loadProperties();
 
+    Path getConfigFilePathArgument() {
+        return getConfigFilePath();
+    }
+
     abstract Path getConfigFilePath();
 
     abstract String getPathToScript();
@@ -49,7 +53,7 @@ abstract class RunnerContractIT {
     @Test
     final void smokeTest() throws IOException, ExecutionException, InterruptedException {
         ProcessResult result = runProcess(getPathToScript(),
-                "-f", getConfigFilePath().toString(),
+                "-f", getConfigFilePathArgument().toString(),
                 "-d", "a-dev",
                 "-d", "b-dev");
 
@@ -67,7 +71,7 @@ abstract class RunnerContractIT {
     final void smokeTestWithVerboseOption() throws IOException, ExecutionException, InterruptedException {
         ProcessResult result = runProcess(getPathToScript(),
                 "--verbose",
-                "-f", getConfigFilePath().toString(),
+                "-f", getConfigFilePathArgument().toString(),
                 "-d", "a-dev",
                 "-d", "b-dev");
 

@@ -7,7 +7,7 @@
     </formats>
     <fileSets>
         <fileSet>
-            <directory>target/${distribution-directory}</directory>
+            <directory>target/${distributionDir}</directory>
             <includes>
                 <include>**/*</include>
             </includes>

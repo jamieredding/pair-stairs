@@ -10,14 +10,12 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Properties;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
 import static java.nio.file.FileVisitResult.TERMINATE;
 
 class RunnerViaZipDistributionIT extends RunnerContractIT {
 
-    private static final Properties PROPERTIES = loadProperties();
     private static final String BASE_DIR = "target/";
     private static final String EXTRACTED_ZIP_DIR = BASE_DIR + PROPERTIES.getProperty("finalName");
     private static final String PATH_TO_SCRIPT = EXTRACTED_ZIP_DIR + "/bin/" + PROPERTIES.getProperty("scriptName");
@@ -65,16 +63,6 @@ class RunnerViaZipDistributionIT extends RunnerContractIT {
                 return CONTINUE;
             }
         });
-    }
-
-    private static Properties loadProperties() {
-        Properties properties = new Properties();
-        try {
-            properties.load(RunnerViaZipDistributionIT.class.getClassLoader().getResourceAsStream("integration-test.properties"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return properties;
     }
 
 }
