@@ -13,6 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
@@ -378,6 +379,46 @@ interface RunnerContractTest {
                                    {"date":"%s","pair":{"first":"c-dev","second":"e-dev"}}""".formatted(now) +
                            """
                                    ]}""");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"-i", "--ignore"})
+    default void supportIgnoringDevelopersFromPairingAtCommandLine(String ignoreFlag, StdIO stdIO) throws Exception {
+        LocalDate now = LocalDate.now();
+
+        persistConfiguration(new Configuration(List.of("a-dev", "b-dev", "c-dev"), List.of(), List.of()));
+
+        int exitCode = executeUnderTest(ignoreFlag, "a-dev");
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(unWindows(stdIO.out().toString()))
+                .isEqualTo("""
+                                   Only one option:
+
+                                           a-dev  b-dev  c-dev\s
+                                    a-dev    0      0      0  \s
+                                    b-dev           0     1 * \s
+                                    c-dev                  0  \s
+
+                                   Saved pairings to: %s
+
+                                   """.formatted(storage().describe()));
+        assertThat(unWindows(stdIO.err().toString()))
+                .isEmpty();
+
+        assertThat(readPersistedData())
+                .isEqualTo("""
+                                   {""" +
+                        """
+                                "allDevelopers":["a-dev","b-dev","c-dev"],""" +
+                        """
+                                "newJoiners":[],""" +
+                        """
+                                "pairings":[""" +
+                        STR."""
+                                {"date":"\{now}","pair":{"first":"b-dev","second":"c-dev"}}""" +
+                        """
+                                ]}""");
     }
 
     @Test
