@@ -75,7 +75,7 @@ class ArtifactoryStorageTest implements StorageContractTest {
 
     @Override
     public String storageDescription() {
-        return "Artifactory -> " + uploadLocation;
+        return STR."Artifactory -> \{uploadLocation}";
     }
 
     @Test
@@ -96,12 +96,12 @@ class ArtifactoryStorageTest implements StorageContractTest {
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
                     assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
-                    assertThat(event.getFormattedMessage()).isEqualTo("Request: GET " + wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH);
+                    assertThat(event.getFormattedMessage()).isEqualTo(STR."Request: GET \{wireMockRuntimeInfo.getHttpBaseUrl()}\{FILE_PATH}");
                 })
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
                     assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
-                    assertThat(event.getFormattedMessage()).isEqualTo("Response: [200] " + persistedData);
+                    assertThat(event.getFormattedMessage()).isEqualTo(STR."Response: [200] \{persistedData}");
                 });
     }
 
@@ -120,7 +120,7 @@ class ArtifactoryStorageTest implements StorageContractTest {
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
                     assertThat(event.getLoggerName()).isEqualTo(ArtifactoryStorage.class.getName());
-                    assertThat(event.getFormattedMessage()).isEqualTo("Request: PUT " + wireMockRuntimeInfo.getHttpBaseUrl() + FILE_PATH);
+                    assertThat(event.getFormattedMessage()).isEqualTo(STR."Request: PUT \{wireMockRuntimeInfo.getHttpBaseUrl()}\{FILE_PATH}");
                 })
                 .anySatisfy(event -> {
                     assertThat(event.getLevel()).isEqualTo(Level.DEBUG);

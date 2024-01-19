@@ -15,7 +15,7 @@ class Simulation {
 
     @Test
     @Disabled
-    void name() throws Exception {
+    void name() {
         List<String> allDevelopers = List.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
         List<Pairing> pairings = new ArrayList<>();
         Set<Pair> previousPairs = Set.of();
@@ -74,7 +74,7 @@ class Simulation {
         int i = random.nextInt(10);
         if (i < allDevelopers.size()) {
             String absent = devs.remove(i);
-            System.out.println("absent: " + absent);
+            System.out.println(STR."absent: \{absent}");
         }
         return new HashSet<>(devs);
     }
@@ -122,9 +122,9 @@ class Simulation {
         System.out.print("Pairs:");
         Sets.SetView<Pair> intersection = Sets.intersection(nextPairs, previousPairs);
         if (!intersection.isEmpty()) {
-            throw new RuntimeException(" duplicate pair!: " + intersection);
+            throw new RuntimeException(STR." duplicate pair!: \{intersection}");
         }
-        System.out.println("\n" + table.build());
+        System.out.println(STR."\n\{table.build()}");
     }
 
 }

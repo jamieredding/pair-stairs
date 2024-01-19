@@ -8,11 +8,10 @@ public record ScoredPairCombination(Set<Pair> pairCombination, int score) {
 
     String scoreBreakdown(Map<Pair, Integer> allPairsAndTheirScore) {
         var pairs = pairCombination.stream()
-                .map(pair -> pair.members().stream()
-                                     .collect(Collectors.joining(",", "[", "]"))
-                             + "=" + allPairsAndTheirScore.get(pair)
+                .map(pair -> STR."\{pair.members().stream()
+                        .collect(Collectors.joining(",", "[", "]"))}=\{allPairsAndTheirScore.get(pair)}"
                 )
                 .collect(Collectors.joining("|"));
-        return pairs + "|total=" + score;
+        return STR."\{pairs}|total=\{score}";
     }
 }

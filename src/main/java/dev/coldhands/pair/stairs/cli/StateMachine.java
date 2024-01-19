@@ -116,12 +116,12 @@ class StateMachine {
                     """);
             return SHOW_NUMBERED_DEVELOPERS_TO_PICK;
         } else if (context.customDevelopersLeftToPick.size() == 2) {
-            String remainingFirst = context.customDevelopersLeftToPick.remove(0);
-            String remainingSecond = context.customDevelopersLeftToPick.remove(0);
+            String remainingFirst = context.customDevelopersLeftToPick.removeFirst();
+            String remainingSecond = context.customDevelopersLeftToPick.removeFirst();
             context.customPickedPairs.add(new Pair(remainingFirst, remainingSecond));
             return SHOW_SELECTION;
         } else {
-            String remaining = context.customDevelopersLeftToPick.remove(0);
+            String remaining = context.customDevelopersLeftToPick.removeFirst();
             context.customPickedPairs.add(new Pair(remaining));
             return SHOW_SELECTION;
         }
@@ -136,7 +136,7 @@ class StateMachine {
         } else {
             selectionMessage = context.scoredPairCombinations.size() == 1 ?
                     "Only one option"
-                    : "Picked " + context.selection;
+                    : STR."Picked \{context.selection}";
             selectedPairs = context.scoredPairCombinations.get(context.selection - 1).pairCombination();
         }
         context.actualNextPairings = new ArrayList<>(context.startingPairings);
@@ -169,7 +169,7 @@ class StateMachine {
             case PROCESS_INPUT_FOR_PICKING_A_PAIR -> processInputForPickingAPair();
             case SHOW_SELECTION -> showSelection();
             case SAVE_DATA_FILE -> saveDataFile();
-            default -> throw new IllegalStateException("Unexpected value: " + context.getState());
+            default -> throw new IllegalStateException(STR."Unexpected value: \{context.getState()}");
         });
     }
 

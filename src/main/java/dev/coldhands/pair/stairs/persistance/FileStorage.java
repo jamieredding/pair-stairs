@@ -37,7 +37,7 @@ public class FileStorage implements Storage {
 
     @Override
     public String describe() {
-        return "File -> " + dataFile.toAbsolutePath().toAbsolutePath();
+        return STR."File -> \{dataFile.toAbsolutePath().toAbsolutePath()}";
     }
 
     public Path getDataFile() {

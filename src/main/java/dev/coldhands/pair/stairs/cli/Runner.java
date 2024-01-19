@@ -40,7 +40,7 @@ class Runner implements Callable<Integer> {
     private final PrintWriter err;
     private final Map<String, String> environment;
 
-    @ArgGroup(exclusive = true, multiplicity = "1", heading = "%nPersistence%n%n")
+    @ArgGroup(multiplicity = "1", heading = "%nPersistence%n%n")
     private Persistence persistence;
 
     static class Persistence {
@@ -75,7 +75,7 @@ class Runner implements Callable<Integer> {
                     "Developers to ignore from pairing.",
                     "This is useful when someone is absent."
             })
-    private List<String> missingDevelopers = List.of();
+    private final List<String> missingDevelopers = List.of();
 
     @Option(names = {"-d", "--devs"},
             arity = "0..*",

@@ -38,6 +38,6 @@ class FileStorageTest implements StorageContractTest {
 
     @Override
     public String storageDescription() {
-        return "File -> " + dataFile.toAbsolutePath();
+        return STR."File -> \{dataFile.toAbsolutePath()}";
     }
 }

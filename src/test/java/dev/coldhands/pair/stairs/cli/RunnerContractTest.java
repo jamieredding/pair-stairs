@@ -858,7 +858,7 @@ interface RunnerContractTest {
                 });
 
         assertThat(found)
-                .describedAs("manifest to contain line " + manifestLine)
+                .describedAs(STR."manifest to contain line \{manifestLine}")
                 .isTrue();
 
     }

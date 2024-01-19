@@ -63,7 +63,7 @@ public class DecideOMatic {
                 .sorted(pairAndScoreComparator())
                 .map(entry -> format(entry.getKey(), entry.getValue()))
                 .collect(Collectors.joining("\n"));
-        LOGGER.debug("Pairs and their score:\n\n"+ output + "\n");
+        LOGGER.debug(STR."Pairs and their score:\n\n\{output}\n");
     }
 
     private Comparator<? super Map.Entry<Pair, Integer>> pairAndScoreComparator() {
@@ -72,7 +72,7 @@ public class DecideOMatic {
     }
 
     private String format(Pair pair, Integer score) {
-        return String.join(" ", pair.members()) + " -> " + score;
+        return STR."\{String.join(" ", pair.members())} -> \{score}";
     }
 
     private Function<Set<Pair>, ScoredPairCombination> toScoredPairCombination(Map<Pair, Integer> allPairsAndTheirScore) {

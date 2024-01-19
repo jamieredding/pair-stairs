@@ -26,8 +26,8 @@ public class ArtifactoryStorage implements Storage {
     private final ObjectMapper objectMapper = objectMapper();
     private final String fileUrl;
     private final HttpClient httpClient;
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public ArtifactoryStorage(String fileUrl, Map<String, String> environment) {
         this.fileUrl = fileUrl;
@@ -65,13 +65,13 @@ public class ArtifactoryStorage implements Storage {
 
         LOGGER.debug("Response: [%s]%s".formatted(
                 response.statusCode(),
-                response.body().isEmpty() ? "" : " " + response.body()));
+                response.body().isEmpty() ? "" : STR." \{response.body()}"));
         return response;
     }
 
     @Override
     public String describe() {
-        return "Artifactory -> " + fileUrl;
+        return STR."Artifactory -> \{fileUrl}";
     }
 
     private byte[] serialise(Configuration configuration) {
@@ -84,8 +84,8 @@ public class ArtifactoryStorage implements Storage {
 
     private HttpRequest.Builder basicAuthRequest() {
         final String base64 = Base64.getEncoder()
-                .encodeToString((username + ":" + password).getBytes(UTF_8));
+                .encodeToString((STR."\{username}:\{password}").getBytes(UTF_8));
         return HttpRequest.newBuilder()
-                .header("Authorization", "Basic " + base64);
+                .header("Authorization", STR."Basic \{base64}");
     }
 }

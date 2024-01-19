@@ -17,7 +17,7 @@ class PairUtils {
         Sets.combinations(developers, 2).stream()
                 .map(ArrayList::new)
                 .peek(Collections::sort)
-                .map(list -> new Pair(list.get(0), list.get(1)))
+                .map(list -> new Pair(list.getFirst(), list.get(1)))
                 .forEach(pairs::add);
         developers.forEach(dev -> pairs.add(new Pair(dev)));
 
@@ -51,7 +51,7 @@ class PairUtils {
         Set<Pair> allPossiblePairs = Sets.combinations(allDevelopers, 2).stream()
                 .map(ArrayList::new)
                 .peek(Collections::sort)
-                .map(pairAsList -> new Pair(pairAsList.get(0), pairAsList.get(1)))
+                .map(pairAsList -> new Pair(pairAsList.getFirst(), pairAsList.get(1)))
                 .collect(Collectors.toCollection(HashSet::new));
 
         allDevelopers.forEach(dev -> allPossiblePairs.add(new Pair(dev)));

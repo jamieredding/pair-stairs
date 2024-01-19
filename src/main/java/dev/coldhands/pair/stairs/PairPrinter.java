@@ -91,7 +91,7 @@ public final class PairPrinter {
     }
 
     public static String drawPairChoices(List<ScoredPairCombination> scoredPairCombinations, int optionsToShow) {
-        final int numberOfPairs = scoredPairCombinations.get(0).pairCombination().size();
+        final int numberOfPairs = scoredPairCombinations.getFirst().pairCombination().size();
         final List<PrintableScoredPairCombination> toPrint = sortPairsWithinEachCombination(scoredPairCombinations);
 
         final Table.Builder builder = standardTableLayout();
@@ -122,7 +122,7 @@ public final class PairPrinter {
     private static void addARowForEachPairInEachOption(int optionsToShow, TableSection.Builder body, int numberOfPairs, List<PrintableScoredPairCombination> toPrint) {
         for (int i = 0; i < numberOfPairs; i++) {
             Row.Builder row = new Row.Builder();
-            row.addCell("Pair " + toLetter(i));
+            row.addCell(STR."Pair \{toLetter(i)}");
             for (int optionIndex = 0; optionIndex < optionsToShow; optionIndex++) {
                 PrintableScoredPairCombination option = toPrint.get(optionIndex);
                 Pair pair = option.pairs().get(i);

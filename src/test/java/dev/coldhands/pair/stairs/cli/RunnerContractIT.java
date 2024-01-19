@@ -110,7 +110,7 @@ abstract class RunnerContractIT {
         CompletableFuture<String> stderr = readStream(process.getErrorStream());
 
         if (!process.waitFor(60, TimeUnit.SECONDS)) {
-            throw new RuntimeException("Timed out waiting for command to finish: " + Arrays.toString(command));
+            throw new RuntimeException(STR."Timed out waiting for command to finish: \{Arrays.toString(command)}");
         }
 
         return new ProcessResult(process.exitValue(), stdout.get(), stderr.get());
