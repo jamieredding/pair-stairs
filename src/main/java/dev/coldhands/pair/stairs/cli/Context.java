@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.DecideOMatic;
+import dev.coldhands.pair.stairs.EntryPoint;
 import dev.coldhands.pair.stairs.Pair;
 import dev.coldhands.pair.stairs.Pairing;
 import dev.coldhands.pair.stairs.ScoredPairCombination;
@@ -21,9 +21,9 @@ class Context {
     final Storage storage;
 
     Set<String> allDevelopers;
-    Set<String> availableDevelopers;
-    List<String> newJoiners;
-    List<Pairing> startingPairings;
+    final List<String> availableDevelopers;
+    final List<Pairing> startingPairings;
+    final List<String> newJoiners;
 
     final Set<Pair> customPickedPairs;
     int pairCombinationsIndex;
@@ -52,10 +52,16 @@ class Context {
         }
 
         allDevelopers = initialiseAllDevelopers(runner, configuration);
-        availableDevelopers = initialiseAvailableDevelopers(runner);
-        newJoiners = initialiseNewJoiners(runner, configuration);
-        startingPairings = initialiseStartingPairings(configuration);
-        scoredPairCombinations = computeScoredPairCombinations();
+        this.availableDevelopers = initialiseAvailableDevelopers(runner);
+        this.startingPairings = initialiseStartingPairings(configuration);
+        this.newJoiners = initialiseNewJoiners(runner, configuration);
+
+        final List<Pairing> initialPairings = initialiseStartingPairings(configuration);
+        final List<String> availableDevelopers = initialiseAvailableDevelopers(runner);
+        final List<String> newJoiners = initialiseNewJoiners(runner, configuration);
+
+        final var entryPoint = new EntryPoint(initialPairings, availableDevelopers, newJoiners);
+        scoredPairCombinations = entryPoint.computeScoredPairCombinations();
 
         // todo move these closer to where they are needed in the state machine
         customPickedPairs = new HashSet<>();
@@ -86,8 +92,8 @@ class Context {
         return allDevelopers;
     }
 
-    private HashSet<String> initialiseAvailableDevelopers(Runner runner) {
-        var availableDevelopers = new HashSet<>(allDevelopers);
+    private List<String> initialiseAvailableDevelopers(Runner runner) {
+        var availableDevelopers = new ArrayList<>(allDevelopers);
         runner.getMissingDevelopers().forEach(availableDevelopers::remove);
         return availableDevelopers;
     }
@@ -95,11 +101,6 @@ class Context {
     private List<String> initialiseNewJoiners(Runner runner, Configuration configuration) {
         return ofNullable(runner.getNewJoiners())
                 .orElse(configuration.newJoiners());
-    }
-
-    private List<ScoredPairCombination> computeScoredPairCombinations() {
-        DecideOMatic decideOMatic = new DecideOMatic(startingPairings, availableDevelopers, new HashSet<>(newJoiners));
-        return decideOMatic.getScoredPairCombinations();
     }
 
     public static Context from(Runner runner) {
