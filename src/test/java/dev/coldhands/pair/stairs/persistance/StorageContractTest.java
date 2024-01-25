@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.persistance;
 
-import dev.coldhands.pair.stairs.Pair;
-import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

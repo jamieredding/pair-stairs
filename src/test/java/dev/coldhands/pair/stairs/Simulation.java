@@ -2,6 +2,11 @@ package dev.coldhands.pair.stairs;
 
 import com.google.common.collect.Sets;
 import com.jakewharton.picnic.*;
+import dev.coldhands.pair.stairs.cli.PairPrinter;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
+import dev.coldhands.pair.stairs.logic.DecideOMatic;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 

@@ -1,5 +1,7 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.logic;
 
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.PairStats;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -10,8 +12,8 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static dev.coldhands.pair.stairs.PairStatsScorer.score;
 import static dev.coldhands.pair.stairs.TestUtils.testComparator;
+import static dev.coldhands.pair.stairs.logic.PairStatsScorer.score;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class PairStatsScorerTest {

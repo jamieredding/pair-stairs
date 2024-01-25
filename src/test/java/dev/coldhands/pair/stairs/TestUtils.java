@@ -1,5 +1,8 @@
 package dev.coldhands.pair.stairs;
 
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -7,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public final class TestUtils {
 
-    static <T> void testComparator(Comparator<T> underTest,
+    public static <T> void testComparator(Comparator<T> underTest,
                                    T o1,
                                    T o2) {
         assertThat(underTest.compare(o1, o2))

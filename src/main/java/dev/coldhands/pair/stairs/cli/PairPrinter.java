@@ -1,6 +1,11 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.cli;
 
 import com.jakewharton.picnic.*;
+import dev.coldhands.pair.stairs.PairUtils;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.PairStats;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 
 import java.time.LocalDate;
 import java.util.HashMap;

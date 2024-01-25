@@ -1,18 +1,22 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.cli;
 
+import dev.coldhands.pair.stairs.TestData;
+import dev.coldhands.pair.stairs.TestUtils;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Set;
 
-import static dev.coldhands.pair.stairs.TestUtils.normalise;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PairPrinterTest {
 
     @Test
     void drawPairStairs() {
-        List<Pairing> pairings = normalise(TestData.EXAMPLE_PAIRINGS);
+        List<Pairing> pairings = TestUtils.normalise(TestData.EXAMPLE_PAIRINGS);
         Set<String> allDevelopers = Set.of("d-dev", "c-dev", "e-dev", "a-dev", "b-dev");
 
         assertThat(PairPrinter.drawPairStairs(allDevelopers, pairings))

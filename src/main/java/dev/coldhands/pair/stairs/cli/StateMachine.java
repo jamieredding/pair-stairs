@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.Pair;
-import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 
 import java.io.BufferedReader;
@@ -12,8 +12,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static dev.coldhands.pair.stairs.PairPrinter.drawPairChoices;
-import static dev.coldhands.pair.stairs.PairPrinter.drawPairStairs;
+import static dev.coldhands.pair.stairs.cli.PairPrinter.drawPairChoices;
+import static dev.coldhands.pair.stairs.cli.PairPrinter.drawPairStairs;
 import static dev.coldhands.pair.stairs.cli.State.*;
 import static java.util.stream.Collectors.toCollection;
 

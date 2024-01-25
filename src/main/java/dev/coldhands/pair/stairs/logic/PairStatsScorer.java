@@ -1,10 +1,13 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.logic;
+
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.PairStats;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
-class PairStatsScorer {
+public class PairStatsScorer {
 
     public static int score(PairStats toScore, Set<String> newJoiners, LocalDate mostRecentDate) {
         var pair = toScore.pair();

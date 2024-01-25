@@ -1,10 +1,14 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.logic;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.google.common.collect.Sets;
+import dev.coldhands.pair.stairs.LoggingExtension;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;

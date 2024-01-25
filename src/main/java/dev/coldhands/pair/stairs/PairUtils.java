@@ -1,6 +1,9 @@
 package dev.coldhands.pair.stairs;
 
 import com.google.common.collect.Sets;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.PairStats;
+import dev.coldhands.pair.stairs.domain.Pairing;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -11,7 +14,7 @@ import java.util.stream.Collectors;
 import static java.util.Comparator.*;
 import static java.util.stream.Collectors.*;
 
-class PairUtils {
+public class PairUtils {
     static Set<Pair> allPairs(Set<String> developers) {
         var pairs = new HashSet<Pair>();
         Sets.combinations(developers, 2).stream()
@@ -86,7 +89,7 @@ class PairUtils {
         };
     }
 
-    static PairCombinationScorer scorePairCombinationUsing(Map<Pair, Integer> allPairsAndTheirScore) {
+    public static PairCombinationScorer scorePairCombinationUsing(Map<Pair, Integer> allPairsAndTheirScore) {
         return pairCombination -> pairCombination.stream()
                 .mapToInt(allPairsAndTheirScore::get)
                 .sum();
@@ -100,7 +103,7 @@ class PairUtils {
     }
 
     @FunctionalInterface
-    interface PairCombinationScorer {
+    public interface PairCombinationScorer {
 
         int score(Set<Pair> pairCombination);
     }
