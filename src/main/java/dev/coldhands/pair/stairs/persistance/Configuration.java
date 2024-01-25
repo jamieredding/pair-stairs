@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.persistance;
 
-import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.domain.Pairing;
 
 import java.util.List;
 

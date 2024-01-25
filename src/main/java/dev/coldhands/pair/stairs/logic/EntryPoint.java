@@ -1,4 +1,7 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.logic;
+
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 
 import java.util.HashSet;
 import java.util.List;

@@ -1,9 +1,9 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.EntryPoint;
-import dev.coldhands.pair.stairs.Pair;
-import dev.coldhands.pair.stairs.Pairing;
-import dev.coldhands.pair.stairs.ScoredPairCombination;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
+import dev.coldhands.pair.stairs.logic.EntryPoint;
 import dev.coldhands.pair.stairs.persistance.ArtifactoryStorage;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.FileStorage;

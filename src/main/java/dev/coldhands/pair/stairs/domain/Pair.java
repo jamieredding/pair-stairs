@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.domain;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,11 +10,11 @@ public record Pair(String first, String second) {
         this(solo, null);
     }
 
-    boolean contains(String dev) {
+    public boolean contains(String dev) {
         return dev.equals(first) || dev.equals(second);
     }
 
-    boolean equivalentTo(Pair pair) {
+    public boolean equivalentTo(Pair pair) {
         return (Objects.equals(first, pair.first) &&
                 Objects.equals(second, pair.second))
                ||
@@ -22,12 +22,12 @@ public record Pair(String first, String second) {
                 Objects.equals(second, pair.first));
     }
 
-    boolean canBeMadeFrom(Set<String> outstandingDevelopers) {
+    public boolean canBeMadeFrom(Set<String> outstandingDevelopers) {
         return outstandingDevelopers.contains(first) &&
                (second == null || outstandingDevelopers.contains(second));
     }
 
-    List<String> members() {
+    public List<String> members() {
         if (second == null) {
             return List.of(first);
         } else {

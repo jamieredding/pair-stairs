@@ -1,5 +1,10 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.logic;
 
+import dev.coldhands.pair.stairs.PairUtils;
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.PairStats;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,8 +16,8 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static dev.coldhands.pair.stairs.PairStatsScorer.score;
 import static dev.coldhands.pair.stairs.PairUtils.scorePairCombinationUsing;
+import static dev.coldhands.pair.stairs.logic.PairStatsScorer.score;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toMap;
 
@@ -43,7 +48,7 @@ public class DecideOMatic {
                 .toList();
     }
 
-    Map<Pair, Integer> getAllPairsAndTheirScore() {
+    public Map<Pair, Integer> getAllPairsAndTheirScore() {
         List<PairStats> allPairStats = PairUtils.calculatePairStats(availableDevelopers, pairings);
         LocalDate mostRecentDate = PairUtils.mostRecentDate(allPairStats).orElse(null);
 

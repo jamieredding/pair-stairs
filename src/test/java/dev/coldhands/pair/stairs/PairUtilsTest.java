@@ -1,5 +1,8 @@
 package dev.coldhands.pair.stairs;
 
+import dev.coldhands.pair.stairs.domain.Pair;
+import dev.coldhands.pair.stairs.domain.PairStats;
+import dev.coldhands.pair.stairs.domain.Pairing;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;

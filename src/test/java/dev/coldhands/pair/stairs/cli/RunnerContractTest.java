@@ -2,9 +2,8 @@ package dev.coldhands.pair.stairs.cli;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
-import dev.coldhands.pair.stairs.DecideOMatic;
-import dev.coldhands.pair.stairs.PairPrinter;
-import dev.coldhands.pair.stairs.Pairing;
+import dev.coldhands.pair.stairs.domain.Pairing;
+import dev.coldhands.pair.stairs.logic.DecideOMatic;
 import dev.coldhands.pair.stairs.persistance.Configuration;
 import dev.coldhands.pair.stairs.persistance.Storage;
 import org.junit.jupiter.api.AfterEach;

@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs;
+package dev.coldhands.pair.stairs.domain;
 
 import java.time.LocalDate;
 

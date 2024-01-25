@@ -1,13 +1,15 @@
 package dev.coldhands.pair.stairs;
 
+import dev.coldhands.pair.stairs.cli.PairPrinter;
+import dev.coldhands.pair.stairs.domain.Pairing;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
-class TestData {
-    static final List<Pairing> EXAMPLE_PAIRINGS = List.of(
+public class TestData {
+    public static final List<Pairing> EXAMPLE_PAIRINGS = List.of(
             new Pairing(LocalDate.now(), "c-dev"),
             new Pairing(LocalDate.now(), "d-dev", "b-dev"),
             new Pairing(LocalDate.now(), "a-dev", "e-dev"),
