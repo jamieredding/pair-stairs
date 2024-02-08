@@ -59,19 +59,9 @@ public class PairUtils {
 
         allDevelopers.forEach(dev -> allPossiblePairs.add(new Pair(dev)));
 
-        return Sets.combinations(allPossiblePairs, ceilDiv(allDevelopers.size(), 2)).stream()
+        return Sets.combinations(allPossiblePairs, Math.ceilDiv(allDevelopers.size(), 2)).stream()
                 .filter(isValidPairCombination(allDevelopers))
                 .collect(toSet());
-    }
-
-    // FROM JAVA 18
-    public static int ceilDiv(int x, int y) {
-        final int q = x / y;
-        // if the signs are the same and modulo not zero, round up
-        if ((x ^ y) >= 0 && (q * y != x)) {
-            return q + 1;
-        }
-        return q;
     }
 
     private static Predicate<Set<Pair>> isValidPairCombination(Set<String> allDevelopers) {
