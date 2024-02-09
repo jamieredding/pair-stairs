@@ -87,47 +87,6 @@ class PairUtilsTest {
                 );
     }
 
-    @Test
-    void calculateAllPairCombinations() {
-        Set<String> allDevelopers = Set.of("c-dev", "d-dev", "e-dev");
-        Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
-
-        assertThat(allPairCombinations)
-                .containsOnly(
-                        Set.of(new Pair("c-dev", "d-dev"),
-                                new Pair("e-dev")),
-                        Set.of(new Pair("d-dev", "e-dev"),
-                                new Pair("c-dev")),
-                        Set.of(new Pair("c-dev", "e-dev"),
-                                new Pair("d-dev")));
-    }
-
-    @Test
-    void calculateAllPairCombinationsOfAnEvenNumberOfDevelopers() {
-        Set<String> allDevelopers = Set.of("c-dev", "d-dev", "e-dev", "a-dev");
-        Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
-
-        assertThat(allPairCombinations)
-                .containsOnly(
-                        Set.of(new Pair("c-dev", "d-dev"),
-                                new Pair("a-dev", "e-dev")),
-                        Set.of(new Pair("d-dev", "e-dev"),
-                                new Pair("a-dev", "c-dev")),
-                        Set.of(new Pair("a-dev", "d-dev"),
-                                new Pair("c-dev", "e-dev")));
-    }
-
-    @Test
-    void calculateAllPairCombinationsWhereThereShouldBeThreePairsInEachPairing() {
-        Set<String> allDevelopers = Set.of("c-dev", "d-dev", "e-dev", "a-dev", "b-dev");
-        Set<Set<Pair>> allPairCombinations = PairUtils.calculateAllPairCombinations(allDevelopers);
-
-        assertThat(allPairCombinations)
-                .hasSize(15)
-                .allSatisfy(pairCombination ->
-                        assertThat(pairCombination).hasSize(3));
-    }
-
     static Stream<Arguments> compare() {
         return Stream.of(
                 arguments(

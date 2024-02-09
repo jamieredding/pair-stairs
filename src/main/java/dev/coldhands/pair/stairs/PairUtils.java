@@ -50,6 +50,7 @@ public class PairUtils {
         return allPairStats;
     }
 
+    @Deprecated
     public static Set<Set<Pair>> calculateAllPairCombinations(Set<String> allDevelopers) {
         Set<Pair> allPossiblePairs = Sets.combinations(allDevelopers, 2).stream()
                 .map(ArrayList::new)
