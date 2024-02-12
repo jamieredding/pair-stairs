@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
-public class LegacyPairCombinationService implements PairCombinationService {
+public class LegacyPairCombinationService implements PairCombinationService<PairCombination> {
     private final List<String> availableDevelopers;
 
     public LegacyPairCombinationService(List<String> availableDevelopers) {

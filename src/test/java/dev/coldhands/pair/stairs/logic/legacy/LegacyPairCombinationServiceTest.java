@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LegacyPairCombinationServiceTest {
 
-    private PairCombinationService underTest;
+    private PairCombinationService<PairCombination> underTest;
 
     private void givenDevelopers(String... developers) {
         underTest = new LegacyPairCombinationService(Arrays.asList(developers));

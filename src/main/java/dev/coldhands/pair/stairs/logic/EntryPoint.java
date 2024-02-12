@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.logic;
 
+import dev.coldhands.pair.stairs.domain.PairCombination;
 import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 
 import java.util.List;
@@ -8,10 +9,10 @@ import static java.util.Comparator.comparing;
 
 public class EntryPoint {
 
-    private final PairCombinationService pairCombinationService;
+    private final PairCombinationService<PairCombination> pairCombinationService;
     private final ScoringStrategy scoringStrategy;
 
-    public EntryPoint(PairCombinationService pairCombinationService, ScoringStrategy scoringStrategy) {
+    public EntryPoint(PairCombinationService<PairCombination> pairCombinationService, ScoringStrategy scoringStrategy) {
         this.pairCombinationService = pairCombinationService;
         this.scoringStrategy = scoringStrategy;
     }
