@@ -1,8 +1,7 @@
-package dev.coldhands.pair.stairs.logic.legacy;
+package dev.coldhands.pair.stairs.core;
 
 import dev.coldhands.pair.stairs.domain.Pair;
 import dev.coldhands.pair.stairs.domain.PairCombination;
-import dev.coldhands.pair.stairs.logic.PairCombinationService;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -10,19 +9,19 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LegacyPairCombinationServiceTest {
+class LegacyCombinationServiceTest {
 
-    private PairCombinationService<PairCombination> underTest;
+    private CombinationService<PairCombination> underTest;
 
     private void givenDevelopers(String... developers) {
-        underTest = new LegacyPairCombinationService(Arrays.asList(developers));
+        underTest = new LegacyCombinationService(Arrays.asList(developers));
     }
 
     @Test
     void calculateAllPairCombinations() {
         givenDevelopers("c-dev", "d-dev", "e-dev");
 
-        Set<PairCombination> allPairCombinations = underTest.getAllPairCombinations();
+        Set<PairCombination> allPairCombinations = underTest.getAllCombinations();
 
 
         assertThat(allPairCombinations)
@@ -36,7 +35,7 @@ class LegacyPairCombinationServiceTest {
     void calculateAllPairCombinationsOfAnEvenNumberOfDevelopers() {
         givenDevelopers("c-dev", "d-dev", "e-dev", "a-dev");
 
-        Set<PairCombination> allPairCombinations = underTest.getAllPairCombinations();
+        Set<PairCombination> allPairCombinations = underTest.getAllCombinations();
 
         assertThat(allPairCombinations)
                 .containsOnly(
@@ -49,7 +48,7 @@ class LegacyPairCombinationServiceTest {
     void calculateAllPairCombinationsWhereThereShouldBeThreePairsInEachPairCombination() {
         givenDevelopers("c-dev", "d-dev", "e-dev", "a-dev", "b-dev");
 
-        Set<PairCombination> allPairCombinations = underTest.getAllPairCombinations();
+        Set<PairCombination> allPairCombinations = underTest.getAllCombinations();
 
         assertThat(allPairCombinations)
                 .hasSize(15)
