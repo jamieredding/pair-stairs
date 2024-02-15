@@ -1,10 +1,10 @@
 package dev.coldhands.pair.stairs.cli;
 
+import dev.coldhands.pair.stairs.core.LegacyCombinationService;
 import dev.coldhands.pair.stairs.domain.Pair;
 import dev.coldhands.pair.stairs.domain.Pairing;
 import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 import dev.coldhands.pair.stairs.logic.EntryPoint;
-import dev.coldhands.pair.stairs.logic.legacy.LegacyPairCombinationService;
 import dev.coldhands.pair.stairs.logic.legacy.LegacyScoringStrategy;
 import dev.coldhands.pair.stairs.persistance.ArtifactoryStorage;
 import dev.coldhands.pair.stairs.persistance.Configuration;
@@ -62,9 +62,9 @@ class Context {
         final List<String> availableDevelopers = initialiseAvailableDevelopers(runner);
         final List<String> newJoiners = initialiseNewJoiners(runner, configuration);
 
-        final var pairCombinationService = new LegacyPairCombinationService(availableDevelopers);
+        final var combinationService = new LegacyCombinationService(availableDevelopers);
         final var scoringStrategy = new LegacyScoringStrategy(availableDevelopers, initialPairings, newJoiners);
-        final var entryPoint = new EntryPoint(pairCombinationService, scoringStrategy);
+        final var entryPoint = new EntryPoint(combinationService, scoringStrategy);
         scoredPairCombinations = entryPoint.computeScoredPairCombinations();
 
         // todo move these closer to where they are needed in the state machine

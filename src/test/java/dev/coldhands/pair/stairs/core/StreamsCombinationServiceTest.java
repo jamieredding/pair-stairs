@@ -1,8 +1,7 @@
-package dev.coldhands.pair.stairs.logic.streams;
+package dev.coldhands.pair.stairs.core;
 
 import dev.coldhands.pair.stairs.domain.streams.Pair;
 import dev.coldhands.pair.stairs.domain.streams.PairCombination;
-import dev.coldhands.pair.stairs.logic.PairCombinationService;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -12,12 +11,12 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class StreamsPairCombinationServiceTest {
+class StreamsCombinationServiceTest {
 
-    private PairCombinationService<PairCombination> underTest;
+    private CombinationService<PairCombination> underTest;
 
     private void given(Collection<String> developers, Collection<String> streams) {
-        underTest = new StreamsPairCombinationService(developers, streams);
+        underTest = new StreamsCombinationService(developers, streams);
     }
 
     @Test
@@ -27,7 +26,7 @@ class StreamsPairCombinationServiceTest {
 
         given(developers, streams);
 
-        Set<PairCombination> allPairCombinations = underTest.getAllPairCombinations();
+        Set<PairCombination> allPairCombinations = underTest.getAllCombinations();
 
         assertThat(allPairCombinations)
                 .containsOnly(
@@ -49,7 +48,7 @@ class StreamsPairCombinationServiceTest {
 
         given(developers, streams);
 
-        Set<PairCombination> allPairCombinations = underTest.getAllPairCombinations();
+        Set<PairCombination> allPairCombinations = underTest.getAllCombinations();
 
         assertThat(allPairCombinations)
                 .containsOnly(
@@ -71,7 +70,7 @@ class StreamsPairCombinationServiceTest {
 
         given(developers, streams);
 
-        Set<PairCombination> allPairCombinations = underTest.getAllPairCombinations();
+        Set<PairCombination> allPairCombinations = underTest.getAllCombinations();
 
         assertThat(allPairCombinations)
                 .hasSize(90) // 15 pair combinations X 3! ways of permuting with streams
@@ -87,7 +86,7 @@ class StreamsPairCombinationServiceTest {
 
         given(developers, streams);
 
-        assertThatThrownBy(()-> underTest.getAllPairCombinations())
+        assertThatThrownBy(()-> underTest.getAllCombinations())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Not enough developers to pair on streams");
     }
@@ -99,7 +98,7 @@ class StreamsPairCombinationServiceTest {
 
         given(developers, streams);
 
-        assertThatThrownBy(()-> underTest.getAllPairCombinations())
+        assertThatThrownBy(()-> underTest.getAllCombinations())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Not enough streams for developers");
     }
