@@ -4,11 +4,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class StreamContextIsMaintainedRule implements ScoringRule<PairStreamCombination> {
+public class MaintainStreamKnowledgeTransferRule implements ScoringRule<PairStreamCombination> {
 
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository;
 
-    public StreamContextIsMaintainedRule(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+    public MaintainStreamKnowledgeTransferRule(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 

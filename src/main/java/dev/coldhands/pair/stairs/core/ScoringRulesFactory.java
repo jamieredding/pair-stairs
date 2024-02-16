@@ -6,8 +6,8 @@ public final class ScoringRulesFactory {
 
     static List<ScoringRule<PairStreamCombination>> pairStreamScoringRules(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
         return List.of(
-                new PairsMustRotateRule(combinationHistoryRepository),
-                new StreamContextIsMaintainedRule(combinationHistoryRepository)
+                new PreventConsecutivePairRepeatsRule(combinationHistoryRepository),
+                new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository)
         );
     }
 }
