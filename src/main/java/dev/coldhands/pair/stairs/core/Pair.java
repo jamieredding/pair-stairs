@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.domain.streams;
+package dev.coldhands.pair.stairs.core;
 
 import java.util.Set;
 

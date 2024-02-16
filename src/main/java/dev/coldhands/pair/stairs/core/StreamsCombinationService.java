@@ -1,8 +1,6 @@
 package dev.coldhands.pair.stairs.core;
 
 import com.google.common.collect.Sets;
-import dev.coldhands.pair.stairs.domain.streams.Pair;
-import dev.coldhands.pair.stairs.domain.streams.PairCombination;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,7 +11,7 @@ import java.util.function.Predicate;
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toSet;
 
-public class StreamsCombinationService implements CombinationService<PairCombination> {
+public class StreamsCombinationService implements CombinationService<PairStreamCombination> {
 
     private final Set<String> developers;
     private final Set<String> streams;
@@ -24,7 +22,7 @@ public class StreamsCombinationService implements CombinationService<PairCombina
     }
 
     @Override
-    public Set<PairCombination> getAllCombinations() {
+    public Set<PairStreamCombination> getAllCombinations() {
         final int requiredNumberOfPairsPerCombination = Math.ceilDiv(developers.size(), 2);
         if (requiredNumberOfPairsPerCombination > streams.size()) {
             throw new IllegalStateException("Not enough streams for developers");
@@ -47,7 +45,7 @@ public class StreamsCombinationService implements CombinationService<PairCombina
         return Sets.combinations(allPairs, requiredNumberOfPairsPerCombination).stream()
                 .filter(combinationHasAllDevelopers(developers))
                 .filter(combinationHasAllStreams(streams))
-                .map(PairCombination::new)
+                .map(PairStreamCombination::new)
                 .collect(toSet());
     }
 
