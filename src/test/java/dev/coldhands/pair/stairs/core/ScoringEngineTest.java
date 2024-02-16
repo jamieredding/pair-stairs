@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.core;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,20 +11,18 @@ class ScoringEngineTest {
 
     @Test
     void scoreAndSort() {
-        final ScoringRule<TestCombination, TestScoredCombination> scoringRule = combination -> {
-            int score = combination.value * 10;
-            return new TestScoredCombination(combination, score);
-        };
-
-        final var underTest = new ScoringEngine<>(scoringRule);
+        final var underTest = new ScoringEngine<>(List.of(
+                new Multiply10Rule(),
+                new DebuffOddNumbersRule()
+        ));
 
         final var actual = underTest.scoreAndSort(Set.of(new TestCombination(1), new TestCombination(2), new TestCombination(3)));
 
         assertThat(actual)
-                .containsExactly(
-                        new TestScoredCombination(new TestCombination(1), 10),
-                        new TestScoredCombination(new TestCombination(2), 20),
-                        new TestScoredCombination(new TestCombination(3), 30)
+                .containsExactly( // todo should I map these to just ordered test combination and scrap implementation details?
+                        new ScoredCombination<>(new TestCombination(2), 20, List.of(new ScoreResult(20, ""), new ScoreResult(0, ""))),
+                        new ScoredCombination<>(new TestCombination(1), 60, List.of(new ScoreResult(10, ""), new ScoreResult(50, ""))),
+                        new ScoredCombination<>(new TestCombination(3), 80, List.of(new ScoreResult(30, ""), new ScoreResult(50, "")))
                 );
     }
 
@@ -32,12 +30,19 @@ class ScoringEngineTest {
 
     }
 
-    // todo make score a list of subscores... and have a description...
-    private record TestScoredCombination(TestCombination combination, int score) implements Comparable<TestScoredCombination> {
-
+    private static class Multiply10Rule implements ScoringRule<TestCombination> {
         @Override
-        public int compareTo(@NotNull TestScoredCombination o) {
-            return Integer.compare(this.score, o.score);
+        public ScoreResult score(TestCombination combination) {
+            int score = combination.value * 10;
+            return new ScoreResult(score, ""); // todo descriptions?
+        }
+    }
+
+    private static class DebuffOddNumbersRule implements ScoringRule<TestCombination> {
+        @Override
+        public ScoreResult score(TestCombination combination) {
+            int score = combination.value % 2 == 1 ? 50 : 0;
+            return new ScoreResult(score, ""); // todo descriptions?
         }
     }
 }
