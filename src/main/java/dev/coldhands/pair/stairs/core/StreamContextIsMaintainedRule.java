@@ -20,20 +20,16 @@ public class StreamContextIsMaintainedRule implements ScoringRule<PairStreamComb
     }
 
     private ScoreResult scoreComboBasedOnMostRecent(PairStreamCombination toBeScored, PairStreamCombination mostRecentCombination) {
-        final var streamToDevelopers = getStreamToDevelopers(toBeScored);
-        final var mostRecentStreamToDevelopers = getStreamToDevelopers(mostRecentCombination);
+        final Map<String, Set<String>> mostRecentStreamToDevelopers = getStreamToDevelopers(mostRecentCombination);
 
-        int totalScore = 0;
+        int totalScore = toBeScored.pairs().stream()
+                .mapToInt(pair -> {
+                    final Set<String> newDevelopers = pair.developers();
+                    final Set<String> previousDevsInStream = mostRecentStreamToDevelopers.get(pair.stream());
 
-        for (Map.Entry<String, Set<String>> entry : streamToDevelopers.entrySet()) { // todo make this functional
-            final String stream = entry.getKey();
-            final Set<String> newDevelopers = entry.getValue();
-            final var previousDevsInStream = mostRecentStreamToDevelopers.get(stream);
-
-            if (previousDevsInStream.stream().noneMatch(newDevelopers::contains)) {
-                totalScore += 1;
-            }
-        }
+                    return previousDevsInStream.stream().noneMatch(newDevelopers::contains) ? 1 : 0;
+                })
+                .sum();
 
         return new BasicScoreResult(totalScore);
     }
