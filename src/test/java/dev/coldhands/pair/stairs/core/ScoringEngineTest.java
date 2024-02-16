@@ -19,10 +19,10 @@ class ScoringEngineTest {
         final var actual = underTest.scoreAndSort(Set.of(new TestCombination(1), new TestCombination(2), new TestCombination(3)));
 
         assertThat(actual)
-                .containsExactly( // todo should I map these to just ordered test combination and scrap implementation details?
-                        new ScoredCombination<>(new TestCombination(2), 20, List.of(new ScoreResult(20, ""), new ScoreResult(0, ""))),
-                        new ScoredCombination<>(new TestCombination(1), 60, List.of(new ScoreResult(10, ""), new ScoreResult(50, ""))),
-                        new ScoredCombination<>(new TestCombination(3), 80, List.of(new ScoreResult(30, ""), new ScoreResult(50, "")))
+                .containsExactly(
+                        new ScoredCombination<>(new TestCombination(2), 20, List.of(new TestScoreResult(20), new TestScoreResult(0))),
+                        new ScoredCombination<>(new TestCombination(1), 60, List.of(new TestScoreResult(10), new TestScoreResult(50))),
+                        new ScoredCombination<>(new TestCombination(3), 80, List.of(new TestScoreResult(30), new TestScoreResult(50)))
                 );
     }
 
@@ -30,11 +30,15 @@ class ScoringEngineTest {
 
     }
 
+    private record TestScoreResult(int score) implements ScoreResult {
+
+    }
+
     private static class Multiply10Rule implements ScoringRule<TestCombination> {
         @Override
         public ScoreResult score(TestCombination combination) {
             int score = combination.value * 10;
-            return new ScoreResult(score, ""); // todo descriptions?
+            return new TestScoreResult(score);
         }
     }
 
@@ -42,7 +46,7 @@ class ScoringEngineTest {
         @Override
         public ScoreResult score(TestCombination combination) {
             int score = combination.value % 2 == 1 ? 50 : 0;
-            return new ScoreResult(score, ""); // todo descriptions?
+            return new TestScoreResult(score);
         }
     }
 }
