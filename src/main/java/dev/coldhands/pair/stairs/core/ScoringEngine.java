@@ -3,6 +3,8 @@ package dev.coldhands.pair.stairs.core;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.*;
+
 public class ScoringEngine<Combination> {
 
     private final List<ScoringRule<Combination>> scoringRules;
@@ -19,16 +21,17 @@ public class ScoringEngine<Combination> {
     }
 
     private ScoredCombination<Combination> scoreCombination(Combination combination) {
-        final List<ScoreResult> scoreResults = scoringRules.stream()
+        record ScoreResults(List<ScoreResult> individualResults, int totalScore) {
+        }
+
+        final ScoreResults scoreResults = scoringRules.stream()
                 .map(rule -> rule.score(combination))
-                .toList();
+                .collect(teeing(
+                        toList(),
+                        summingInt(ScoreResult::score),
+                        ScoreResults::new
+                ));
 
-        final int totalScore = scoreResults.stream()
-                .mapToInt(ScoreResult::score)
-                .sum();
-
-        // todo use new java stream feature
-
-        return new ScoredCombination<>(combination, totalScore, scoreResults);
+        return new ScoredCombination<>(combination, scoreResults.totalScore, scoreResults.individualResults);
     }
 }
