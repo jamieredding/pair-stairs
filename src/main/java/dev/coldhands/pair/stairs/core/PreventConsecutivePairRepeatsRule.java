@@ -4,11 +4,11 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class PairsMustRotateRule implements ScoringRule<PairStreamCombination> {
+public class PreventConsecutivePairRepeatsRule implements ScoringRule<PairStreamCombination> {
 
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository;
 
-    public PairsMustRotateRule(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+    public PreventConsecutivePairRepeatsRule(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 

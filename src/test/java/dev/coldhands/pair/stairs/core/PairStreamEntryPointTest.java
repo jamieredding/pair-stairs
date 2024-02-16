@@ -58,7 +58,7 @@ class PairStreamEntryPointTest {
         }
 
         @Test
-        void someoneShouldStayInAStreamFromThePreviousDayToMaintainContext() {
+        void someoneShouldStayInAStreamFromThePreviousDayToAllowKnowledgeTransfer() {
             final var yesterdayCombination = new PairStreamCombination(Set.of(
                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                     new Pair(Set.of("c-dev"), "2-stream")
