@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.core;
 
 @FunctionalInterface
-public interface ScoringRule<Combination, ScoredCombination> {
+public interface ScoringRule<Combination> {
 
-    ScoredCombination score(Combination combination);
+    ScoreResult score(Combination combination);
 }
