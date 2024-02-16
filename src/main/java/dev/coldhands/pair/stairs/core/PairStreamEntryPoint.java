@@ -8,9 +8,11 @@ public class PairStreamEntryPoint implements EntryPoint<PairStreamCombination> {
     private final CombinationService<PairStreamCombination> combinationService;
     private final ScoringEngine<PairStreamCombination> scoringEngine;
 
-    public PairStreamEntryPoint(Collection<String> developers, Collection<String> streams) {
+    public PairStreamEntryPoint(Collection<String> developers,
+                                Collection<String> streams,
+                                CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
         combinationService = new StreamsCombinationService(developers, streams);
-        scoringEngine = new ScoringEngine<>(ScoringRulesFactory.pairStreamScoringRules());
+        scoringEngine = new ScoringEngine<>(ScoringRulesFactory.pairStreamScoringRules(combinationHistoryRepository));
     }
 
     @Override
