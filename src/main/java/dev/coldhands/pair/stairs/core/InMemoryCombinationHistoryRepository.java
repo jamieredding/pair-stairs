@@ -1,10 +1,7 @@
 package dev.coldhands.pair.stairs.core;
 
 import java.time.LocalDate;
-import java.util.Comparator;
-import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 public class InMemoryCombinationHistoryRepository<Combination> implements CombinationHistoryRepository<Combination> {
 
@@ -19,10 +16,11 @@ public class InMemoryCombinationHistoryRepository<Combination> implements Combin
     public Optional<Combination> getMostRecentCombination() { // todo should this exclude today's combination or should that be at a higher level?
         return combinations.isEmpty()
                 ? Optional.empty()
-                : Optional.of(combinations.last().combination);
+                : Optional.of(combinations.last().combination());
     }
 
-    private record CombinationEvent<Combination>(Combination combination, LocalDate date) {
-
+    @Override
+    public SortedSet<CombinationEvent<Combination>> getAllEvents() {
+        return Collections.unmodifiableSortedSet(combinations);
     }
 }
