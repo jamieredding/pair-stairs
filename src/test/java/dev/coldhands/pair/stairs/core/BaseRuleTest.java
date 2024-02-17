@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.core;
 
+import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
