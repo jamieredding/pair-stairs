@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.core;
 
+import java.util.Optional;
 import java.util.SortedSet;
 
 public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStreamCombination> {
@@ -28,7 +29,13 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
 
                                 final PairStreamCombination mostRecentCombination = maybeCombination.get();
 
-                                final String oldStream = previousStreamDeveloperWasIn(developer, mostRecentCombination);
+                                final Optional<String> maybeOldStream = previousStreamDeveloperWasIn(developer, mostRecentCombination);
+
+                                if (maybeOldStream.isEmpty()) {
+                                    return 0;
+                                }
+
+                                final String oldStream = maybeOldStream.get();
 
                                 if (oldStream.equals(newStream)) {
                                     return 0;
@@ -61,11 +68,10 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
                 .count());
     }
 
-    private String previousStreamDeveloperWasIn(String developer, PairStreamCombination combination) {
+    private Optional<String> previousStreamDeveloperWasIn(String developer, PairStreamCombination combination) {
         return combination.pairs().stream()
                 .filter(pair -> pair.developers().contains(developer))
                 .map(Pair::stream)
-                .findFirst()
-                .get();  // todo test optional
+                .findFirst();
     }
 }
