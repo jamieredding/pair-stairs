@@ -35,26 +35,26 @@ class InMemoryCombinationHistoryRepositoryTest {
     }
 
     @Test
-    void getAllEventsWhenNoEvents() {
-        assertThat(underTest.getAllEvents())
+    void getAllCombinationsWhenNothingSaved() {
+        assertThat(underTest.getAllCombinations())
                 .isEmpty();
     }
 
     @Test
-    void getAllEventsIsUnmodifiable() {
-        assertThat(underTest.getAllEvents())
+    void getAllCombinationsIsUnmodifiable() {
+        assertThat(underTest.getAllCombinations())
                 .isUnmodifiable();
     }
 
     @Test
-    void getAllEventsContainsAllEventsInChronologicalOrder() {
+    void getAllCombinationsContainsAllCombinationsInChronologicalOrder() {
         underTest.saveCombination(new TestCombination(1), LocalDate.of(2024, 2, 29));
-        underTest.saveCombination(new TestCombination(1), LocalDate.of(2024, 2, 1));
+        underTest.saveCombination(new TestCombination(2), LocalDate.of(2024, 2, 1));
 
-        assertThat(underTest.getAllEvents())
+        assertThat(underTest.getAllCombinations())
                 .containsExactly(
-                        new CombinationEvent<>(new TestCombination(1), LocalDate.of(2024, 2, 1)),
-                        new CombinationEvent<>(new TestCombination(1), LocalDate.of(2024, 2, 29))
+                        new TestCombination(2),
+                        new TestCombination(1)
                 );
     }
 

@@ -20,7 +20,13 @@ public class InMemoryCombinationHistoryRepository<Combination> implements Combin
     }
 
     @Override
-    public SortedSet<CombinationEvent<Combination>> getAllEvents() {
-        return Collections.unmodifiableSortedSet(combinations);
+    public List<Combination> getAllCombinations() {
+        return combinations.stream()
+                .map(CombinationEvent::combination)
+                .toList();
+    }
+
+    private record CombinationEvent<Combination>(Combination combination, LocalDate date) {
+
     }
 }

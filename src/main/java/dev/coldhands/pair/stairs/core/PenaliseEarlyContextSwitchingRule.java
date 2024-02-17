@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.core;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
 
 public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStreamCombination> {
 
@@ -14,7 +14,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
 
     @Override
     public ScoreResult score(PairStreamCombination pairStreamCombination) {
-        final SortedSet<CombinationEvent<PairStreamCombination>> allEvents = combinationHistoryRepository.getAllEvents();
+        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getAllCombinations();
 
         final var totalDevelopersSwitchingEarly = pairStreamCombination.pairs().stream() // todo is this the simplest way of doing this?
                 .mapToInt(pair -> {
@@ -41,7 +41,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
                                     return 0;
                                 }
 
-                                final int daysInOldStream = howManyDaysInOldStream(developer, oldStream, allEvents);
+                                final int daysInOldStream = howManyDaysInOldStream(developer, oldStream, allCombinations);
 
                                 return daysInOldStream < minimumDaysInStream
                                         ? 1
@@ -56,9 +56,8 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
         return new BasicScoreResult(totalDevelopersSwitchingEarly);
     }
 
-    private int howManyDaysInOldStream(String developer, String oldStream, SortedSet<CombinationEvent<PairStreamCombination>> allEvents) {
-        return Math.toIntExact(allEvents.reversed().stream()
-                .map(CombinationEvent::combination)
+    private int howManyDaysInOldStream(String developer, String oldStream, List<PairStreamCombination> allCombinations) {
+        return Math.toIntExact(allCombinations.reversed().stream()
                 .map(PairStreamCombination::pairs)
                 .takeWhile(pairs ->
                         pairs.stream()

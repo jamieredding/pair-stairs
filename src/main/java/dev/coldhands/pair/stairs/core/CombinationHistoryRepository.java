@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.core;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
-import java.util.SortedSet;
 
 public interface CombinationHistoryRepository<Combination> {
 
@@ -10,5 +10,5 @@ public interface CombinationHistoryRepository<Combination> {
 
     Optional<Combination> getMostRecentCombination();
 
-    SortedSet<CombinationEvent<Combination>> getAllEvents(); // todo is this used? if not also make CombinationEvent internal
+    List<Combination> getAllCombinations();
 }
