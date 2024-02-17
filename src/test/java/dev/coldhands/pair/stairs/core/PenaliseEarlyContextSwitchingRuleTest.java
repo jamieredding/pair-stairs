@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.core;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -115,9 +116,35 @@ class PenaliseEarlyContextSwitchingRuleTest {
                 .isLessThan(underTest.score(twoDevsSwitchEarly).score());
     }
 
+    @Nested
+    class MissingParts {
+
+        @Test
+        void doNotContributeToScoreIfDeveloperWasOffYesterday() {
+            final var dayBeforeYesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev", "d-dev"), "2-stream")
+            ));
+            final var yesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev", "a-dev"), "2-stream")
+            ));
+
+            combinationHistoryRepository.saveCombination(dayBeforeYesterdayCombination, LocalDate.now().minusDays(2));
+            combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
+
+            final var dReturns = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("b-dev", "c-dev"), "1-stream"),
+                    new Pair(Set.of("a-dev", "d-dev"), "2-stream")
+            ));
+
+            assertThat(underTest.score(dReturns).score())
+                    .isEqualTo(0);
+        }
+    }
+
     /*
     todo
-        - add to score for every developer that switches stream
         - missing
             - developer not in yesterday
                 - should I consider what they were last on?
