@@ -82,6 +82,36 @@ class PairStreamEntryPointTest {
                         assertThat(stream2Combo.developers()).containsAnyOf("c-dev");
                     });
         }
+
+        @Test
+        void ideallyStayInAStreamForMoreThan1Day() {
+            final var dayBeforeYesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev"), "2-stream")
+            ));
+            final var yesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev", "a-dev"), "2-stream")
+            ));
+
+            combinationHistoryRepository.saveCombination(dayBeforeYesterdayCombination, LocalDate.now().minusDays(2));
+            combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
+
+            final var underTest = new PairStreamEntryPoint(
+                    List.of("a-dev", "b-dev", "c-dev"),
+                    List.of("1-stream", "2-stream"),
+                    combinationHistoryRepository);
+
+            final var sortedCombinations = getSortedCombinations(underTest);
+
+            assertThat(sortedCombinations.getFirst())
+                    .isEqualTo(
+                            new PairStreamCombination(Set.of(
+                                    new Pair(Set.of("b-dev", "c-dev"), "1-stream"),
+                                    new Pair(Set.of("a-dev"), "2-stream")
+                            ))
+                    );
+        }
     }
 
     private static Pair getComboForStream(PairStreamCombination bestCombination, String wantedStream) {
