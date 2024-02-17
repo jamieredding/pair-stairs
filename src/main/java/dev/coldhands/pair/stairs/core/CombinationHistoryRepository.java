@@ -10,5 +10,5 @@ public interface CombinationHistoryRepository<Combination> {
 
     Optional<Combination> getMostRecentCombination();
 
-    SortedSet<CombinationEvent<Combination>> getAllEvents();
+    SortedSet<CombinationEvent<Combination>> getAllEvents(); // todo is this used? if not also make CombinationEvent internal
 }

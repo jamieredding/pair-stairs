@@ -8,7 +8,7 @@ public final class ScoringRulesFactory {
         return List.of(
                 new PreventConsecutivePairRepeatsRule(combinationHistoryRepository),
                 new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository),
-                new PenaliseContextSwitchingRule(combinationHistoryRepository)
+                new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository)
         );
     }
 }
