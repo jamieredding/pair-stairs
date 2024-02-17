@@ -25,7 +25,7 @@ public class MaintainStreamKnowledgeTransferRule implements ScoringRule<PairStre
         int totalScore = toBeScored.pairs().stream()
                 .mapToInt(pair -> {
                     final Set<String> newDevelopers = pair.developers();
-                    final Set<String> previousDevsInStream = mostRecentStreamToDevelopers.get(pair.stream());
+                    final Set<String> previousDevsInStream = mostRecentStreamToDevelopers.getOrDefault(pair.stream(), Set.of());
 
                     return previousDevsInStream.stream().noneMatch(newDevelopers::contains) ? 1 : 0;
                 })

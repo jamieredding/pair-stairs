@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.core;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -82,11 +83,70 @@ class MaintainStreamKnowledgeTransferRuleTest {
 
     }
 
+    @Nested
+    class MissingParts {
+
+        @Test
+        void onlyDeveloperWithContextIsMissing() {
+            final var yesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev"), "2-stream")
+            ));
+
+            final var cIsOff = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
+                    new Pair(Set.of("b-dev"), "2-stream")
+            ));
+
+            combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
+
+            assertThat(underTest.score(cIsOff).score())
+                    .isGreaterThan(0);
+
+        }
+
+        @Test
+        void aNewStreamAndDevIsAdded() {
+            final var yesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev", "d-dev"), "2-stream")
+            ));
+
+            final var eIsBackSo3CanContinue = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
+                    new Pair(Set.of("b-dev", "d-dev"), "2-stream"),
+                    new Pair(Set.of("e-dev"), "3-stream")
+            ));
+
+            combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
+
+            assertThat(underTest.score(eIsBackSo3CanContinue).score())
+                    .isGreaterThan(0);
+        }
+
+        @Test
+        void aPreviousStreamIsNotPresentInCombination() {
+            final var yesterdayCombination = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
+                    new Pair(Set.of("e-dev"), "3-stream")
+            ));
+
+            final var eIsOffSo3CanNotContinue = new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
+                    new Pair(Set.of("b-dev", "d-dev"), "2-stream")
+            ));
+
+            combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
+
+            assertThat(underTest.score(eIsOffSo3CanNotContinue).score())
+                    .isEqualTo(0);
+        }
+    }
+
     /*
     todo
-        - only developer that had context is not in combination
-        - a new stream has been added
-        - a previous stream isn't present in this combo
+        - should it be able to score two single devs on streams?
         - weighting?
      */
 }
