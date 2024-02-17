@@ -27,7 +27,7 @@ public class MaintainStreamKnowledgeTransferRule implements ScoringRule<PairStre
                     final Set<String> newDevelopers = pair.developers();
                     final Set<String> previousDevsInStream = mostRecentStreamToDevelopers.getOrDefault(pair.stream(), Set.of());
 
-                    return previousDevsInStream.stream().noneMatch(newDevelopers::contains) ? 1 : 0; // todo implement this using weights
+                    return previousDevsInStream.stream().noneMatch(newDevelopers::contains) ? 1 : 0;
                 })
                 .sum();
 

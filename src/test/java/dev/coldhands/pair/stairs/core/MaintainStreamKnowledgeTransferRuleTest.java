@@ -149,6 +149,5 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
     /*
     todo
         - should it be able to score two single devs on streams?
-        - weighting?
      */
 }
