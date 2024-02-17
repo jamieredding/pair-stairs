@@ -6,7 +6,7 @@ public final class ScoringRulesFactory {
 
     static List<ScoringRule<PairStreamCombination>> pairStreamScoringRules(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
         return List.of(
-                new PreventConsecutivePairRepeatsRule(combinationHistoryRepository),
+                new WeightedRule<>(5, new PreventConsecutivePairRepeatsRule(combinationHistoryRepository)),
                 new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository),
                 new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository)
         );
