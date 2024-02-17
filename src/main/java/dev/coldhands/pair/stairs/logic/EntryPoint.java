@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.logic;
 
-import dev.coldhands.pair.stairs.core.CombinationService;
+import dev.coldhands.pair.stairs.core.domain.CombinationService;
 import dev.coldhands.pair.stairs.domain.PairCombination;
 import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
 

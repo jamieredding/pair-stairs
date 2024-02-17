@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.cli;
 
-import dev.coldhands.pair.stairs.core.LegacyCombinationService;
+import dev.coldhands.pair.stairs.core.usecases.legacy.LegacyCombinationService;
 import dev.coldhands.pair.stairs.domain.Pair;
 import dev.coldhands.pair.stairs.domain.Pairing;
 import dev.coldhands.pair.stairs.domain.ScoredPairCombination;
