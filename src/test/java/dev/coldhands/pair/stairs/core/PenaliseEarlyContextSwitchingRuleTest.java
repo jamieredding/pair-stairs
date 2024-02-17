@@ -8,10 +8,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PenaliseContextSwitchingRuleTest {
+class PenaliseEarlyContextSwitchingRuleTest {
 
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
-    private final PenaliseContextSwitchingRule underTest = new PenaliseContextSwitchingRule(combinationHistoryRepository);
+    private final PenaliseEarlyContextSwitchingRule underTest = new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository);
 
     @Test
     void doNotContributeToScoreIfNoHistory() {
@@ -61,6 +61,7 @@ class PenaliseContextSwitchingRuleTest {
     }
 
     @Test
+    @Disabled("This is out of scope of this rule") // todo if this is wanted it should be a new rule
     void itIsWorseToStayLongerInAStream() {
         final var combination = new PairStreamCombination(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
@@ -83,7 +84,6 @@ class PenaliseContextSwitchingRuleTest {
     }
 
     @Test
-    @Disabled
     void itIsWorseForMoreDevelopersToContextSwitch() {
         final var dayBeforeYesterday = new PairStreamCombination(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),

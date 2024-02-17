@@ -24,7 +24,7 @@ public class PreventConsecutivePairRepeatsRule implements ScoringRule<PairStream
         final var mostRecentDevelopersInPairs = getDevelopersInPairs(mostRecentCombination);
 
         int score = developersInPairs.equals(mostRecentDevelopersInPairs)
-                ? 1
+                ? 5 // todo make this weighted
                 : 0;
 
         return new BasicScoreResult(score);
