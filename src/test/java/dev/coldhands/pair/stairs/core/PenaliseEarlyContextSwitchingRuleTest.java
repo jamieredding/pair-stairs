@@ -9,20 +9,22 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PenaliseEarlyContextSwitchingRuleTest {
+class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCombination> {
 
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final PenaliseEarlyContextSwitchingRule underTest = new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository);
 
-    @Test
-    void doNotContributeToScoreIfNoHistory() {
-        final var yesterdayCombination = new PairStreamCombination(Set.of(
+    @Override
+    public ScoringRule<PairStreamCombination> underTest() {
+        return underTest;
+    }
+
+    @Override
+    public PairStreamCombination exampleCombination() {
+        return new PairStreamCombination(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
-
-        assertThat(underTest.score(yesterdayCombination).score())
-                .isEqualTo(0);
     }
 
     @Test
