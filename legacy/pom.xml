@@ -104,7 +104,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>dev.coldhands.pair.stairs.cli.Runner</mainClass>
+                            <mainClass>dev.coldhands.pair.stairs.legacy.cli.Runner</mainClass>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
@@ -129,7 +129,7 @@
                     </platforms>
                     <programs>
                         <program>
-                            <mainClass>dev.coldhands.pair.stairs.cli.Runner</mainClass>
+                            <mainClass>dev.coldhands.pair.stairs.legacy.cli.Runner</mainClass>
                             <id>${scriptName}</id>
                         </program>
                     </programs>
