@@ -12,11 +12,11 @@ import java.util.stream.Collectors;
 public class UniqueDeveloperPairsMetric implements Metric<PairStreamCombination, UniqueDeveloperPairsMetric.Result> {
 
     private final Collection<String> developers;
-    private final Collection<String> stream;
+    private final Collection<String> streams;
 
-    public UniqueDeveloperPairsMetric(Collection<String> developers, Collection<String> stream) {
+    public UniqueDeveloperPairsMetric(Collection<String> developers, Collection<String> streams) {
         this.developers = developers;
-        this.stream = stream;
+        this.streams = streams;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class UniqueDeveloperPairsMetric implements Metric<PairStreamCombination,
          *       can I refactor just the developer pair part out of PairStreamCombinationService?
          *       yes, have a PairCombinationService, then have PSCS stream over this and multimap each by the number of streams?
          */
-        final Set<PairStreamCombination> allCombinations = new PairStreamCombinationService(developers, stream).getAllCombinations();
+        final Set<PairStreamCombination> allCombinations = new PairStreamCombinationService(developers, streams).getAllCombinations();
 
         final Map<Set<String>, Integer> allDeveloperPairs = allCombinations.stream()
                 .map(PairStreamCombination::pairs)
