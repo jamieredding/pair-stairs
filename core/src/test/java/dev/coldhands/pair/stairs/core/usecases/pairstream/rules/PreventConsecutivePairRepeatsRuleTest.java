@@ -6,6 +6,7 @@ import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -80,10 +81,33 @@ class PreventConsecutivePairRepeatsRuleTest implements BaseRuleTest<PairStreamCo
                 .isGreaterThan(0);
     }
 
-    /*
-    todo
-        - should this apply some smaller amount of score if any pairs are the same?
-            - e.g. add 1 per pair that is the same as yesterday?
-     */
+    @Test
+    @Disabled("adding this behaviour currently causes cycles of devs not pairing with each other")
+    void itIsWorseForMoreDevelopersToPairMultipleTimes() {
+        final var yesterday = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
+                new Pair(Set.of("e-dev", "f-dev"), "3-stream"),
+                new Pair(Set.of("g-dev", "h-dev"), "4-stream")
+        ));
+
+        combinationHistoryRepository.saveCombination(yesterday, LocalDate.now().minusDays(1));
+
+        final var onePairIsTheSame = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("c-dev", "f-dev"), "2-stream"),
+                new Pair(Set.of("e-dev", "h-dev"), "3-stream"),
+                new Pair(Set.of("g-dev", "d-dev"), "4-stream")
+        ));
+        final var twoPairsAreTheSame = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
+                new Pair(Set.of("e-dev", "h-dev"), "3-stream"),
+                new Pair(Set.of("g-dev", "f-dev"), "4-stream")
+        ));
+
+        assertThat(underTest.score(onePairIsTheSame).score())
+                .isLessThan(underTest.score(twoPairsAreTheSame).score());
+    }
 
 }

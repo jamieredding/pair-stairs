@@ -72,10 +72,28 @@ class PairStreamRotationSimulatorTest {
         displayResults(scoredCombinations);
 
         final UniqueDeveloperPairsMetric uniqueDeveloperPairsMetric = new UniqueDeveloperPairsMetric(developers, streams);
-        displayMetric(uniqueDeveloperPairsMetric.compute(scoredCombinations));
+        final UniqueDeveloperPairsMetric.Result uniqueDeveloperPairsResult = uniqueDeveloperPairsMetric.compute(scoredCombinations);
+        displayMetric(uniqueDeveloperPairsResult);
 
         final DeveloperDaysInStreamMetric developerDaysInStreamMetric = new DeveloperDaysInStreamMetric(developers, streams);
-        displayMetric(developerDaysInStreamMetric.compute(scoredCombinations));
+        final DeveloperDaysInStreamMetric.Result developerDaysInStreamResult = developerDaysInStreamMetric.compute(scoredCombinations);
+        displayMetric(developerDaysInStreamResult);
+
+        assertThat(uniqueDeveloperPairsResult.occurrencesPerPair())
+                .allSatisfy((developerPair, occurrences) -> {
+                    assertThat(occurrences)
+                            .describedAs(STR."developers \{developerPair} did not pair")
+                            .isGreaterThan(0);
+                });
+
+        assertThat(developerDaysInStreamResult.developerToDaysInStream())
+                .allSatisfy((developer, streamDays) -> {
+                    assertThat(streamDays.entrySet())
+                            .allSatisfy(streamToCount ->
+                                    assertThat(streamToCount.getValue())
+                                            .describedAs(STR."developer \{developer} did not work on stream \{streamToCount.getKey()}")
+                                            .isGreaterThan(0));
+                });
     }
 
     private void displayMetric(DeveloperDaysInStreamMetric.Result result) {
@@ -125,7 +143,7 @@ class PairStreamRotationSimulatorTest {
                     final Set<String> oldDevs = oldCombo.get(stream);
                     switched.addAll(Sets.difference(devs, oldDevs));
                 });
-                System.out.println("switched: " + switched);
+                System.out.println("switched: " + switched.stream().sorted().toList());
             }
             System.out.println("=".repeat(10));
         }
