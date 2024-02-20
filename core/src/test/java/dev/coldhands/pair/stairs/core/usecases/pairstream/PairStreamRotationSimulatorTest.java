@@ -79,30 +79,44 @@ class PairStreamRotationSimulatorTest {
         final DeveloperDaysInStreamMetric.Result developerDaysInStreamResult = developerDaysInStreamMetric.compute(scoredCombinations);
         displayMetric(developerDaysInStreamResult);
 
-        assertThat(uniqueDeveloperPairsResult.occurrencesPerPair())
-                .allSatisfy((developerPair, occurrences) -> {
-                    assertThat(occurrences)
-                            .describedAs(STR."developers \{developerPair} did not pair")
-                            .isGreaterThan(0);
+        assertThat(uniqueDeveloperPairsResult)
+                .satisfies(result -> {
+                    assertThat(result.occurrencesPerPair())
+                            .allSatisfy((developerPair, occurrences) -> {
+                                assertThat(occurrences)
+                                        .describedAs(STR."developers \{developerPair} did not pair")
+                                        .isGreaterThan(0);
+                            });
+
+                    assertThat(result.summaryStatistics().populationVariance())
+                            .isLessThan(78); // Current best score is 77.3333 (or 37.3333 when run via maven)...
                 });
 
-        assertThat(developerDaysInStreamResult.developerToDaysInStream())
-                .allSatisfy((developer, streamDays) -> {
-                    assertThat(streamDays.entrySet())
-                            .allSatisfy(streamToCount ->
-                                    assertThat(streamToCount.getValue())
-                                            .describedAs(STR."developer \{developer} did not work on stream \{streamToCount.getKey()}")
-                                            .isGreaterThan(0));
+        assertThat(developerDaysInStreamResult)
+                .satisfies(result -> {
+                    assertThat(result.developerToDaysInStream())
+                            .allSatisfy((developer, streamDays) -> {
+                                assertThat(streamDays.entrySet())
+                                        .allSatisfy(streamToCount ->
+                                                assertThat(streamToCount.getValue())
+                                                        .describedAs(STR."developer \{developer} did not work on stream \{streamToCount.getKey()}")
+                                                        .isGreaterThan(0));
+                            });
+
+                    assertThat(result.summaryStatistics().populationVariance())
+                            .isLessThan(10); // Current best score is 7.111 (or 9.8888 when run via maven) ...
                 });
     }
 
     private void displayMetric(DeveloperDaysInStreamMetric.Result result) {
         System.out.println("-".repeat(20));
+        System.out.println(STR."summary: \{result.summaryStatistics()}");
+        System.out.println(STR."variance: \{result.summaryStatistics().populationVariance()}");
         result.developerToDaysInStream().entrySet().stream()
-                .sorted(Comparator.comparing(Map.Entry::getKey))
+                .sorted(Map.Entry.comparingByKey())
                 .forEach(entry -> {
                     final String formattedStreamToCount = entry.getValue().entrySet().stream()
-                            .sorted(Comparator.comparing(Map.Entry::getKey))
+                            .sorted(Map.Entry.comparingByKey())
                             .map(stream -> stream.getKey() + "=" + stream.getValue())
                             .collect(joining(", ", "[", "]"));
                     System.out.println(entry.getKey() + " " + formattedStreamToCount);
@@ -114,6 +128,7 @@ class PairStreamRotationSimulatorTest {
         System.out.println("-".repeat(20));
         System.out.println(STR."ideal: \{result.idealOccurrencesPerPair()}");
         System.out.println(STR."summary: \{result.summaryStatistics()}");
+        System.out.println(STR."variance: \{result.summaryStatistics().populationVariance()}");
         System.out.println("all:");
         record PrettyEntry(List<String> pair, int count) {
 
