@@ -30,6 +30,15 @@ public class PreventConsecutivePairRepeatsRule implements ScoringRule<PairStream
         final var developersInPairs = getDevelopersInPairs(toBeScored);
         final var mostRecentDevelopersInPairs = getDevelopersInPairs(mostRecentCombination);
 
+        /*
+        // This increases score for every pair that is similar to yesterday
+        // This is unsuitable due to causing some pairs to never happen when applied with other rules
+
+        final Sets.SetView<Set<String>> pairsThatDidNotChange = Sets.intersection(mostRecentDevelopersInPairs, developersInPairs);
+
+        int score = pairsThatDidNotChange.size();
+         */
+
         int score = developersInPairs.equals(mostRecentDevelopersInPairs)
                 ? 1
                 : 0;
