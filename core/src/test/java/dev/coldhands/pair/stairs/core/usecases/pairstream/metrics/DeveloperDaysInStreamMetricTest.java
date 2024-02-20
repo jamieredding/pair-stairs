@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 
 class DeveloperDaysInStreamMetricTest {
 
@@ -27,6 +28,12 @@ class DeveloperDaysInStreamMetricTest {
                         entry("b-dev", Map.of("1-stream", 0, "2-stream", 0)),
                         entry("c-dev", Map.of("1-stream", 0, "2-stream", 0)))
                 );
+
+        assertThat(result.summaryStatistics())
+                .satisfies(summary -> {
+                    assertThat(summary.count()).isEqualTo(6);
+                    assertThat(summary.mean()).isEqualTo(0);
+                });
     }
 
     @Test
@@ -62,5 +69,14 @@ class DeveloperDaysInStreamMetricTest {
                         entry("b-dev", Map.of("1-stream", 1, "2-stream", 3)),
                         entry("c-dev", Map.of("1-stream", 2, "2-stream", 2)))
                 );
+
+        assertThat(result.summaryStatistics())
+                .satisfies(summary -> {
+                    assertThat(summary.count()).isEqualTo(6);
+                    assertThat(summary.min()).isEqualTo(1);
+                    assertThat(summary.max()).isEqualTo(3);
+                    assertThat(summary.mean()).isEqualTo(2);
+                    assertThat(summary.populationVariance()).isCloseTo(0.666, offset(0.01));
+                });
     }
 }

@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.metrics;
 
+import com.google.common.math.Stats;
 import dev.coldhands.pair.stairs.core.domain.Metric;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
@@ -35,7 +36,9 @@ public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination
                     });
                 });
 
-        return new Result(developerToDaysInStream);
+        Stats summaryStatistics = computeSummaryStatistics(developerToDaysInStream);
+
+        return new Result(developerToDaysInStream, summaryStatistics);
     }
 
     private Map<String, Map<String, Integer>> initialiseMap() {
@@ -50,7 +53,14 @@ public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination
                 ));
     }
 
-    public record Result(Map<String, Map<String, Integer>> developerToDaysInStream) {
+    private static Stats computeSummaryStatistics(Map<String, Map<String, Integer>> developersToDaysInStream) {
+        return developersToDaysInStream.values().stream()
+                .map(Map::values)
+                .flatMap(Collection::stream)
+                .collect(Stats.toStats());
+    }
+
+    public record Result(Map<String, Map<String, Integer>> developerToDaysInStream, Stats summaryStatistics) {
 
     }
 }
