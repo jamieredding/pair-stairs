@@ -1,12 +1,16 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.metrics;
 
+import com.google.common.math.Stats;
 import dev.coldhands.pair.stairs.core.domain.Metric;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamCombinationService;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UniqueDeveloperPairsMetric implements Metric<PairStreamCombination, UniqueDeveloperPairsMetric.Result> {
@@ -23,7 +27,7 @@ public class UniqueDeveloperPairsMetric implements Metric<PairStreamCombination,
     public Result compute(List<ScoredCombination<PairStreamCombination>> scoredCombinations) {
         final Map<Set<String>, Integer> occurrencesPerPair = computeOccurrencesPerPair(scoredCombinations);
         final double idealOccurrencesPerPair = computeIdealOccurrencesPerPair(scoredCombinations.size(), occurrencesPerPair.size());
-        final DoubleSummaryStatistics summaryStatistics = computeSummaryStatistics(occurrencesPerPair);
+        final Stats summaryStatistics = computeSummaryStatistics(occurrencesPerPair);
 
         return new Result(occurrencesPerPair, idealOccurrencesPerPair, summaryStatistics);
     }
@@ -61,16 +65,15 @@ public class UniqueDeveloperPairsMetric implements Metric<PairStreamCombination,
         return (double) totalPairsThatCouldHappen / numberOfPossiblePairs;
     }
 
-    private static DoubleSummaryStatistics computeSummaryStatistics(Map<Set<String>, Integer> occurrencesPerPair) {
+    private static Stats computeSummaryStatistics(Map<Set<String>, Integer> occurrencesPerPair) {
         return occurrencesPerPair.values().stream()
-                .mapToDouble(v -> v)
-                .summaryStatistics();
+                .collect(Stats.toStats());
     }
 
     public record Result(
             Map<Set<String>, Integer> occurrencesPerPair,
             double idealOccurrencesPerPair,
-            DoubleSummaryStatistics summaryStatistics
+            Stats summaryStatistics
     ) {
 
     }

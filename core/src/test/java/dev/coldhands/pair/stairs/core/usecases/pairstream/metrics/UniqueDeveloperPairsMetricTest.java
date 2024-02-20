@@ -39,8 +39,6 @@ class UniqueDeveloperPairsMetricTest {
                                     entry(Set.of("c-dev"), 0)
                             )
                     );
-
-
         }
 
         @Test
@@ -159,8 +157,8 @@ class UniqueDeveloperPairsMetricTest {
 
             assertThat(result.summaryStatistics())
                     .satisfies(summary -> {
-                        assertThat(summary.getCount()).isEqualTo(6);
-                        assertThat(summary.getAverage()).isEqualTo(0);
+                        assertThat(summary.count()).isEqualTo(6);
+                        assertThat(summary.mean()).isEqualTo(0);
                     });
         }
 
@@ -194,10 +192,11 @@ class UniqueDeveloperPairsMetricTest {
 
             assertThat(result.summaryStatistics())
                     .satisfies(summary -> {
-                        assertThat(summary.getCount()).isEqualTo(6); // todo is this useful?
-                        assertThat(summary.getMin()).isEqualTo(1);
-                        assertThat(summary.getMax()).isEqualTo(2);
-                        assertThat(summary.getAverage()).isCloseTo(1.333d, offset(0.1));
+                        assertThat(summary.count()).isEqualTo(6);
+                        assertThat(summary.min()).isEqualTo(1);
+                        assertThat(summary.max()).isEqualTo(2);
+                        assertThat(summary.mean()).isCloseTo(1.333d, offset(0.1));
+                        assertThat(summary.populationVariance()).isCloseTo(0.222, offset(0.01));
                     });
         }
     }
