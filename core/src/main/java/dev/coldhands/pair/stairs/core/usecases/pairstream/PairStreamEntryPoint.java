@@ -17,9 +17,10 @@ public class PairStreamEntryPoint implements EntryPoint<PairStreamCombination> {
 
     public PairStreamEntryPoint(Collection<String> developers,
                                 Collection<String> streams,
-                                CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+                                CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository,
+                                PairStreamStatisticsService statisticsService) {
         combinationService = new PairStreamCombinationService(developers, streams);
-        scoringEngine = new ScoringEngine<>(ScoringRulesFactory.pairStreamScoringRules(combinationHistoryRepository, developers, streams));
+        scoringEngine = new ScoringEngine<>(ScoringRulesFactory.pairStreamScoringRules(combinationHistoryRepository, statisticsService));
     }
 
     @Override

@@ -22,10 +22,15 @@ class PairStreamEntryPointTest {
 
     @Test
     void calculateWithNoHistory() {
+        final List<String> developers = List.of("a-dev", "b-dev", "c-dev"); //todo reduce duplication
+        final List<String> streams = List.of("1-stream", "2-stream");
+        final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+
         final var underTest = new PairStreamEntryPoint(
-                List.of("a-dev", "b-dev", "c-dev"),
-                List.of("1-stream", "2-stream"),
-                combinationHistoryRepository);
+                developers,
+                streams,
+                combinationHistoryRepository,
+                statisticsService);
 
         final var sortedCombinations = getSortedCombinations(underTest);
 
@@ -50,11 +55,16 @@ class PairStreamEntryPointTest {
 
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
 
+            final List<String> developers = List.of("a-dev", "b-dev", "c-dev"); //todo reduce duplication
+            final List<String> streams = List.of("1-stream", "2-stream");
+            final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+            statisticsService.updateStatistics();
+
             final var underTest = new PairStreamEntryPoint(
-                    List.of("a-dev", "b-dev", "c-dev"),
-                    List.of("1-stream", "2-stream"),
-                    combinationHistoryRepository
-            );
+                    developers,
+                    streams,
+                    combinationHistoryRepository,
+                    statisticsService);
 
             final var sortedCombinations = getSortedCombinations(underTest);
 
@@ -73,10 +83,16 @@ class PairStreamEntryPointTest {
 
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
 
+            final List<String> developers = List.of("a-dev", "b-dev", "c-dev"); //todo reduce duplication
+            final List<String> streams = List.of("1-stream", "2-stream");
+            final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+            statisticsService.updateStatistics();
+
             final var underTest = new PairStreamEntryPoint(
-                    List.of("a-dev", "b-dev", "c-dev"),
-                    List.of("1-stream", "2-stream"),
-                    combinationHistoryRepository);
+                    developers,
+                    streams,
+                    combinationHistoryRepository,
+                    statisticsService);
 
             final var sortedCombinations = getSortedCombinations(underTest);
 
@@ -104,10 +120,16 @@ class PairStreamEntryPointTest {
             combinationHistoryRepository.saveCombination(dayBeforeYesterdayCombination, LocalDate.now().minusDays(2));
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
 
+            final List<String> developers = List.of("a-dev", "b-dev", "c-dev"); //todo reduce duplication
+            final List<String> streams = List.of("1-stream", "2-stream");
+            final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+            statisticsService.updateStatistics();
+
             final var underTest = new PairStreamEntryPoint(
-                    List.of("a-dev", "b-dev", "c-dev"),
-                    List.of("1-stream", "2-stream"),
-                    combinationHistoryRepository);
+                    developers,
+                    streams,
+                    combinationHistoryRepository,
+                    statisticsService);
 
             final var sortedCombinations = getSortedCombinations(underTest);
 
@@ -125,10 +147,16 @@ class PairStreamEntryPointTest {
 
             saveARealisticFiveDayHistory();
 
+            final List<String> developers = List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"); //todo reduce duplication
+            final List<String> streams = List.of("1-stream", "2-stream", "3-stream");
+            final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+            statisticsService.updateStatistics();
+
             final var underTest = new PairStreamEntryPoint(
-                    List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"),
-                    List.of("1-stream", "2-stream", "3-stream"),
-                    combinationHistoryRepository);
+                    developers,
+                    streams,
+                    combinationHistoryRepository,
+                    statisticsService);
 
             final var sortedCombinations = getSortedCombinations(underTest);
 
@@ -225,10 +253,16 @@ class PairStreamEntryPointTest {
                     new Pair(Set.of("a-dev", "f-dev"), "3-stream")
             )), LocalDate.now().minusDays(1));
 
+            final List<String> developers = List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"); //todo reduce duplication
+            final List<String> streams = List.of("1-stream", "2-stream", "3-stream");
+            final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+            statisticsService.updateStatistics();
+
             final var underTest = new PairStreamEntryPoint(
-                    List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"),
-                    List.of("1-stream", "2-stream", "3-stream"),
-                    combinationHistoryRepository);
+                    developers,
+                    streams,
+                    combinationHistoryRepository,
+                    statisticsService);
 
             final var sortedCombinations = getSortedCombinations(underTest);
 
