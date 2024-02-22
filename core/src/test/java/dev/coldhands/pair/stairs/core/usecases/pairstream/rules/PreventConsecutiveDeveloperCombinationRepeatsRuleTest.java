@@ -14,10 +14,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PreventConsecutivePairRepeatsRuleTest implements BaseRuleTest<PairStreamCombination> {
+class PreventConsecutiveDeveloperCombinationRepeatsRuleTest implements BaseRuleTest<PairStreamCombination> {
 
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
-    private final PreventConsecutivePairRepeatsRule underTest = new PreventConsecutivePairRepeatsRule(combinationHistoryRepository);
+    private final PreventConsecutiveDeveloperCombinationRepeatsRule underTest = new PreventConsecutiveDeveloperCombinationRepeatsRule(combinationHistoryRepository);
 
     @Override
     public ScoringRule<PairStreamCombination> underTest() {
