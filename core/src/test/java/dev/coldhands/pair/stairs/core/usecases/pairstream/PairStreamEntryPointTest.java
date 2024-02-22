@@ -144,7 +144,6 @@ class PairStreamEntryPointTest {
 
         @Test
         void preferAPairThatHasNotHappenedRecently() {
-
             saveARealisticFiveDayHistory();
 
             final List<String> developers = List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"); //todo reduce duplication
