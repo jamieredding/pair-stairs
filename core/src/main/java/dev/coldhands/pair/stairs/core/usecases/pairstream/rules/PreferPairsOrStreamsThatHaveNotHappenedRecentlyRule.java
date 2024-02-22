@@ -6,11 +6,11 @@ import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamStatisticsService;
 
-public class ReviewRecentHistoryRule implements ScoringRule<PairStreamCombination> {
+public class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule implements ScoringRule<PairStreamCombination> {
 
     private final PairStreamStatisticsService statisticsService;
 
-    public ReviewRecentHistoryRule(PairStreamStatisticsService statisticsService) {
+    public PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule(PairStreamStatisticsService statisticsService) {
         this.statisticsService = statisticsService;
     }
 

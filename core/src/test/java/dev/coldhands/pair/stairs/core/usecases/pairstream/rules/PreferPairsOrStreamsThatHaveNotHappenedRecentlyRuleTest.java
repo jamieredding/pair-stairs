@@ -12,10 +12,10 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReviewRecentHistoryRuleTest {
+class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final PairStreamStatisticsService statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
-    private final ReviewRecentHistoryRule underTest = new ReviewRecentHistoryRule(statisticsService);
+    private final PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule underTest = new PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule(statisticsService);
 
     @Test
     void doNotContributeToScoreIfAllCombinationsHaveBeenSeenInRecentHistory() {
