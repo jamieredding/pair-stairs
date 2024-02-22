@@ -23,6 +23,15 @@ public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination
 
     @Override
     public Result compute(List<ScoredCombination<PairStreamCombination>> scoredCombinations) {
+        final Map<String, Map<String, Integer>> developerToDaysInStream = computeDeveloperToDaysInStream(scoredCombinations);
+
+        Stats summaryStatistics = computeSummaryStatistics(developerToDaysInStream);
+
+        return new Result(developerToDaysInStream, summaryStatistics);
+    }
+
+    // todo extract and more efficient
+    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<PairStreamCombination>> scoredCombinations) {
         Map<String, Map<String, Integer>> developerToDaysInStream = initialiseMap();
 
         scoredCombinations.stream()
@@ -35,10 +44,7 @@ public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination
                         countPerStream.merge(pair.stream(), 1, Integer::sum);
                     });
                 });
-
-        Stats summaryStatistics = computeSummaryStatistics(developerToDaysInStream);
-
-        return new Result(developerToDaysInStream, summaryStatistics);
+        return developerToDaysInStream;
     }
 
     private Map<String, Map<String, Integer>> initialiseMap() {

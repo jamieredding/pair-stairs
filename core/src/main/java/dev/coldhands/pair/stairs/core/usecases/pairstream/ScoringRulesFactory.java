@@ -7,16 +7,19 @@ import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.MaintainStreamKnowledgeTransferRule;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.PenaliseEarlyContextSwitchingRule;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.PreventConsecutivePairRepeatsRule;
+import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.ReviewRecentHistoryRule;
 
+import java.util.Collection;
 import java.util.List;
 
 public final class ScoringRulesFactory {
 
-    static List<ScoringRule<PairStreamCombination>> pairStreamScoringRules(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+    static List<ScoringRule<PairStreamCombination>> pairStreamScoringRules(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository, Collection<String> developers, Collection<String> streams) {
         return List.of(
-                new WeightedRule<>(2, new PreventConsecutivePairRepeatsRule(combinationHistoryRepository)),
-                new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository),
-                new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository)
+                new WeightedRule<>(200, new PreventConsecutivePairRepeatsRule(combinationHistoryRepository)),
+                new WeightedRule<>(100, new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository)),
+                new WeightedRule<>(100, new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository)),
+                new ReviewRecentHistoryRule(combinationHistoryRepository, developers, streams)
         );
     }
 }

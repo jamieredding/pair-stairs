@@ -121,6 +121,57 @@ class PairStreamEntryPointTest {
         }
 
         @Test
+        void preferAPairThatHasNotHappenedRecently() {
+
+            saveARealisticFiveDayHistory();
+
+            final var underTest = new PairStreamEntryPoint(
+                    List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"),
+                    List.of("1-stream", "2-stream", "3-stream"),
+                    combinationHistoryRepository);
+
+            final var sortedCombinations = getSortedCombinations(underTest);
+
+            assertThat(sortedCombinations.getFirst())
+                    .isEqualTo(
+                            new PairStreamCombination(Set.of(
+                                    new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
+                                    new Pair(Set.of("d-dev", "f-dev"), "2-stream"),
+                                    new Pair(Set.of("b-dev", "e-dev"), "3-stream")
+                            ))
+                    );
+        }
+
+        private void saveARealisticFiveDayHistory() {
+            final LocalDate now = LocalDate.now();
+            combinationHistoryRepository.saveCombination(new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "f-dev"), "2-stream"),
+                    new Pair(Set.of("d-dev", "e-dev"), "3-stream"),
+                    new Pair(Set.of("b-dev", "c-dev"), "1-stream")
+            )), now.minusDays(1));
+            combinationHistoryRepository.saveCombination(new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "e-dev"), "2-stream"),
+                    new Pair(Set.of("d-dev", "c-dev"), "3-stream"),
+                    new Pair(Set.of("b-dev", "f-dev"), "1-stream")
+            )), now.minusDays(2));
+            combinationHistoryRepository.saveCombination(new PairStreamCombination(Set.of(
+                    new Pair(Set.of("a-dev", "c-dev"), "2-stream"),
+                    new Pair(Set.of("d-dev", "b-dev"), "3-stream"),
+                    new Pair(Set.of("e-dev", "f-dev"), "1-stream")
+            )), now.minusDays(3));
+            combinationHistoryRepository.saveCombination(new PairStreamCombination(Set.of(
+                    new Pair(Set.of("f-dev", "c-dev"), "2-stream"),
+                    new Pair(Set.of("a-dev", "b-dev"), "3-stream"),
+                    new Pair(Set.of("e-dev", "d-dev"), "1-stream")
+            )), now.minusDays(4));
+            combinationHistoryRepository.saveCombination(new PairStreamCombination(Set.of(
+                    new Pair(Set.of("f-dev", "e-dev"), "2-stream"),
+                    new Pair(Set.of("a-dev", "c-dev"), "3-stream"),
+                    new Pair(Set.of("b-dev", "d-dev"), "1-stream")
+            )), now.minusDays(5));
+        }
+
+        @Test
         @Disabled("Implemented by EveryPairShouldHappenAfterXDaysRule but is currently unsuitable")
         void everyPairShouldHappenAfterXDays() {
             combinationHistoryRepository.saveCombination(new PairStreamCombination(Set.of(

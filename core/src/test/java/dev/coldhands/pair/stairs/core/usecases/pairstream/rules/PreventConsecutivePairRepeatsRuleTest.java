@@ -51,6 +51,24 @@ class PreventConsecutivePairRepeatsRuleTest implements BaseRuleTest<PairStreamCo
     }
 
     @Test
+    void doNotContributeToScoreWhenOnePairIsNew() {
+        final var yesterdayCombination = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("c-dev"), "2-stream")
+        ));
+
+        final var allDifferentPairs = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("f-dev"), "2-stream")
+        ));
+
+        combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
+
+        assertThat(underTest.score(allDifferentPairs).score())
+                .isEqualTo(0);
+    }
+
+    @Test
     void increaseScoreWhenPairDevelopersAreTheSameAsYesterday() {
         final var yesterdayCombination = new PairStreamCombination(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
