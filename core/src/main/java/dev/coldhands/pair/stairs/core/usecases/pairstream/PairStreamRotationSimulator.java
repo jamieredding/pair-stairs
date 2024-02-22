@@ -12,12 +12,14 @@ public class PairStreamRotationSimulator implements RotationSimulator<PairStream
 
     private final PairStreamEntryPoint entryPoint;
     private final CombinationHistoryRepository<PairStreamCombination> repository;
+    private final PairStreamStatisticsService statisticsService;
 
     private LocalDate today = LocalDate.now();
 
     public PairStreamRotationSimulator(Collection<String> developers, Collection<String> streams, CombinationHistoryRepository<PairStreamCombination> repository) {
         this.repository = repository;
-        this.entryPoint = new PairStreamEntryPoint(developers, streams, repository);
+        this.statisticsService = new PairStreamStatisticsService(repository, developers, streams);
+        this.entryPoint = new PairStreamEntryPoint(developers, streams, repository, statisticsService);
     }
 
     @Override
@@ -25,6 +27,7 @@ public class PairStreamRotationSimulator implements RotationSimulator<PairStream
         final var pickFirstCombination = entryPoint.computeScoredCombinations().getFirst();
 
         repository.saveCombination(pickFirstCombination.combination(), today);
+        statisticsService.updateStatistics();
 
         today = today.plusDays(1);
 

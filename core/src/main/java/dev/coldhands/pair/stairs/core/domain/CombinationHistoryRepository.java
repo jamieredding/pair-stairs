@@ -10,5 +10,5 @@ public interface CombinationHistoryRepository<Combination> {
 
     Optional<Combination> getMostRecentCombination();
 
-    List<Combination> getAllCombinations();
+    List<Combination> getAllCombinations(); // todo remove this and replace with more specific queries
 }
