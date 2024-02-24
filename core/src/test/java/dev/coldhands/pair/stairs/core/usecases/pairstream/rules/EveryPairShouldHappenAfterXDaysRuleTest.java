@@ -4,7 +4,7 @@ import dev.coldhands.pair.stairs.core.BaseRuleTest;
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Test;
 
@@ -14,33 +14,33 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Pair> {
+class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<PairStream> {
 
-    private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final EveryPairShouldHappenAfterXDaysRule underTest = new EveryPairShouldHappenAfterXDaysRule(List.of("a-dev", "b-dev", "c-dev"), combinationHistoryRepository); // todo define elsewhere...
 
     @Override
-    public ScoringRule<Pair> underTest() {
+    public ScoringRule<PairStream> underTest() {
         return underTest;
     }
 
     @Override
-    public Combination<Pair> exampleCombination() {
+    public Combination<PairStream> exampleCombination() {
         return new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
     }
 
     @Test
     void increaseScoreWhenAPairDoesNotHappenInMinimumDays_oddNumberOfDevs() {
         final var aAndBCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
         final var bAndCCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(aAndBCombo, LocalDate.now().minusDays(3));
@@ -56,12 +56,12 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Pair> {
     @Test
     void increaseScoreWhenAPairDoesNotHappenInMinimumDays_evenNumberOfDevs() {
         final var abcdCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "d-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "d-dev"), "2-stream")
         ));
         final var adbcCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "d-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(abcdCombo, LocalDate.now().minusDays(3));
@@ -77,16 +77,16 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Pair> {
     @Test
     void doNotContributeToScoreWhenPairHasNotOccurredButItHasNotBeenMinimumDays_oddNumberOfDevs() {
         final var aAndBCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
         final var bAndCCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
         final var aAndCCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                new Pair(Set.of("b-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(aAndCCombo, LocalDate.now().minusDays(3));
@@ -102,16 +102,16 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Pair> {
     @Test
     void doNotContributeToScoreWhenPairHasNotOccurredButItHasNotBeenMinimumDays_evenNumberOfDevs() {
         final var abcdCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "d-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "d-dev"), "2-stream")
         ));
         final var adbcCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "d-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
         final var acbdCombo = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "d-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "d-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(acbdCombo, LocalDate.now().minusDays(3));

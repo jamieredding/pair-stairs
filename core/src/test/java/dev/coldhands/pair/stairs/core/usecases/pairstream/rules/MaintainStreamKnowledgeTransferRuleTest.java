@@ -4,7 +4,7 @@ import dev.coldhands.pair.stairs.core.BaseRuleTest;
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,29 +14,29 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
+class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream> {
 
-    private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final MaintainStreamKnowledgeTransferRule underTest = new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository);
 
     @Override
-    public ScoringRule<Pair> underTest() {
+    public ScoringRule<PairStream> underTest() {
         return underTest;
     }
 
     @Override
-    public Combination<Pair> exampleCombination() {
+    public Combination<PairStream> exampleCombination() {
         return new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
     }
 
     @Test
     void preferCombinationThatMaintainsContextWithinStreams() {
         final var yesterdayCombination = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
@@ -48,13 +48,13 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
     @Test
     void increaseScoreForCombinationThatLosesContextOfPreviousStreams() {
         final var yesterdayCombination = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
 
         final var combinationWithoutContext = new Combination<>(Set.of(
-                new Pair(Set.of("c-dev"), "1-stream"),
-                new Pair(Set.of("a-dev", "b-dev"), "2-stream")
+                new PairStream(Set.of("c-dev"), "1-stream"),
+                new PairStream(Set.of("a-dev", "b-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
@@ -67,21 +67,21 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
     @Test
     void increaseScoreForCombinationThatLosesMoreContextVsPreviousStreams() {
         final var yesterdayCombination = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
-                new Pair(Set.of("e-dev"), "3-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "d-dev"), "2-stream"),
+                new PairStream(Set.of("e-dev"), "3-stream")
         ));
 
         final var onePairLostContext = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "e-dev"), "2-stream"),
-                new Pair(Set.of("d-dev"), "3-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "e-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev"), "3-stream")
         ));
 
         final var twoPairsLostContext = new Combination<>(Set.of(
-                new Pair(Set.of("c-dev", "d-dev"), "1-stream"),
-                new Pair(Set.of("a-dev", "b-dev"), "2-stream"),
-                new Pair(Set.of("e-dev"), "3-stream")
+                new PairStream(Set.of("c-dev", "d-dev"), "1-stream"),
+                new PairStream(Set.of("a-dev", "b-dev"), "2-stream"),
+                new PairStream(Set.of("e-dev"), "3-stream")
         ));
 
         combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
@@ -97,13 +97,13 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
         @Test
         void onlyDeveloperWithContextIsMissing() {
             final var yesterdayCombination = new Combination<>(Set.of(
-                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                    new Pair(Set.of("c-dev"), "2-stream")
+                    new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new PairStream(Set.of("c-dev"), "2-stream")
             ));
 
             final var cIsOff = new Combination<>(Set.of(
-                    new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
-                    new Pair(Set.of("b-dev"), "2-stream")
+                    new PairStream(Set.of("a-dev", "d-dev"), "1-stream"),
+                    new PairStream(Set.of("b-dev"), "2-stream")
             ));
 
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
@@ -116,14 +116,14 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
         @Test
         void aNewStreamAndDevIsAdded() {
             final var yesterdayCombination = new Combination<>(Set.of(
-                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                    new Pair(Set.of("c-dev", "d-dev"), "2-stream")
+                    new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new PairStream(Set.of("c-dev", "d-dev"), "2-stream")
             ));
 
             final var eIsBackSo3CanContinue = new Combination<>(Set.of(
-                    new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                    new Pair(Set.of("b-dev", "d-dev"), "2-stream"),
-                    new Pair(Set.of("e-dev"), "3-stream")
+                    new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                    new PairStream(Set.of("b-dev", "d-dev"), "2-stream"),
+                    new PairStream(Set.of("e-dev"), "3-stream")
             ));
 
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
@@ -135,14 +135,14 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
         @Test
         void aPreviousStreamIsNotPresentInCombination() {
             final var yesterdayCombination = new Combination<>(Set.of(
-                    new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                    new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
-                    new Pair(Set.of("e-dev"), "3-stream")
+                    new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                    new PairStream(Set.of("c-dev", "d-dev"), "2-stream"),
+                    new PairStream(Set.of("e-dev"), "3-stream")
             ));
 
             final var eIsOffSo3CanNotContinue = new Combination<>(Set.of(
-                    new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                    new Pair(Set.of("b-dev", "d-dev"), "2-stream")
+                    new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                    new PairStream(Set.of("b-dev", "d-dev"), "2-stream")
             ));
 
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));

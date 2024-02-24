@@ -1,23 +1,23 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.domain.*;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 
 import java.util.List;
 import java.util.Optional;
 
-public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Pair> {
+public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream> {
 
-    private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
+    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository;
     private final int minimumDaysInStream = 2;
 
-    public PenaliseEarlyContextSwitchingRule(CombinationHistoryRepository<Pair> combinationHistoryRepository) {
+    public PenaliseEarlyContextSwitchingRule(CombinationHistoryRepository<PairStream> combinationHistoryRepository) {
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 
     @Override
-    public ScoreResult score(Combination<Pair> combination) {
-        final List<Combination<Pair>> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDaysInStream);
+    public ScoreResult score(Combination<PairStream> combination) {
+        final List<Combination<PairStream>> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDaysInStream);
 
         if (allCombinations.isEmpty()) {
             return new BasicScoreResult(0);
@@ -29,7 +29,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Pair> {
 
                     final var devsInPairThatAreSwitchingEarly = pair.developers().stream()
                             .mapToInt(developer -> {
-                                final Combination<Pair> mostRecentCombination = allCombinations.getFirst();
+                                final Combination<PairStream> mostRecentCombination = allCombinations.getFirst();
 
                                 final Optional<String> maybeOldStream = previousStreamDeveloperWasIn(developer, mostRecentCombination);
 
@@ -58,7 +58,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Pair> {
         return new BasicScoreResult(totalDevelopersSwitchingEarly);
     }
 
-    private int howManyDaysInOldStream(String developer, String oldStream, List<Combination<Pair>> allCombinations) {
+    private int howManyDaysInOldStream(String developer, String oldStream, List<Combination<PairStream>> allCombinations) {
         return Math.toIntExact(allCombinations.stream()
                 .map(Combination::pairs)
                 .takeWhile(pairs ->
@@ -69,10 +69,10 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Pair> {
                 .count());
     }
 
-    private Optional<String> previousStreamDeveloperWasIn(String developer, Combination<Pair> combination) {
+    private Optional<String> previousStreamDeveloperWasIn(String developer, Combination<PairStream> combination) {
         return combination.pairs().stream()
                 .filter(pair -> pair.developers().contains(developer))
-                .map(Pair::stream)
+                .map(PairStream::stream)
                 .findFirst();
     }
 }

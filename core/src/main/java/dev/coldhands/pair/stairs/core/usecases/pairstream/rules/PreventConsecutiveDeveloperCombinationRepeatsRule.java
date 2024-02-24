@@ -1,28 +1,28 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.domain.*;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class PreventConsecutiveDeveloperCombinationRepeatsRule implements ScoringRule<Pair> {
+public class PreventConsecutiveDeveloperCombinationRepeatsRule implements ScoringRule<PairStream> {
 
-    private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
+    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository;
 
-    public PreventConsecutiveDeveloperCombinationRepeatsRule(CombinationHistoryRepository<Pair> combinationHistoryRepository) {
+    public PreventConsecutiveDeveloperCombinationRepeatsRule(CombinationHistoryRepository<PairStream> combinationHistoryRepository) {
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 
     @Override
-    public ScoreResult score(Combination<Pair> combination) {
+    public ScoreResult score(Combination<PairStream> combination) {
         return combinationHistoryRepository.getMostRecentCombination()
                 .map(mostRecentCombination -> scoreComboBasedOnMostRecent(combination, mostRecentCombination))
                 .orElse(new BasicScoreResult(0));
     }
 
-    private ScoreResult scoreComboBasedOnMostRecent(Combination<Pair> toBeScored, Combination<Pair> mostRecentCombination) {
+    private ScoreResult scoreComboBasedOnMostRecent(Combination<PairStream> toBeScored, Combination<PairStream> mostRecentCombination) {
         final var developersInPairs = getDevelopersInPairs(toBeScored);
         final var mostRecentDevelopersInPairs = getDevelopersInPairs(mostRecentCombination);
 
@@ -42,9 +42,9 @@ public class PreventConsecutiveDeveloperCombinationRepeatsRule implements Scorin
         return new BasicScoreResult(score);
     }
 
-    private static Set<Set<String>> getDevelopersInPairs(Combination<Pair> combination) {
+    private static Set<Set<String>> getDevelopersInPairs(Combination<PairStream> combination) {
         return combination.pairs().stream()
-                .map(Pair::developers)
+                .map(PairStream::developers)
                 .collect(toSet());
     }
 }
