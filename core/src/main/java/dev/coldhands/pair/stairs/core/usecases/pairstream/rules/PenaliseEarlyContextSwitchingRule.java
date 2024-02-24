@@ -21,7 +21,11 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
 
     @Override
     public ScoreResult score(PairStreamCombination pairStreamCombination) {
-        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getAllCombinations();
+        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDaysInStream);
+
+        if (allCombinations.isEmpty()) {
+            return new BasicScoreResult(0);
+        }
 
         final var totalDevelopersSwitchingEarly = pairStreamCombination.pairs().stream() // todo is this the simplest way of doing this?
                 .mapToInt(pair -> {
@@ -29,12 +33,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
 
                     final var devsInPairThatAreSwitchingEarly = pair.developers().stream()
                             .mapToInt(developer -> {
-                                final var maybeCombination = combinationHistoryRepository.getMostRecentCombination();
-                                if (maybeCombination.isEmpty()) {
-                                    return 0;
-                                }
-
-                                final PairStreamCombination mostRecentCombination = maybeCombination.get();
+                                final PairStreamCombination mostRecentCombination = allCombinations.getFirst();
 
                                 final Optional<String> maybeOldStream = previousStreamDeveloperWasIn(developer, mostRecentCombination);
 
@@ -64,7 +63,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
     }
 
     private int howManyDaysInOldStream(String developer, String oldStream, List<PairStreamCombination> allCombinations) {
-        return Math.toIntExact(allCombinations.reversed().stream()
+        return Math.toIntExact(allCombinations.stream()
                 .map(PairStreamCombination::pairs)
                 .takeWhile(pairs ->
                         pairs.stream()
