@@ -1,30 +1,26 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
-import dev.coldhands.pair.stairs.core.domain.BasicScoreResult;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
-import dev.coldhands.pair.stairs.core.domain.ScoreResult;
-import dev.coldhands.pair.stairs.core.domain.ScoringRule;
+import dev.coldhands.pair.stairs.core.domain.*;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 
 import java.util.Collection;
 import java.util.List;
 
-public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<PairStreamCombination> {
+public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<Combination<Pair>> {
     private final Collection<String> developers;
-    private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository;
+    private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
 
-    public EveryPairShouldHappenAfterXDaysRule(Collection<String> developers, CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+    public EveryPairShouldHappenAfterXDaysRule(Collection<String> developers, CombinationHistoryRepository<Pair> combinationHistoryRepository) {
         this.developers = developers;
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 
     @Override
-    public ScoreResult score(PairStreamCombination combination) {
+    public ScoreResult score(Combination<Pair> combination) {
         int numberOfDevelopers = developers.size();
         int minimumDays = getMinimumDaysForAllPairs(numberOfDevelopers);
 
-        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDays);
+        final List<Combination<Pair>> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDays);
         if (allCombinations.isEmpty()) {
             return new BasicScoreResult(0);
         }
@@ -32,7 +28,7 @@ public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<PairStre
         int totalUniquePairs = getTotalUniquePairs(numberOfDevelopers);
 
         final long uniquePairCombinations = allCombinations.stream()
-                .map(PairStreamCombination::pairs)
+                .map(Combination::pairs)
                 .flatMap(Collection::stream)
                 .map(Pair::developers)
                 .distinct()

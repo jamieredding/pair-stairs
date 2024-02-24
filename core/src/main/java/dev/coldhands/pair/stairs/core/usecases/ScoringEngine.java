@@ -9,7 +9,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.*;
 
-public class ScoringEngine<Combination> {
+public class ScoringEngine<Combination> { // todo make this take pair
 
     private final List<ScoringRule<Combination>> scoringRules;
 

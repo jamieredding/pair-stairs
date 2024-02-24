@@ -1,10 +1,10 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.BaseRuleTest;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,19 +14,19 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStreamCombination> {
+class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Combination<Pair>> {
 
-    private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final MaintainStreamKnowledgeTransferRule underTest = new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository);
 
     @Override
-    public ScoringRule<PairStreamCombination> underTest() {
+    public ScoringRule<Combination<Pair>> underTest() {
         return underTest;
     }
 
     @Override
-    public PairStreamCombination exampleCombination() {
-        return new PairStreamCombination(Set.of(
+    public Combination<Pair> exampleCombination() {
+        return new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
@@ -34,7 +34,7 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void preferCombinationThatMaintainsContextWithinStreams() {
-        final var yesterdayCombination = new PairStreamCombination(Set.of(
+        final var yesterdayCombination = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
@@ -47,12 +47,12 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void increaseScoreForCombinationThatLosesContextOfPreviousStreams() {
-        final var yesterdayCombination = new PairStreamCombination(Set.of(
+        final var yesterdayCombination = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
 
-        final var combinationWithoutContext = new PairStreamCombination(Set.of(
+        final var combinationWithoutContext = new Combination<>(Set.of(
                 new Pair(Set.of("c-dev"), "1-stream"),
                 new Pair(Set.of("a-dev", "b-dev"), "2-stream")
         ));
@@ -66,19 +66,19 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void increaseScoreForCombinationThatLosesMoreContextVsPreviousStreams() {
-        final var yesterdayCombination = new PairStreamCombination(Set.of(
+        final var yesterdayCombination = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
                 new Pair(Set.of("e-dev"), "3-stream")
         ));
 
-        final var onePairLostContext = new PairStreamCombination(Set.of(
+        final var onePairLostContext = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "e-dev"), "2-stream"),
                 new Pair(Set.of("d-dev"), "3-stream")
         ));
 
-        final var twoPairsLostContext = new PairStreamCombination(Set.of(
+        final var twoPairsLostContext = new Combination<>(Set.of(
                 new Pair(Set.of("c-dev", "d-dev"), "1-stream"),
                 new Pair(Set.of("a-dev", "b-dev"), "2-stream"),
                 new Pair(Set.of("e-dev"), "3-stream")
@@ -96,12 +96,12 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
 
         @Test
         void onlyDeveloperWithContextIsMissing() {
-            final var yesterdayCombination = new PairStreamCombination(Set.of(
+            final var yesterdayCombination = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                     new Pair(Set.of("c-dev"), "2-stream")
             ));
 
-            final var cIsOff = new PairStreamCombination(Set.of(
+            final var cIsOff = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
                     new Pair(Set.of("b-dev"), "2-stream")
             ));
@@ -115,12 +115,12 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
 
         @Test
         void aNewStreamAndDevIsAdded() {
-            final var yesterdayCombination = new PairStreamCombination(Set.of(
+            final var yesterdayCombination = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                     new Pair(Set.of("c-dev", "d-dev"), "2-stream")
             ));
 
-            final var eIsBackSo3CanContinue = new PairStreamCombination(Set.of(
+            final var eIsBackSo3CanContinue = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                     new Pair(Set.of("b-dev", "d-dev"), "2-stream"),
                     new Pair(Set.of("e-dev"), "3-stream")
@@ -134,13 +134,13 @@ class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<PairStream
 
         @Test
         void aPreviousStreamIsNotPresentInCombination() {
-            final var yesterdayCombination = new PairStreamCombination(Set.of(
+            final var yesterdayCombination = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                     new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
                     new Pair(Set.of("e-dev"), "3-stream")
             ));
 
-            final var eIsOffSo3CanNotContinue = new PairStreamCombination(Set.of(
+            final var eIsOffSo3CanNotContinue = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                     new Pair(Set.of("b-dev", "d-dev"), "2-stream")
             ));

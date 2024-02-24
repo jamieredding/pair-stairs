@@ -1,10 +1,10 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.BaseRuleTest;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Test;
 
@@ -14,19 +14,19 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<PairStreamCombination> {
+class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Combination<Pair>> {
 
-    private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final EveryPairShouldHappenAfterXDaysRule underTest = new EveryPairShouldHappenAfterXDaysRule(List.of("a-dev", "b-dev", "c-dev"), combinationHistoryRepository); // todo define elsewhere...
 
     @Override
-    public ScoringRule<PairStreamCombination> underTest() {
+    public ScoringRule<Combination<Pair>> underTest() {
         return underTest;
     }
 
     @Override
-    public PairStreamCombination exampleCombination() {
-        return new PairStreamCombination(Set.of(
+    public Combination<Pair> exampleCombination() {
+        return new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
@@ -34,11 +34,11 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void increaseScoreWhenAPairDoesNotHappenInMinimumDays_oddNumberOfDevs() {
-        final var aAndBCombo = new PairStreamCombination(Set.of(
+        final var aAndBCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
-        final var bAndCCombo = new PairStreamCombination(Set.of(
+        final var bAndCCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev"), "1-stream"),
                 new Pair(Set.of("b-dev", "c-dev"), "2-stream")
         ));
@@ -55,11 +55,11 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void increaseScoreWhenAPairDoesNotHappenInMinimumDays_evenNumberOfDevs() {
-        final var abcdCombo = new PairStreamCombination(Set.of(
+        final var abcdCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream")
         ));
-        final var adbcCombo = new PairStreamCombination(Set.of(
+        final var adbcCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
                 new Pair(Set.of("b-dev", "c-dev"), "2-stream")
         ));
@@ -76,15 +76,15 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void doNotContributeToScoreWhenPairHasNotOccurredButItHasNotBeenMinimumDays_oddNumberOfDevs() {
-        final var aAndBCombo = new PairStreamCombination(Set.of(
+        final var aAndBCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
-        final var bAndCCombo = new PairStreamCombination(Set.of(
+        final var bAndCCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev"), "1-stream"),
                 new Pair(Set.of("b-dev", "c-dev"), "2-stream")
         ));
-        final var aAndCCombo = new PairStreamCombination(Set.of(
+        final var aAndCCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                 new Pair(Set.of("b-dev"), "2-stream")
         ));
@@ -101,15 +101,15 @@ class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<PairStream
 
     @Test
     void doNotContributeToScoreWhenPairHasNotOccurredButItHasNotBeenMinimumDays_evenNumberOfDevs() {
-        final var abcdCombo = new PairStreamCombination(Set.of(
+        final var abcdCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream")
         ));
-        final var adbcCombo = new PairStreamCombination(Set.of(
+        final var adbcCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "d-dev"), "1-stream"),
                 new Pair(Set.of("b-dev", "c-dev"), "2-stream")
         ));
-        final var acbdCombo = new PairStreamCombination(Set.of(
+        final var acbdCombo = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                 new Pair(Set.of("b-dev", "d-dev"), "2-stream")
         ));

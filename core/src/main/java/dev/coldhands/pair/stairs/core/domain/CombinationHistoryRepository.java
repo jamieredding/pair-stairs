@@ -4,13 +4,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface CombinationHistoryRepository<Combination> {
+public interface CombinationHistoryRepository<T> {
 
-    void saveCombination(Combination combination, LocalDate date);
+    void saveCombination(Combination<T> combination, LocalDate date);
 
-    default Optional<Combination> getMostRecentCombination() {
+    default Optional<Combination<T>> getMostRecentCombination() {
         return getMostRecentCombinations(1).stream().findFirst();
     }
 
-    List<Combination> getMostRecentCombinations(int count); // todo should this exclude today's combination or should that be at a higher level?
+    List<Combination<T>> getMostRecentCombinations(int count); // todo should this exclude today's combination or should that be at a higher level?
 }

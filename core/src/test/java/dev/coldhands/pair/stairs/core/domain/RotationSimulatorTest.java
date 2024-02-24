@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.core.domain;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,25 +15,21 @@ class RotationSimulatorTest {
 
         assertThat(underTest.runSimulation(5))
                 .containsExactly(
-                        new ScoredCombination<>(new TestCombination(0), 0, List.of()),
-                        new ScoredCombination<>(new TestCombination(1), 1, List.of()),
-                        new ScoredCombination<>(new TestCombination(2), 2, List.of()),
-                        new ScoredCombination<>(new TestCombination(3), 3, List.of()),
-                        new ScoredCombination<>(new TestCombination(4), 4, List.of())
+                        new ScoredCombination<>(new Combination<>(Set.of(0)), 0, List.of()),
+                        new ScoredCombination<>(new Combination<>(Set.of(1)), 1, List.of()),
+                        new ScoredCombination<>(new Combination<>(Set.of(2)), 2, List.of()),
+                        new ScoredCombination<>(new Combination<>(Set.of(3)), 3, List.of()),
+                        new ScoredCombination<>(new Combination<>(Set.of(4)), 4, List.of())
                 );
     }
 
-    private record TestCombination(int value) {
-
-    }
-
-    private static class TestCombinationRotationSimulator implements RotationSimulator<TestCombination> {
+    private static class TestCombinationRotationSimulator implements RotationSimulator<Integer> {
         private int count = 0;
 
         @Override
-        public ScoredCombination<TestCombination> stepSimulation() {
+        public ScoredCombination<Combination<Integer>> stepSimulation() {
             int value = count++;
-            return new ScoredCombination<>(new TestCombination(value), value, List.of());
+            return new ScoredCombination<>(new Combination<>(Set.of(value)), value, List.of());
         }
     }
 }

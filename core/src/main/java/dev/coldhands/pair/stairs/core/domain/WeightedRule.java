@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.core.domain;
 
-public class WeightedRule<Combination> implements ScoringRule<Combination> {
+public class WeightedRule<Combination> implements ScoringRule<Combination> { // todo make it take pair not combination
     private final int weight;
     private final ScoringRule<Combination> delegate;
 

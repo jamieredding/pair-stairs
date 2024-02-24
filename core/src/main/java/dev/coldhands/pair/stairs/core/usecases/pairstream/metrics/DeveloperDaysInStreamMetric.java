@@ -1,9 +1,10 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.metrics;
 
 import com.google.common.math.Stats;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.Metric;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
+import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
-public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination, DeveloperDaysInStreamMetric.Result> {
+public class DeveloperDaysInStreamMetric implements Metric<Combination<Pair>, DeveloperDaysInStreamMetric.Result> {
 
     // todo implement using PairStreamStatisticsService
 
@@ -24,7 +25,7 @@ public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination
     }
 
     @Override
-    public Result compute(List<ScoredCombination<PairStreamCombination>> scoredCombinations) {
+    public Result compute(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
         final Map<String, Map<String, Integer>> developerToDaysInStream = computeDeveloperToDaysInStream(scoredCombinations);
 
         Stats summaryStatistics = computeSummaryStatistics(developerToDaysInStream);
@@ -33,12 +34,12 @@ public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination
     }
 
     // todo extract and more efficient
-    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<PairStreamCombination>> scoredCombinations) {
+    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
         Map<String, Map<String, Integer>> developerToDaysInStream = initialiseMap();
 
         scoredCombinations.stream()
                 .map(ScoredCombination::combination)
-                .map(PairStreamCombination::pairs)
+                .map(Combination::pairs)
                 .flatMap(Collection::stream)
                 .forEach(pair -> {
                     pair.developers().forEach(developer -> {

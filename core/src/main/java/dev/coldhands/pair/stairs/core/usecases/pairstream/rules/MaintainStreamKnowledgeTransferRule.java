@@ -1,32 +1,28 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
-import dev.coldhands.pair.stairs.core.domain.BasicScoreResult;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
-import dev.coldhands.pair.stairs.core.domain.ScoreResult;
-import dev.coldhands.pair.stairs.core.domain.ScoringRule;
+import dev.coldhands.pair.stairs.core.domain.*;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MaintainStreamKnowledgeTransferRule implements ScoringRule<PairStreamCombination> {
+public class MaintainStreamKnowledgeTransferRule implements ScoringRule<Combination<Pair>> {
 
-    private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository;
+    private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
 
-    public MaintainStreamKnowledgeTransferRule(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+    public MaintainStreamKnowledgeTransferRule(CombinationHistoryRepository<Pair> combinationHistoryRepository) {
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 
     @Override
-    public ScoreResult score(PairStreamCombination pairStreamCombination) {
+    public ScoreResult score(Combination<Pair> combination) {
         return combinationHistoryRepository.getMostRecentCombination()
-                .map(mostRecentCombination -> scoreComboBasedOnMostRecent(pairStreamCombination, mostRecentCombination))
+                .map(mostRecentCombination -> scoreComboBasedOnMostRecent(combination, mostRecentCombination))
                 .orElse(new BasicScoreResult(0));
     }
 
-    private ScoreResult scoreComboBasedOnMostRecent(PairStreamCombination toBeScored, PairStreamCombination mostRecentCombination) {
+    private ScoreResult scoreComboBasedOnMostRecent(Combination<Pair> toBeScored, Combination<Pair> mostRecentCombination) {
         final Map<String, Set<String>> mostRecentStreamToDevelopers = getStreamToDevelopers(mostRecentCombination);
 
         int totalScore = toBeScored.pairs().stream()
@@ -41,8 +37,8 @@ public class MaintainStreamKnowledgeTransferRule implements ScoringRule<PairStre
         return new BasicScoreResult(totalScore);
     }
 
-    private static Map<String, Set<String>> getStreamToDevelopers(PairStreamCombination pairStreamCombination) {
-        return pairStreamCombination.pairs().stream()
+    private static Map<String, Set<String>> getStreamToDevelopers(Combination<Pair> combination) {
+        return combination.pairs().stream()
                 .collect(Collectors.toMap(Pair::stream, Pair::developers));
     }
 

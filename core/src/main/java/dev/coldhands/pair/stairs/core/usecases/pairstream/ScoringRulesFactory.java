@@ -1,9 +1,10 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.WeightedRule;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
+import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.MaintainStreamKnowledgeTransferRule;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.PenaliseEarlyContextSwitchingRule;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.rules.PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public final class ScoringRulesFactory {
 
-    static List<ScoringRule<PairStreamCombination>> pairStreamScoringRules(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository, PairStreamStatisticsService statisticsService) {
+    static List<ScoringRule<Combination<Pair>>> pairStreamScoringRules(CombinationHistoryRepository<Pair> combinationHistoryRepository, PairStreamStatisticsService statisticsService) {
         return List.of(
                 new WeightedRule<>(200, new PreventConsecutiveDeveloperCombinationRepeatsRule(combinationHistoryRepository)),
                 new WeightedRule<>(100, new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository)),
