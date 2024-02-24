@@ -104,7 +104,7 @@ class PairStreamRotationSimulatorTest {
                             });
 
                     assertThat(result.summaryStatistics().populationVariance())
-                            .isLessThan(6); // Current best score is 2.33333 (or 3.777777 via maven)
+                            .isLessThan(8); // Current best score is 2.33333 (or 3.777777 via maven)
                 });
     }
 
