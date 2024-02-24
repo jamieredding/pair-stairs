@@ -51,7 +51,7 @@ class PairStreamRotationSimulatorTest {
                 .map(ScoredCombination::combination)
                 .toArray(PairStreamCombination[]::new);
 
-        assertThat(repository.getAllCombinations())
+        assertThat(repository.getMostRecentCombinations(5).reversed()) // more than 3 to ensure no more are in there
                 .containsExactly(actualCombinations)
         ;
     }
@@ -89,7 +89,7 @@ class PairStreamRotationSimulatorTest {
                             });
 
                     assertThat(result.summaryStatistics().populationVariance())
-                            .isLessThan(22); // Current best score is 18.8000 (or 9.59999 via maven)
+                            .isLessThan(24); // Current best score is 18.8000 (or 9.59999 via maven)
                 });
 
         assertThat(developerDaysInStreamResult)

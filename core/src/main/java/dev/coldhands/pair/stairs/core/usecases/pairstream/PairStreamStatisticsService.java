@@ -27,10 +27,7 @@ public class PairStreamStatisticsService {
     }
 
     public void updateStatistics() {
-        final List<PairStreamCombination> combinationsToConsider = repository.getAllCombinations().reversed()
-                .stream()
-                .limit(numberOfPreviousCombinationsToConsider)
-                .toList();
+        final List<PairStreamCombination> combinationsToConsider = repository.getMostRecentCombinations(numberOfPreviousCombinationsToConsider);
 
         updateOccurrencesPerPair(combinationsToConsider);
         updateDeveloperToDaysInStream(combinationsToConsider);

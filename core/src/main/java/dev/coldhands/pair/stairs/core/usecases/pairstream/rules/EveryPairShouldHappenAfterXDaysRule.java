@@ -21,17 +21,17 @@ public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<PairStre
 
     @Override
     public ScoreResult score(PairStreamCombination combination) {
-        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getAllCombinations();
+        int numberOfDevelopers = developers.size();
+        int minimumDays = getMinimumDaysForAllPairs(numberOfDevelopers);
+
+        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDays);
         if (allCombinations.isEmpty()) {
             return new BasicScoreResult(0);
         }
 
-        int numberOfDevelopers = developers.size();
-        int minimumDays = getMinimumDaysForAllPairs(numberOfDevelopers);
         int totalUniquePairs = getTotalUniquePairs(numberOfDevelopers);
 
-        final long uniquePairCombinations = allCombinations.reversed().stream()
-                .limit(minimumDays)
+        final long uniquePairCombinations = allCombinations.stream()
                 .map(PairStreamCombination::pairs)
                 .flatMap(Collection::stream)
                 .map(Pair::developers)

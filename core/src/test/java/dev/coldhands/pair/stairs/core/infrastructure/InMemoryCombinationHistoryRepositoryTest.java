@@ -35,25 +35,36 @@ class InMemoryCombinationHistoryRepositoryTest {
     }
 
     @Test
-    void getAllCombinationsWhenNothingSaved() {
-        assertThat(underTest.getAllCombinations())
+    void getMostRecentCombinationsWhenNothingSaved() {
+        assertThat(underTest.getMostRecentCombinations(1))
                 .isEmpty();
     }
 
     @Test
-    void getAllCombinationsIsUnmodifiable() {
-        assertThat(underTest.getAllCombinations())
+    void getMostRecentCombinationsIsUnmodifiable() {
+        assertThat(underTest.getMostRecentCombinations(1))
                 .isUnmodifiable();
     }
 
     @Test
-    void getAllCombinationsContainsAllCombinationsInChronologicalOrder() {
+    void getMostRecentCombinationsContainsAllCombinationsInReverseChronologicalOrder() {
         underTest.saveCombination(new TestCombination(1), LocalDate.of(2024, 2, 29));
         underTest.saveCombination(new TestCombination(2), LocalDate.of(2024, 2, 1));
 
-        assertThat(underTest.getAllCombinations())
+        assertThat(underTest.getMostRecentCombinations(2))
                 .containsExactly(
-                        new TestCombination(2),
+                        new TestCombination(1),
+                        new TestCombination(2)
+                );
+    }
+
+    @Test
+    void getMostRecentCombinationsOnlyIncludeCountNumberOfResults() {
+        underTest.saveCombination(new TestCombination(1), LocalDate.of(2024, 2, 29));
+        underTest.saveCombination(new TestCombination(2), LocalDate.of(2024, 2, 1));
+
+        assertThat(underTest.getMostRecentCombinations(1))
+                .containsExactly(
                         new TestCombination(1)
                 );
     }
