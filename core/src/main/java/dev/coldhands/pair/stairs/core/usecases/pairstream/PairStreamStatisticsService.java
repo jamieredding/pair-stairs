@@ -3,12 +3,12 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
+import dev.coldhands.pair.stairs.core.usecases.pair.PairCombinationService;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -21,7 +21,7 @@ public class PairStreamStatisticsService {
 
     public PairStreamStatisticsService(CombinationHistoryRepository<PairStreamCombination> repository, Collection<String> developers, Collection<String> streams, int numberOfPreviousCombinationsToConsider) {
         this.repository = repository;
-        this.recentPairOccurrences = initialiseOccurrencesPerPair(developers, streams);
+        this.recentPairOccurrences = initialiseOccurrencesPerPair(developers);
         this.developerToDaysInStream = initialiseDeveloperToDaysInStream(developers, streams);
         this.numberOfPreviousCombinationsToConsider = numberOfPreviousCombinationsToConsider;
     }
@@ -58,19 +58,14 @@ public class PairStreamStatisticsService {
                         recentPairOccurrences.merge(developers, 1, Integer::sum));
     }
 
-    private static Map<Set<String>, Integer> initialiseOccurrencesPerPair(Collection<String> developers, Collection<String> streams) { // todo use this in metrics
-        /* todo using this is expensive,
-         *       can I refactor just the developer pair part out of PairStreamCombinationService?
-         *       yes, have a PairCombinationService, then have PSCS stream over this and multimap each by the number of streams?
-         */
-        final Set<PairStreamCombination> allCombinations = new PairStreamCombinationService(developers, streams).getAllCombinations();
+    private static Map<Set<String>, Integer> initialiseOccurrencesPerPair(Collection<String> developers) {
+        final Set<Set<Set<String>>> allCombinations = new PairCombinationService(developers).getAllCombinations();
 
         final Map<Set<String>, Integer> allDeveloperPairs = allCombinations.stream()
-                .map(PairStreamCombination::pairs)
                 .flatMap(Collection::stream)
-                .map(Pair::developers)
                 .distinct()
-                .collect(Collectors.toMap(pair -> pair, _ -> 0));
+                .collect(toMap(pair -> pair, _ -> 0));
+
         return allDeveloperPairs;
     }
 
