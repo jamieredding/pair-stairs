@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UniqueDeveloperPairsMetric implements Metric<PairStreamCombination, UniqueDeveloperPairsMetric.Result> {
+    // todo implement using PairStreamStatisticsService
 
     private final Collection<String> developers;
     private final Collection<String> streams;
