@@ -13,6 +13,8 @@ import static java.util.stream.Collectors.toMap;
 
 public class DeveloperDaysInStreamMetric implements Metric<PairStreamCombination, DeveloperDaysInStreamMetric.Result> {
 
+    // todo implement using PairStreamStatisticsService
+
     private final Collection<String> developers;
     private final Collection<String> streams;
 
