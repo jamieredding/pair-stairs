@@ -2,7 +2,7 @@ package dev.coldhands.pair.stairs.core.domain;
 
 import java.util.Set;
 
-public interface CombinationService<Combination> { // todo make it take Pair only
+public interface CombinationService<T> {
 
-    Set<Combination> getAllCombinations();
+    Set<Combination<T>> getAllCombinations();
 }

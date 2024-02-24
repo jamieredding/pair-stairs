@@ -15,13 +15,13 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<Combination<Pair>> {
+class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<Pair> {
 
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final PenaliseEarlyContextSwitchingRule underTest = new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository);
 
     @Override
-    public ScoringRule<Combination<Pair>> underTest() {
+    public ScoringRule<Pair> underTest() {
         return underTest;
     }
 

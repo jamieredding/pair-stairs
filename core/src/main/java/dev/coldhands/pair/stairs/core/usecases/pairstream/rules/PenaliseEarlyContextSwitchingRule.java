@@ -6,7 +6,7 @@ import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import java.util.List;
 import java.util.Optional;
 
-public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Combination<Pair>> {
+public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Pair> {
 
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
     private final int minimumDaysInStream = 2;

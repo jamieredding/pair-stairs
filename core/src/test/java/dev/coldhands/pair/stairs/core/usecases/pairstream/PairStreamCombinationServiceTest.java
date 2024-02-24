@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PairStreamCombinationServiceTest {
 
-    private CombinationService<Combination<Pair>> underTest;
+    private CombinationService<Pair> underTest;
 
     private void given(Collection<String> developers, Collection<String> streams) {
         underTest = new PairStreamCombinationService(developers, streams);

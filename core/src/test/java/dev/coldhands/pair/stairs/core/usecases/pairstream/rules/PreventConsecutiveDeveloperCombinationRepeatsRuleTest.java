@@ -14,13 +14,13 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PreventConsecutiveDeveloperCombinationRepeatsRuleTest implements BaseRuleTest<Combination<Pair>> {
+class PreventConsecutiveDeveloperCombinationRepeatsRuleTest implements BaseRuleTest<Pair> {
 
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final PreventConsecutiveDeveloperCombinationRepeatsRule underTest = new PreventConsecutiveDeveloperCombinationRepeatsRule(combinationHistoryRepository);
 
     @Override
-    public ScoringRule<Combination<Pair>> underTest() {
+    public ScoringRule<Pair> underTest() {
         return underTest;
     }
 

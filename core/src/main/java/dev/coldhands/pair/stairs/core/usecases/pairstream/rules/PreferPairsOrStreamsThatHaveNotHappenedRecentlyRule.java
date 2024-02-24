@@ -7,7 +7,7 @@ import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamStatisticsService;
 
-public class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule implements ScoringRule<Combination<Pair>> {
+public class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule implements ScoringRule<Pair> {
 
     private final PairStreamStatisticsService statisticsService;
 

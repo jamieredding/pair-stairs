@@ -5,9 +5,9 @@ import java.util.stream.IntStream;
 
 public interface RotationSimulator<T> {
 
-    ScoredCombination<Combination<T>> stepSimulation();
+    ScoredCombination<T> stepSimulation();
 
-    default List<ScoredCombination<Combination<T>>> runSimulation(int steps) {
+    default List<ScoredCombination<T>> runSimulation(int steps) {
         return IntStream.range(0, steps)
                 .mapToObj(_ -> stepSimulation())
                 .toList();

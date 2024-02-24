@@ -7,7 +7,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class PreventConsecutiveDeveloperCombinationRepeatsRule implements ScoringRule<Combination<Pair>> {
+public class PreventConsecutiveDeveloperCombinationRepeatsRule implements ScoringRule<Pair> {
 
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
 
