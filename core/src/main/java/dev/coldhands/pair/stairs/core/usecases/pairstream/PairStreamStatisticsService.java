@@ -90,7 +90,7 @@ public class PairStreamStatisticsService {
 
     }
 
-    private static Map<String, Map<String, Integer>> initialiseDeveloperToDaysInStream(Collection<String> developers, Collection<String> streams) { // todo move elsewhere
+    private static Map<String, Map<String, Integer>> initialiseDeveloperToDaysInStream(Collection<String> developers, Collection<String> streams) {
         return developers.stream()
                 .collect(toMap(
                         dev -> dev,
