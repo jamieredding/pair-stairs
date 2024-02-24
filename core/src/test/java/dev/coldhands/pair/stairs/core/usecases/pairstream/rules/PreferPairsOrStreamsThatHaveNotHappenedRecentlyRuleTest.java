@@ -8,14 +8,14 @@ import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamStatisticsSe
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
     private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
-    private final PairStreamStatisticsService statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
-    private final PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule underTest = new PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule(statisticsService);
+    private PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule underTest;
 
     @Test
     void doNotContributeToScoreIfAllCombinationsHaveBeenSeenInRecentHistory() {
@@ -40,8 +40,11 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
         combinationHistoryRepository.saveCombination(bSees2AndC, LocalDate.now().minusDays(3));
         combinationHistoryRepository.saveCombination(cSees1AndA, LocalDate.now().minusDays(2));
         combinationHistoryRepository.saveCombination(aSees2, LocalDate.now().minusDays(1));
-        statisticsService.updateStatistics();
 
+        initialiseUnderTest(
+                List.of("a-dev", "b-dev", "c-dev"),
+                List.of("1-stream", "2-stream")
+        );
         assertThat(underTest.score(first).score())
                 .isEqualTo(0);
     }
@@ -64,7 +67,11 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
         combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(3));
         combinationHistoryRepository.saveCombination(firstButDifferentStreams, LocalDate.now().minusDays(2));
         combinationHistoryRepository.saveCombination(bSeesC, LocalDate.now().minusDays(1));
-        statisticsService.updateStatistics();
+
+        initialiseUnderTest(
+                List.of("a-dev", "b-dev", "c-dev"),
+                List.of("1-stream", "2-stream")
+        );
 
         final var aAndCPair = new PairStreamCombination(Set.of(
                 new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
@@ -93,7 +100,11 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
         combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(3));
         combinationHistoryRepository.saveCombination(bSees2AndC, LocalDate.now().minusDays(2));
         combinationHistoryRepository.saveCombination(cSeesA, LocalDate.now().minusDays(1));
-        statisticsService.updateStatistics();
+
+        initialiseUnderTest(
+                List.of("a-dev", "b-dev", "c-dev"),
+                List.of("1-stream", "2-stream")
+        );
 
         final var aSees2 = new PairStreamCombination(Set.of(
                 new Pair(Set.of("a-dev", "c-dev"), "2-stream"),
@@ -104,13 +115,41 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
                 .isLessThan(0);
     }
 
-    /*
-    todo
-        - only review last X configured combinations
-        - minus pair == minus stream
-        - minus 2 pair better than minus 1
-        - minus 2 stream better than minus 1
-        - plus score if
-            - one pair doesn't change from yesterday? // todo move to another rule
-     */
+    @Test
+    void preferMoreNewPairsOverFewer() {
+        final var first = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
+                new Pair(Set.of("e-dev", "f-dev"), "3-stream")
+        ));
+
+        combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(1));
+
+        initialiseUnderTest(
+                List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"),
+                List.of("1-stream", "2-stream", "3-stream")
+        );
+
+        final var twoNewPairs = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
+                new Pair(Set.of("c-dev", "e-dev"), "2-stream"),
+                new Pair(Set.of("d-dev", "f-dev"), "3-stream")
+        ));
+
+        final var threeNewPairs = new PairStreamCombination(Set.of(
+                new Pair(Set.of("a-dev", "f-dev"), "1-stream"),
+                new Pair(Set.of("c-dev", "b-dev"), "2-stream"),
+                new Pair(Set.of("e-dev", "d-dev"), "3-stream")
+        ));
+
+        assertThat(underTest.score(threeNewPairs).score())
+                .isLessThan(underTest.score(twoNewPairs).score());
+    }
+
+    private void initialiseUnderTest(List<String> developers, List<String> streams) {
+        PairStreamStatisticsService statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+        statisticsService.updateStatistics();
+
+        underTest = new PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule(statisticsService);
+    }
 }
