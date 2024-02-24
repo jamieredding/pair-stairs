@@ -1,6 +1,5 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
-import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.WeightedRule;
@@ -14,7 +13,7 @@ import java.util.List;
 
 public final class ScoringRulesFactory {
 
-    static List<ScoringRule<Combination<Pair>>> pairStreamScoringRules(CombinationHistoryRepository<Pair> combinationHistoryRepository, PairStreamStatisticsService statisticsService) {
+    static List<ScoringRule<Pair>> pairStreamScoringRules(CombinationHistoryRepository<Pair> combinationHistoryRepository, PairStreamStatisticsService statisticsService) {
         return List.of(
                 new WeightedRule<>(200, new PreventConsecutiveDeveloperCombinationRepeatsRule(combinationHistoryRepository)),
                 new WeightedRule<>(100, new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository)),

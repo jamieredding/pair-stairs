@@ -27,7 +27,7 @@ class RotationSimulatorTest {
         private int count = 0;
 
         @Override
-        public ScoredCombination<Combination<Integer>> stepSimulation() {
+        public ScoredCombination<Integer> stepSimulation() {
             int value = count++;
             return new ScoredCombination<>(new Combination<>(Set.of(value)), value, List.of());
         }

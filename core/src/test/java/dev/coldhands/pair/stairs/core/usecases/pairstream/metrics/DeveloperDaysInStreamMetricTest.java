@@ -40,7 +40,7 @@ class DeveloperDaysInStreamMetricTest {
     void whenSomeCombinationsThenCountTheNumberOfTimesEachDeveloperIsInAStream() {
         final var underTest = new DeveloperDaysInStreamMetric(Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
 
-        List<ScoredCombination<Combination<Pair>>> scoredCombinations = Stream.of(
+        List<ScoredCombination<Pair>> scoredCombinations = Stream.of(
                         new Combination<>(Set.of(
                                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                                 new Pair(Set.of("c-dev"), "2-stream")

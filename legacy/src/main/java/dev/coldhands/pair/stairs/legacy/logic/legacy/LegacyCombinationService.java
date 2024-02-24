@@ -1,9 +1,9 @@
 package dev.coldhands.pair.stairs.legacy.logic.legacy;
 
 import com.google.common.collect.Sets;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
 import dev.coldhands.pair.stairs.legacy.domain.Pair;
-import dev.coldhands.pair.stairs.legacy.domain.PairCombination;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
 
-public class LegacyCombinationService implements CombinationService<PairCombination> {
+public class LegacyCombinationService implements CombinationService<Pair> {
     private final List<String> availableDevelopers;
 
     public LegacyCombinationService(List<String> availableDevelopers) {
@@ -20,7 +20,7 @@ public class LegacyCombinationService implements CombinationService<PairCombinat
     }
 
     @Override
-    public Set<PairCombination> getAllCombinations() {
+    public Set<Combination<Pair>> getAllCombinations() {
         Set<String> allDevelopers = new HashSet<>(availableDevelopers);
         Set<Pair> allPossiblePairs = Sets.combinations(allDevelopers, 2).stream()
                 .map(ArrayList::new)
@@ -31,12 +31,12 @@ public class LegacyCombinationService implements CombinationService<PairCombinat
         allDevelopers.forEach(dev -> allPossiblePairs.add(new Pair(dev)));
 
         return Sets.combinations(allPossiblePairs, Math.ceilDiv(allDevelopers.size(), 2)).stream()
-                .map(PairCombination::new)
+                .map(Combination::new)
                 .filter(isValidPairCombination(allDevelopers))
                 .collect(toSet());
     }
 
-    private static Predicate<PairCombination> isValidPairCombination(Set<String> allDevelopers) {
+    private static Predicate<Combination<Pair>> isValidPairCombination(Set<String> allDevelopers) {
         return pairCombination -> {
             List<String> allDevsInPairs = pairCombination.pairs().stream()
                     .mapMulti((Pair pair, Consumer<String> consumer) -> {

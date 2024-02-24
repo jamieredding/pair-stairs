@@ -1,6 +1,5 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
-import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.RotationSimulator;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
@@ -24,7 +23,7 @@ public class PairStreamRotationSimulator implements RotationSimulator<Pair> {
     }
 
     @Override
-    public ScoredCombination<Combination<Pair>> stepSimulation() {
+    public ScoredCombination<Pair> stepSimulation() {
         final var pickFirstCombination = entryPoint.computeScoredCombinations().getFirst();
 
         repository.saveCombination(pickFirstCombination.combination(), today);

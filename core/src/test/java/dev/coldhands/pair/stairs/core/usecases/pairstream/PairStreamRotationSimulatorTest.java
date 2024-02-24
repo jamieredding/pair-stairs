@@ -28,7 +28,7 @@ class PairStreamRotationSimulatorTest {
 
         final var underTest = new PairStreamRotationSimulator(developers, streams, repository);
 
-        final List<ScoredCombination<Combination<Pair>>> scoredCombinations = underTest.runSimulation(3);
+        final List<ScoredCombination<Pair>> scoredCombinations = underTest.runSimulation(3);
 
         record AllParties(Set<String> developers, Set<String> streams) {
 
@@ -67,7 +67,7 @@ class PairStreamRotationSimulatorTest {
 
         final PairStreamRotationSimulator pairStreamRotationSimulator = new PairStreamRotationSimulator(developers, streams, repository);
 
-        final List<ScoredCombination<Combination<Pair>>> scoredCombinations = pairStreamRotationSimulator.runSimulation(60);
+        final List<ScoredCombination<Pair>> scoredCombinations = pairStreamRotationSimulator.runSimulation(60);
 
         displayResults(scoredCombinations);
 
@@ -140,10 +140,10 @@ class PairStreamRotationSimulatorTest {
         System.out.println("-".repeat(20));
     }
 
-    private static void displayResults(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
+    private static void displayResults(List<ScoredCombination<Pair>> scoredCombinations) {
         System.out.println("-".repeat(20));
         for (int i = 0; i < scoredCombinations.size(); i++) {
-            ScoredCombination<Combination<Pair>> combo = scoredCombinations.get(i);
+            ScoredCombination<Pair> combo = scoredCombinations.get(i);
             System.out.println("=".repeat(10));
             combo.combination().pairs().stream().sorted(Comparator.comparing(Pair::stream)).forEach(pair -> {
                 System.out.println(pair.stream() + ": " + String.join(", ", pair.developers()));

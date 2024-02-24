@@ -1,7 +1,11 @@
 package dev.coldhands.pair.stairs.legacy.logic.legacy;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.legacy.PairUtils;
-import dev.coldhands.pair.stairs.legacy.domain.*;
+import dev.coldhands.pair.stairs.legacy.domain.Pair;
+import dev.coldhands.pair.stairs.legacy.domain.PairStats;
+import dev.coldhands.pair.stairs.legacy.domain.Pairing;
+import dev.coldhands.pair.stairs.legacy.domain.ScoredPairCombination;
 import dev.coldhands.pair.stairs.legacy.logic.DecideOMatic;
 import dev.coldhands.pair.stairs.legacy.logic.PairStatsScorer;
 import dev.coldhands.pair.stairs.legacy.logic.ScoringStrategy;
@@ -26,7 +30,7 @@ public class LegacyScoringStrategy implements ScoringStrategy {
     }
 
     @Override
-    public ScoredPairCombination score(PairCombination pairCombination) {
+    public ScoredPairCombination score(Combination<Pair> pairCombination) {
         return toScoredPairCombination(allPairsAndTheirScore)
                 .apply(pairCombination.pairs()); // todo refactor me
     }

@@ -1,15 +1,16 @@
 package dev.coldhands.pair.stairs.core;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public interface BaseRuleTest<Combination> { // todo should be pair
+public interface BaseRuleTest<T> {
 
-    ScoringRule<Combination> underTest();
+    ScoringRule<T> underTest();
 
-    Combination exampleCombination();
+    Combination<T> exampleCombination();
 
     @Test
     default void doNotContributeToScoreIfNoHistory() {

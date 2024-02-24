@@ -14,13 +14,13 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Combination<Pair>> {
+class EveryPairShouldHappenAfterXDaysRuleTest implements BaseRuleTest<Pair> {
 
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final EveryPairShouldHappenAfterXDaysRule underTest = new EveryPairShouldHappenAfterXDaysRule(List.of("a-dev", "b-dev", "c-dev"), combinationHistoryRepository); // todo define elsewhere...
 
     @Override
-    public ScoringRule<Combination<Pair>> underTest() {
+    public ScoringRule<Pair> underTest() {
         return underTest;
     }
 

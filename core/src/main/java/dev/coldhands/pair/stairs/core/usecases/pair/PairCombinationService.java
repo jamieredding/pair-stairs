@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.core.usecases.pair;
 
 import com.google.common.collect.Sets;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
 
 import java.util.Collection;
@@ -9,10 +10,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import static java.util.stream.Collectors.toCollection;
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.*;
 
-public class PairCombinationService implements CombinationService<Set<Set<String>>> {
+public class PairCombinationService implements CombinationService<Set<String>> {
 
     private final Set<String> developers;
 
@@ -21,7 +21,7 @@ public class PairCombinationService implements CombinationService<Set<Set<String
     }
 
     @Override
-    public Set<Set<Set<String>>> getAllCombinations() {
+    public Set<Combination<Set<String>>> getAllCombinations() {
         final int requiredNumberOfPairsPerCombination = Math.ceilDiv(developers.size(), 2);
 
         final Set<JustDevs> allPossiblePairsOfDevelopers = Sets.combinations(developers, 2).stream()
@@ -32,7 +32,9 @@ public class PairCombinationService implements CombinationService<Set<Set<String
 
         return Sets.combinations(allPossiblePairsOfDevelopers, requiredNumberOfPairsPerCombination).stream()
                 .filter(combinationHasAllDevelopers(developers))
-                .map(combo -> combo.stream().map(devs -> devs.members).collect(toSet()))
+                .map(combo -> combo.stream()
+                        .map(devs -> devs.members)
+                        .collect(collectingAndThen(toSet(), Combination::new)))
                 .collect(toSet());
     }
 

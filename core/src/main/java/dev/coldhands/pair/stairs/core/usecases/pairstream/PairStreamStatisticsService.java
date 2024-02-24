@@ -56,9 +56,10 @@ public class PairStreamStatisticsService {
     }
 
     private static Map<Set<String>, Integer> initialiseOccurrencesPerPair(Collection<String> developers) {
-        final Set<Set<Set<String>>> allCombinations = new PairCombinationService(developers).getAllCombinations();
+        final Set<Combination<Set<String>>> allCombinations = new PairCombinationService(developers).getAllCombinations();
 
         final Map<Set<String>, Integer> allDeveloperPairs = allCombinations.stream()
+                .map(Combination::pairs)
                 .flatMap(Collection::stream)
                 .distinct()
                 .collect(toMap(pair -> pair, _ -> 0));

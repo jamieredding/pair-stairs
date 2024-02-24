@@ -16,7 +16,7 @@ import java.util.function.Consumer;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
-public class PairStreamCombinationService implements CombinationService<Combination<Pair>> {
+public class PairStreamCombinationService implements CombinationService<Pair> {
 
     private final Set<String> developers;
     private final Set<String> streams;
@@ -38,10 +38,11 @@ public class PairStreamCombinationService implements CombinationService<Combinat
         }
 
         final PairCombinationService pairCombinationService = new PairCombinationService(developers);
-        final Set<Set<Set<String>>> allCombinationsOfDevelopers = pairCombinationService.getAllCombinations();
+        final Set<Combination<Set<String>>> allCombinationsOfDevelopers = pairCombinationService.getAllCombinations();
         final Collection<List<String>> allPermutationsOfStreams = Collections2.orderedPermutations(streams);
 
         return allCombinationsOfDevelopers.stream()
+                .map(Combination::pairs)
                 .mapMulti((Set<Set<String>> combo, Consumer<Combination<Pair>> consumer) -> {
                     final List<Set<String>> orderedDeveloperPairs = List.copyOf(combo);
 

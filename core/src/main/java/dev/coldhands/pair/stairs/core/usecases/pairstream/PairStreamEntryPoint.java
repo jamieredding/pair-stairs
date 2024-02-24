@@ -1,16 +1,19 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
-import dev.coldhands.pair.stairs.core.domain.*;
+import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
+import dev.coldhands.pair.stairs.core.domain.CombinationService;
+import dev.coldhands.pair.stairs.core.domain.EntryPoint;
+import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.usecases.ScoringEngine;
 
 import java.util.Collection;
 import java.util.List;
 
-public class PairStreamEntryPoint implements EntryPoint<Combination<Pair>> { // todo make this take pair only not combination
+public class PairStreamEntryPoint implements EntryPoint<Pair> {
 
-    private final CombinationService<Combination<Pair>> combinationService;
-    private final ScoringEngine<Combination<Pair>> scoringEngine;
+    private final CombinationService<Pair> combinationService;
+    private final ScoringEngine<Pair> scoringEngine;
 
     public PairStreamEntryPoint(Collection<String> developers,
                                 Collection<String> streams,
@@ -21,7 +24,7 @@ public class PairStreamEntryPoint implements EntryPoint<Combination<Pair>> { // 
     }
 
     @Override
-    public List<ScoredCombination<Combination<Pair>>> computeScoredCombinations() {
+    public List<ScoredCombination<Pair>> computeScoredCombinations() {
         final var allCombinations = combinationService.getAllCombinations();
 
         return scoringEngine.scoreAndSort(allCombinations);

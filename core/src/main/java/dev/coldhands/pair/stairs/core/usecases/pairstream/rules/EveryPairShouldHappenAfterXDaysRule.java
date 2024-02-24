@@ -6,7 +6,7 @@ import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import java.util.Collection;
 import java.util.List;
 
-public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<Combination<Pair>> {
+public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<Pair> {
     private final Collection<String> developers;
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
 

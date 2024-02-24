@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
-public class DeveloperDaysInStreamMetric implements Metric<Combination<Pair>, DeveloperDaysInStreamMetric.Result> {
+public class DeveloperDaysInStreamMetric implements Metric<Pair, DeveloperDaysInStreamMetric.Result> {
 
     // todo implement using PairStreamStatisticsService
 
@@ -25,7 +25,7 @@ public class DeveloperDaysInStreamMetric implements Metric<Combination<Pair>, De
     }
 
     @Override
-    public Result compute(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
+    public Result compute(List<ScoredCombination<Pair>> scoredCombinations) {
         final Map<String, Map<String, Integer>> developerToDaysInStream = computeDeveloperToDaysInStream(scoredCombinations);
 
         Stats summaryStatistics = computeSummaryStatistics(developerToDaysInStream);
@@ -34,7 +34,7 @@ public class DeveloperDaysInStreamMetric implements Metric<Combination<Pair>, De
     }
 
     // todo extract and more efficient
-    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
+    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<Pair>> scoredCombinations) {
         Map<String, Map<String, Integer>> developerToDaysInStream = initialiseMap();
 
         scoredCombinations.stream()

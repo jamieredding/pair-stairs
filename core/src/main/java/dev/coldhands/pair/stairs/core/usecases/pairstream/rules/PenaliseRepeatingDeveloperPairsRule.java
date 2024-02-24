@@ -8,7 +8,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class PenaliseRepeatingDeveloperPairsRule implements ScoringRule<Combination<Pair>> {
+public class PenaliseRepeatingDeveloperPairsRule implements ScoringRule<Pair> {
 
     private final CombinationHistoryRepository<Pair> repository;
 

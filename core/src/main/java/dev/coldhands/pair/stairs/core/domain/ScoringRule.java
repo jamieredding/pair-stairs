@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.core.domain;
 
 @FunctionalInterface
-public interface ScoringRule<Combination> {  // todo make it take pair not combination
+public interface ScoringRule<T> {
 
-    ScoreResult score(Combination combination);
+    ScoreResult score(Combination<T> combination);
 }

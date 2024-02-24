@@ -14,13 +14,13 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Combination<Pair>> {
+class MaintainStreamKnowledgeTransferRuleTest implements BaseRuleTest<Pair> {
 
     private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final MaintainStreamKnowledgeTransferRule underTest = new MaintainStreamKnowledgeTransferRule(combinationHistoryRepository);
 
     @Override
-    public ScoringRule<Combination<Pair>> underTest() {
+    public ScoringRule<Pair> underTest() {
         return underTest;
     }
 

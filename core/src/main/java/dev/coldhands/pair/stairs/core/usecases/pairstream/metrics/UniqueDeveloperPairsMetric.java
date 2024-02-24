@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UniqueDeveloperPairsMetric implements Metric<Combination<Pair>, UniqueDeveloperPairsMetric.Result> {
+public class UniqueDeveloperPairsMetric implements Metric<Pair, UniqueDeveloperPairsMetric.Result> {
     // todo implement using PairStreamStatisticsService
 
     private final Collection<String> developers;
@@ -25,7 +25,7 @@ public class UniqueDeveloperPairsMetric implements Metric<Combination<Pair>, Uni
     }
 
     @Override
-    public Result compute(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
+    public Result compute(List<ScoredCombination<Pair>> scoredCombinations) {
         final Map<Set<String>, Integer> occurrencesPerPair = computeOccurrencesPerPair(scoredCombinations);
         final double idealOccurrencesPerPair = computeIdealOccurrencesPerPair(scoredCombinations.size(), occurrencesPerPair.size());
         final Stats summaryStatistics = computeSummaryStatistics(occurrencesPerPair);
@@ -33,7 +33,7 @@ public class UniqueDeveloperPairsMetric implements Metric<Combination<Pair>, Uni
         return new Result(occurrencesPerPair, idealOccurrencesPerPair, summaryStatistics);
     }
 
-    private Map<Set<String>, Integer> computeOccurrencesPerPair(List<ScoredCombination<Combination<Pair>>> scoredCombinations) {
+    private Map<Set<String>, Integer> computeOccurrencesPerPair(List<ScoredCombination<Pair>> scoredCombinations) {
         /* todo using this is expensive,
          *       can I refactor just the developer pair part out of PairStreamCombinationService?
          *       yes, have a PairCombinationService, then have PSCS stream over this and multimap each by the number of streams?
