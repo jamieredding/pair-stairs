@@ -1,10 +1,10 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.BaseRuleTest;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
@@ -15,19 +15,19 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCombination> {
+class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<Combination<Pair>> {
 
-    private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final PenaliseEarlyContextSwitchingRule underTest = new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository);
 
     @Override
-    public ScoringRule<PairStreamCombination> underTest() {
+    public ScoringRule<Combination<Pair>> underTest() {
         return underTest;
     }
 
     @Override
-    public PairStreamCombination exampleCombination() {
-        return new PairStreamCombination(Set.of(
+    public Combination<Pair> exampleCombination() {
+        return new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
@@ -35,7 +35,7 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
 
     @Test
     void doNotContributeToScoreWhenAllMembersDoNotContextSwitch() {
-        final var yesterdayCombination = new PairStreamCombination(Set.of(
+        final var yesterdayCombination = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
@@ -48,11 +48,11 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
 
     @Test
     void increaseScoreIfDeveloperSwitchesAfterOneDayInStream() {
-        final var dayBeforeYesterdayCombination = new PairStreamCombination(Set.of(
+        final var dayBeforeYesterdayCombination = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
-        final var yesterdayCombination = new PairStreamCombination(Set.of(
+        final var yesterdayCombination = new Combination<>(Set.of(
                 new Pair(Set.of("b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "a-dev"), "2-stream")
         ));
@@ -60,7 +60,7 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
         combinationHistoryRepository.saveCombination(dayBeforeYesterdayCombination, LocalDate.now().minusDays(2));
         combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
 
-        final var aSwitchesAfterOneDay = new PairStreamCombination(Set.of(
+        final var aSwitchesAfterOneDay = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         ));
@@ -72,7 +72,7 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
     @Test
     @Disabled("This is out of scope of this rule") // todo if this is wanted it should be a new rule
     void itIsWorseToStayLongerInAStream() {
-        final var combination = new PairStreamCombination(Set.of(
+        final var combination = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
                 new Pair(Set.of("e-dev"), "3-stream")
@@ -94,12 +94,12 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
 
     @Test
     void itIsWorseForMoreDevelopersToContextSwitch() {
-        final var dayBeforeYesterday = new PairStreamCombination(Set.of(
+        final var dayBeforeYesterday = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
                 new Pair(Set.of("e-dev"), "3-stream")
         ));
-        final var yesterday = new PairStreamCombination(Set.of(
+        final var yesterday = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "d-dev"), "1-stream"), // d swapped
                 new Pair(Set.of("c-dev"), "2-stream"),
                 new Pair(Set.of("e-dev", "b-dev"), "3-stream")  // b swapped
@@ -109,12 +109,12 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
         combinationHistoryRepository.saveCombination(yesterday, LocalDate.now().minusDays(1));
 
 
-        final var oneDevSwitchesEarly = new PairStreamCombination(Set.of(
+        final var oneDevSwitchesEarly = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev"), "1-stream"),
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream"), // d switches early
                 new Pair(Set.of("e-dev", "b-dev"), "3-stream")
         ));
-        final var twoDevsSwitchEarly = new PairStreamCombination(Set.of(
+        final var twoDevsSwitchEarly = new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"), // b switches early
                 new Pair(Set.of("c-dev", "d-dev"), "2-stream"), // d switches early
                 new Pair(Set.of("e-dev"), "3-stream")
@@ -129,11 +129,11 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
 
         @Test
         void doNotContributeToScoreIfDeveloperWasOffYesterday() {
-            final var dayBeforeYesterdayCombination = new PairStreamCombination(Set.of(
+            final var dayBeforeYesterdayCombination = new Combination<>(Set.of(
                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                     new Pair(Set.of("c-dev", "d-dev"), "2-stream")
             ));
-            final var yesterdayCombination = new PairStreamCombination(Set.of(
+            final var yesterdayCombination = new Combination<>(Set.of(
                     new Pair(Set.of("b-dev"), "1-stream"),
                     new Pair(Set.of("c-dev", "a-dev"), "2-stream")
             ));
@@ -141,7 +141,7 @@ class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStreamCo
             combinationHistoryRepository.saveCombination(dayBeforeYesterdayCombination, LocalDate.now().minusDays(2));
             combinationHistoryRepository.saveCombination(yesterdayCombination, LocalDate.now().minusDays(1));
 
-            final var dReturns = new PairStreamCombination(Set.of(
+            final var dReturns = new Combination<>(Set.of(
                     new Pair(Set.of("b-dev", "c-dev"), "1-stream"),
                     new Pair(Set.of("a-dev", "d-dev"), "2-stream")
             ));

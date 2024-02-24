@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.core.domain;
 
 import java.util.List;
 
+// todo stop parameterising combination and use T instead
 public record ScoredCombination<Combination>(Combination combination, int totalScore, List<ScoreResult> scoreResults) implements Comparable<ScoredCombination<?>> {
 
     @Override

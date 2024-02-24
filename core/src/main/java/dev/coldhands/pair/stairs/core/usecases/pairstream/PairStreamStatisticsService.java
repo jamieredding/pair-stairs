@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.usecases.pair.PairCombinationService;
 
 import java.util.Collection;
@@ -16,10 +16,10 @@ public class PairStreamStatisticsService {
 
     private final Map<Set<String>, Integer> recentPairOccurrences;
     private final Map<String, Map<String, Integer>> developerToDaysInStream;
-    private final CombinationHistoryRepository<PairStreamCombination> repository;
+    private final CombinationHistoryRepository<Pair> repository;
     private final int numberOfPreviousCombinationsToConsider;
 
-    public PairStreamStatisticsService(CombinationHistoryRepository<PairStreamCombination> repository, Collection<String> developers, Collection<String> streams, int numberOfPreviousCombinationsToConsider) {
+    public PairStreamStatisticsService(CombinationHistoryRepository<Pair> repository, Collection<String> developers, Collection<String> streams, int numberOfPreviousCombinationsToConsider) {
         this.repository = repository;
         this.recentPairOccurrences = initialiseOccurrencesPerPair(developers);
         this.developerToDaysInStream = initialiseDeveloperToDaysInStream(developers, streams);
@@ -27,7 +27,7 @@ public class PairStreamStatisticsService {
     }
 
     public void updateStatistics() {
-        final List<PairStreamCombination> combinationsToConsider = repository.getMostRecentCombinations(numberOfPreviousCombinationsToConsider);
+        final List<Combination<Pair>> combinationsToConsider = repository.getMostRecentCombinations(numberOfPreviousCombinationsToConsider);
 
         updateOccurrencesPerPair(combinationsToConsider);
         updateDeveloperToDaysInStream(combinationsToConsider);
@@ -41,14 +41,14 @@ public class PairStreamStatisticsService {
         return developerToDaysInStream.get(developer).get(stream);
     }
 
-    private void updateOccurrencesPerPair(List<PairStreamCombination> combinations) {
+    private void updateOccurrencesPerPair(List<Combination<Pair>> combinations) {
         recentPairOccurrences.forEach((pair, _) -> {
             recentPairOccurrences.merge(pair, 0, (_, zeroCount)  -> zeroCount);
         });
 
 
         combinations.stream()
-                .map(PairStreamCombination::pairs)
+                .map(Combination::pairs)
                 .flatMap(Collection::stream)
                 .map(Pair::developers)
                 .forEach(developers ->
@@ -67,7 +67,7 @@ public class PairStreamStatisticsService {
     }
 
 //    // todo extract and more efficient
-    private void updateDeveloperToDaysInStream(List<PairStreamCombination> combinations) {
+    private void updateDeveloperToDaysInStream(List<Combination<Pair>> combinations) {
         developerToDaysInStream.forEach((developer, _) -> {
             final Map<String, Integer> developerStreamCounts = developerToDaysInStream.get(developer);
             developerStreamCounts.forEach((stream, _) -> {
@@ -76,7 +76,7 @@ public class PairStreamStatisticsService {
         });
 
         combinations.stream()
-                .map(PairStreamCombination::pairs)
+                .map(Combination::pairs)
                 .flatMap(Collection::stream)
                 .forEach(pair -> {
                     pair.developers().forEach(developer -> {

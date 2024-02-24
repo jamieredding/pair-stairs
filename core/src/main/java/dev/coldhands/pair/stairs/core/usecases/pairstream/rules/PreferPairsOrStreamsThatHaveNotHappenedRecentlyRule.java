@@ -1,12 +1,13 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.domain.BasicScoreResult;
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.ScoreResult;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
+import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamStatisticsService;
 
-public class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule implements ScoringRule<PairStreamCombination> {
+public class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule implements ScoringRule<Combination<Pair>> {
 
     private final PairStreamStatisticsService statisticsService;
 
@@ -15,7 +16,7 @@ public class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule implements Scor
     }
 
     @Override
-    public ScoreResult score(PairStreamCombination combination) {
+    public ScoreResult score(Combination<Pair> combination) {
         final int score = Math.toIntExact(combination.pairs().stream()
                 .filter(pair -> statisticsService.getRecentOccurrencesOfDeveloperPair(pair.developers()) == 0 ||
                         pair.developers().stream().anyMatch(dev -> statisticsService.getRecentOccurrenceOfDeveloperInStream(dev, pair.stream()) == 0))

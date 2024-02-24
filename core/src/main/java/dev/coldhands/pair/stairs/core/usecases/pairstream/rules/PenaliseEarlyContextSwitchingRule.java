@@ -1,39 +1,35 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
-import dev.coldhands.pair.stairs.core.domain.BasicScoreResult;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
-import dev.coldhands.pair.stairs.core.domain.ScoreResult;
-import dev.coldhands.pair.stairs.core.domain.ScoringRule;
+import dev.coldhands.pair.stairs.core.domain.*;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 
 import java.util.List;
 import java.util.Optional;
 
-public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStreamCombination> {
+public class PenaliseEarlyContextSwitchingRule implements ScoringRule<Combination<Pair>> {
 
-    private final CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository;
+    private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
     private final int minimumDaysInStream = 2;
 
-    public PenaliseEarlyContextSwitchingRule(CombinationHistoryRepository<PairStreamCombination> combinationHistoryRepository) {
+    public PenaliseEarlyContextSwitchingRule(CombinationHistoryRepository<Pair> combinationHistoryRepository) {
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 
     @Override
-    public ScoreResult score(PairStreamCombination pairStreamCombination) {
-        final List<PairStreamCombination> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDaysInStream);
+    public ScoreResult score(Combination<Pair> combination) {
+        final List<Combination<Pair>> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDaysInStream);
 
         if (allCombinations.isEmpty()) {
             return new BasicScoreResult(0);
         }
 
-        final var totalDevelopersSwitchingEarly = pairStreamCombination.pairs().stream() // todo is this the simplest way of doing this?
+        final var totalDevelopersSwitchingEarly = combination.pairs().stream() // todo is this the simplest way of doing this?
                 .mapToInt(pair -> {
                     final var newStream = pair.stream();
 
                     final var devsInPairThatAreSwitchingEarly = pair.developers().stream()
                             .mapToInt(developer -> {
-                                final PairStreamCombination mostRecentCombination = allCombinations.getFirst();
+                                final Combination<Pair> mostRecentCombination = allCombinations.getFirst();
 
                                 final Optional<String> maybeOldStream = previousStreamDeveloperWasIn(developer, mostRecentCombination);
 
@@ -62,9 +58,9 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
         return new BasicScoreResult(totalDevelopersSwitchingEarly);
     }
 
-    private int howManyDaysInOldStream(String developer, String oldStream, List<PairStreamCombination> allCombinations) {
+    private int howManyDaysInOldStream(String developer, String oldStream, List<Combination<Pair>> allCombinations) {
         return Math.toIntExact(allCombinations.stream()
-                .map(PairStreamCombination::pairs)
+                .map(Combination::pairs)
                 .takeWhile(pairs ->
                         pairs.stream()
                                 .filter(pair -> pair.developers().contains(developer))
@@ -73,7 +69,7 @@ public class PenaliseEarlyContextSwitchingRule implements ScoringRule<PairStream
                 .count());
     }
 
-    private Optional<String> previousStreamDeveloperWasIn(String developer, PairStreamCombination combination) {
+    private Optional<String> previousStreamDeveloperWasIn(String developer, Combination<Pair> combination) {
         return combination.pairs().stream()
                 .filter(pair -> pair.developers().contains(developer))
                 .map(Pair::stream)

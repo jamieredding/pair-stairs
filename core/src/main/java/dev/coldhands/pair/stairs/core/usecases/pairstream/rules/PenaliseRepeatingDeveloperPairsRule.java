@@ -1,33 +1,29 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import com.google.common.collect.Sets;
-import dev.coldhands.pair.stairs.core.domain.BasicScoreResult;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
-import dev.coldhands.pair.stairs.core.domain.ScoreResult;
-import dev.coldhands.pair.stairs.core.domain.ScoringRule;
+import dev.coldhands.pair.stairs.core.domain.*;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
 
-public class PenaliseRepeatingDeveloperPairsRule implements ScoringRule<PairStreamCombination> {
+public class PenaliseRepeatingDeveloperPairsRule implements ScoringRule<Combination<Pair>> {
 
-    private final CombinationHistoryRepository<PairStreamCombination> repository;
+    private final CombinationHistoryRepository<Pair> repository;
 
-    public PenaliseRepeatingDeveloperPairsRule(CombinationHistoryRepository<PairStreamCombination> repository) {
+    public PenaliseRepeatingDeveloperPairsRule(CombinationHistoryRepository<Pair> repository) {
         this.repository = repository;
     }
 
     @Override
-    public ScoreResult score(PairStreamCombination pairStreamCombination) {
+    public ScoreResult score(Combination<Pair> combination) {
         return repository.getMostRecentCombination()
-                .map(mostRecentCombination -> scoreComboBasedOnMostRecent(pairStreamCombination, mostRecentCombination))
+                .map(mostRecentCombination -> scoreComboBasedOnMostRecent(combination, mostRecentCombination))
                 .orElse(new BasicScoreResult(0));
     }
 
-    private ScoreResult scoreComboBasedOnMostRecent(PairStreamCombination toBeScored, PairStreamCombination mostRecentCombination) {
+    private ScoreResult scoreComboBasedOnMostRecent(Combination<Pair> toBeScored, Combination<Pair> mostRecentCombination) {
         final var developersInPairs = getDevelopersInPairs(toBeScored);
         final var mostRecentDevelopersInPairs = getDevelopersInPairs(mostRecentCombination);
 
@@ -38,7 +34,7 @@ public class PenaliseRepeatingDeveloperPairsRule implements ScoringRule<PairStre
         return new BasicScoreResult(score);
     }
 
-    private static Set<Set<String>> getDevelopersInPairs(PairStreamCombination combination) {
+    private static Set<Set<String>> getDevelopersInPairs(Combination<Pair> combination) {
         return combination.pairs().stream()
                 .map(Pair::developers)
                 .collect(toSet());

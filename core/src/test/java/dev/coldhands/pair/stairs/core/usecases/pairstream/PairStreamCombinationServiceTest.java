@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PairStreamCombinationServiceTest {
 
-    private CombinationService<PairStreamCombination> underTest;
+    private CombinationService<Combination<Pair>> underTest;
 
     private void given(Collection<String> developers, Collection<String> streams) {
         underTest = new PairStreamCombinationService(developers, streams);
@@ -28,18 +28,18 @@ class PairStreamCombinationServiceTest {
 
         given(developers, streams);
 
-        Set<PairStreamCombination> allCombinations = underTest.getAllCombinations();
+        Set<Combination<Pair>> allCombinations = underTest.getAllCombinations();
 
         assertThat(allCombinations)
                 .containsOnly(
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "b-dev"), "1-stream"), new Pair(Set.of("c-dev"), "2-stream"))),
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "b-dev"), "2-stream"), new Pair(Set.of("c-dev"), "1-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "b-dev"), "1-stream"), new Pair(Set.of("c-dev"), "2-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "b-dev"), "2-stream"), new Pair(Set.of("c-dev"), "1-stream"))),
 
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "c-dev"), "1-stream"), new Pair(Set.of("b-dev"), "2-stream"))),
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "c-dev"), "2-stream"), new Pair(Set.of("b-dev"), "1-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "c-dev"), "1-stream"), new Pair(Set.of("b-dev"), "2-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "c-dev"), "2-stream"), new Pair(Set.of("b-dev"), "1-stream"))),
 
-                        new PairStreamCombination(Set.of(new Pair(Set.of("b-dev", "c-dev"), "1-stream"), new Pair(Set.of("a-dev"), "2-stream"))),
-                        new PairStreamCombination(Set.of(new Pair(Set.of("b-dev", "c-dev"), "2-stream"), new Pair(Set.of("a-dev"), "1-stream")))
+                        new Combination<>(Set.of(new Pair(Set.of("b-dev", "c-dev"), "1-stream"), new Pair(Set.of("a-dev"), "2-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("b-dev", "c-dev"), "2-stream"), new Pair(Set.of("a-dev"), "1-stream")))
                 );
     }
 
@@ -50,18 +50,18 @@ class PairStreamCombinationServiceTest {
 
         given(developers, streams);
 
-        Set<PairStreamCombination> allCombinations = underTest.getAllCombinations();
+        Set<Combination<Pair>> allCombinations = underTest.getAllCombinations();
 
         assertThat(allCombinations)
                 .containsOnly(
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "b-dev"), "1-stream"), new Pair(Set.of("c-dev", "d-dev"), "2-stream"))),
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "b-dev"), "2-stream"), new Pair(Set.of("c-dev", "d-dev"), "1-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "b-dev"), "1-stream"), new Pair(Set.of("c-dev", "d-dev"), "2-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "b-dev"), "2-stream"), new Pair(Set.of("c-dev", "d-dev"), "1-stream"))),
 
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "c-dev"), "1-stream"), new Pair(Set.of("b-dev", "d-dev"), "2-stream"))),
-                        new PairStreamCombination(Set.of(new Pair(Set.of("a-dev", "c-dev"), "2-stream"), new Pair(Set.of("b-dev", "d-dev"), "1-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "c-dev"), "1-stream"), new Pair(Set.of("b-dev", "d-dev"), "2-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("a-dev", "c-dev"), "2-stream"), new Pair(Set.of("b-dev", "d-dev"), "1-stream"))),
 
-                        new PairStreamCombination(Set.of(new Pair(Set.of("b-dev", "c-dev"), "1-stream"), new Pair(Set.of("a-dev", "d-dev"), "2-stream"))),
-                        new PairStreamCombination(Set.of(new Pair(Set.of("b-dev", "c-dev"), "2-stream"), new Pair(Set.of("a-dev", "d-dev"), "1-stream")))
+                        new Combination<>(Set.of(new Pair(Set.of("b-dev", "c-dev"), "1-stream"), new Pair(Set.of("a-dev", "d-dev"), "2-stream"))),
+                        new Combination<>(Set.of(new Pair(Set.of("b-dev", "c-dev"), "2-stream"), new Pair(Set.of("a-dev", "d-dev"), "1-stream")))
                 );
     }
 
@@ -72,7 +72,7 @@ class PairStreamCombinationServiceTest {
 
         given(developers, streams);
 
-        Set<PairStreamCombination> allCombinations = underTest.getAllCombinations();
+        Set<Combination<Pair>> allCombinations = underTest.getAllCombinations();
 
         assertThat(allCombinations)
                 .hasSize(90) // 15 pair combinations X 3! ways of permuting with streams

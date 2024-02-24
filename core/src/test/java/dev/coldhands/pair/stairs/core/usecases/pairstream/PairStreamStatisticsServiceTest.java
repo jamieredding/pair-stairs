@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PairStreamStatisticsServiceTest {
 
-    private final CombinationHistoryRepository<PairStreamCombination> repository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<Pair> repository = new InMemoryCombinationHistoryRepository<>();
     private PairStreamStatisticsService underTest;
 
     @Test
@@ -57,7 +57,7 @@ class PairStreamStatisticsServiceTest {
                 5
         );
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), LocalDate.now());
@@ -96,32 +96,32 @@ class PairStreamStatisticsServiceTest {
 
         final LocalDate now = LocalDate.now();
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                 new Pair(Set.of("b-dev"), "2-stream")
         )), now.minusDays(5));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now.minusDays(4));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now.minusDays(3));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now.minusDays(2));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now.minusDays(1));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now);
@@ -153,17 +153,17 @@ class PairStreamStatisticsServiceTest {
 
         final LocalDate now = LocalDate.now();
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now.minusDays(2));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now.minusDays(1));
 
-        repository.saveCombination(new PairStreamCombination(Set.of(
+        repository.saveCombination(new Combination<>(Set.of(
                 new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                 new Pair(Set.of("c-dev"), "2-stream")
         )), now);

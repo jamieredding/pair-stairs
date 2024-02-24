@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public interface BaseRuleTest<Combination> {
+public interface BaseRuleTest<Combination> { // todo should be pair
 
     ScoringRule<Combination> underTest();
 

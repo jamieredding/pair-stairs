@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.metrics;
 
+import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -45,20 +45,20 @@ class UniqueDeveloperPairsMetricTest {
         void whenSomeCombinationsThenAddThoseToTheCountForTheCorrectPair() {
             final var underTest = new UniqueDeveloperPairsMetric(Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
 
-            List<ScoredCombination<PairStreamCombination>> scoredCombinations = Stream.of(
-                            new PairStreamCombination(Set.of(
+            List<ScoredCombination<Combination<Pair>>> scoredCombinations = Stream.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                                     new Pair(Set.of("c-dev"), "2-stream")
                             )),
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "b-dev"), "2-stream"),
                                     new Pair(Set.of("c-dev"), "1-stream")
                             )),
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                                     new Pair(Set.of("b-dev"), "2-stream")
                             )),
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev"), "1-stream"),
                                     new Pair(Set.of("b-dev", "c-dev"), "2-stream")
                             ))
@@ -102,9 +102,9 @@ class UniqueDeveloperPairsMetricTest {
         void idealOccurrencesIsNumCombinationsTimesPairsPerCombinationDividedByNumPossiblePairs_smallNumberOfDevs(int numberOfCombinations, double expectedIdealOccurrences) {
             final var underTest = new UniqueDeveloperPairsMetric(Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
 
-            List<ScoredCombination<PairStreamCombination>> scoredCombinations = IntStream.range(0, numberOfCombinations)
+            List<ScoredCombination<Combination<Pair>>> scoredCombinations = IntStream.range(0, numberOfCombinations)
                     .mapToObj(_ ->
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                                     new Pair(Set.of("c-dev"), "2-stream")
                             )))
@@ -125,9 +125,9 @@ class UniqueDeveloperPairsMetricTest {
         void idealOccurrencesIsNumCombinationsTimesPairsPerCombinationDividedByNumPossiblePairs_largeNumberOfDevs(int numberOfCombinations, double expectedIdealOccurrences) {
             final var underTest = new UniqueDeveloperPairsMetric(Set.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev"), Set.of("1-stream", "2-stream", "3-stream"));
 
-            List<ScoredCombination<PairStreamCombination>> scoredCombinations = IntStream.range(0, numberOfCombinations)
+            List<ScoredCombination<Combination<Pair>>> scoredCombinations = IntStream.range(0, numberOfCombinations)
                     .mapToObj(_ ->
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                                     new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
                                     new Pair(Set.of("e-dev"), "3-stream")
@@ -166,20 +166,20 @@ class UniqueDeveloperPairsMetricTest {
         void calculateSummaryStatistics() {
             final var underTest = new UniqueDeveloperPairsMetric(Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
 
-            List<ScoredCombination<PairStreamCombination>> scoredCombinations = Stream.of(
-                            new PairStreamCombination(Set.of(
+            List<ScoredCombination<Combination<Pair>>> scoredCombinations = Stream.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
                                     new Pair(Set.of("c-dev"), "2-stream")
                             )),
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "b-dev"), "2-stream"),
                                     new Pair(Set.of("c-dev"), "1-stream")
                             )),
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
                                     new Pair(Set.of("b-dev"), "2-stream")
                             )),
-                            new PairStreamCombination(Set.of(
+                            new Combination<>(Set.of(
                                     new Pair(Set.of("a-dev"), "1-stream"),
                                     new Pair(Set.of("b-dev", "c-dev"), "2-stream")
                             ))
