@@ -147,7 +147,7 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
     }
 
     private void initialiseUnderTest(List<String> developers, List<String> streams) {
-        PairStreamStatisticsService statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+        PairStreamStatisticsService statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams, 5);
         statisticsService.updateStatistics();
 
         underTest = new PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule(statisticsService);

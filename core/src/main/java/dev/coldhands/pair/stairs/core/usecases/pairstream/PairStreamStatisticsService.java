@@ -17,28 +17,30 @@ public class PairStreamStatisticsService {
     private final Map<Set<String>, Integer> recentPairOccurrences;
     private final Map<String, Map<String, Integer>> developerToDaysInStream;
     private final CombinationHistoryRepository<PairStreamCombination> repository;
+    private final int numberOfPreviousCombinationsToConsider;
 
-    public PairStreamStatisticsService(CombinationHistoryRepository<PairStreamCombination> repository, Collection<String> developers, Collection<String> streams) {
+    public PairStreamStatisticsService(CombinationHistoryRepository<PairStreamCombination> repository, Collection<String> developers, Collection<String> streams, int numberOfPreviousCombinationsToConsider) {
         this.repository = repository;
         this.recentPairOccurrences = initialiseOccurrencesPerPair(developers, streams);
         this.developerToDaysInStream = initialiseDeveloperToDaysInStream(developers, streams);
+        this.numberOfPreviousCombinationsToConsider = numberOfPreviousCombinationsToConsider;
     }
 
-    public void updateStatistics() { // todo test me
+    public void updateStatistics() {
         final List<PairStreamCombination> combinationsToConsider = repository.getAllCombinations().reversed()
                 .stream()
-                .limit(5) // todo parameterise me
+                .limit(numberOfPreviousCombinationsToConsider)
                 .toList();
 
         updateOccurrencesPerPair(combinationsToConsider);
         updateDeveloperToDaysInStream(combinationsToConsider);
     }
 
-    public int getRecentOccurrencesOfDeveloperPair(Set<String> developers) { // todo test this
+    public int getRecentOccurrencesOfDeveloperPair(Set<String> developers) {
         return recentPairOccurrences.get(developers);
     }
 
-    public int getRecentOccurrenceOfDeveloperInStream(String developer, String stream) { // todo test this
+    public int getRecentOccurrenceOfDeveloperInStream(String developer, String stream) {
         return developerToDaysInStream.get(developer).get(stream);
     }
 

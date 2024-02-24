@@ -18,7 +18,7 @@ public class PairStreamRotationSimulator implements RotationSimulator<PairStream
 
     public PairStreamRotationSimulator(Collection<String> developers, Collection<String> streams, CombinationHistoryRepository<PairStreamCombination> repository) {
         this.repository = repository;
-        this.statisticsService = new PairStreamStatisticsService(repository, developers, streams);
+        this.statisticsService = new PairStreamStatisticsService(repository, developers, streams, 5);
         this.entryPoint = new PairStreamEntryPoint(developers, streams, repository, statisticsService);
     }
 
