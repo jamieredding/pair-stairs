@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -77,6 +78,23 @@ class PairStreamCombinationServiceTest {
                 .hasSize(90) // 15 pair combinations X 3! ways of permuting with streams
                 .allSatisfy(combination -> {
                     assertThat(combination.pairs()).hasSize(3);
+
+                    record AllParts(Set<String> developers, Set<String> streams) {
+
+                    }
+
+                    final AllParts allParts = combination.pairs().stream()
+                            .collect(teeing(
+                                    flatMapping(pair -> pair.developers().stream(), toSet()),
+                                    mapping(Pair::stream, toSet()),
+                                    AllParts::new
+                            ));
+
+                    assertThat(allParts.developers)
+                            .containsExactlyInAnyOrderElementsOf(developers);
+                    assertThat(allParts.streams)
+                            .containsExactlyInAnyOrderElementsOf(streams);
+
                 });
     }
 
@@ -87,7 +105,7 @@ class PairStreamCombinationServiceTest {
 
         given(developers, streams);
 
-        assertThatThrownBy(()-> underTest.getAllCombinations())
+        assertThatThrownBy(() -> underTest.getAllCombinations())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Not enough developers to pair on streams");
     }
@@ -99,7 +117,7 @@ class PairStreamCombinationServiceTest {
 
         given(developers, streams);
 
-        assertThatThrownBy(()-> underTest.getAllCombinations())
+        assertThatThrownBy(() -> underTest.getAllCombinations())
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Not enough streams for developers");
     }

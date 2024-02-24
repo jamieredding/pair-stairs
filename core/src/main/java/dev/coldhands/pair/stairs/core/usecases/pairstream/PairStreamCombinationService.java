@@ -1,17 +1,17 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.Collections2;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
+import dev.coldhands.pair.stairs.core.usecases.pair.PairCombinationService;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
+import java.util.function.Consumer;
 
-import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.Collectors.toSet;
 
 public class PairStreamCombinationService implements CombinationService<PairStreamCombination> {
@@ -35,44 +35,27 @@ public class PairStreamCombinationService implements CombinationService<PairStre
             throw new IllegalStateException("Not enough developers to pair on streams");
         }
 
-        final Set<JustDevs> allPossiblePairsOfDevelopers = Sets.combinations(developers, 2).stream()
-                .map(JustDevs::new)
-                .collect(toCollection(HashSet::new));
+        final PairCombinationService pairCombinationService = new PairCombinationService(developers);
+        final Set<Set<Set<String>>> allCombinationsOfDevelopers = pairCombinationService.getAllCombinations();
+        final Collection<List<String>> allPermutationsOfStreams = Collections2.orderedPermutations(streams);
 
-        developers.forEach(dev -> allPossiblePairsOfDevelopers.add(new JustDevs(Set.of(dev))));
+        return allCombinationsOfDevelopers.stream()
+                .mapMulti((Set<Set<String>> combo, Consumer<PairStreamCombination> consumer) -> {
+                    final List<Set<String>> orderedDeveloperPairs = List.copyOf(combo);
 
-        final Set<Pair> allPairs = allPossiblePairsOfDevelopers.stream()
-                .flatMap(pair -> streams.stream().map(stream -> new Pair(pair.members, stream)))
+                    for (List<String> allPermutationsOfStream : allPermutationsOfStreams) {
+                        final Set<Pair> pairs = new HashSet<>();
+                        for (int i = 0; i < allPermutationsOfStream.size(); i++) { // todo replace with zipping
+                            String stream = allPermutationsOfStream.get(i);
+                            Set<String> developers = orderedDeveloperPairs.get(i);
+
+                            pairs.add(new Pair(developers, stream));
+                        }
+                        consumer.accept(new PairStreamCombination(Set.copyOf(pairs)));
+                    }
+
+                })
                 .collect(toSet());
-
-        return Sets.combinations(allPairs, requiredNumberOfPairsPerCombination).stream()
-                .filter(combinationHasAllDevelopers(developers))
-                .filter(combinationHasAllStreams(streams))
-                .map(PairStreamCombination::new)
-                .collect(toSet());
     }
 
-    private Predicate<? super Set<Pair>> combinationHasAllDevelopers(Set<String> developers) {
-        return pairs -> {
-            final List<String> devsFromAllPairs = pairs.stream()
-                    .flatMap(pair -> pair.developers().stream())
-                    .toList();
-            return devsFromAllPairs.size() == developers.size() &&
-                    new HashSet<>(devsFromAllPairs).equals(developers);
-        };
-    }
-
-    private Predicate<? super Set<Pair>> combinationHasAllStreams(Set<String> streams) {
-        return pairs -> {
-            final List<String> allStreams = pairs.stream()
-                    .map(Pair::stream)
-                    .toList();
-            return allStreams.size() == streams.size() &&
-                    new HashSet<>(allStreams).equals(streams);
-        };
-    }
-
-    private record JustDevs(Set<String> members) {
-
-    }
 }
