@@ -2,7 +2,7 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamStatisticsService;
 import org.junit.jupiter.api.Test;
@@ -14,26 +14,26 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
-    private final CombinationHistoryRepository<Pair> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private PreferPairsOrStreamsThatHaveNotHappenedRecentlyRule underTest;
 
     @Test
     void doNotContributeToScoreIfAllCombinationsHaveBeenSeenInRecentHistory() {
         final var first = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
         final var bSees2AndC = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
         final var cSees1AndA = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                new Pair(Set.of("b-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev"), "2-stream")
         ));
         final var aSees2 = new Combination<>(Set.of(
-                new Pair(Set.of("c-dev"), "1-stream"),
-                new Pair(Set.of("a-dev", "b-dev"), "2-stream")
+                new PairStream(Set.of("c-dev"), "1-stream"),
+                new PairStream(Set.of("a-dev", "b-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(4));
@@ -52,16 +52,16 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
     @Test
     void lowerScoreIfDeveloperComboHasNotOccurred() {
         final var first = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
         final var firstButDifferentStreams = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "2-stream"),
-                new Pair(Set.of("c-dev"), "1-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "2-stream"),
+                new PairStream(Set.of("c-dev"), "1-stream")
         ));
         final var bSeesC = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(3));
@@ -74,8 +74,8 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
         );
 
         final var aAndCPair = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                new Pair(Set.of("b-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev"), "2-stream")
         ));
 
         assertThat(underTest.score(aAndCPair).score())
@@ -85,16 +85,16 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
     @Test
     void lowerScoreIfDeveloperHasNotSeenStream() {
         final var first = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev"), "2-stream")
         ));
         final var bSees2AndC = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev"), "1-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                new PairStream(Set.of("a-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
         ));
         final var cSeesA = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                new Pair(Set.of("b-dev"), "2-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                new PairStream(Set.of("b-dev"), "2-stream")
         ));
 
         combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(3));
@@ -107,8 +107,8 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
         );
 
         final var aSees2 = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "2-stream"),
-                new Pair(Set.of("b-dev"), "1-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "2-stream"),
+                new PairStream(Set.of("b-dev"), "1-stream")
         ));
 
         assertThat(underTest.score(aSees2).score())
@@ -118,9 +118,9 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
     @Test
     void preferMoreNewPairsOverFewer() {
         final var first = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "d-dev"), "2-stream"),
-                new Pair(Set.of("e-dev", "f-dev"), "3-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "d-dev"), "2-stream"),
+                new PairStream(Set.of("e-dev", "f-dev"), "3-stream")
         ));
 
         combinationHistoryRepository.saveCombination(first, LocalDate.now().minusDays(1));
@@ -131,15 +131,15 @@ class PreferPairsOrStreamsThatHaveNotHappenedRecentlyRuleTest {
         );
 
         final var twoNewPairs = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "e-dev"), "2-stream"),
-                new Pair(Set.of("d-dev", "f-dev"), "3-stream")
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "e-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "f-dev"), "3-stream")
         ));
 
         final var threeNewPairs = new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "f-dev"), "1-stream"),
-                new Pair(Set.of("c-dev", "b-dev"), "2-stream"),
-                new Pair(Set.of("e-dev", "d-dev"), "3-stream")
+                new PairStream(Set.of("a-dev", "f-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "b-dev"), "2-stream"),
+                new PairStream(Set.of("e-dev", "d-dev"), "3-stream")
         ));
 
         assertThat(underTest.score(threeNewPairs).score())

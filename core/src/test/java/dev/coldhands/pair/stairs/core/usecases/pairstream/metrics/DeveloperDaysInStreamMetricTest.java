@@ -2,7 +2,7 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream.metrics;
 
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -40,22 +40,22 @@ class DeveloperDaysInStreamMetricTest {
     void whenSomeCombinationsThenCountTheNumberOfTimesEachDeveloperIsInAStream() {
         final var underTest = new DeveloperDaysInStreamMetric(Set.of("a-dev", "b-dev", "c-dev"), Set.of("1-stream", "2-stream"));
 
-        List<ScoredCombination<Pair>> scoredCombinations = Stream.of(
+        List<ScoredCombination<PairStream>> scoredCombinations = Stream.of(
                         new Combination<>(Set.of(
-                                new Pair(Set.of("a-dev", "b-dev"), "1-stream"),
-                                new Pair(Set.of("c-dev"), "2-stream")
+                                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                                new PairStream(Set.of("c-dev"), "2-stream")
                         )),
                         new Combination<>(Set.of(
-                                new Pair(Set.of("a-dev", "b-dev"), "2-stream"),
-                                new Pair(Set.of("c-dev"), "1-stream")
+                                new PairStream(Set.of("a-dev", "b-dev"), "2-stream"),
+                                new PairStream(Set.of("c-dev"), "1-stream")
                         )),
                         new Combination<>(Set.of(
-                                new Pair(Set.of("a-dev", "c-dev"), "1-stream"),
-                                new Pair(Set.of("b-dev"), "2-stream")
+                                new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
+                                new PairStream(Set.of("b-dev"), "2-stream")
                         )),
                         new Combination<>(Set.of(
-                                new Pair(Set.of("a-dev"), "1-stream"),
-                                new Pair(Set.of("b-dev", "c-dev"), "2-stream")
+                                new PairStream(Set.of("a-dev"), "1-stream"),
+                                new PairStream(Set.of("b-dev", "c-dev"), "2-stream")
                         ))
                 )
                 .map(combo -> new ScoredCombination<>(combo, 0, List.of()))

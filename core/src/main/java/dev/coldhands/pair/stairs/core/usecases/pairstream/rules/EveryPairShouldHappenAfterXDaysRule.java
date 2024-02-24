@@ -1,26 +1,26 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.domain.*;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 
 import java.util.Collection;
 import java.util.List;
 
-public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<Pair> {
+public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<PairStream> {
     private final Collection<String> developers;
-    private final CombinationHistoryRepository<Pair> combinationHistoryRepository;
+    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository;
 
-    public EveryPairShouldHappenAfterXDaysRule(Collection<String> developers, CombinationHistoryRepository<Pair> combinationHistoryRepository) {
+    public EveryPairShouldHappenAfterXDaysRule(Collection<String> developers, CombinationHistoryRepository<PairStream> combinationHistoryRepository) {
         this.developers = developers;
         this.combinationHistoryRepository = combinationHistoryRepository;
     }
 
     @Override
-    public ScoreResult score(Combination<Pair> combination) {
+    public ScoreResult score(Combination<PairStream> combination) {
         int numberOfDevelopers = developers.size();
         int minimumDays = getMinimumDaysForAllPairs(numberOfDevelopers);
 
-        final List<Combination<Pair>> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDays);
+        final List<Combination<PairStream>> allCombinations = combinationHistoryRepository.getMostRecentCombinations(minimumDays);
         if (allCombinations.isEmpty()) {
             return new BasicScoreResult(0);
         }
@@ -30,7 +30,7 @@ public class EveryPairShouldHappenAfterXDaysRule implements ScoringRule<Pair> {
         final long uniquePairCombinations = allCombinations.stream()
                 .map(Combination::pairs)
                 .flatMap(Collection::stream)
-                .map(Pair::developers)
+                .map(PairStream::developers)
                 .distinct()
                 .count();
 

@@ -5,7 +5,7 @@ import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoreResult;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.metrics.DeveloperDaysInStreamMetric;
 import dev.coldhands.pair.stairs.core.usecases.pairstream.metrics.UniqueDeveloperPairsMetric;
@@ -21,14 +21,14 @@ class PairStreamRotationSimulatorTest {
 
     @Test
     void runForThreeSteps() {
-        final var repository = new InMemoryCombinationHistoryRepository<Pair>();
+        final var repository = new InMemoryCombinationHistoryRepository<PairStream>();
 
         final List<String> developers = List.of("a-dev", "b-dev", "c-dev");
         final List<String> streams = List.of("1-stream", "2-stream");
 
         final var underTest = new PairStreamRotationSimulator(developers, streams, repository);
 
-        final List<ScoredCombination<Pair>> scoredCombinations = underTest.runSimulation(3);
+        final List<ScoredCombination<PairStream>> scoredCombinations = underTest.runSimulation(3);
 
         record AllParties(Set<String> developers, Set<String> streams) {
 
@@ -40,7 +40,7 @@ class PairStreamRotationSimulatorTest {
                     final var allParties = scoredCombination.combination().pairs().stream()
                             .collect(teeing(
                                     flatMapping(pair -> pair.developers().stream(), toSet()),
-                                    mapping(Pair::stream, toSet()),
+                                    mapping(PairStream::stream, toSet()),
                                     AllParties::new
                             ));
                     assertThat(allParties.developers).containsAll(developers);
@@ -61,13 +61,13 @@ class PairStreamRotationSimulatorTest {
         Collection<String> developers = List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev");
         Collection<String> streams = List.of("1-stream", "2-stream", "3-stream");
 
-        CombinationHistoryRepository<Pair> repository = new InMemoryCombinationHistoryRepository<>();
+        CombinationHistoryRepository<PairStream> repository = new InMemoryCombinationHistoryRepository<>();
 
         populateOldData(repository);
 
         final PairStreamRotationSimulator pairStreamRotationSimulator = new PairStreamRotationSimulator(developers, streams, repository);
 
-        final List<ScoredCombination<Pair>> scoredCombinations = pairStreamRotationSimulator.runSimulation(60);
+        final List<ScoredCombination<PairStream>> scoredCombinations = pairStreamRotationSimulator.runSimulation(60);
 
         displayResults(scoredCombinations);
 
@@ -140,12 +140,12 @@ class PairStreamRotationSimulatorTest {
         System.out.println("-".repeat(20));
     }
 
-    private static void displayResults(List<ScoredCombination<Pair>> scoredCombinations) {
+    private static void displayResults(List<ScoredCombination<PairStream>> scoredCombinations) {
         System.out.println("-".repeat(20));
         for (int i = 0; i < scoredCombinations.size(); i++) {
-            ScoredCombination<Pair> combo = scoredCombinations.get(i);
+            ScoredCombination<PairStream> combo = scoredCombinations.get(i);
             System.out.println("=".repeat(10));
-            combo.combination().pairs().stream().sorted(Comparator.comparing(Pair::stream)).forEach(pair -> {
+            combo.combination().pairs().stream().sorted(Comparator.comparing(PairStream::stream)).forEach(pair -> {
                 System.out.println(pair.stream() + ": " + String.join(", ", pair.developers()));
             });
             System.out.println("Score: " + combo.totalScore() + " results: " + combo.scoreResults().stream().map(ScoreResult::score).map(String::valueOf).collect(joining(", ")));
@@ -165,37 +165,37 @@ class PairStreamRotationSimulatorTest {
         System.out.println("-".repeat(20));
     }
 
-    private static Map<String, Set<String>> keyedByStream(Combination<Pair> combination) {
+    private static Map<String, Set<String>> keyedByStream(Combination<PairStream> combination) {
         return combination.pairs().stream()
-                .collect(toMap(Pair::stream, Pair::developers));
+                .collect(toMap(PairStream::stream, PairStream::developers));
     }
 
-    private void populateOldData(CombinationHistoryRepository<Pair> repository) {
+    private void populateOldData(CombinationHistoryRepository<PairStream> repository) {
         final LocalDate now = LocalDate.now();
         repository.saveCombination(new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "f-dev"), "2-stream"),
-                new Pair(Set.of("d-dev", "e-dev"), "3-stream"),
-                new Pair(Set.of("b-dev", "c-dev"), "1-stream")
+                new PairStream(Set.of("a-dev", "f-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "e-dev"), "3-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "1-stream")
         )), now.minusDays(1));
         repository.saveCombination(new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "e-dev"), "2-stream"),
-                new Pair(Set.of("d-dev", "c-dev"), "3-stream"),
-                new Pair(Set.of("b-dev", "f-dev"), "1-stream")
+                new PairStream(Set.of("a-dev", "e-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "c-dev"), "3-stream"),
+                new PairStream(Set.of("b-dev", "f-dev"), "1-stream")
         )), now.minusDays(2));
         repository.saveCombination(new Combination<>(Set.of(
-                new Pair(Set.of("a-dev", "c-dev"), "2-stream"),
-                new Pair(Set.of("d-dev", "b-dev"), "3-stream"),
-                new Pair(Set.of("e-dev", "f-dev"), "1-stream")
+                new PairStream(Set.of("a-dev", "c-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "b-dev"), "3-stream"),
+                new PairStream(Set.of("e-dev", "f-dev"), "1-stream")
         )), now.minusDays(3));
         repository.saveCombination(new Combination<>(Set.of(
-                new Pair(Set.of("f-dev", "c-dev"), "2-stream"),
-                new Pair(Set.of("a-dev", "b-dev"), "3-stream"),
-                new Pair(Set.of("e-dev", "d-dev"), "1-stream")
+                new PairStream(Set.of("f-dev", "c-dev"), "2-stream"),
+                new PairStream(Set.of("a-dev", "b-dev"), "3-stream"),
+                new PairStream(Set.of("e-dev", "d-dev"), "1-stream")
         )), now.minusDays(4));
         repository.saveCombination(new Combination<>(Set.of(
-                new Pair(Set.of("f-dev", "e-dev"), "2-stream"),
-                new Pair(Set.of("a-dev", "c-dev"), "3-stream"),
-                new Pair(Set.of("b-dev", "d-dev"), "1-stream")
+                new PairStream(Set.of("f-dev", "e-dev"), "2-stream"),
+                new PairStream(Set.of("a-dev", "c-dev"), "3-stream"),
+                new PairStream(Set.of("b-dev", "d-dev"), "1-stream")
         )), now.minusDays(5));
     }
 }

@@ -4,7 +4,7 @@ import com.google.common.math.Stats;
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.Metric;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
-import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
-public class DeveloperDaysInStreamMetric implements Metric<Pair, DeveloperDaysInStreamMetric.Result> {
+public class DeveloperDaysInStreamMetric implements Metric<PairStream, DeveloperDaysInStreamMetric.Result> {
 
     // todo implement using PairStreamStatisticsService
 
@@ -25,7 +25,7 @@ public class DeveloperDaysInStreamMetric implements Metric<Pair, DeveloperDaysIn
     }
 
     @Override
-    public Result compute(List<ScoredCombination<Pair>> scoredCombinations) {
+    public Result compute(List<ScoredCombination<PairStream>> scoredCombinations) {
         final Map<String, Map<String, Integer>> developerToDaysInStream = computeDeveloperToDaysInStream(scoredCombinations);
 
         Stats summaryStatistics = computeSummaryStatistics(developerToDaysInStream);
@@ -34,7 +34,7 @@ public class DeveloperDaysInStreamMetric implements Metric<Pair, DeveloperDaysIn
     }
 
     // todo extract and more efficient
-    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<Pair>> scoredCombinations) {
+    private Map<String, Map<String, Integer>> computeDeveloperToDaysInStream(List<ScoredCombination<PairStream>> scoredCombinations) {
         Map<String, Map<String, Integer>> developerToDaysInStream = initialiseMap();
 
         scoredCombinations.stream()
