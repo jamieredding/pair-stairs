@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
 import com.google.common.collect.Collections2;
+import com.google.common.collect.Streams;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
 import dev.coldhands.pair.stairs.core.domain.pairstream.Pair;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStreamCombination;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toSet;
 
 public class PairStreamCombinationService implements CombinationService<PairStreamCombination> {
@@ -44,16 +46,15 @@ public class PairStreamCombinationService implements CombinationService<PairStre
                     final List<Set<String>> orderedDeveloperPairs = List.copyOf(combo);
 
                     for (List<String> allPermutationsOfStream : allPermutationsOfStreams) {
-                        final Set<Pair> pairs = new HashSet<>();
-                        for (int i = 0; i < allPermutationsOfStream.size(); i++) { // todo replace with zipping
-                            String stream = allPermutationsOfStream.get(i);
-                            Set<String> developers = orderedDeveloperPairs.get(i);
+                        final PairStreamCombination pairStreamCombination = Streams.zip(
+                                        allPermutationsOfStream.stream(),
+                                        orderedDeveloperPairs.stream(),
+                                        (stream, developers) -> new Pair(developers, stream)
+                                )
+                                .collect(collectingAndThen(toSet(), PairStreamCombination::new));
 
-                            pairs.add(new Pair(developers, stream));
-                        }
-                        consumer.accept(new PairStreamCombination(Set.copyOf(pairs)));
+                        consumer.accept(pairStreamCombination);
                     }
-
                 })
                 .collect(toSet());
     }
