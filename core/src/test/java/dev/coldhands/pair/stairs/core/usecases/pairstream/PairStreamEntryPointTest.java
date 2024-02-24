@@ -251,7 +251,7 @@ class PairStreamEntryPointTest {
     }
 
     private PairStreamEntryPoint initialiseUnderTest(List<String> developers, List<String> streams) {
-        final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams);
+        final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams, 5);
         statisticsService.updateStatistics();
 
         return new PairStreamEntryPoint(
