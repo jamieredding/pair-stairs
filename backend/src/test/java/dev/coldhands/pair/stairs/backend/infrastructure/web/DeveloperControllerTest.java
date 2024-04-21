@@ -1,7 +1,7 @@
-package dev.coldhands.pair.stairs.backend.infrastructure;
+package dev.coldhands.pair.stairs.backend.infrastructure.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.coldhands.pair.stairs.backend.domain.Stream;
+import dev.coldhands.pair.stairs.backend.domain.Developer;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureTestDatabase
 @AutoConfigureTestEntityManager
 @Transactional
-public class StreamControllerTest {
+public class DeveloperControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,22 +39,22 @@ public class StreamControllerTest {
     class Read {
 
         @Test
-        void whenNoStreamThenReturnEmptyArray() throws Exception {
-            mockMvc.perform(get("/api/v1/streams"))
+        void whenNoDevelopersThenReturnEmptyArray() throws Exception {
+            mockMvc.perform(get("/api/v1/developers"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(0));
         }
 
         @Test
-        void whenMultipleStreamsThenReturnThem() throws Exception {
-            testEntityManager.persist(new Stream("stream-0"));
-            testEntityManager.persist(new Stream("stream-1"));
+        void whenMultipleDevelopersThenReturnThem() throws Exception {
+            testEntityManager.persist(new Developer("dev-0"));
+            testEntityManager.persist(new Developer("dev-1"));
 
-            mockMvc.perform(get("/api/v1/streams"))
+            mockMvc.perform(get("/api/v1/developers"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2))
-                    .andExpect(jsonPath("$.[0].name").value("stream-0"))
-                    .andExpect(jsonPath("$.[1].name").value("stream-1"))
+                    .andExpect(jsonPath("$.[0].name").value("dev-0"))
+                    .andExpect(jsonPath("$.[1].name").value("dev-1"))
 
             ;
         }
@@ -64,26 +64,26 @@ public class StreamControllerTest {
     class Write {
 
         @Test
-        void saveAStream() throws Exception {
-            final MvcResult result = mockMvc.perform(post("/api/v1/streams")
+        void saveADeveloper() throws Exception {
+            final MvcResult result = mockMvc.perform(post("/api/v1/developers")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "name": "stream-0"
+                                      "name": "dev-0"
                                     }""")
                     )
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").exists())
-                    .andExpect(jsonPath("$.name").value("stream-0"))
+                    .andExpect(jsonPath("$.name").value("dev-0"))
                     .andReturn();
 
-            final Stream stream = new ObjectMapper().readValue(result.getResponse().getContentAsString(), Stream.class);
-            final Long actualId = stream.getId();
+            final Developer developer = new ObjectMapper().readValue(result.getResponse().getContentAsString(), Developer.class);
+            final Long actualId = developer.getId();
 
-            final Stream savedStream = testEntityManager.find(Stream.class, actualId);
+            final Developer savedDeveloper = testEntityManager.find(Developer.class, actualId);
 
-            assertThat(savedStream.getId(), equalTo(actualId));
-            assertThat(savedStream.getName(), equalTo("stream-0"));
+            assertThat(savedDeveloper.getId(), equalTo(actualId));
+            assertThat(savedDeveloper.getName(), equalTo("dev-0"));
         }
 
     }

@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.backend.infrastructure;
+package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
 import dev.coldhands.pair.stairs.backend.domain.AssignmentService;
 import dev.coldhands.pair.stairs.backend.domain.Developer;
