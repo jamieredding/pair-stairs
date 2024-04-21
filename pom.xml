@@ -12,6 +12,7 @@
     <modules>
         <module>core</module>
         <module>legacy</module>
+        <module>backend</module>
     </modules>
 
     <properties>
