@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.backend;
+package dev.coldhands.pair.stairs.backend.infrastructure;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.coldhands.pair.stairs.backend.domain.Developer;

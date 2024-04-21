@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.backend;
+package dev.coldhands.pair.stairs.backend.infrastructure;
 
 import dev.coldhands.pair.stairs.backend.domain.Developer;
 import org.springframework.beans.factory.annotation.Autowired;
