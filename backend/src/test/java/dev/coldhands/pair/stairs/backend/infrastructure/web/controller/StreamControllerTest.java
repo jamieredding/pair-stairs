@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web;
+package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.coldhands.pair.stairs.backend.domain.Stream;

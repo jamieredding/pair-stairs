@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web;
+package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import dev.coldhands.pair.stairs.backend.domain.*;
 import org.hamcrest.Matchers;

@@ -1,4 +1,4 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.persistance;
+package dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository;
 
 import dev.coldhands.pair.stairs.backend.domain.Developer;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,7 +1,7 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web;
+package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import dev.coldhands.pair.stairs.backend.domain.Developer;
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.DeveloperRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
