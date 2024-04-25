@@ -1,15 +1,8 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
-import dev.coldhands.pair.stairs.backend.domain.CombinationService;
-import dev.coldhands.pair.stairs.backend.domain.Developer;
-import dev.coldhands.pair.stairs.backend.domain.Stream;
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.PairStreamDto;
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationDto;
-import org.hamcrest.Matchers;
+import dev.coldhands.pair.stairs.backend.domain.*;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,12 +11,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = CombinationController.class)
@@ -38,82 +30,144 @@ public class CombinationControllerTest {
     @Nested
     class Calculate {
 
-        @Captor
-        ArgumentCaptor<List<Developer>> developersCaptor;
-        @Captor
-        ArgumentCaptor<List<Stream>> streamsCaptor;
-
         @Test
         void calculateCombinations() throws Exception {
             when(combinationService.calculate(any(), any(), anyInt()))
                     .thenReturn(List.of(
-                            new ScoredCombinationDto(0,
-                                    List.of(new PairStreamDto(List.of("dev-0", "dev-1"), "stream-a"),
-                                            new PairStreamDto(List.of("dev-2"), "stream-b"))
+                            new ScoredCombination(10,
+                                    List.of(new PairStream(
+                                                    List.of(
+                                                            new DeveloperInfo(0, "dev-0"),
+                                                            new DeveloperInfo(1, "dev-1")
+                                                    ),
+                                                    new StreamInfo(0, "stream-a")
+                                            ),
+                                            new PairStream(
+                                                    List.of(
+                                                            new DeveloperInfo(2, "dev-2")
+                                                    ),
+                                                    new StreamInfo(1, "stream-b")
+                                            ))
                             ),
-                            new ScoredCombinationDto(1,
-                                    List.of(new PairStreamDto(List.of("dev-0", "dev-2"), "stream-a"),
-                                            new PairStreamDto(List.of("dev-1"), "stream-b"))
+                            new ScoredCombination(20,
+                                    List.of(new PairStream(
+                                                    List.of(
+                                                            new DeveloperInfo(0, "dev-0"),
+                                                            new DeveloperInfo(2, "dev-2")
+                                                    ),
+                                                    new StreamInfo(0, "stream-a")
+                                            ),
+                                            new PairStream(
+                                                    List.of(
+                                                            new DeveloperInfo(1, "dev-1")
+                                                    ),
+                                                    new StreamInfo(1, "stream-b")
+                                            ))
                             )));
 
             mockMvc.perform(post("/api/v1/combinations/calculate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "developers": ["dev-0", "dev-1", "dev-2"],
-                                      "streams": ["stream-a", "stream-b"]
+                                      "developerIds": [0, 1, 2],
+                                      "streamIds": [0, 1]
                                     }""")
                     )
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(2))
-
-                    .andExpect(jsonPath("$.[0].score").value(0))
-                    .andExpect(jsonPath("$.[0].combinations[0].developers[0]").value("dev-0"))
-                    .andExpect(jsonPath("$.[0].combinations[0].developers[1]").value("dev-1"))
-                    .andExpect(jsonPath("$.[0].combinations[0].stream").value("stream-a"))
-                    .andExpect(jsonPath("$.[0].combinations[1].developers[0]").value("dev-2"))
-                    .andExpect(jsonPath("$.[0].combinations[1].developers[1]").doesNotExist())
-                    .andExpect(jsonPath("$.[0].combinations[1].stream").value("stream-b"))
-
-                    .andExpect(jsonPath("$.[1].score").value(1))
-                    .andExpect(jsonPath("$.[1].combinations[0].developers[0]").value("dev-0"))
-                    .andExpect(jsonPath("$.[1].combinations[0].developers[1]").value("dev-2"))
-                    .andExpect(jsonPath("$.[1].combinations[0].stream").value("stream-a"))
-                    .andExpect(jsonPath("$.[1].combinations[1].developers[0]").value("dev-1"))
-                    .andExpect(jsonPath("$.[1].combinations[1].developers[1]").doesNotExist())
-                    .andExpect(jsonPath("$.[1].combinations[1].stream").value("stream-b"))
+                    .andExpect(content().json("""
+                            [
+                              {
+                                "score": 10,
+                                "combination": [
+                                  {
+                                    "developers": [
+                                      {
+                                        "id": 0,
+                                        "displayName": "dev-0"
+                                      },
+                                      {
+                                        "id": 1,
+                                        "displayName": "dev-1"
+                                      }
+                                    ],
+                                    "stream": {
+                                      "id": 0,
+                                      "displayName": "stream-a"
+                                    }
+                                  },
+                                  {
+                                    "developers": [
+                                      {
+                                        "id": 2,
+                                        "displayName": "dev-2"
+                                      }
+                                    ],
+                                    "stream": {
+                                      "id": 1,
+                                      "displayName": "stream-b"
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "score": 20,
+                                "combination": [
+                                  {
+                                    "developers": [
+                                      {
+                                        "id": 0,
+                                        "displayName": "dev-0"
+                                      },
+                                      {
+                                        "id": 2,
+                                        "displayName": "dev-2"
+                                      }
+                                    ],
+                                    "stream": {
+                                      "id": 0,
+                                      "displayName": "stream-a"
+                                    }
+                                  },
+                                  {
+                                    "developers": [
+                                      {
+                                        "id": 1,
+                                        "displayName": "dev-1"
+                                      }
+                                    ],
+                                    "stream": {
+                                      "id": 1,
+                                      "displayName": "stream-b"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]"""))
             ;
 
-            verify(combinationService).calculate(developersCaptor.capture(), streamsCaptor.capture(), eq(0));
-
-            assertThat(developersCaptor.getValue().stream()
-                    .map(Developer::getName)
-                    .toList(), Matchers.contains("dev-0", "dev-1", "dev-2"));
-            assertThat(streamsCaptor.getValue().stream()
-                    .map(Stream::getName)
-                    .toList(), Matchers.contains("stream-a", "stream-b"));
+            verify(combinationService).calculate(eq(List.of(0L, 1L, 2L)), eq(List.of(0L, 1L)), eq(0));
         }
 
         @Test
         void calculateCombinationsRequestingPage2() throws Exception {
             when(combinationService.calculate(any(), any(), anyInt()))
                     .thenReturn(List.of(
-                            new ScoredCombinationDto(0, List.of()),
-                            new ScoredCombinationDto(1, List.of())));
+                            new ScoredCombination(0, List.of()),
+                            new ScoredCombination(1, List.of())));
 
             mockMvc.perform(post("/api/v1/combinations/calculate")
                             .queryParam("page", "2")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "developers": [],
-                                      "streams": []
+                                      "developerIds": [],
+                                      "streamIds": []
                                     }""")
                     )
                     .andExpect(status().isOk())
             ;
 
-            verify(combinationService).calculate(developersCaptor.capture(), streamsCaptor.capture(), eq(2));
+            verify(combinationService).calculate(any(), any(), eq(2));
         }
 
     }

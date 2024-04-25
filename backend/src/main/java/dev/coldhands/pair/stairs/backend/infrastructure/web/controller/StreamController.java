@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
-import dev.coldhands.pair.stairs.backend.domain.Stream;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +20,13 @@ public class StreamController {
     }
 
     @GetMapping
-    public List<Stream> getStreams() {
+    public List<StreamEntity> getStreams() {
         return repository.findAll();
     }
 
     @PostMapping
-    public ResponseEntity<Stream> saveStream(@RequestBody Stream stream) {
-        final Stream savedStream = repository.save(stream);
+    public ResponseEntity<StreamEntity> saveStream(@RequestBody StreamEntity stream) {
+        final StreamEntity savedStream = repository.save(stream);
 
         return ResponseEntity.status(201)
                 .body(savedStream);

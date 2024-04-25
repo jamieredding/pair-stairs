@@ -1,10 +1,8 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
-import dev.coldhands.pair.stairs.backend.domain.CalculateInput;
 import dev.coldhands.pair.stairs.backend.domain.CombinationService;
-import dev.coldhands.pair.stairs.backend.domain.Developer;
-import dev.coldhands.pair.stairs.backend.domain.Stream;
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationDto;
+import dev.coldhands.pair.stairs.backend.domain.ScoredCombination;
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,13 +21,13 @@ public class CombinationController {
     }
 
     @PostMapping("/calculate")
-    List<ScoredCombinationDto> calculate(@RequestParam("page") Optional<Integer> page,
-                                         @RequestBody CalculateInput calculateInput) {
-        int requestedPage = page.orElse(0);
+    List<ScoredCombination> calculate(@RequestParam("page") Optional<Integer> page,
+                                      @RequestBody CalculateInputDto request) {
+        final int requestedPage = page.orElse(0);
 
-        final List<Developer> developers = calculateInput.developers();
-        final List<Stream> streams = calculateInput.streams();
+        final List<Long> developerIds = request.developerIds();
+        final List<Long> streamIds = request.streamIds();
 
-        return combinationService.calculate(developers, streams, requestedPage);
+        return combinationService.calculate(developerIds, streamIds, requestedPage);
     }
 }

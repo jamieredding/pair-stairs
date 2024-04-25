@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.coldhands.pair.stairs.backend.domain.Developer;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,8 +47,8 @@ public class DeveloperControllerTest {
 
         @Test
         void whenMultipleDevelopersThenReturnThem() throws Exception {
-            final Long dev0Id = testEntityManager.persist(new Developer("dev-0")).getId();
-            final Long dev1Id = testEntityManager.persist(new Developer("dev-1")).getId();
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
 
             mockMvc.perform(get("/api/v1/developers"))
                     .andExpect(status().isOk())
@@ -84,9 +85,9 @@ public class DeveloperControllerTest {
                     .andReturn();
 
             final Developer developer = new ObjectMapper().readValue(result.getResponse().getContentAsString(), Developer.class);
-            final Long actualId = developer.getId();
+            final Long actualId = developer.id();
 
-            final Developer savedDeveloper = testEntityManager.find(Developer.class, actualId);
+            final DeveloperEntity savedDeveloper = testEntityManager.find(DeveloperEntity.class, actualId);
 
             assertThat(savedDeveloper.getId(), equalTo(actualId));
             assertThat(savedDeveloper.getName(), equalTo("dev-0"));

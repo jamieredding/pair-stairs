@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.coldhands.pair.stairs.backend.domain.Stream;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,8 +47,8 @@ public class StreamControllerTest {
 
         @Test
         void whenMultipleStreamsThenReturnThem() throws Exception {
-            final Long stream0Id = testEntityManager.persist(new Stream("stream-0")).getId();
-            final Long stream1Id = testEntityManager.persist(new Stream("stream-1")).getId();
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-0")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-1")).getId();
 
             mockMvc.perform(get("/api/v1/streams"))
                     .andExpect(status().isOk())
@@ -85,9 +86,9 @@ public class StreamControllerTest {
                     .andReturn();
 
             final Stream stream = new ObjectMapper().readValue(result.getResponse().getContentAsString(), Stream.class);
-            final Long actualId = stream.getId();
+            final Long actualId = stream.id();
 
-            final Stream savedStream = testEntityManager.find(Stream.class, actualId);
+            final StreamEntity savedStream = testEntityManager.find(StreamEntity.class, actualId);
 
             assertThat(savedStream.getId(), equalTo(actualId));
             assertThat(savedStream.getName(), equalTo("stream-0"));
