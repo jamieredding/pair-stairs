@@ -47,13 +47,15 @@ public class DeveloperControllerTest {
 
         @Test
         void whenMultipleDevelopersThenReturnThem() throws Exception {
-            testEntityManager.persist(new Developer("dev-0"));
-            testEntityManager.persist(new Developer("dev-1"));
+            final Long dev0Id = testEntityManager.persist(new Developer("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new Developer("dev-1")).getId();
 
             mockMvc.perform(get("/api/v1/developers"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2))
+                    .andExpect(jsonPath("$.[0].id").value(dev0Id))
                     .andExpect(jsonPath("$.[0].name").value("dev-0"))
+                    .andExpect(jsonPath("$.[1].id").value(dev1Id))
                     .andExpect(jsonPath("$.[1].name").value("dev-1"))
 
             ;

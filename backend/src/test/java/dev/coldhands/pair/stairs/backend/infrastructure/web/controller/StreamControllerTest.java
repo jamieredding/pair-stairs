@@ -47,13 +47,15 @@ public class StreamControllerTest {
 
         @Test
         void whenMultipleStreamsThenReturnThem() throws Exception {
-            testEntityManager.persist(new Stream("stream-0"));
-            testEntityManager.persist(new Stream("stream-1"));
+            final Long stream0Id = testEntityManager.persist(new Stream("stream-0")).getId();
+            final Long stream1Id = testEntityManager.persist(new Stream("stream-1")).getId();
 
             mockMvc.perform(get("/api/v1/streams"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2))
+                    .andExpect(jsonPath("$.[0].id").value(stream0Id))
                     .andExpect(jsonPath("$.[0].name").value("stream-0"))
+                    .andExpect(jsonPath("$.[1].id").value(stream1Id))
                     .andExpect(jsonPath("$.[1].name").value("stream-1"))
 
             ;
