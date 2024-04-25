@@ -19,8 +19,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,7 +41,7 @@ public class DeveloperControllerTest {
         void whenNoDevelopersThenReturnEmptyArray() throws Exception {
             mockMvc.perform(get("/api/v1/developers"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(0));
+                    .andExpect(content().json("[]"));
         }
 
         @Test
@@ -52,12 +51,17 @@ public class DeveloperControllerTest {
 
             mockMvc.perform(get("/api/v1/developers"))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.length()").value(2))
-                    .andExpect(jsonPath("$.[0].id").value(dev0Id))
-                    .andExpect(jsonPath("$.[0].name").value("dev-0"))
-                    .andExpect(jsonPath("$.[1].id").value(dev1Id))
-                    .andExpect(jsonPath("$.[1].name").value("dev-1"))
-
+                    .andExpect(content().json("""
+                            [
+                                {
+                                    "id": %s,
+                                    "name": "%s"
+                                },
+                                {
+                                    "id": %s,
+                                    "name": "%s"
+                                }
+                            ]""".formatted(dev0Id, "dev-0", dev1Id, "dev-1")))
             ;
         }
     }
