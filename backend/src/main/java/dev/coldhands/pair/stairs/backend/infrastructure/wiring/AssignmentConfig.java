@@ -1,9 +1,9 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
-import dev.coldhands.pair.stairs.backend.domain.AssignmentService;
+import dev.coldhands.pair.stairs.backend.domain.CombinationService;
 import dev.coldhands.pair.stairs.backend.domain.Developer;
-import dev.coldhands.pair.stairs.backend.domain.ScoredAssignment;
 import dev.coldhands.pair.stairs.backend.domain.Stream;
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationDto;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,10 +14,10 @@ public class AssignmentConfig {
 
     @Bean
     // todo WIP
-    public AssignmentService assignmentService() {
-        return new AssignmentService() {
+    public CombinationService assignmentService() {
+        return new CombinationService() {
             @Override
-            public List<ScoredAssignment> calculate(List<Developer> developers, List<Stream> streams, int page) {
+            public List<ScoredCombinationDto> calculate(List<Developer> developers, List<Stream> streams, int page) {
                 return List.of();
             }
         };
