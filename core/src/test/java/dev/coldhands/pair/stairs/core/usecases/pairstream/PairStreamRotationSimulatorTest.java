@@ -2,7 +2,6 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
 import com.google.common.collect.Sets;
 import dev.coldhands.pair.stairs.core.domain.Combination;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoreResult;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
@@ -61,7 +60,7 @@ class PairStreamRotationSimulatorTest {
         Collection<String> developers = List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev");
         Collection<String> streams = List.of("1-stream", "2-stream", "3-stream");
 
-        CombinationHistoryRepository<PairStream> repository = new InMemoryCombinationHistoryRepository<>();
+        InMemoryCombinationHistoryRepository<PairStream> repository = new InMemoryCombinationHistoryRepository<>();
 
         populateOldData(repository);
 
@@ -170,7 +169,7 @@ class PairStreamRotationSimulatorTest {
                 .collect(toMap(PairStream::stream, PairStream::developers));
     }
 
-    private void populateOldData(CombinationHistoryRepository<PairStream> repository) {
+    private void populateOldData(InMemoryCombinationHistoryRepository<PairStream> repository) {
         final LocalDate now = LocalDate.now();
         repository.saveCombination(new Combination<>(Set.of(
                 new PairStream(Set.of("a-dev", "f-dev"), "2-stream"),

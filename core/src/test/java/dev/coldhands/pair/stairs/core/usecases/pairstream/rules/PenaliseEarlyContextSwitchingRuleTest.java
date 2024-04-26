@@ -2,7 +2,6 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream.rules;
 
 import dev.coldhands.pair.stairs.core.BaseRuleTest;
 import dev.coldhands.pair.stairs.core.domain.Combination;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoringRule;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
@@ -17,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PenaliseEarlyContextSwitchingRuleTest implements BaseRuleTest<PairStream> {
 
-    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final InMemoryCombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
     private final PenaliseEarlyContextSwitchingRule underTest = new PenaliseEarlyContextSwitchingRule(combinationHistoryRepository);
 
     @Override

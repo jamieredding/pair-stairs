@@ -2,7 +2,6 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
 import com.google.common.math.Stats;
 import dev.coldhands.pair.stairs.core.domain.Combination;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.Metric;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
@@ -122,7 +121,7 @@ public class BenchmarkTest {
     }
 
     private static List<MetricData> simulateStartingFrom(Combination<PairStream> combination, Collection<String> developers, Collection<String> streams) {
-        CombinationHistoryRepository<PairStream> repository = new InMemoryCombinationHistoryRepository<>();
+        var repository = new InMemoryCombinationHistoryRepository<PairStream>();
         repository.saveCombination(combination, LocalDate.now());
 
         final PairStreamRotationSimulator pairStreamRotationSimulator = new PairStreamRotationSimulator(developers, streams, repository);

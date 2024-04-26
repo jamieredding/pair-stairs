@@ -1,7 +1,6 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
 import dev.coldhands.pair.stairs.core.domain.Combination;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 import org.junit.jupiter.api.Test;
@@ -15,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class PairStreamStatisticsServiceTest {
 
-    private final CombinationHistoryRepository<PairStream> repository = new InMemoryCombinationHistoryRepository<>();
+    private final InMemoryCombinationHistoryRepository<PairStream> repository = new InMemoryCombinationHistoryRepository<>();
     private PairStreamStatisticsService underTest;
 
     @Test

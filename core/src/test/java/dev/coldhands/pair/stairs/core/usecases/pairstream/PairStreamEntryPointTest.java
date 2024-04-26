@@ -1,7 +1,6 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
 import dev.coldhands.pair.stairs.core.domain.Combination;
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
@@ -18,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PairStreamEntryPointTest {
 
-    private final CombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
+    private final InMemoryCombinationHistoryRepository<PairStream> combinationHistoryRepository = new InMemoryCombinationHistoryRepository<>();
 
     @Test
     void calculateWithNoHistory() {

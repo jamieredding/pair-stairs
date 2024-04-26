@@ -1,9 +1,9 @@
 package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
-import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.RotationSimulator;
 import dev.coldhands.pair.stairs.core.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
+import dev.coldhands.pair.stairs.core.infrastructure.InMemoryCombinationHistoryRepository;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -11,12 +11,12 @@ import java.util.Collection;
 public class PairStreamRotationSimulator implements RotationSimulator<PairStream> {
 
     private final PairStreamEntryPoint entryPoint;
-    private final CombinationHistoryRepository<PairStream> repository;
+    private final InMemoryCombinationHistoryRepository<PairStream> repository;
     private final PairStreamStatisticsService statisticsService;
 
     private LocalDate today = LocalDate.now();
 
-    public PairStreamRotationSimulator(Collection<String> developers, Collection<String> streams, CombinationHistoryRepository<PairStream> repository) {
+    public PairStreamRotationSimulator(Collection<String> developers, Collection<String> streams, InMemoryCombinationHistoryRepository<PairStream> repository) {
         this.repository = repository;
         this.statisticsService = new PairStreamStatisticsService(repository, developers, streams, 5);
         this.entryPoint = new PairStreamEntryPoint(developers, streams, repository, statisticsService);

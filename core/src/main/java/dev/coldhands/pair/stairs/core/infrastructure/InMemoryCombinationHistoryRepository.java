@@ -13,7 +13,6 @@ public class InMemoryCombinationHistoryRepository<T> implements CombinationHisto
 
     private final SortedSet<CombinationEvent<T>> combinations = new TreeSet<>(Comparator.comparing(CombinationEvent::date));
 
-    @Override
     public void saveCombination(Combination<T> combination, LocalDate date) {
         combinations.add(new CombinationEvent<>(combination, date));
     }
