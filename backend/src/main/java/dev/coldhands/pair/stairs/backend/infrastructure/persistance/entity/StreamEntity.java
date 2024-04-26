@@ -17,6 +17,11 @@ public class StreamEntity {
         this.name = name;
     }
 
+    public StreamEntity(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     protected StreamEntity() {
     }
 

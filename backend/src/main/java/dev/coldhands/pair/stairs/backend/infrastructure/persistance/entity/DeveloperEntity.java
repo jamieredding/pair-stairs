@@ -17,6 +17,11 @@ public class DeveloperEntity {
         this.name = name;
     }
 
+    public DeveloperEntity(long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     protected DeveloperEntity() {
     }
 
