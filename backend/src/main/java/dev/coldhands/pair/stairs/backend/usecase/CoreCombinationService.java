@@ -23,12 +23,13 @@ public class CoreCombinationService implements CombinationService {
     private final DeveloperRepository developerRepository;
     private final StreamRepository streamRepository;
     private final EntryPointFactory entryPointFactory;
+    private final int pageSize;
 
-    public CoreCombinationService(DeveloperRepository developerRepository, StreamRepository streamRepository, EntryPointFactory entryPointFactory) {
-
+    public CoreCombinationService(DeveloperRepository developerRepository, StreamRepository streamRepository, EntryPointFactory entryPointFactory, int pageSize) {
         this.developerRepository = developerRepository;
         this.streamRepository = streamRepository;
         this.entryPointFactory = entryPointFactory;
+        this.pageSize = pageSize;
     }
 
     @Override
@@ -48,6 +49,8 @@ public class CoreCombinationService implements CombinationService {
         final ScoredCombinationMapper scoredCombinationMapper = new ScoredCombinationMapper(pairStreamMapper);
 
         return scoredCombinations.stream()
+                .skip((long) page * pageSize)
+                .limit(pageSize)
                 .map(scoredCombinationMapper::coreToDomain)
                 .toList();
     }
