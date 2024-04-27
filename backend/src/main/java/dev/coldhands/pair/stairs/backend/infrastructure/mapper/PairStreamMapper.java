@@ -2,26 +2,25 @@ package dev.coldhands.pair.stairs.backend.infrastructure.mapper;
 
 import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo;
 import dev.coldhands.pair.stairs.backend.domain.PairStream;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 
 import static java.util.Comparator.comparing;
 
-public class PairStreamMapper {
+public final class PairStreamMapper {
 
-    private final DeveloperMapper developerMapper;
-    private final StreamMapper streamMapper;
-
-    public PairStreamMapper(DeveloperMapper developerMapper, StreamMapper streamMapper) {
-        this.developerMapper = developerMapper;
-        this.streamMapper = streamMapper;
+    private PairStreamMapper() {
     }
 
-    public PairStream coreToDomain(dev.coldhands.pair.stairs.core.domain.pairstream.PairStream core) {
+    public static PairStream coreToDomain(dev.coldhands.pair.stairs.core.domain.pairstream.PairStream core,
+                                   LookupById<DeveloperEntity> developerLookup,
+                                   LookupById<StreamEntity> streamLookup) {
         return new PairStream(
                 core.developers().stream()
-                        .map(developerMapper::coreToInfo)
+                        .map(developerId -> DeveloperMapper.coreToInfo(developerId, developerLookup))
                         .sorted(comparing(DeveloperInfo::displayName))
                         .toList(),
-                streamMapper.coreToInfo(core.stream())
+                StreamMapper.coreToInfo(core.stream(), streamLookup)
         );
     }
 }

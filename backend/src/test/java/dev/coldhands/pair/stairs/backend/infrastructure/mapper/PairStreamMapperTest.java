@@ -17,15 +17,11 @@ class PairStreamMapperTest {
 
     @Test
     void canMapFromCoreToDomain() {
-        final PairStreamMapper underTest = new PairStreamMapper(
-                new DeveloperMapper(Map.of(
-                        0L, new DeveloperEntity(0L, "dev-0")
-                )),
-                new StreamMapper(Map.of(
-                        0L, new StreamEntity(0L, "stream-a")
-                )));
+        LookupById<DeveloperEntity> developerLookup = _ -> new DeveloperEntity(0L, "dev-0");
+        LookupById<StreamEntity> streamLookup = _ -> new StreamEntity(0L, "stream-a");
 
-        final dev.coldhands.pair.stairs.backend.domain.PairStream actual = underTest.coreToDomain(new PairStream(Set.of("0"), "0"));
+        final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.coreToDomain(new PairStream(Set.of("0"), "0"),
+                developerLookup, streamLookup);
 
         assertThat(actual).isEqualTo(new dev.coldhands.pair.stairs.backend.domain.PairStream(
                 List.of(
@@ -37,17 +33,19 @@ class PairStreamMapperTest {
 
     @Test
     void willSortDevelopersByDisplayNameAlphabetically() {
-        final PairStreamMapper underTest = new PairStreamMapper(
-                new DeveloperMapper(Map.of(
+        LookupById<DeveloperEntity> developerLookup = id ->
+                Map.of(
                         0L, new DeveloperEntity(0L, "a"),
                         1L, new DeveloperEntity(1L, "b"),
                         2L, new DeveloperEntity(2L, "c")
-                )),
-                new StreamMapper(Map.of(
+                ).get(id);
+        LookupById<StreamEntity> streamLookup = id ->
+                Map.of(
                         0L, new StreamEntity(0L, "stream-a")
-                )));
+                ).get(id);
 
-        final dev.coldhands.pair.stairs.backend.domain.PairStream actual = underTest.coreToDomain(new PairStream(Set.of("0", "1", "2"), "0"));
+        final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.coreToDomain(new PairStream(Set.of("0", "1", "2"), "0"),
+                developerLookup, streamLookup);
 
         assertThat(actual.developers()).isEqualTo(List.of(
                 new DeveloperInfo(0, "a"),

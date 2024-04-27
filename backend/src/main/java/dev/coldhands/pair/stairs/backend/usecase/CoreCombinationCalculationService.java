@@ -2,10 +2,7 @@ package dev.coldhands.pair.stairs.backend.usecase;
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination;
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper;
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.PairStreamMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.ScoredCombinationMapper;
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.StreamMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository;
@@ -43,28 +40,16 @@ public class CoreCombinationCalculationService implements CombinationCalculation
 
         final List<dev.coldhands.pair.stairs.core.domain.ScoredCombination<PairStream>> scoredCombinations = entryPoint.computeScoredCombinations();
 
-        final DeveloperMapper developerMapper = getDeveloperMapper(developerIds);
-        final StreamMapper streamMapper = getStreamMapper(streamIds);
-        final PairStreamMapper pairStreamMapper = new PairStreamMapper(developerMapper, streamMapper);
-        final ScoredCombinationMapper scoredCombinationMapper = new ScoredCombinationMapper(pairStreamMapper);
+        final Map<Long, DeveloperEntity> developerLookup = developerRepository.findAllById(developerIds).stream()
+                .collect(toMap(DeveloperEntity::getId, d -> d));
+        final Map<Long, StreamEntity> streamLookup = streamRepository.findAllById(streamIds).stream()
+                .collect(toMap(StreamEntity::getId, s -> s));
 
         return scoredCombinations.stream()
                 .skip((long) page * pageSize)
                 .limit(pageSize)
-                .map(scoredCombinationMapper::coreToDomain)
+                .map(sc -> ScoredCombinationMapper.coreToDomain(sc, developerLookup::get, streamLookup::get))
                 .toList();
-    }
-
-    private StreamMapper getStreamMapper(List<Long> streamIds) {
-        final Map<Long, StreamEntity> streamLookup = streamRepository.findAllById(streamIds).stream()
-                .collect(toMap(StreamEntity::getId, s -> s));
-        return new StreamMapper(streamLookup);
-    }
-
-    private DeveloperMapper getDeveloperMapper(List<Long> developerIds) {
-        final Map<Long, DeveloperEntity> developerLookup = developerRepository.findAllById(developerIds).stream()
-                .collect(toMap(DeveloperEntity::getId, d -> d));
-        return new DeveloperMapper(developerLookup);
     }
 
     private static List<String> asStrings(List<Long> ids) {

@@ -19,24 +19,24 @@ class ScoredCombinationMapperTest {
 
     @Test
     void canMapFromCoreToDomain() {
-        final DeveloperMapper developerMapper = new DeveloperMapper(Map.of(
-                0L, new DeveloperEntity(0L, "dev-0"),
-                1L, new DeveloperEntity(1L, "dev-1")
-        ));
-        final StreamMapper streamMapper = new StreamMapper(Map.of(
-                0L, new StreamEntity(0L, "stream-a"),
-                1L, new StreamEntity(1L, "stream-b")
-        ));
-        final ScoredCombinationMapper underTest = new ScoredCombinationMapper(
-                new PairStreamMapper(developerMapper, streamMapper));
+        LookupById<DeveloperEntity> developerLookup = id ->
+                Map.of(
+                        0L, new DeveloperEntity(0L, "dev-0"),
+                        1L, new DeveloperEntity(1L, "dev-1")
+                ).get(id);
+        LookupById<StreamEntity> streamLookup = id ->
+                Map.of(
+                        0L, new StreamEntity(0L, "stream-a"),
+                        1L, new StreamEntity(1L, "stream-b")
+                ).get(id);
 
-        final ScoredCombination actual = underTest.coreToDomain(new dev.coldhands.pair.stairs.core.domain.ScoredCombination<>(
+        final ScoredCombination actual = ScoredCombinationMapper.coreToDomain(new dev.coldhands.pair.stairs.core.domain.ScoredCombination<>(
                 new Combination<>(Set.of(
                         new PairStream(Set.of("0"), "0"),
                         new PairStream(Set.of("1"), "1"))),
                 10,
                 List.of()
-        ));
+        ), developerLookup, streamLookup);
 
         assertThat(actual).isEqualTo(new ScoredCombination(10,
                 List.of(new dev.coldhands.pair.stairs.backend.domain.PairStream(
@@ -57,25 +57,25 @@ class ScoredCombinationMapperTest {
 
     @Test
     void willSortPairStreamsByStreamDisplayName() {
-        final DeveloperMapper developerMapper = new DeveloperMapper(Map.of(
-                0L, new DeveloperEntity(0L, "")
-        ));
-        final StreamMapper streamMapper = new StreamMapper(Map.of(
-                0L, new StreamEntity(0L, "a"),
-                1L, new StreamEntity(1L, "b"),
-                2L, new StreamEntity(2L, "c")
-        ));
-        final ScoredCombinationMapper underTest = new ScoredCombinationMapper(
-                new PairStreamMapper(developerMapper, streamMapper));
+        LookupById<DeveloperEntity> developerLookup = id ->
+                Map.of(
+                        0L, new DeveloperEntity(0L, "")
+                ).get(id);
+        LookupById<StreamEntity> streamLookup = id ->
+                Map.of(
+                        0L, new StreamEntity(0L, "a"),
+                        1L, new StreamEntity(1L, "b"),
+                        2L, new StreamEntity(2L, "c")
+                ).get(id);
 
-        final ScoredCombination actual = underTest.coreToDomain(new dev.coldhands.pair.stairs.core.domain.ScoredCombination<>(
+        final ScoredCombination actual = ScoredCombinationMapper.coreToDomain(new dev.coldhands.pair.stairs.core.domain.ScoredCombination<>(
                 new Combination<>(Set.of(
                         new PairStream(Set.of("0"), "0"),
                         new PairStream(Set.of("0"), "1"),
                         new PairStream(Set.of("0"), "2"))),
                 0,
                 List.of()
-        ));
+        ), developerLookup, streamLookup);
 
         final List<String> streamDisplayNames = actual.combination().stream()
                 .map(dev.coldhands.pair.stairs.backend.domain.PairStream::stream)
