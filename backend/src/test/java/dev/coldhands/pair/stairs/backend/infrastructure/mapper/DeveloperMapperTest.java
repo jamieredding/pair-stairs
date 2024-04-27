@@ -14,4 +14,9 @@ class DeveloperMapperTest {
 
         assertThat(DeveloperMapper.coreToInfo("0", lookupById)).isEqualTo(new DeveloperInfo(0L, "dev-0"));
     }
+
+    @Test
+    void useEntityIdAsCoreDeveloperName() {
+        assertThat(DeveloperMapper.entityToCore(new DeveloperEntity(0L, "dev-0"))).isEqualTo("0");
+    }
 }

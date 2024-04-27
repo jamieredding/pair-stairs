@@ -12,4 +12,8 @@ public final class StreamMapper {
         final StreamEntity entity = lookupById.lookup(Long.parseLong(id));
         return new StreamInfo(entity.getId(), entity.getName());
     }
+
+    public static String entityToCore(StreamEntity entity) {
+        return entity.getId().toString();
+    }
 }

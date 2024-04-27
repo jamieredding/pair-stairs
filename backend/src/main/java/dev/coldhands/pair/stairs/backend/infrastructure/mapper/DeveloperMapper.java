@@ -12,4 +12,8 @@ public final class DeveloperMapper {
         final DeveloperEntity entity = lookupById.lookup(Long.parseLong(id));
         return new DeveloperInfo(entity.getId(), entity.getName());
     }
+
+    public static String entityToCore(DeveloperEntity entity) {
+        return entity.getId().toString();
+    }
 }

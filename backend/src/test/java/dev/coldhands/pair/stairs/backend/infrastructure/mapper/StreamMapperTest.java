@@ -14,4 +14,9 @@ class StreamMapperTest {
 
         assertThat(StreamMapper.coreToInfo("0", lookupById)).isEqualTo(new StreamInfo(0L, "stream-a"));
     }
+
+    @Test
+    void useEntityIdAsCoreStreamName() {
+        assertThat(StreamMapper.entityToCore(new StreamEntity(0L, "stream-a"))).isEqualTo("0");
+    }
 }
