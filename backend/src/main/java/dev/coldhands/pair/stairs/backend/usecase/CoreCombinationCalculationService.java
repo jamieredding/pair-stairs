@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.backend.usecase;
 
-import dev.coldhands.pair.stairs.backend.domain.CombinationService;
+import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.PairStreamMapper;
@@ -18,14 +18,14 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toMap;
 
-public class CoreCombinationService implements CombinationService {
+public class CoreCombinationCalculationService implements CombinationCalculationService {
 
     private final DeveloperRepository developerRepository;
     private final StreamRepository streamRepository;
     private final EntryPointFactory entryPointFactory;
     private final int pageSize;
 
-    public CoreCombinationService(DeveloperRepository developerRepository, StreamRepository streamRepository, EntryPointFactory entryPointFactory, int pageSize) {
+    public CoreCombinationCalculationService(DeveloperRepository developerRepository, StreamRepository streamRepository, EntryPointFactory entryPointFactory, int pageSize) {
         this.developerRepository = developerRepository;
         this.streamRepository = streamRepository;
         this.entryPointFactory = entryPointFactory;

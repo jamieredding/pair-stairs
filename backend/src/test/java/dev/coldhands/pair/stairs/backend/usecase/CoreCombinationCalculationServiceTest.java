@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class CoreCombinationServiceTest {
+class CoreCombinationCalculationServiceTest {
 
     @Mock
     private EntryPointFactory entryPointFactory;
@@ -35,11 +35,11 @@ class CoreCombinationServiceTest {
     @Mock
     private StreamRepository streamRepository;
 
-    private CoreCombinationService underTest;
+    private CoreCombinationCalculationService underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new CoreCombinationService(developerRepository, streamRepository, entryPointFactory, 10);
+        underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory, 10);
     }
 
     @Test
@@ -132,7 +132,7 @@ class CoreCombinationServiceTest {
 
             final int pageSize = 2;
             final int requestedPage = 0;
-            final CoreCombinationService underTest = new CoreCombinationService(developerRepository, streamRepository, entryPointFactory, pageSize);
+            final CoreCombinationCalculationService underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory, pageSize);
 
             final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L), List.of(0L), requestedPage);
             final List<Integer> scores = scoredCombinations.stream()
@@ -162,7 +162,7 @@ class CoreCombinationServiceTest {
 
             final int pageSize = 2;
             final int requestedPage = 1;
-            final CoreCombinationService underTest = new CoreCombinationService(developerRepository, streamRepository, entryPointFactory, pageSize);
+            final CoreCombinationCalculationService underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory, pageSize);
 
             final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L), List.of(0L), requestedPage);
             final List<Integer> scores = scoredCombinations.stream()

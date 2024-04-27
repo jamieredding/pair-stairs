@@ -18,21 +18,21 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = CombinationController.class)
-public class CombinationControllerTest {
+@WebMvcTest(controllers = CombinationCalculationController.class)
+public class CombinationCalculationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private CombinationService combinationService;
+    private CombinationCalculationService service;
 
     @Nested
     class Calculate {
 
         @Test
         void calculateCombinations() throws Exception {
-            when(combinationService.calculate(any(), any(), anyInt()))
+            when(service.calculate(any(), any(), anyInt()))
                     .thenReturn(List.of(
                             new ScoredCombination(10,
                                     List.of(new PairStream(
@@ -145,12 +145,12 @@ public class CombinationControllerTest {
                             ]"""))
             ;
 
-            verify(combinationService).calculate(eq(List.of(0L, 1L, 2L)), eq(List.of(0L, 1L)), eq(0));
+            verify(service).calculate(eq(List.of(0L, 1L, 2L)), eq(List.of(0L, 1L)), eq(0));
         }
 
         @Test
         void calculateCombinationsRequestingPage2() throws Exception {
-            when(combinationService.calculate(any(), any(), anyInt()))
+            when(service.calculate(any(), any(), anyInt()))
                     .thenReturn(List.of(
                             new ScoredCombination(0, List.of()),
                             new ScoredCombination(1, List.of())));
@@ -167,7 +167,7 @@ public class CombinationControllerTest {
                     .andExpect(status().isOk())
             ;
 
-            verify(combinationService).calculate(any(), any(), eq(2));
+            verify(service).calculate(any(), any(), eq(2));
         }
 
     }
