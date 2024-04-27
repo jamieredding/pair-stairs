@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
+import dev.coldhands.pair.stairs.backend.usecase.BackendCombinationHistoryRepository;
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -42,5 +43,10 @@ public class CombinationConfig {
     @Bean
     public CombinationEventService combinationEventService() {
         return new CombinationEventService(developerRepository, streamRepository, pairStreamRepository, combinationRepository, combinationEventRepository);
+    }
+
+    @Bean
+    public BackendCombinationHistoryRepository backendCombinationHistoryRepository() {
+        return new BackendCombinationHistoryRepository(combinationEventRepository);
     }
 }
