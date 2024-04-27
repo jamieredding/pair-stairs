@@ -9,7 +9,10 @@ public final class StreamMapper {
     }
 
     public static StreamInfo coreToInfo(String id, LookupById<StreamEntity> lookupById) {
-        final StreamEntity entity = lookupById.lookup(Long.parseLong(id));
+        return entityToInfo(lookupById.lookup(Long.parseLong(id)));
+    }
+
+    public static StreamInfo entityToInfo(StreamEntity entity) {
         return new StreamInfo(entity.getId(), entity.getName());
     }
 

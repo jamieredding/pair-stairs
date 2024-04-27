@@ -6,8 +6,6 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.C
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationHistoryRepository;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -21,9 +19,7 @@ public class BackendCombinationHistoryRepository implements CombinationHistoryRe
 
     @Override
     public List<Combination<PairStream>> getMostRecentCombinations(int count) {
-        final PageRequest pageRequest = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "date"));
-
-        final List<CombinationEventEntity> entities = repository.findAll(pageRequest).toList();
+        final List<CombinationEventEntity> entities = repository.getMostRecentCombinationEvents(count);
 
         return entities.stream()
                 .map(CombinationEventEntity::getCombination)

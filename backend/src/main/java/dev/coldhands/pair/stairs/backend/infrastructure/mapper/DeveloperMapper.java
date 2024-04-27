@@ -9,7 +9,10 @@ public final class DeveloperMapper {
     }
 
     public static DeveloperInfo coreToInfo(String id, LookupById<DeveloperEntity> lookupById) {
-        final DeveloperEntity entity = lookupById.lookup(Long.parseLong(id));
+        return entityToInfo(lookupById.lookup(Long.parseLong(id)));
+    }
+
+    public static DeveloperInfo entityToInfo(DeveloperEntity entity) {
         return new DeveloperInfo(entity.getId(), entity.getName());
     }
 

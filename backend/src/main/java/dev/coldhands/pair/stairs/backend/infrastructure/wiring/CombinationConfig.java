@@ -1,15 +1,14 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
-import dev.coldhands.pair.stairs.backend.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
 import dev.coldhands.pair.stairs.backend.usecase.BackendCombinationHistoryRepository;
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
+import dev.coldhands.pair.stairs.backend.usecase.CoreCombinationCalculationService;
+import dev.coldhands.pair.stairs.backend.usecase.EntryPointFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
 
 @Configuration
 public class CombinationConfig {
@@ -30,14 +29,11 @@ public class CombinationConfig {
     }
 
     @Bean
-    // todo WIP
     public CombinationCalculationService combinationCalculationService() {
-        return new CombinationCalculationService() {
-            @Override
-            public List<ScoredCombination> calculate(List<Long> developerIds, List<Long> streamIds, int page) {
-                return List.of();
-            }
-        };
+        return new CoreCombinationCalculationService(developerRepository,
+                streamRepository,
+                new EntryPointFactory(backendCombinationHistoryRepository()),
+                3); // todo stop hardcoding 3
     }
 
     @Bean

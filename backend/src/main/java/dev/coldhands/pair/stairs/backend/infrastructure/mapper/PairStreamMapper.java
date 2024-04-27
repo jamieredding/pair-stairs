@@ -28,6 +28,15 @@ public final class PairStreamMapper {
         );
     }
 
+    public static PairStream entityToInfo(PairStreamEntity entity) {
+        return new PairStream(
+                entity.getDevelopers().stream()
+                        .map(DeveloperMapper::entityToInfo) // todo should thi also sort the developers or should they be sorted in the entity already
+                        .toList(),
+                StreamMapper.entityToInfo(entity.getStream())
+        );
+    }
+
     public static dev.coldhands.pair.stairs.core.domain.pairstream.PairStream entityToCore(PairStreamEntity entity) {
         final Set<String> developerIds = entity.getDevelopers().stream()
                 .map(DeveloperMapper::entityToCore)

@@ -61,6 +61,27 @@ class PairStreamMapperTest {
     }
 
     @Nested
+    class EntityToInfo {
+
+        @Test
+        void canMapFromEntityToInfo() {
+            final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.entityToInfo(
+                    new PairStreamEntity(
+                            List.of(new DeveloperEntity(0L, "dev-0"), new DeveloperEntity(1L, "dev-1")),
+                            new StreamEntity(10L, "stream-a")
+                    ));
+
+            assertThat(actual).isEqualTo(new dev.coldhands.pair.stairs.backend.domain.PairStream(
+                    List.of(
+                            new DeveloperInfo(0, "dev-0"),
+                            new DeveloperInfo(1, "dev-1")
+                    ),
+                    new StreamInfo(10, "stream-a")
+            ));
+        }
+    }
+
+    @Nested
     class EntityToCore {
 
         @Test

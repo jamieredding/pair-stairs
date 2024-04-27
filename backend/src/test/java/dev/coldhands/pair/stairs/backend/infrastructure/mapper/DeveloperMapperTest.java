@@ -16,6 +16,11 @@ class DeveloperMapperTest {
     }
 
     @Test
+    void canMapEntityToInfo() {
+        assertThat(DeveloperMapper.entityToInfo(new DeveloperEntity(0L, "dev-0"))).isEqualTo(new DeveloperInfo(0L, "dev-0"));
+    }
+
+    @Test
     void useEntityIdAsCoreDeveloperName() {
         assertThat(DeveloperMapper.entityToCore(new DeveloperEntity(0L, "dev-0"))).isEqualTo("0");
     }
