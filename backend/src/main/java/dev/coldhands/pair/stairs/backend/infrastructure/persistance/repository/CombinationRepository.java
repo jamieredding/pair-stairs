@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface CombinationRepository extends JpaRepository<CombinationEntity, Long> {
 
-    @Query("SELECT c FROM CombinationEntity c JOIN c.pairs p WHERE p.id IN :pairStreamIds GROUP BY p HAVING COUNT(p) = :count")
+    @Query("SELECT c FROM CombinationEntity c WHERE :count = " +
+           "(SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs) AND p.id IN :pairStreamIds) " +
+           "AND :count = (SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs))")
     List<CombinationEntity> findByPairStreams(@Param("pairStreamIds") List<Long> pairStreamIds, @Param("count") long count);
 }

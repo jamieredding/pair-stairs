@@ -11,8 +11,6 @@ import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationE
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -29,10 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@AutoConfigureTestDatabase
-@AutoConfigureTestEntityManager
 @Transactional
-public class AcceptanceTest {
+public abstract class AbstractAcceptanceTest {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -143,7 +139,6 @@ public class AcceptanceTest {
                 .getPairs()).hasSize(2);
     }
 
-    // todo test with a real database?
     // todo test packaging the application
 
     private void createDeveloper(String developerName) throws Exception {

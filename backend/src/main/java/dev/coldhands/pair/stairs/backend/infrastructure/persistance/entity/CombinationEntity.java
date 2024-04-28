@@ -5,10 +5,11 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "combinations")
 public class CombinationEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToMany(cascade = CascadeType.ALL)
