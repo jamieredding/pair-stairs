@@ -139,8 +139,6 @@ public abstract class AbstractAcceptanceTest {
                 .getPairs()).hasSize(2);
     }
 
-    // todo test packaging the application
-
     private void createDeveloper(String developerName) throws Exception {
         mockMvc.perform(post("/api/v1/developers")
                 .contentType(MediaType.APPLICATION_JSON)
