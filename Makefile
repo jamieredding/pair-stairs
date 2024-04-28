@@ -40,5 +40,4 @@ build-project:
 
 stop-database:
 	@echo "Stopping MySQL database container..."
-	@docker stop $(DB_CONTAINER_NAME) || (echo "Failed to stop MySQL container." ; exit 1)
-	@echo "Stopped."
+	@(docker stop $(DB_CONTAINER_NAME) && echo "Stopped.") || echo "No container to stop."
