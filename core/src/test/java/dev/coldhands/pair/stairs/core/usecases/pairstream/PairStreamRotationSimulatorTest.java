@@ -134,7 +134,7 @@ class PairStreamRotationSimulatorTest {
         }
         result.occurrencesPerPair().entrySet().stream()
                 .map(entry -> new PrettyEntry(entry.getKey().stream().sorted().toList(), entry.getValue()))
-                .sorted(Comparator.comparing((PrettyEntry entry) -> entry.pair.getFirst()).thenComparing((PrettyEntry entry) -> entry.pair.get(1)))
+                .sorted(Comparator.comparing((PrettyEntry entry) -> entry.pair.getFirst()).thenComparing((PrettyEntry entry) -> entry.pair.stream().skip(1).findFirst().orElse("")))
                 .forEach((entry) -> System.out.println(STR."\{entry.pair} = \{entry.count}"));
         System.out.println("-".repeat(20));
     }

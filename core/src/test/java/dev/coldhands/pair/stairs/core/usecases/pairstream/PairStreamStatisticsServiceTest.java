@@ -140,6 +140,31 @@ class PairStreamStatisticsServiceTest {
     }
 
     @Test
+    // this was to resolve a null pointer
+    // if we need to have this value not be zero then the statistics service needs changing how it works
+    void whenSomeoneIsOffThenForgetThemInGetRecentOccurrenceOfDeveloperInStream() {
+        final List<String> developers = List.of("a-dev", "b-dev", "c-dev");
+        final List<String> streams = List.of("1-stream", "2-stream");
+
+        initialiseUnderTest(
+                developers,
+                streams,
+                5
+        );
+
+        final LocalDate now = LocalDate.now();
+
+        repository.saveCombination(new Combination<>(Set.of(
+                new PairStream(Set.of("a-dev", "b-dev"), "1-stream"),
+                new PairStream(Set.of("c-dev", "d-dev"), "2-stream")
+        )), now);
+
+        underTest.updateStatistics();
+
+        assertThat(underTest.getRecentOccurrenceOfDeveloperInStream("d-dev", "2-stream")).isEqualTo(0);
+    }
+
+    @Test
     void canConfigureNumberOfPreviousCombinationsToConsider() {
         final List<String> developers = List.of("a-dev", "b-dev", "c-dev");
         final List<String> streams = List.of("1-stream", "2-stream");

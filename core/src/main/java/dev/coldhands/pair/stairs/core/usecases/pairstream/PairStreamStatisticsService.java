@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toMap;
 
 public class PairStreamStatisticsService {
@@ -38,12 +39,14 @@ public class PairStreamStatisticsService {
     }
 
     public int getRecentOccurrenceOfDeveloperInStream(String developer, String stream) {
-        return developerToDaysInStream.get(developer).get(stream);
+        return ofNullable(developerToDaysInStream.get(developer))
+                .map(countPerStream -> countPerStream.get(stream))
+                .orElse(0);
     }
 
     private void updateOccurrencesPerPair(List<Combination<PairStream>> combinations) {
         recentPairOccurrences.forEach((pair, _) -> {
-            recentPairOccurrences.merge(pair, 0, (_, zeroCount)  -> zeroCount);
+            recentPairOccurrences.merge(pair, 0, (_, zeroCount) -> zeroCount);
         });
 
 
@@ -67,7 +70,7 @@ public class PairStreamStatisticsService {
         return allDeveloperPairs;
     }
 
-//    // todo extract and more efficient
+    // todo extract and more efficient
     private void updateDeveloperToDaysInStream(List<Combination<PairStream>> combinations) {
         developerToDaysInStream.forEach((developer, _) -> {
             final Map<String, Integer> developerStreamCounts = developerToDaysInStream.get(developer);
@@ -81,8 +84,10 @@ public class PairStreamStatisticsService {
                 .flatMap(Collection::stream)
                 .forEach(pair -> {
                     pair.developers().forEach(developer -> {
-                        final Map<String, Integer> countPerStream = developerToDaysInStream.get(developer);
-                        countPerStream.merge(pair.stream(), 1, Integer::sum);
+                        ofNullable(developerToDaysInStream.get(developer))
+                                .ifPresent(countPerStream ->
+                                        countPerStream.merge(pair.stream(), 1, Integer::sum)
+                                );
                     });
                 });
 

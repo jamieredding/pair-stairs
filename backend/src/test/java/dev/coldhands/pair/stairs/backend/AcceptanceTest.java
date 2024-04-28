@@ -143,8 +143,6 @@ public class AcceptanceTest {
                 .getPairs()).hasSize(2);
     }
 
-    // todo yesterday someone was off
-    // todo today someone is off
     // todo test with a real database?
     // todo test packaging the application
 
