@@ -11,15 +11,20 @@ const streams = [
 ]
 
 interface ChooseStreamsProps {
-    savedStreamIds: number[],
-    setSavedStreamIds: (_: (prev: number[]) => number[]) => any,
+    savedStreamIds?: number[],
+    setSavedStreamIds: (newStreamIds: number[]) => any,
     updateForm: (value: (((prevState: number) => number) | number)) => void
 }
 
 export default function ChooseStreams({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsProps) {
     const allStreams = streams;
-    const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>(() => allStreams.map(dev => dev.id));
+    const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>(() => savedStreamIds || allStreams.map(dev => dev.id));
     const [addingNewStream, setAddingNewStream] = useState<boolean>(false)
+
+    function progressForm(direction: number) {
+        setSavedStreamIds(selectedStreamIds);
+        updateForm(prevState => prevState + direction)
+    }
 
     return (
         <Stack gap={1}>
@@ -28,7 +33,7 @@ export default function ChooseStreams({savedStreamIds, setSavedStreamIds, update
                                  setSelectedIds={setSelectedStreamIds}/>
             <Divider/>
             <Stack direction="row" gap={1}>
-                <Button variant="outlined" onClick={() => updateForm(prevState => prevState - 1)}>
+                <Button variant="outlined" onClick={() => progressForm(-1)}>
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
                 </Button>

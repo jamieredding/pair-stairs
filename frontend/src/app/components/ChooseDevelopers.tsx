@@ -15,15 +15,20 @@ const developers = [
 ]
 
 interface ChooseDeveloperProps {
-    savedDeveloperIds: number[],
-    setSavedDeveloperIds: (_: (prev: number[]) => number[]) => any,
+    savedDeveloperIds?: number[],
+    setSavedDeveloperIds: (newDeveloperIds: number[]) => any,
     updateForm: (value: ((prevState: number) => number)) => void
 }
 
 export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperProps) {
     const allDevelopers = developers;
-    const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => allDevelopers.map(dev => dev.id));
+    const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => savedDeveloperIds || allDevelopers.map(dev => dev.id));
     const [addingNewDeveloper, setAddingNewDeveloper] = useState<boolean>(false)
+
+    function progressForm() {
+        setSavedDeveloperIds(selectedDeveloperIds);
+        updateForm(prevState => prevState + 1)
+    }
 
     return (
         <Stack gap={1}>
@@ -39,7 +44,7 @@ export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperId
                 </Button>
 
                 <Button variant="contained"
-                        onClick={() => updateForm(prevState => prevState + 1)}
+                        onClick={progressForm}
                 >
                     Next
                     <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>

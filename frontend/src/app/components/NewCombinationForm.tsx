@@ -8,8 +8,8 @@ import ChooseStreams from "@/app/components/ChooseStreams";
 
 
 export default function NewCombinationForm() {
-    const [savedDeveloperIds, setSavedDeveloperIds] = useState<number[]>([])
-    const [savedStreamIds, setSavedStreamIds] = useState<number[]>([])
+    const [savedDeveloperIds, setSavedDeveloperIds] = useState<number[]>()
+    const [savedStreamIds, setSavedStreamIds] = useState<number[]>()
     const [formStage, setFormStage] = useState<number>(0)
 
     return (
