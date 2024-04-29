@@ -1,0 +1,29 @@
+services:
+  backend:
+    image: backend-manual:latest
+    hostname: backend
+    container_name: pair_stairs_backend
+    restart: unless-stopped
+    env_file: docker-compose.env
+    networks:
+      - pair_stairs
+    ports:
+      - "18081:8080"
+    depends_on:
+      - db
+  db:
+    image: mysql:8.3.0
+    hostname: db
+    container_name: pair_stairs_db
+    restart: unless-stopped
+    env_file: docker-compose.env
+    networks:
+      - pair_stairs
+    volumes:
+      - pair_stairs_db:/var/lib/mysql
+
+volumes:
+  pair_stairs_db:
+
+networks:
+  pair_stairs:

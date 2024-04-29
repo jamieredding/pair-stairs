@@ -1,0 +1,5 @@
+GET {{baseUrl}}/api/v1/developers
+
+###
+
+GET {{baseUrl}}/api/v1/streams
