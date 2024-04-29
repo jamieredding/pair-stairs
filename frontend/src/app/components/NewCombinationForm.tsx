@@ -5,6 +5,7 @@ import ChooseDevelopers from "@/app/components/ChooseDevelopers";
 import Grid from "@mui/system/Unstable_Grid";
 import {useState} from "react";
 import ChooseStreams from "@/app/components/ChooseStreams";
+import ChooseCombination from "@/app/components/ChooseCombination";
 
 
 export default function NewCombinationForm() {
@@ -25,7 +26,12 @@ export default function NewCombinationForm() {
                         {formStage === 1 &&
                             <ChooseStreams savedStreamIds={savedStreamIds}
                                            setSavedStreamIds={setSavedStreamIds}
-                            updateForm={setFormStage}/>
+                                           updateForm={setFormStage}/>
+                        }
+                        {formStage === 2 &&
+                            <ChooseCombination developerIds={savedDeveloperIds as number[]}
+                                               streamIds={savedStreamIds as number[]}
+                                               updateForm={setFormStage}/>
                         }
                     </CardContent>
                 </Card>

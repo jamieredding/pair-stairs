@@ -1,7 +1,7 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
 import {useState} from "react";
-import {ArrowBack, ArrowForward, PersonAdd} from "@mui/icons-material";
+import {ArrowBack, List, PostAdd} from "@mui/icons-material";
 import AddNewStream from "@/app/components/AddNewStream";
 
 const streams = [
@@ -39,13 +39,13 @@ export default function ChooseStreams({savedStreamIds, setSavedStreamIds, update
                 </Button>
 
                 <Button variant="outlined" onClick={() => setAddingNewStream(!addingNewStream)}>
-                    <PersonAdd sx={({marginRight: (theme) => theme.spacing(1)})}/>
+                    <PostAdd sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     New stream
                 </Button>
 
-                <Button variant="contained">
-                    Next
-                    <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>
+                <Button variant="contained" onClick={() => progressForm(1)}>
+                    See combinations
+                    <List sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
             </Stack>
             {addingNewStream &&
