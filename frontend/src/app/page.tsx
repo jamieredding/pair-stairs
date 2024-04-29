@@ -1,7 +1,9 @@
+import NewCombinationForm from "@/app/components/NewCombinationForm";
+
 export default function Home() {
     return (
         <main>
-            Hey, you've found this page!
+            <NewCombinationForm/>
         </main>
     );
 }
