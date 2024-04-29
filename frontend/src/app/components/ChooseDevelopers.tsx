@@ -1,7 +1,8 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
 import {useState} from "react";
-import {PersonAdd} from "@mui/icons-material";
+import {ArrowForward, PersonAdd} from "@mui/icons-material";
+import AddNewDeveloper from "@/app/components/AddNewDeveloper";
 
 const developers = [
     {id: 1, displayName: "dev-1"},
@@ -21,6 +22,7 @@ interface ChooseDeveloperProps {
 export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperIds}: ChooseDeveloperProps) {
     const allDevelopers = developers;
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => allDevelopers.map(dev => dev.id));
+    const [addingNewDeveloper, setAddingNewDeveloper] = useState<boolean>(false)
 
     return (
         <Stack gap={1}>
@@ -30,9 +32,22 @@ export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperId
             <Divider/>
             <Stack direction="row" gap={1}>
 
-            <Button variant="outlined"><PersonAdd sx={{marginRight: (theme) => theme.spacing(1)}}/> New developer</Button>
-            <Button variant="contained">Next</Button>
+                <Button variant="outlined" onClick={() => setAddingNewDeveloper(!addingNewDeveloper)}>
+                    <PersonAdd sx={({marginRight: (theme) => theme.spacing(1)})}/>
+                    New developer
+                </Button>
+
+                <Button variant="contained">
+                    Next
+                    <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>
+                </Button>
             </Stack>
+            {addingNewDeveloper &&
+                <Stack gap={1}>
+                    <Divider/>
+                    <AddNewDeveloper onSubmit={() => setAddingNewDeveloper(!addingNewDeveloper)}/>
+                </Stack>
+            }
         </Stack>
     )
 }
