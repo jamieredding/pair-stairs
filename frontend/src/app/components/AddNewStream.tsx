@@ -1,14 +1,14 @@
 import {Button, Stack, TextField} from "@mui/material";
 
-interface AddNewDeveloperProps {
+interface AddNewStreamProps {
     onSubmit: () => void
 }
 
-export default function AddNewDeveloper({onSubmit}: AddNewDeveloperProps) {
+export default function AddNewStream({onSubmit}: AddNewStreamProps) {
     return (
         <Stack gap={1}>
             {/* todo make this controlled */}
-            <TextField id="new-developer-name" label="Name" variant="outlined"/>
+            <TextField id="new-stream-name" label="Name" variant="outlined"/>
             <Button variant="contained" sx={({alignSelf: "start"})} onClick={onSubmit}>Save</Button>
         </Stack>
     )

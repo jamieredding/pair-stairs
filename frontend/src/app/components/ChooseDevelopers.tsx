@@ -15,11 +15,12 @@ const developers = [
 ]
 
 interface ChooseDeveloperProps {
-    savedDeveloperIds: number[];
-    setSavedDeveloperIds: (_: (prev: number[]) => number[]) => any;
+    savedDeveloperIds: number[],
+    setSavedDeveloperIds: (_: (prev: number[]) => number[]) => any,
+    updateForm: (value: ((prevState: number) => number)) => void
 }
 
-export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperIds}: ChooseDeveloperProps) {
+export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperProps) {
     const allDevelopers = developers;
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => allDevelopers.map(dev => dev.id));
     const [addingNewDeveloper, setAddingNewDeveloper] = useState<boolean>(false)
@@ -37,7 +38,9 @@ export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperId
                     New developer
                 </Button>
 
-                <Button variant="contained">
+                <Button variant="contained"
+                        onClick={() => updateForm(prevState => prevState + 1)}
+                >
                     Next
                     <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
