@@ -4,7 +4,8 @@ import {useState} from "react";
 import DeveloperInfoDto from "@/app/domain/DeveloperInfoDto";
 import StreamInfoDto from "@/app/domain/StreamInfoDto";
 import PairStreamDto from "@/app/domain/PairStreamDto";
-import {Add, Close, Save} from "@mui/icons-material";
+import {Add, Close} from "@mui/icons-material";
+import SaveButton from "@/app/components/SaveButton";
 
 const developers: DeveloperInfoDto[] = [
     {id: 1, displayName: "dev-1"},
@@ -86,11 +87,7 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-
-                <Button variant="contained" disabled={outstandingItems}>
-                    Save
-                    <Save sx={({marginLeft: (theme) => theme.spacing(1)})}/>
-                </Button>
+                <SaveButton disabled={outstandingItems}/>
             </Stack>
             <div>Selected</div>
             {combination.length === 0 &&

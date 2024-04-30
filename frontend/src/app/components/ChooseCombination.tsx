@@ -1,9 +1,10 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import {Add, ArrowBack, ArrowDownward, Save} from "@mui/icons-material";
+import {Add, ArrowBack, ArrowDownward} from "@mui/icons-material";
 import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
 import ScoredCombinations from "@/app/components/ScoredCombinations";
 import {useState} from "react";
 import AddNewCombination from "@/app/components/AddNewCombination";
+import SaveButton from "@/app/components/SaveButton";
 
 interface ChooseCombinationProps {
     developerIds: number[],
@@ -136,10 +137,7 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
                     More
                 </Button>
 
-                <Button variant="contained" disabled={nothingSelected}>
-                    Save
-                    <Save sx={({marginLeft: (theme) => theme.spacing(1)})}/>
-                </Button>
+                <SaveButton disabled={nothingSelected}/>
             </Stack>
 
             {addingCombination &&

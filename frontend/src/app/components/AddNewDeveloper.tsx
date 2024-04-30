@@ -1,15 +1,19 @@
-import {Button, Stack, TextField} from "@mui/material";
+import {Stack, TextField} from "@mui/material";
+import {useState} from "react";
+import SaveButton from "@/app/components/SaveButton";
 
 interface AddNewDeveloperProps {
     onSubmit: () => void
 }
 
 export default function AddNewDeveloper({onSubmit}: AddNewDeveloperProps) {
+    const [name, setName] = useState<string>();
+
     return (
         <Stack gap={1}>
-            {/* todo make this controlled */}
-            <TextField id="new-developer-name" label="Name" variant="outlined"/>
-            <Button variant="contained" sx={({alignSelf: "start"})} onClick={onSubmit}>Save</Button>
+            <TextField label="Name" variant="outlined" value={name}
+                       onChange={(e) => setName(e.target.value)}/>
+            <SaveButton disabled={name === undefined || name.length === 0} onClick={onSubmit}/>
         </Stack>
     )
 }
