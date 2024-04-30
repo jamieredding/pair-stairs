@@ -88,6 +88,8 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
     const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
+    const nothingSelected = selectedCombinationIndex === undefined;
+
     function progressForm(direction: number) {
         updateForm(prevState => prevState + direction)
     }
@@ -125,7 +127,7 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
                     More
                 </Button>
 
-                <Button variant="contained">
+                <Button variant="contained" disabled={nothingSelected} >
                     Save
                     <Save sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
