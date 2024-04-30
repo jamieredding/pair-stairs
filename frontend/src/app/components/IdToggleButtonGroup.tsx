@@ -7,16 +7,30 @@ interface Displayable {
 
 interface IdToggleButtonGroupProps {
     allItems: Displayable[];
-    selectedIds: number[],
-    setSelectedIds: (_: (prev: number[]) => number[]) => any
+    selectedIds: number[];
+    setSelectedIds: (_: (prev: number[]) => number[]) => any;
+    maxSelectable?: number;
 }
 
-export default function IdToggleButtonGroup({allItems, selectedIds, setSelectedIds}: IdToggleButtonGroupProps) {
+export default function IdToggleButtonGroup({
+                                                allItems,
+                                                selectedIds,
+                                                setSelectedIds,
+                                                maxSelectable
+                                            }: IdToggleButtonGroupProps) {
     function toggleItem(id: number) {
         if (selectedIds.includes(id)) {
             setSelectedIds(prev => prev.filter(other => other !== id))
         } else {
-            setSelectedIds(prev => [...prev, id]);
+            if (maxSelectable) {
+                if (selectedIds.length < maxSelectable) {
+                    setSelectedIds(prev => [...prev, id]);
+                } else if (maxSelectable === 1) { // usability to allow toggling between single options
+                    setSelectedIds(_ => [id])
+                }
+            } else {
+                setSelectedIds(prev => [...prev, id]);
+            }
         }
     }
 

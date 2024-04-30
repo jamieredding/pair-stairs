@@ -1,8 +1,9 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import {ArrowBack, ArrowDownward, Save} from "@mui/icons-material";
+import {Add, ArrowBack, ArrowDownward, Save} from "@mui/icons-material";
 import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
 import ScoredCombinations from "@/app/components/ScoredCombinations";
 import {useState} from "react";
+import AddNewCombination from "@/app/components/AddNewCombination";
 
 interface ChooseCombinationProps {
     developerIds: number[],
@@ -87,6 +88,7 @@ interface CombinationIndex {
 export default function ChooseCombination({developerIds, streamIds, updateForm}: ChooseCombinationProps) {
     const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
+    const [addingCombination, setAddingCombination] = useState<boolean>(false)
 
     const nothingSelected = selectedCombinationIndex === undefined;
 
@@ -98,7 +100,7 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
         setKnownCombinations(prevState => [...prevState, combinations]);
     }
 
-    function getSelectedIndexForRow(rowIndex: number) : number | undefined {
+    function getSelectedIndexForRow(rowIndex: number): number | undefined {
         if (selectedCombinationIndex) {
             if (selectedCombinationIndex.row === rowIndex) {
                 return selectedCombinationIndex.column;
@@ -113,7 +115,10 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
             {knownCombinations.map((combinations, rowIndex) =>
                 <ScoredCombinations key={rowIndex} dtos={combinations}
                                     selectedIndex={getSelectedIndexForRow(rowIndex)}
-                                    setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({column: columnIndex, row: rowIndex})}
+                                    setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
+                                        column: columnIndex,
+                                        row: rowIndex
+                                    })}
                 />
             )}
             <Divider/>
@@ -122,16 +127,27 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
                 </Button>
+                <Button variant="outlined" onClick={() => setAddingCombination(!addingCombination)}>
+                    <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
+                    Manual combination
+                </Button>
                 <Button variant="outlined" onClick={getMoreCombinations}>
                     <ArrowDownward sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     More
                 </Button>
 
-                <Button variant="contained" disabled={nothingSelected} >
+                <Button variant="contained" disabled={nothingSelected}>
                     Save
                     <Save sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
             </Stack>
+
+            {addingCombination &&
+                <Stack gap={1}>
+                    <Divider/>
+                    <AddNewCombination developerIds={developerIds} streamIds={streamIds}/>
+                </Stack>
+            }
         </Stack>
     );
 
