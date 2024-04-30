@@ -1,7 +1,8 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import {ArrowBack, Save} from "@mui/icons-material";
+import {ArrowBack, ArrowDownward, Save} from "@mui/icons-material";
 import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
 import ScoredCombinations from "@/app/components/ScoredCombinations";
+import {useState} from "react";
 
 interface ChooseCombinationProps {
     developerIds: number[],
@@ -9,7 +10,7 @@ interface ChooseCombinationProps {
     updateForm: (value: (((prevState: number) => number) | number)) => void
 }
 
-const combinations : ScoredCombinationDto[] = [
+const combinations: ScoredCombinationDto[] = [
     {
         "score": 10,
         "combination": [
@@ -79,19 +80,31 @@ const combinations : ScoredCombinationDto[] = [
 ]
 
 export default function ChooseCombination({developerIds, streamIds, updateForm}: ChooseCombinationProps) {
+    const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
+
     function progressForm(direction: number) {
         updateForm(prevState => prevState + direction)
+    }
+
+    function getMoreCombinations() {
+        setKnownCombinations(prevState => [...prevState, combinations]);
     }
 
     return (
         <Stack gap={1}>
             <Typography variant="h4">Possible combinations</Typography>
-            <ScoredCombinations dtos={combinations}/>
+            {knownCombinations.map((combinations, index) =>
+                <ScoredCombinations key={index} dtos={combinations}/>
+            )}
             <Divider/>
             <Stack direction="row" gap={1}>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
+                </Button>
+                <Button variant="outlined" onClick={getMoreCombinations}>
+                    <ArrowDownward sx={({marginRight: (theme) => theme.spacing(1)})}/>
+                    More
                 </Button>
 
                 <Button variant="contained">
