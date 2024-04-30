@@ -4,9 +4,10 @@ import {useState} from "react";
 import DeveloperInfoDto from "@/app/domain/DeveloperInfoDto";
 import StreamInfoDto from "@/app/domain/StreamInfoDto";
 import PairStreamDto from "@/app/domain/PairStreamDto";
-import {Add, Close} from "@mui/icons-material";
+import {Add} from "@mui/icons-material";
 import SaveButton from "@/app/components/SaveButton";
 import ButtonRow from "@/app/components/ButtonRow";
+import ManualSelectionTable from "@/app/components/ManualSelectionTable";
 
 const developers: DeveloperInfoDto[] = [
     {id: 1, displayName: "dev-1"},
@@ -89,16 +90,8 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
                 </Button>
                 <SaveButton disabled={outstandingItems}/>
             </ButtonRow>
-            <div>Selected</div>
-            {combination.length === 0 &&
-                <p>Make some pairs above</p>
-            }
-            {combination.map(pair =>
-                <div>
-                    {pair.stream.displayName}, {pair.developers.map(dev => dev.displayName)}
-                    <Button onClick={() => removeFromCombination(pair)}><Close/></Button>
-                </div>
-            )}
+            <ManualSelectionTable combination={combination}
+                                  removeFromCombination={removeFromCombination}/>
         </Stack>
     )
 }
