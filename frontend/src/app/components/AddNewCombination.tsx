@@ -6,6 +6,7 @@ import StreamInfoDto from "@/app/domain/StreamInfoDto";
 import PairStreamDto from "@/app/domain/PairStreamDto";
 import {Add, Close} from "@mui/icons-material";
 import SaveButton from "@/app/components/SaveButton";
+import ButtonRow from "@/app/components/ButtonRow";
 
 const developers: DeveloperInfoDto[] = [
     {id: 1, displayName: "dev-1"},
@@ -80,15 +81,14 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
             <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
                                  setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
             <Divider/>
-            <Stack direction="row" gap={1}>
-
+            <ButtonRow>
                 <Button variant="contained" disabled={!validPairStreamSelected}
                         onClick={addToCombination}>
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
                 <SaveButton disabled={outstandingItems}/>
-            </Stack>
+            </ButtonRow>
             <div>Selected</div>
             {combination.length === 0 &&
                 <p>Make some pairs above</p>

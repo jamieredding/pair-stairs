@@ -5,6 +5,7 @@ import ScoredCombinations from "@/app/components/ScoredCombinations";
 import {useState} from "react";
 import AddNewCombination from "@/app/components/AddNewCombination";
 import SaveButton from "@/app/components/SaveButton";
+import ButtonRow from "@/app/components/ButtonRow";
 
 interface ChooseCombinationProps {
     developerIds: number[],
@@ -123,7 +124,7 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
                 />
             )}
             <Divider/>
-            <Stack direction="row" gap={1}>
+            <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
@@ -138,7 +139,7 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
                 </Button>
 
                 <SaveButton disabled={nothingSelected}/>
-            </Stack>
+            </ButtonRow>
 
             {addingCombination &&
                 <Stack gap={1}>

@@ -1,4 +1,5 @@
-import {Button, Stack} from "@mui/material";
+import {Button} from "@mui/material";
+import ButtonRow from "@/app/components/ButtonRow";
 
 interface Displayable {
     id: number;
@@ -35,7 +36,7 @@ export default function IdToggleButtonGroup({
     }
 
     return (
-        <Stack spacing={1} flexWrap="wrap" direction="row" useFlexGap={true}>
+        <ButtonRow>
             {allItems.map(item =>
                 <Button key={item.id} onClick={() => toggleItem(item.id)}
                         variant={selectedIds.includes(item.id) ? "contained" : "outlined"}
@@ -43,6 +44,6 @@ export default function IdToggleButtonGroup({
                     {item.displayName}
                 </Button>
             )}
-        </Stack>
+        </ButtonRow>
     )
 }

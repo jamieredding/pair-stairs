@@ -3,6 +3,7 @@ import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
 import {useState} from "react";
 import {ArrowForward, PersonAdd} from "@mui/icons-material";
 import AddNewDeveloper from "@/app/components/AddNewDeveloper";
+import ButtonRow from "@/app/components/ButtonRow";
 
 const developers = [
     {id: 1, displayName: "dev-1"},
@@ -36,8 +37,7 @@ export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperId
             <IdToggleButtonGroup allItems={allDevelopers} selectedIds={selectedDeveloperIds}
                                  setSelectedIds={setSelectedDeveloperIds}/>
             <Divider/>
-            <Stack direction="row" gap={1}>
-
+            <ButtonRow>
                 <Button variant="outlined" onClick={() => setAddingNewDeveloper(!addingNewDeveloper)}>
                     <PersonAdd sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     New developer
@@ -49,7 +49,7 @@ export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperId
                     Next
                     <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
-            </Stack>
+            </ButtonRow>
             {addingNewDeveloper &&
                 <Stack gap={1}>
                     <Divider/>

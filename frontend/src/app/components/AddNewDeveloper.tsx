@@ -1,6 +1,7 @@
 import {Stack, TextField} from "@mui/material";
 import {useState} from "react";
 import SaveButton from "@/app/components/SaveButton";
+import ButtonRow from "@/app/components/ButtonRow";
 
 interface AddNewDeveloperProps {
     onSubmit: () => void
@@ -13,7 +14,9 @@ export default function AddNewDeveloper({onSubmit}: AddNewDeveloperProps) {
         <Stack gap={1}>
             <TextField label="Name" variant="outlined" value={name}
                        onChange={(e) => setName(e.target.value)}/>
-            <SaveButton disabled={name === undefined || name.length === 0} onClick={onSubmit}/>
+            <ButtonRow>
+                <SaveButton disabled={name === undefined || name.length === 0} onClick={onSubmit}/>
+            </ButtonRow>
         </Stack>
     )
 }

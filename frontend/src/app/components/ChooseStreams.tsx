@@ -3,6 +3,7 @@ import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
 import {useState} from "react";
 import {ArrowBack, List, PostAdd} from "@mui/icons-material";
 import AddNewStream from "@/app/components/AddNewStream";
+import ButtonRow from "@/app/components/ButtonRow";
 
 const streams = [
     {id: 1, displayName: "stream-a"},
@@ -32,7 +33,7 @@ export default function ChooseStreams({savedStreamIds, setSavedStreamIds, update
             <IdToggleButtonGroup allItems={allStreams} selectedIds={selectedStreamIds}
                                  setSelectedIds={setSelectedStreamIds}/>
             <Divider/>
-            <Stack direction="row" gap={1}>
+            <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
@@ -47,7 +48,7 @@ export default function ChooseStreams({savedStreamIds, setSavedStreamIds, update
                     See combinations
                     <List sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
-            </Stack>
+            </ButtonRow>
             {addingNewStream &&
                 <Stack gap={1}>
                     <Divider/>
