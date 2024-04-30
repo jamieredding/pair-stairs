@@ -79,8 +79,14 @@ const combinations: ScoredCombinationDto[] = [
     }
 ]
 
+interface CombinationIndex {
+    row: number;
+    column: number;
+}
+
 export default function ChooseCombination({developerIds, streamIds, updateForm}: ChooseCombinationProps) {
     const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
+    const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
     function progressForm(direction: number) {
         updateForm(prevState => prevState + direction)
@@ -90,11 +96,23 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
         setKnownCombinations(prevState => [...prevState, combinations]);
     }
 
+    function getSelectedIndexForRow(rowIndex: number) : number | undefined {
+        if (selectedCombinationIndex) {
+            if (selectedCombinationIndex.row === rowIndex) {
+                return selectedCombinationIndex.column;
+            }
+        }
+        return undefined;
+    }
+
     return (
         <Stack gap={1}>
             <Typography variant="h4">Possible combinations</Typography>
-            {knownCombinations.map((combinations, index) =>
-                <ScoredCombinations key={index} dtos={combinations}/>
+            {knownCombinations.map((combinations, rowIndex) =>
+                <ScoredCombinations key={rowIndex} dtos={combinations}
+                                    selectedIndex={getSelectedIndexForRow(rowIndex)}
+                                    setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({column: columnIndex, row: rowIndex})}
+                />
             )}
             <Divider/>
             <Stack direction="row" gap={1}>
