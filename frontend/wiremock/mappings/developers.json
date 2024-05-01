@@ -1,0 +1,43 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Developers",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/developers/info"
+      },
+      "response": {
+        "status": 200,
+        "body": "[{\"id\": 1, \"displayName\": \"dev-1\"}, {\"id\": 2, \"displayName\": \"dev-2\"}, {\"id\": 3, \"displayName\": \"dev-3\"}, {\"id\": 4, \"displayName\": \"dev-4\"}]"
+      }
+    },
+    {
+      "scenarioName": "Developers",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "NEW_DEVELOPER_ADDED",
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/developers",
+        "bodyPatterns": [
+          { "contains": "new developer" }
+        ]
+      },
+      "response": {
+        "status": 201
+      }
+    },
+    {
+      "scenarioName": "Developers",
+      "requiredScenarioState": "NEW_DEVELOPER_ADDED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/developers/info"
+      },
+      "response": {
+        "status": 200,
+        "body": "[{\"id\": 1, \"displayName\": \"dev-1\"}, {\"id\": 2, \"displayName\": \"dev-2\"}, {\"id\": 3, \"displayName\": \"dev-3\"}, {\"id\": 4, \"displayName\": \"dev-4\"}, {\"id\": 5, \"displayName\": \"new developer\"}]"
+      }
+    }
+  ]
+}

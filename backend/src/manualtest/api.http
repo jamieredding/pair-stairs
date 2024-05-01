@@ -1,4 +1,13 @@
-GET {{baseUrl}}/api/v1/developers
+GET {{baseUrl}}/api/v1/developers/info
+
+###
+
+POST {{baseUrl}}/api/v1/developers
+Content-Type: application/json
+
+{
+  "name": "new developer"
+}
 
 ###
 

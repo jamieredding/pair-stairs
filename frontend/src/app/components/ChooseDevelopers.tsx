@@ -4,16 +4,8 @@ import {useState} from "react";
 import {ArrowForward, PersonAdd} from "@mui/icons-material";
 import AddNewDeveloper from "@/app/components/AddNewDeveloper";
 import ButtonRow from "@/app/components/ButtonRow";
-
-const developers = [
-    {id: 1, displayName: "dev-1"},
-    {id: 2, displayName: "dev-2"},
-    {id: 3, displayName: "dev-3"},
-    {id: 4, displayName: "dev-4"},
-    {id: 5, displayName: "dev-5"},
-    {id: 6, displayName: "dev-6"},
-    {id: 7, displayName: "Jamie with a long long name!"},
-]
+import {useGetDeveloperInfos} from "@/app/infrastructure/DeveloperClient";
+import DeveloperInfoDto from "@/app/domain/DeveloperInfoDto";
 
 interface ChooseDeveloperProps {
     savedDeveloperIds?: number[],
@@ -22,7 +14,27 @@ interface ChooseDeveloperProps {
 }
 
 export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperProps) {
-    const allDevelopers = developers;
+    const {allDevelopers, isError, isLoading} = useGetDeveloperInfos();
+
+    return (
+        <>
+            {isError &&
+                <p>failed to load developers...</p>
+            }
+            {isLoading &&
+                <p>loading developers...</p>
+            }
+            {allDevelopers && <LoadedMode allDevelopers={allDevelopers} savedDeveloperIds={savedDeveloperIds}
+                                          setSavedDeveloperIds={setSavedDeveloperIds} updateForm={updateForm}/>}
+        </>
+    )
+}
+
+interface LoadedModeProps extends ChooseDeveloperProps {
+    allDevelopers: DeveloperInfoDto[]
+}
+
+function LoadedMode({allDevelopers, savedDeveloperIds, setSavedDeveloperIds, updateForm}: LoadedModeProps) {
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => savedDeveloperIds || allDevelopers.map(dev => dev.id));
     const [addingNewDeveloper, setAddingNewDeveloper] = useState<boolean>(false)
 

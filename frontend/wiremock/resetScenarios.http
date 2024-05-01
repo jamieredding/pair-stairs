@@ -1,0 +1,5 @@
+### Reset all scenarios
+POST {{baseUrl}}/__admin/scenarios/reset
+
+### Reset developers scenario
+PUT {{baseUrl}}/__admin/scenarios/Developers/state
