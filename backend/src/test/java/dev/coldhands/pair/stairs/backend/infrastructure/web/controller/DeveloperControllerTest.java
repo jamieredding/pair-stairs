@@ -68,6 +68,38 @@ public class DeveloperControllerTest {
     }
 
     @Nested
+    class ReadDeveloperInfo {
+
+        @Test
+        void whenNoDevelopersThenReturnEmptyArray() throws Exception {
+            mockMvc.perform(get("/api/v1/developers/info"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("[]"));
+        }
+
+        @Test
+        void whenMultipleDevelopersThenReturnThem() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+
+            mockMvc.perform(get("/api/v1/developers/info"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
+                            [
+                                {
+                                    "id": %s,
+                                    "displayName": "%s"
+                                },
+                                {
+                                    "id": %s,
+                                    "displayName": "%s"
+                                }
+                            ]""".formatted(dev0Id, "dev-0", dev1Id, "dev-1")))
+            ;
+        }
+    }
+
+    @Nested
     class Write {
 
         @Test

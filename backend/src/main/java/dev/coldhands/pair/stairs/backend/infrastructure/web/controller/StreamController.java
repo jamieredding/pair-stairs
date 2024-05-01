@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
+import dev.coldhands.pair.stairs.backend.domain.StreamInfo;
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.StreamMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,15 @@ public class StreamController {
     @GetMapping
     public List<StreamEntity> getStreams() {
         return repository.findAll();
+    }
+
+    @GetMapping("/info")
+    public List<StreamInfo> getStreamInfos() {
+        final List<StreamEntity> streamEntities = repository.findAll();
+
+        return streamEntities.stream()
+                .map(StreamMapper::entityToInfo)
+                .toList();
     }
 
     @PostMapping

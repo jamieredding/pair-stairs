@@ -1,6 +1,12 @@
+### Get developers
+
+GET {{baseUrl}}/api/v1/developers
+
+### Get Developer info
+
 GET {{baseUrl}}/api/v1/developers/info
 
-###
+### New developer
 
 POST {{baseUrl}}/api/v1/developers
 Content-Type: application/json
@@ -9,6 +15,10 @@ Content-Type: application/json
   "name": "new developer"
 }
 
-###
+### Get streams
 
 GET {{baseUrl}}/api/v1/streams
+
+### Get stream info
+
+GET {{baseUrl}}/api/v1/streams/info

@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
+import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo;
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,15 @@ public class DeveloperController {
     @GetMapping
     public List<DeveloperEntity> getDevelopers() {
         return repository.findAll();
+    }
+
+    @GetMapping("/info")
+    public List<DeveloperInfo> getDeveloperInfos() {
+        final List<DeveloperEntity> developerEntities = repository.findAll();
+
+        return developerEntities.stream()
+                .map(DeveloperMapper::entityToInfo)
+                .toList();
     }
 
     @PostMapping

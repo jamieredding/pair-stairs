@@ -69,6 +69,40 @@ public class StreamControllerTest {
     }
 
     @Nested
+    class ReadStreamInfo {
+
+        @Test
+        void whenNoStreamThenReturnEmptyArray() throws Exception {
+            mockMvc.perform(get("/api/v1/streams/info"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("[]"));
+        }
+
+        @Test
+        void whenMultipleStreamsThenReturnThem() throws Exception {
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-0")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-1")).getId();
+
+            mockMvc.perform(get("/api/v1/streams/info"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
+                            [
+                                {
+                                    "id": %s,
+                                    "displayName": "%s"
+                                },
+                                {
+                                    "id": %s,
+                                    "displayName": "%s"
+                                }
+                            ]""".formatted(stream0Id, "stream-0", stream1Id, "stream-1")))
+
+            ;
+        }
+    }
+
+
+    @Nested
     class Write {
 
         @Test
