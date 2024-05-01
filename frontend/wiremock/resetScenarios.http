@@ -3,3 +3,6 @@ POST {{baseUrl}}/__admin/scenarios/reset
 
 ### Reset developers scenario
 PUT {{baseUrl}}/__admin/scenarios/Developers/state
+
+### Reset streams scenario
+PUT {{baseUrl}}/__admin/scenarios/Streams/state

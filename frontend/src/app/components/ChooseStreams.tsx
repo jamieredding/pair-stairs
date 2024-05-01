@@ -4,12 +4,8 @@ import {useState} from "react";
 import {ArrowBack, List, PostAdd} from "@mui/icons-material";
 import AddNewStream from "@/app/components/AddNewStream";
 import ButtonRow from "@/app/components/ButtonRow";
-
-const streams = [
-    {id: 1, displayName: "stream-a"},
-    {id: 2, displayName: "stream-b"},
-    {id: 3, displayName: "stream-c"},
-]
+import StreamInfoDto from "@/app/domain/StreamInfoDto";
+import {useGetStreamInfos} from "@/app/infrastructure/StreamClient";
 
 interface ChooseStreamsProps {
     savedStreamIds?: number[],
@@ -18,7 +14,27 @@ interface ChooseStreamsProps {
 }
 
 export default function ChooseStreams({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsProps) {
-    const allStreams = streams;
+    const {allStreams, isError, isLoading} = useGetStreamInfos();
+
+    return (
+        <>
+            {isError &&
+                <p>failed to load streams...</p>
+            }
+            {isLoading &&
+                <p>loading streams...</p>
+            }
+            {allStreams && <LoadedMode allStreams={allStreams} savedStreamIds={savedStreamIds}
+                                       setSavedStreamIds={setSavedStreamIds} updateForm={updateForm}/>}
+        </>
+    )
+}
+
+interface LoadedModeProps extends ChooseStreamsProps {
+    allStreams: StreamInfoDto[];
+}
+
+function LoadedMode({allStreams, savedStreamIds, setSavedStreamIds, updateForm}: LoadedModeProps) {
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>(() => savedStreamIds || allStreams.map(dev => dev.id));
     const [addingNewStream, setAddingNewStream] = useState<boolean>(false)
 

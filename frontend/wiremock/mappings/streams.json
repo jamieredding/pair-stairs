@@ -1,0 +1,43 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Streams",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/streams/info"
+      },
+      "response": {
+        "status": 200,
+        "body": "[{\"id\": 1, \"displayName\": \"stream-a\"}, {\"id\": 2, \"displayName\": \"stream-b\"}, {\"id\": 3, \"displayName\": \"stream-c\"}]"
+      }
+    },
+    {
+      "scenarioName": "Streams",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "NEW_STREAM_ADDED",
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/streams",
+        "bodyPatterns": [
+          { "contains": "new stream" }
+        ]
+      },
+      "response": {
+        "status": 201
+      }
+    },
+    {
+      "scenarioName": "Streams",
+      "requiredScenarioState": "NEW_STREAM_ADDED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/streams/info"
+      },
+      "response": {
+        "status": 200,
+        "body": "[{\"id\": 1, \"displayName\": \"stream-a\"}, {\"id\": 2, \"displayName\": \"stream-b\"}, {\"id\": 3, \"displayName\": \"stream-c\"}, {\"id\": 4, \"displayName\": \"new stream\"}]"
+      }
+    }
+  ]
+}
