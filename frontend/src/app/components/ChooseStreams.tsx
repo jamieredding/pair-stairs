@@ -10,7 +10,7 @@ import {useGetStreamInfos} from "@/app/infrastructure/StreamClient";
 interface ChooseStreamsProps {
     savedStreamIds?: number[],
     setSavedStreamIds: (newStreamIds: number[]) => any,
-    updateForm: (value: (((prevState: number) => number) | number)) => void
+    updateForm: (value: ((prevState: number) => number)) => void
 }
 
 export default function ChooseStreams({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsProps) {

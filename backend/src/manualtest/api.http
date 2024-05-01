@@ -22,3 +22,20 @@ GET {{baseUrl}}/api/v1/streams
 ### Get stream info
 
 GET {{baseUrl}}/api/v1/streams/info
+
+### Calculate combinations
+
+POST {{baseUrl}}/api/v1/combinations/calculate
+Content-Type: application/json
+
+{
+  "developerIds": [
+    0,
+    1,
+    2
+  ],
+  "streamIds": [
+    0,
+    1
+  ]
+}

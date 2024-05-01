@@ -2,85 +2,17 @@ import {Button, Divider, Stack, Typography} from "@mui/material";
 import {Add, ArrowBack, ArrowDownward} from "@mui/icons-material";
 import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
 import ScoredCombinations from "@/app/components/ScoredCombinations";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import AddNewCombination from "@/app/components/AddNewCombination";
 import SaveButton from "@/app/components/SaveButton";
 import ButtonRow from "@/app/components/ButtonRow";
+import {usePostForCalculateCombinations} from "@/app/infrastructure/CombinationClient";
 
 interface ChooseCombinationProps {
     developerIds: number[],
     streamIds: number[],
-    updateForm: (value: (((prevState: number) => number) | number)) => void
+    updateForm: (value: ((prevState: number) => number)) => void
 }
-
-const combinations: ScoredCombinationDto[] = [
-    {
-        "score": 10,
-        "combination": [
-            {
-                "developers": [
-                    {
-                        "id": 0,
-                        "displayName": "dev-0"
-                    },
-                    {
-                        "id": 1,
-                        "displayName": "dev-1"
-                    }
-                ],
-                "stream": {
-                    "id": 0,
-                    "displayName": "stream-a"
-                }
-            },
-            {
-                "developers": [
-                    {
-                        "id": 2,
-                        "displayName": "dev-2"
-                    }
-                ],
-                "stream": {
-                    "id": 1,
-                    "displayName": "stream-b"
-                }
-            }
-        ]
-    },
-    {
-        "score": 20,
-        "combination": [
-            {
-                "developers": [
-                    {
-                        "id": 0,
-                        "displayName": "dev-0"
-                    },
-                    {
-                        "id": 2,
-                        "displayName": "dev-2"
-                    }
-                ],
-                "stream": {
-                    "id": 0,
-                    "displayName": "stream-a"
-                }
-            },
-            {
-                "developers": [
-                    {
-                        "id": 1,
-                        "displayName": "dev-1"
-                    }
-                ],
-                "stream": {
-                    "id": 1,
-                    "displayName": "stream-b"
-                }
-            }
-        ]
-    }
-]
 
 interface CombinationIndex {
     row: number;
@@ -88,6 +20,34 @@ interface CombinationIndex {
 }
 
 export default function ChooseCombination({developerIds, streamIds, updateForm}: ChooseCombinationProps) {
+    const {combinations, trigger, isError, isLoading} = usePostForCalculateCombinations();
+
+    useEffect(() => {
+        trigger({
+            developerIds,
+            streamIds
+        })
+    }, [developerIds, streamIds, trigger])
+
+    return (
+        <>
+            {isError &&
+                <p>failed to load combinations...</p>
+            }
+            {isLoading &&
+                <p>calculating combinations...</p>
+            }
+            {combinations && <LoadedMode combinations={combinations} developerIds={developerIds} streamIds={streamIds}
+                                         updateForm={updateForm}/>}
+        </>
+    )
+}
+
+interface LoadedModeProps extends ChooseCombinationProps {
+    combinations: ScoredCombinationDto[];
+}
+
+function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedModeProps) {
     const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
     const [addingCombination, setAddingCombination] = useState<boolean>(false)
@@ -149,5 +109,4 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
             }
         </Stack>
     );
-
 }
