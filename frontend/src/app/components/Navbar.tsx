@@ -10,9 +10,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     {displayText: "Daily combination", link: "/daily-combination"},
-    {displayText: "Manual combination", link: "/manual-combination"},
-    {displayText: "Developers", link: "/developers"},
-    {displayText: "Streams", link: "/streams"},
+    {displayText: "Manual combination", link: "#"},
+    {displayText: "Developers", link: "#"},
+    {displayText: "Streams", link: "#"},
 ]
 
 export default function Navbar() {
