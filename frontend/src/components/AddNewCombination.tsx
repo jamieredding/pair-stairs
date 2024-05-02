@@ -41,7 +41,7 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
 
     const [combination, setCombination] = useState<PairStreamDto[]>([])
 
-    const outstandingItems: boolean = remainingDevelopers.length !== 0 || remainingStreams.length !== 0
+    const hasNoPairsToSave: boolean = combination.length === 0
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
 
     function addToCombination() {
@@ -88,7 +88,7 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-                <SaveButton disabled={outstandingItems}/>
+                <SaveButton disabled={hasNoPairsToSave}/>
             </ButtonRow>
             <ManualSelectionTable combination={combination}
                                   removeFromCombination={removeFromCombination}/>
