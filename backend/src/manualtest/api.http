@@ -39,3 +39,22 @@ Content-Type: application/json
     1
   ]
 }
+
+### Save combination event
+
+POST {{baseUrl}}/api/v1/combinations/event
+Content-Type: application/json
+
+{
+  "date": "2024-04-27",
+  "combination": [
+    {
+      "developerIds": [1, 2],
+      "streamId": 1
+    },
+    {
+      "developerIds": [3],
+      "streamId": 2
+    }
+  ]
+}

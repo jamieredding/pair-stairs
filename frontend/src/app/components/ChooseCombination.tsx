@@ -6,7 +6,9 @@ import {useEffect, useState} from "react";
 import AddNewCombination from "@/app/components/AddNewCombination";
 import SaveButton from "@/app/components/SaveButton";
 import ButtonRow from "@/app/components/ButtonRow";
-import {usePostForCalculateCombinations} from "@/app/infrastructure/CombinationClient";
+import {usePostForCalculateCombinations, usePostForSaveCombinationEvent} from "@/app/infrastructure/CombinationClient";
+import SaveCombinationEventDto, {PairStreamByIds} from "@/app/domain/SaveCombinationEventDto";
+import {formatISO} from "date-fns";
 
 interface ChooseCombinationProps {
     developerIds: number[],
@@ -52,6 +54,8 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
     const [addingCombination, setAddingCombination] = useState<boolean>(false)
 
+    const {trigger} = usePostForSaveCombinationEvent()
+
     const nothingSelected = selectedCombinationIndex === undefined;
 
     function progressForm(direction: number) {
@@ -69,6 +73,25 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
             }
         }
         return undefined;
+    }
+
+    function saveCombination() {
+        const index = selectedCombinationIndex as CombinationIndex;
+        const scoredCombination: ScoredCombinationDto = knownCombinations[index.row][index.column]
+        const pairStreamsByIds: PairStreamByIds[] = scoredCombination.combination.map(c => ({
+            streamId: c.stream.id,
+            developerIds: c.developers.map(d => d.id)
+        }))
+
+        const data: SaveCombinationEventDto = {
+            date: formatISO(new Date(), {representation: "date"}),
+            combination: pairStreamsByIds
+        }
+
+        trigger(data)
+            .then(_ => {
+                progressForm(1)
+            })
     }
 
     return (
@@ -98,7 +121,7 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
                     More
                 </Button>
 
-                <SaveButton disabled={nothingSelected}/>
+                <SaveButton disabled={nothingSelected} onClick={saveCombination}/>
             </ButtonRow>
 
             {addingCombination &&
