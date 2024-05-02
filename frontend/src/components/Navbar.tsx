@@ -10,7 +10,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
     {displayText: "Daily combination", link: "/daily-combination"},
-    {displayText: "Manual combination", link: "#"},
+    {displayText: "Manual combination", link: "/manual-combination"},
     {displayText: "Developers", link: "#"},
     {displayText: "Streams", link: "#"},
 ]

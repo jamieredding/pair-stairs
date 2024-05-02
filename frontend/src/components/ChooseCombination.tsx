@@ -1,9 +1,8 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import {Add, ArrowBack, ArrowDownward} from "@mui/icons-material";
+import {ArrowBack, ArrowDownward} from "@mui/icons-material";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import ScoredCombinations from "@/components/ScoredCombinations";
 import {useEffect, useState} from "react";
-import AddNewCombination from "@/components/AddNewCombination";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import {usePostForCalculateCombinations, usePostForSaveCombinationEvent} from "@/infrastructure/CombinationClient";
@@ -52,7 +51,6 @@ interface LoadedModeProps extends ChooseCombinationProps {
 function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedModeProps) {
     const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
-    const [addingCombination, setAddingCombination] = useState<boolean>(false)
 
     const {trigger} = usePostForSaveCombinationEvent()
 
@@ -112,10 +110,6 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
                 </Button>
-                <Button variant="outlined" onClick={() => setAddingCombination(!addingCombination)}>
-                    <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
-                    Manual combination
-                </Button>
                 <Button variant="outlined" onClick={getMoreCombinations}>
                     <ArrowDownward sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     More
@@ -123,13 +117,6 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
 
                 <SaveButton disabled={nothingSelected} onClick={saveCombination}/>
             </ButtonRow>
-
-            {addingCombination &&
-                <Stack gap={1}>
-                    <Divider/>
-                    <AddNewCombination developerIds={developerIds} streamIds={streamIds}/>
-                </Stack>
-            }
         </Stack>
     );
 }
