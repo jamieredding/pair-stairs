@@ -1,13 +1,13 @@
 import {Button, Divider, Stack} from "@mui/material";
-import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
+import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
-import DeveloperInfoDto from "@/app/domain/DeveloperInfoDto";
-import StreamInfoDto from "@/app/domain/StreamInfoDto";
-import PairStreamDto from "@/app/domain/PairStreamDto";
+import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
+import StreamInfoDto from "@/domain/StreamInfoDto";
+import PairStreamDto from "@/domain/PairStreamDto";
 import {Add} from "@mui/icons-material";
-import SaveButton from "@/app/components/SaveButton";
-import ButtonRow from "@/app/components/ButtonRow";
-import ManualSelectionTable from "@/app/components/ManualSelectionTable";
+import SaveButton from "@/components/SaveButton";
+import ButtonRow from "@/components/ButtonRow";
+import ManualSelectionTable from "@/components/ManualSelectionTable";
 
 const developers: DeveloperInfoDto[] = [
     {id: 1, displayName: "dev-1"},

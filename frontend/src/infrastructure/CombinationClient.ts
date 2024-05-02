@@ -1,7 +1,7 @@
 import useSWRMutation from "swr/mutation";
-import CalculateInputDto from "@/app/domain/CalculateInputDto";
-import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
-import SaveCombinationEventDto from "@/app/domain/SaveCombinationEventDto";
+import CalculateInputDto from "@/domain/CalculateInputDto";
+import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
+import SaveCombinationEventDto from "@/domain/SaveCombinationEventDto";
 
 export function usePostForCalculateCombinations() {
     const {data, trigger, isMutating, error} = useSWRMutation("/api/v1/combinations/calculate", calculateCombinations)

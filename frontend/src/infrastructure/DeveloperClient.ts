@@ -1,7 +1,7 @@
 import useSWR, {useSWRConfig} from "swr";
-import DeveloperInfoDto from "@/app/domain/DeveloperInfoDto";
+import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 import useSWRMutation from "swr/mutation";
-import DeveloperDto from "@/app/domain/DeveloperDto";
+import DeveloperDto from "@/domain/DeveloperDto";
 
 const DEVELOPER_INFO_PATH = "/api/v1/developers/info"
 

@@ -1,6 +1,6 @@
 import {Button, Stack, Table, TableBody, TableCell, TableContainer, TableRow} from "@mui/material";
 import {Close} from "@mui/icons-material";
-import PairStreamDto from "@/app/domain/PairStreamDto";
+import PairStreamDto from "@/domain/PairStreamDto";
 import {Fragment} from "react";
 
 interface ManualSelectionTableProps {

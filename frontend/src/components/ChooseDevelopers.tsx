@@ -1,11 +1,11 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
+import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
 import {ArrowForward, PersonAdd} from "@mui/icons-material";
-import AddNewDeveloper from "@/app/components/AddNewDeveloper";
-import ButtonRow from "@/app/components/ButtonRow";
-import {useGetDeveloperInfos} from "@/app/infrastructure/DeveloperClient";
-import DeveloperInfoDto from "@/app/domain/DeveloperInfoDto";
+import AddNewDeveloper from "@/components/AddNewDeveloper";
+import ButtonRow from "@/components/ButtonRow";
+import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
+import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 
 interface ChooseDeveloperProps {
     savedDeveloperIds?: number[],

@@ -1,7 +1,7 @@
 import useSWR, {useSWRConfig} from "swr";
 import useSWRMutation from "swr/mutation";
-import StreamDto from "@/app/domain/StreamDto";
-import StreamInfoDto from "@/app/domain/StreamInfoDto";
+import StreamDto from "@/domain/StreamDto";
+import StreamInfoDto from "@/domain/StreamInfoDto";
 
 const STREAM_INFO_PATH = "/api/v1/streams/info"
 

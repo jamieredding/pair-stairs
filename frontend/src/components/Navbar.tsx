@@ -20,7 +20,7 @@ export default function Navbar() {
         <AppBar>
             <Toolbar>
                 <Stack direction="row" gap={2} alignItems="center">
-                    <Link variant="h4" href="/" sx={{color: '#fff'}} underline="none" pr={1}>
+                    <Link variant="h4" href="/frontend/public" sx={{color: '#fff'}} underline="none" pr={1}>
                         pair-stairs
                     </Link>
                     {navItems.map((item, index) => (

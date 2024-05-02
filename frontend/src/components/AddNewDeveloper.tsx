@@ -1,17 +1,17 @@
 import {Stack, TextField} from "@mui/material";
-import SaveButton from "@/app/components/SaveButton";
 import {useState} from "react";
-import ButtonRow from "@/app/components/ButtonRow";
-import {useAddStream, useRefreshGetStreamInfo} from "@/app/infrastructure/StreamClient";
+import SaveButton from "@/components/SaveButton";
+import ButtonRow from "@/components/ButtonRow";
+import {useAddDeveloper, useRefreshGetDeveloperInfo} from "@/infrastructure/DeveloperClient";
 
-interface AddNewStreamProps {
+interface AddNewDeveloperProps {
     onSubmit: () => void
 }
 
-export default function AddNewStream({onSubmit}: AddNewStreamProps) {
+export default function AddNewDeveloper({onSubmit}: AddNewDeveloperProps) {
     const [name, setName] = useState<string>("");
-    const {trigger} = useAddStream()
-    const {refresh} = useRefreshGetStreamInfo()
+    const {trigger} = useAddDeveloper()
+    const {refresh} = useRefreshGetDeveloperInfo()
 
     function handleSubmit() {
         const newName = name as string;

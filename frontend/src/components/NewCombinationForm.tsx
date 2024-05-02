@@ -1,12 +1,12 @@
 "use client"
 
 import {Card, CardContent} from "@mui/material";
-import ChooseDevelopers from "@/app/components/ChooseDevelopers";
+import ChooseDevelopers from "@/components/ChooseDevelopers";
 import Grid from "@mui/system/Unstable_Grid";
 import {useState} from "react";
-import ChooseStreams from "@/app/components/ChooseStreams";
-import ChooseCombination from "@/app/components/ChooseCombination";
-import LandingPlaceholder from "@/app/components/LandingPlaceholder";
+import ChooseStreams from "@/components/ChooseStreams";
+import ChooseCombination from "@/components/ChooseCombination";
+import LandingPlaceholder from "@/components/LandingPlaceholder";
 
 
 export default function NewCombinationForm() {

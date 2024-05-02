@@ -1,13 +1,13 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import {Add, ArrowBack, ArrowDownward} from "@mui/icons-material";
-import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
-import ScoredCombinations from "@/app/components/ScoredCombinations";
+import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
+import ScoredCombinations from "@/components/ScoredCombinations";
 import {useEffect, useState} from "react";
-import AddNewCombination from "@/app/components/AddNewCombination";
-import SaveButton from "@/app/components/SaveButton";
-import ButtonRow from "@/app/components/ButtonRow";
-import {usePostForCalculateCombinations, usePostForSaveCombinationEvent} from "@/app/infrastructure/CombinationClient";
-import SaveCombinationEventDto, {PairStreamByIds} from "@/app/domain/SaveCombinationEventDto";
+import AddNewCombination from "@/components/AddNewCombination";
+import SaveButton from "@/components/SaveButton";
+import ButtonRow from "@/components/ButtonRow";
+import {usePostForCalculateCombinations, usePostForSaveCombinationEvent} from "@/infrastructure/CombinationClient";
+import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
 import {formatISO} from "date-fns";
 
 interface ChooseCombinationProps {

@@ -1,11 +1,11 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import IdToggleButtonGroup from "@/app/components/IdToggleButtonGroup";
+import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
 import {ArrowBack, List, PostAdd} from "@mui/icons-material";
-import AddNewStream from "@/app/components/AddNewStream";
-import ButtonRow from "@/app/components/ButtonRow";
-import StreamInfoDto from "@/app/domain/StreamInfoDto";
-import {useGetStreamInfos} from "@/app/infrastructure/StreamClient";
+import AddNewStream from "@/components/AddNewStream";
+import ButtonRow from "@/components/ButtonRow";
+import StreamInfoDto from "@/domain/StreamInfoDto";
+import {useGetStreamInfos} from "@/infrastructure/StreamClient";
 
 interface ChooseStreamsProps {
     savedStreamIds?: number[],

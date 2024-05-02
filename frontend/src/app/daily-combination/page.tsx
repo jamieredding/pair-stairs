@@ -1,4 +1,4 @@
-import NewCombinationForm from "@/app/components/NewCombinationForm";
+import NewCombinationForm from "@/components/NewCombinationForm";
 
 export default function Home() {
     return (

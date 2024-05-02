@@ -1,4 +1,4 @@
-import ScoredCombinationDto from "@/app/domain/ScoredCombinationDto";
+import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import {Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import {Fragment} from "react";
 
