@@ -2,7 +2,7 @@
 
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 import StreamInfoDto from "@/domain/StreamInfoDto";
 import PairStreamDto from "@/domain/PairStreamDto";
@@ -15,22 +15,35 @@ import CustomDatePicker from "@/components/CustomDatePicker";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
 import {useRouter} from "next/navigation";
 import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
+import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
+import useStreamInfos from "@/hooks/streams/useStreamInfos";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 
 const dateFormat = "yyyy-MM-dd"
 
-interface ManualCombinationPageProps {
-    allPossibleDevelopers: DeveloperInfoDto[],
-    allPossibleStreams: StreamInfoDto[]
-}
+export default function ManualCombinationPage() {
+    const {allDevelopers, isLoading: loadingDevelopers, isError: erroringDevelopers} = useDeveloperInfos();
+    const {allStreams, isLoading: loadingStreams, isError: erroringStreams} = useStreamInfos()
 
-export default function ManualCombinationPage({allPossibleDevelopers, allPossibleStreams}: ManualCombinationPageProps) {
     const today = format(new Date(), dateFormat)
     const [date, setDate] = useState<string | null>(today)
 
-    const [remainingDevelopers, setRemainingDevelopers] = useState<DeveloperInfoDto[]>(allPossibleDevelopers);
-    const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>([])
+    const [remainingDevelopers, setRemainingDevelopers] = useState<DeveloperInfoDto[]>();
+    useEffect(() => {
+        if (allDevelopers) {
+            setRemainingDevelopers(allDevelopers)
+        }
+    }, [allDevelopers]);
 
-    const [remainingStreams, setRemainingStreams] = useState<StreamInfoDto[]>(allPossibleStreams);
+    const [remainingStreams, setRemainingStreams] = useState<StreamInfoDto[]>();
+    useEffect(() => {
+        if (allStreams) {
+            setRemainingStreams(allStreams)
+        }
+    }, [allStreams]);
+
+    const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>([])
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>([])
 
     const [combination, setCombination] = useState<PairStreamDto[]>([])
@@ -38,16 +51,17 @@ export default function ManualCombinationPage({allPossibleDevelopers, allPossibl
     const {trigger} = useAddCombinationEvent()
     const router = useRouter()
 
-    const somePairsInCombination: boolean = combination.length > 0
+    const dataLoaded = allDevelopers && allStreams;
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
+    const somePairsInCombination: boolean = combination.length > 0
     const validForm: boolean = somePairsInCombination && date !== null
 
     function addToCombination() {
         setCombination(prevState => {
             const newPairStream: PairStreamDto = {
-                developers: allPossibleDevelopers.filter(dev => selectedDeveloperIds.includes(dev.id)),
+                developers: (allDevelopers as DeveloperInfoDto[]).filter(dev => selectedDeveloperIds.includes(dev.id)),
 
-                stream: allPossibleStreams.filter(stream => stream.id === selectedStreamIds[0])[0],
+                stream: (allStreams as StreamInfoDto[]).filter(stream => stream.id === selectedStreamIds[0])[0],
             }
 
             return [...prevState, newPairStream];
@@ -55,8 +69,8 @@ export default function ManualCombinationPage({allPossibleDevelopers, allPossibl
         setSelectedDeveloperIds([])
         setSelectedStreamIds([])
 
-        setRemainingDevelopers(prevState => prevState.filter(dev => !selectedDeveloperIds.includes(dev.id)))
-        setRemainingStreams(prevState => prevState.filter(stream => !selectedStreamIds.includes(stream.id)))
+        setRemainingDevelopers(prevState => (prevState as DeveloperInfoDto[]).filter(dev => !selectedDeveloperIds.includes(dev.id)))
+        setRemainingStreams(prevState => (prevState as StreamInfoDto[]).filter(stream => !selectedStreamIds.includes(stream.id)))
 
     }
 
@@ -66,8 +80,8 @@ export default function ManualCombinationPage({allPossibleDevelopers, allPossibl
         setSelectedDeveloperIds([])
         setSelectedStreamIds([])
 
-        setRemainingDevelopers(prevState => [...prevState, ...toRemove.developers])
-        setRemainingStreams(prevState => [...prevState, toRemove.stream])
+        setRemainingDevelopers(prevState => [...(prevState as DeveloperInfoDto[]), ...toRemove.developers])
+        setRemainingStreams(prevState => [...(prevState as StreamInfoDto[]), toRemove.stream])
     }
 
     function saveCombination() {
@@ -92,20 +106,28 @@ export default function ManualCombinationPage({allPossibleDevelopers, allPossibl
             <CustomDatePicker label="Date of combination" value={date} setValue={setDate} dateFormat={dateFormat}/>
             <Divider/>
             <Typography variant="h5">Developers</Typography>
-            <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
-                                 setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
+            {loadingDevelopers && <Loading/>}
+            {erroringDevelopers && <Error/>}
+            {remainingDevelopers &&
+                <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
+                                     setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
+            }
             <Divider/>
             <Typography variant="h5">Streams</Typography>
-            <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
-                                 setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
+            {loadingStreams && <Loading/>}
+            {erroringStreams && <Error/>}
+            {remainingStreams &&
+                <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
+                                     setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
+            }
             <Divider/>
             <ButtonRow>
-                <Button variant="contained" disabled={!validPairStreamSelected}
+                <Button variant="contained" disabled={!dataLoaded || !validPairStreamSelected}
                         onClick={addToCombination}>
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-                <SaveButton disabled={!validForm} onClick={saveCombination}/>
+                <SaveButton disabled={!dataLoaded || !validForm} onClick={saveCombination}/>
             </ButtonRow>
             <ManualSelectionTable combination={combination}
                                   removeFromCombination={removeFromCombination}/>
