@@ -1,3 +1,5 @@
+"use client"
+
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
@@ -10,6 +12,9 @@ import ButtonRow from "@/components/ButtonRow";
 import ManualSelectionTable from "@/components/ManualSelectionTable";
 import {format} from "date-fns";
 import CustomDatePicker from "@/components/CustomDatePicker";
+import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
+import {usePostForSaveCombinationEvent} from "@/infrastructure/CombinationClient";
+import {useRouter} from "next/navigation";
 
 const dateFormat = "yyyy-MM-dd"
 
@@ -29,6 +34,9 @@ export default function AddNewCombination({allPossibleDevelopers, allPossibleStr
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>([])
 
     const [combination, setCombination] = useState<PairStreamDto[]>([])
+
+    const {trigger} = usePostForSaveCombinationEvent()
+    const router = useRouter()
 
     const somePairsInCombination: boolean = combination.length > 0
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
@@ -62,6 +70,23 @@ export default function AddNewCombination({allPossibleDevelopers, allPossibleStr
         setRemainingStreams(prevState => [...prevState, toRemove.stream])
     }
 
+    function saveCombination() {
+        const pairStreamsByIds: PairStreamByIds[] = combination.map(c => ({
+            streamId: c.stream.id,
+            developerIds: c.developers.map(d => d.id)
+        }))
+
+        const data: SaveCombinationEventDto = {
+            date: date as string,
+            combination: pairStreamsByIds
+        }
+
+        trigger(data)
+            .then(_ => {
+                router.push("/")
+            })
+    }
+
     return (
         <Stack gap={1}>
             <CustomDatePicker label="Date of combination" value={date} setValue={setDate} dateFormat={dateFormat}/>
@@ -80,7 +105,7 @@ export default function AddNewCombination({allPossibleDevelopers, allPossibleStr
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-                <SaveButton disabled={!validForm}/>
+                <SaveButton disabled={!validForm} onClick={saveCombination}/>
             </ButtonRow>
             <ManualSelectionTable combination={combination}
                                   removeFromCombination={removeFromCombination}/>
