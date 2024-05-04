@@ -8,8 +8,8 @@ import {Add} from "@mui/icons-material";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import ManualSelectionTable from "@/components/ManualSelectionTable";
-import {DatePicker} from "@mui/x-date-pickers";
-import {format, parse} from "date-fns";
+import {format} from "date-fns";
+import CustomDatePicker from "@/components/CustomDatePicker";
 
 // todo remove this
 const developers: DeveloperInfoDto[] = [
@@ -83,21 +83,7 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
 
     return (
         <Stack gap={1}>
-            <DatePicker label="Date of combination" format={dateFormat}
-                        value={date ? parse(date, dateFormat, new Date()) : null}
-                        onChange={(newValue, context) => {
-                            if (!context.validationError && newValue !== null) {
-                                setDate(format(newValue, dateFormat))
-                            } else {
-                                setDate(null)
-                            }
-                        }}
-                        slotProps={{
-                            textField: {
-                                helperText: date ? "" : "You need to enter a date"
-                            }
-                        }}
-            />
+            <CustomDatePicker label="Date of combination" value={date} setValue={setDate} dateFormat={dateFormat}/>
             <Divider/>
             <Typography variant="h5">Developers</Typography>
             <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
