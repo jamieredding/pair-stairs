@@ -1,8 +1,7 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
-import {ArrowBack, List, PostAdd} from "@mui/icons-material";
-import AddNewStream from "@/components/AddNewStream";
+import {ArrowBack, List} from "@mui/icons-material";
 import ButtonRow from "@/components/ButtonRow";
 import StreamInfoDto from "@/domain/StreamInfoDto";
 import {useGetStreamInfos} from "@/infrastructure/StreamClient";
@@ -36,7 +35,6 @@ interface LoadedModeProps extends ChooseStreamsProps {
 
 function LoadedMode({allStreams, savedStreamIds, setSavedStreamIds, updateForm}: LoadedModeProps) {
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>(() => savedStreamIds || allStreams.map(dev => dev.id));
-    const [addingNewStream, setAddingNewStream] = useState<boolean>(false)
 
     function progressForm(direction: number) {
         setSavedStreamIds(selectedStreamIds);
@@ -55,22 +53,11 @@ function LoadedMode({allStreams, savedStreamIds, setSavedStreamIds, updateForm}:
                     Back
                 </Button>
 
-                <Button variant="outlined" onClick={() => setAddingNewStream(!addingNewStream)}>
-                    <PostAdd sx={({marginRight: (theme) => theme.spacing(1)})}/>
-                    New stream
-                </Button>
-
                 <Button variant="contained" onClick={() => progressForm(1)}>
                     See combinations
                     <List sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
             </ButtonRow>
-            {addingNewStream &&
-                <Stack gap={1}>
-                    <Divider/>
-                    <AddNewStream onSubmit={() => setAddingNewStream(!addingNewStream)}/>
-                </Stack>
-            }
         </Stack>
     );
 }

@@ -12,7 +12,7 @@ const navItems: NavItem[] = [
     {displayText: "Daily combination", link: "/daily-combination"},
     {displayText: "Manual combination", link: "/manual-combination"},
     {displayText: "Developers", link: "/developers"},
-    {displayText: "Streams", link: "#"},
+    {displayText: "Streams", link: "/streams"},
 ]
 
 export default function Navbar() {
