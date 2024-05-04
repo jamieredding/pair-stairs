@@ -18,12 +18,12 @@ import {useRouter} from "next/navigation";
 
 const dateFormat = "yyyy-MM-dd"
 
-interface AddNewCombinationProps {
+interface ManualCombinationPageProps {
     allPossibleDevelopers: DeveloperInfoDto[],
     allPossibleStreams: StreamInfoDto[]
 }
 
-export default function AddNewCombination({allPossibleDevelopers, allPossibleStreams}: AddNewCombinationProps) {
+export default function ManualCombinationPage({allPossibleDevelopers, allPossibleStreams}: ManualCombinationPageProps) {
     const today = format(new Date(), dateFormat)
     const [date, setDate] = useState<string | null>(today)
 

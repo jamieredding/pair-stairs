@@ -1,6 +1,6 @@
 "use client"
 
-import AddNewCombination from "@/components/AddNewCombination";
+import ManualCombinationPage from "@/app/manual-combination/components/ManualCombinationPage";
 import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
 import {useGetStreamInfos} from "@/infrastructure/StreamClient";
 import PageCard from "@/components/PageCard";
@@ -19,7 +19,7 @@ export default function Home() {
                     <p>error retrieving data...</p>
                 }
                 {allDevelopers && allStreams &&
-                    <AddNewCombination
+                    <ManualCombinationPage
                         allPossibleDevelopers={allDevelopers}
                         allPossibleStreams={allStreams}/>
                 }

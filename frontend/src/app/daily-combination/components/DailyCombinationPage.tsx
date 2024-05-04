@@ -6,7 +6,7 @@ import ChooseStreams from "@/components/ChooseStreams";
 import ChooseCombination from "@/components/ChooseCombination";
 
 
-export default function NewCombinationForm() {
+export default function DailyCombinationPage() {
     const [savedDeveloperIds, setSavedDeveloperIds] = useState<number[]>()
     const [savedStreamIds, setSavedStreamIds] = useState<number[]>()
     const [formStage, setFormStage] = useState<number>(0)

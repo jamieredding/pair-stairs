@@ -1,5 +1,5 @@
 import PageCard from "@/components/PageCard";
-import StreamsPage from "@/components/StreamsPage";
+import StreamsPage from "@/app/streams/components/StreamsPage";
 
 export default function Home() {
     return (
