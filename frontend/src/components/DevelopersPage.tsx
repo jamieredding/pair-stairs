@@ -17,18 +17,29 @@ import ButtonRow from "@/components/ButtonRow";
 import {PersonAdd} from "@mui/icons-material";
 import {useState} from "react";
 import AddNewDeveloper from "@/components/AddNewDeveloper";
-
-const developers: DeveloperInfoDto[] = [
-    {id: 1, displayName: "dev-1"},
-    {id: 2, displayName: "dev-2"},
-    {id: 3, displayName: "dev-3"},
-    {id: 4, displayName: "dev-4"},
-    {id: 5, displayName: "dev-5"},
-    {id: 6, displayName: "dev-6"},
-    {id: 7, displayName: "Jamie with a long long name!"},
-]
+import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
 
 export default function DevelopersPage() {
+    const {allDevelopers, isError, isLoading} = useGetDeveloperInfos();
+
+    return (
+        <>
+            {isError &&
+                <p>failed to load developers...</p>
+            }
+            {isLoading &&
+                <p>loading developers...</p>
+            }
+            {allDevelopers && <LoadedMode allDevelopers={allDevelopers}/>}
+        </>
+    )
+}
+
+interface LoadedModeProps {
+    allDevelopers: DeveloperInfoDto[]
+}
+
+function LoadedMode({allDevelopers}: LoadedModeProps) {
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
     return (
@@ -43,7 +54,7 @@ export default function DevelopersPage() {
                 </Button>
             </ButtonRow>
             <List>
-                {developers.map(developer =>
+                {allDevelopers.map(developer =>
                     <ListItem key={developer.id}>
                         <ListItemButton>
                             <ListItemText primary={developer.displayName}/>
