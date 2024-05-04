@@ -3,11 +3,15 @@
 import {PropsWithChildren} from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers";
 import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFnsV3";
+import {ThemeProvider} from "@mui/material";
+import {theme} from "@/app/theme";
 
 export default function RootContext({children}: PropsWithChildren) {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            {children}
+            <ThemeProvider theme={theme}>
+                {children}
+            </ThemeProvider>
         </LocalizationProvider>
     )
 }
