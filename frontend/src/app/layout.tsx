@@ -3,6 +3,7 @@ import {inter} from "@/app/fonts";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Toolbar from "@mui/material/Toolbar";
+import RootContext from "@/components/RootContext";
 
 export const metadata: Metadata = {
     title: "Pair Stairs",
@@ -17,10 +18,12 @@ export default function RootLayout({
     return (
         <html lang="en">
         <body className={inter.className}>
-        <Navbar/>
-        {/*To pad the navbar above*/}
-        <Toolbar/>
-        {children}
+        <RootContext>
+            <Navbar/>
+            {/*To pad the navbar above*/}
+            <Toolbar/>
+            {children}
+        </RootContext>
         </body>
         </html>
     );

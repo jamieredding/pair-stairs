@@ -1,4 +1,4 @@
-import {Button, Divider, Stack} from "@mui/material";
+import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
 import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
@@ -8,7 +8,10 @@ import {Add} from "@mui/icons-material";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import ManualSelectionTable from "@/components/ManualSelectionTable";
+import {DatePicker} from "@mui/x-date-pickers";
+import {format, parse} from "date-fns";
 
+// todo remove this
 const developers: DeveloperInfoDto[] = [
     {id: 1, displayName: "dev-1"},
     {id: 2, displayName: "dev-2"},
@@ -19,11 +22,14 @@ const developers: DeveloperInfoDto[] = [
     {id: 7, displayName: "Jamie with a long long name!"},
 ]
 
+// todo remove this
 const streams: StreamInfoDto[] = [
     {id: 1, displayName: "stream-a"},
     {id: 2, displayName: "stream-b"},
     {id: 3, displayName: "stream-c"},
 ]
+
+const dateFormat = "yyyy-MM-dd"
 
 interface AddNewCombinationProps {
     developerIds: number[],
@@ -31,6 +37,9 @@ interface AddNewCombinationProps {
 }
 
 export default function AddNewCombination({developerIds, streamIds}: AddNewCombinationProps) {
+    const today = format(new Date(), dateFormat)
+    const [date, setDate] = useState<string | null>(today)
+
     const allPossibleDevelopers = developers.filter(dev => developerIds.includes(dev.id));
     const [remainingDevelopers, setRemainingDevelopers] = useState<DeveloperInfoDto[]>(allPossibleDevelopers);
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>([])
@@ -74,11 +83,27 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
 
     return (
         <Stack gap={1}>
-            <div>Developers</div>
+            <DatePicker label="Date of combination" format={dateFormat}
+                        value={date ? parse(date, dateFormat, new Date()) : null}
+                        onChange={(newValue, context) => {
+                            if (!context.validationError && newValue !== null) {
+                                setDate(format(newValue, dateFormat))
+                            } else {
+                                setDate(null)
+                            }
+                        }}
+                        slotProps={{
+                            textField: {
+                                helperText: date ? "" : "You need to enter a date"
+                            }
+                        }}
+            />
+            <Divider/>
+            <Typography variant="h5">Developers</Typography>
             <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
                                  setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
             <Divider/>
-            <div>Streams</div>
+            <Typography variant="h5">Streams</Typography>
             <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
                                  setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
             <Divider/>
