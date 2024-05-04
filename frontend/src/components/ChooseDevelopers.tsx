@@ -1,8 +1,7 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
-import {ArrowForward, PersonAdd} from "@mui/icons-material";
-import AddNewDeveloper from "@/components/AddNewDeveloper";
+import {ArrowForward} from "@mui/icons-material";
 import ButtonRow from "@/components/ButtonRow";
 import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
 import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
@@ -36,7 +35,6 @@ interface LoadedModeProps extends ChooseDeveloperProps {
 
 function LoadedMode({allDevelopers, savedDeveloperIds, setSavedDeveloperIds, updateForm}: LoadedModeProps) {
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => savedDeveloperIds || allDevelopers.map(dev => dev.id));
-    const [addingNewDeveloper, setAddingNewDeveloper] = useState<boolean>(false)
 
     function progressForm() {
         setSavedDeveloperIds(selectedDeveloperIds);
@@ -50,11 +48,6 @@ function LoadedMode({allDevelopers, savedDeveloperIds, setSavedDeveloperIds, upd
                                  setSelectedIds={setSelectedDeveloperIds}/>
             <Divider/>
             <ButtonRow>
-                <Button variant="outlined" onClick={() => setAddingNewDeveloper(!addingNewDeveloper)}>
-                    <PersonAdd sx={({marginRight: (theme) => theme.spacing(1)})}/>
-                    New developer
-                </Button>
-
                 <Button variant="contained"
                         onClick={progressForm}
                 >
@@ -62,12 +55,6 @@ function LoadedMode({allDevelopers, savedDeveloperIds, setSavedDeveloperIds, upd
                     <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>
                 </Button>
             </ButtonRow>
-            {addingNewDeveloper &&
-                <Stack gap={1}>
-                    <Divider/>
-                    <AddNewDeveloper onSubmit={() => setAddingNewDeveloper(!addingNewDeveloper)}/>
-                </Stack>
-            }
         </Stack>
     )
 }
