@@ -6,13 +6,13 @@ import ButtonRow from "@/components/ButtonRow";
 import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
 import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 
-interface ChooseDeveloperProps {
+interface ChooseDeveloperFormProps {
     savedDeveloperIds?: number[],
     setSavedDeveloperIds: (newDeveloperIds: number[]) => any,
     updateForm: (value: ((prevState: number) => number)) => void
 }
 
-export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperProps) {
+export default function ChooseDevelopersForm({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperFormProps) {
     const {allDevelopers, isError, isLoading} = useGetDeveloperInfos();
 
     return (
@@ -29,7 +29,7 @@ export default function ChooseDevelopers({savedDeveloperIds, setSavedDeveloperId
     )
 }
 
-interface LoadedModeProps extends ChooseDeveloperProps {
+interface LoadedModeProps extends ChooseDeveloperFormProps {
     allDevelopers: DeveloperInfoDto[]
 }
 

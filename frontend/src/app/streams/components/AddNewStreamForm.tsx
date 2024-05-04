@@ -4,11 +4,11 @@ import {useState} from "react";
 import ButtonRow from "@/components/ButtonRow";
 import {useAddStream, useRefreshGetStreamInfo} from "@/infrastructure/StreamClient";
 
-interface AddNewStreamProps {
+interface AddNewStreamFormProps {
     onSubmit: () => void
 }
 
-export default function AddNewStream({onSubmit}: AddNewStreamProps) {
+export default function AddNewStreamForm({onSubmit}: AddNewStreamFormProps) {
     const [name, setName] = useState<string>("");
     const {trigger} = useAddStream()
     const {refresh} = useRefreshGetStreamInfo()

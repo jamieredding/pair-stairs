@@ -3,13 +3,13 @@ import {Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 import {Fragment} from "react";
 
 
-interface ScoredCombinationsProps {
+interface ScoredCombinationsTableProps {
     dtos: ScoredCombinationDto[],
     selectedIndex?: number,
     setSelectedIndex: (columnIndex: number) => void
 }
 
-export default function ScoredCombinations({dtos, selectedIndex, setSelectedIndex}: ScoredCombinationsProps) {
+export default function ScoredCombinationsTable({dtos, selectedIndex, setSelectedIndex}: ScoredCombinationsTableProps) {
     const numberOfPairs = dtos[0].combination.length
 
     function highlightCell(index: number) {

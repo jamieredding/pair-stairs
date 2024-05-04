@@ -6,13 +6,13 @@ import ButtonRow from "@/components/ButtonRow";
 import StreamInfoDto from "@/domain/StreamInfoDto";
 import {useGetStreamInfos} from "@/infrastructure/StreamClient";
 
-interface ChooseStreamsProps {
+interface ChooseStreamsFormProps {
     savedStreamIds?: number[],
     setSavedStreamIds: (newStreamIds: number[]) => any,
     updateForm: (value: ((prevState: number) => number)) => void
 }
 
-export default function ChooseStreams({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsProps) {
+export default function ChooseStreamsForm({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsFormProps) {
     const {allStreams, isError, isLoading} = useGetStreamInfos();
 
     return (
@@ -29,7 +29,7 @@ export default function ChooseStreams({savedStreamIds, setSavedStreamIds, update
     )
 }
 
-interface LoadedModeProps extends ChooseStreamsProps {
+interface LoadedModeProps extends ChooseStreamsFormProps {
     allStreams: StreamInfoDto[];
 }
 

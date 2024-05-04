@@ -1,7 +1,7 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import {ArrowBack, ArrowDownward} from "@mui/icons-material";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
-import ScoredCombinations from "@/components/ScoredCombinations";
+import ScoredCombinationsTable from "@/app/daily-combination/components/ScoredCombinationsTable";
 import {useEffect, useState} from "react";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
@@ -10,7 +10,7 @@ import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombination
 import {formatISO} from "date-fns";
 import {useRouter} from "next/navigation";
 
-interface ChooseCombinationProps {
+interface ChooseCombinationFormProps {
     developerIds: number[],
     streamIds: number[],
     updateForm: (value: ((prevState: number) => number)) => void
@@ -21,7 +21,7 @@ interface CombinationIndex {
     column: number;
 }
 
-export default function ChooseCombination({developerIds, streamIds, updateForm}: ChooseCombinationProps) {
+export default function ChooseCombinationForm({developerIds, streamIds, updateForm}: ChooseCombinationFormProps) {
     const {combinations, trigger, isError, isLoading} = usePostForCalculateCombinations();
 
     useEffect(() => {
@@ -45,7 +45,7 @@ export default function ChooseCombination({developerIds, streamIds, updateForm}:
     )
 }
 
-interface LoadedModeProps extends ChooseCombinationProps {
+interface LoadedModeProps extends ChooseCombinationFormProps {
     combinations: ScoredCombinationDto[];
 }
 
@@ -98,9 +98,9 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
         <Stack gap={1}>
             <Typography variant="h4">Possible combinations</Typography>
             {knownCombinations.map((combinations, rowIndex) =>
-                <ScoredCombinations key={rowIndex} dtos={combinations}
-                                    selectedIndex={getSelectedIndexForRow(rowIndex)}
-                                    setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
+                <ScoredCombinationsTable key={rowIndex} dtos={combinations}
+                                         selectedIndex={getSelectedIndexForRow(rowIndex)}
+                                         setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
                                         column: columnIndex,
                                         row: rowIndex
                                     })}

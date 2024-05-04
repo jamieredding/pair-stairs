@@ -1,9 +1,9 @@
 "use client"
 
-import ChooseDevelopers from "@/components/ChooseDevelopers";
+import ChooseDevelopersForm from "@/app/daily-combination/components/ChooseDevelopersForm";
 import {Fragment, useState} from "react";
-import ChooseStreams from "@/components/ChooseStreams";
-import ChooseCombination from "@/components/ChooseCombination";
+import ChooseStreamsForm from "@/app/daily-combination/components/ChooseStreamsForm";
+import ChooseCombinationForm from "@/app/daily-combination/components/ChooseCombinationForm";
 
 
 export default function DailyCombinationPage() {
@@ -14,19 +14,19 @@ export default function DailyCombinationPage() {
     return (
         <Fragment>
             {formStage === 0 &&
-                <ChooseDevelopers savedDeveloperIds={savedDeveloperIds}
-                                  setSavedDeveloperIds={setSavedDeveloperIds}
-                                  updateForm={setFormStage}/>
+                <ChooseDevelopersForm savedDeveloperIds={savedDeveloperIds}
+                                      setSavedDeveloperIds={setSavedDeveloperIds}
+                                      updateForm={setFormStage}/>
             }
             {formStage === 1 &&
-                <ChooseStreams savedStreamIds={savedStreamIds}
-                               setSavedStreamIds={setSavedStreamIds}
-                               updateForm={setFormStage}/>
+                <ChooseStreamsForm savedStreamIds={savedStreamIds}
+                                   setSavedStreamIds={setSavedStreamIds}
+                                   updateForm={setFormStage}/>
             }
             {formStage === 2 &&
-                <ChooseCombination developerIds={savedDeveloperIds as number[]}
-                                   streamIds={savedStreamIds as number[]}
-                                   updateForm={setFormStage}/>
+                <ChooseCombinationForm developerIds={savedDeveloperIds as number[]}
+                                       streamIds={savedStreamIds as number[]}
+                                       updateForm={setFormStage}/>
             }
         </Fragment>
     )

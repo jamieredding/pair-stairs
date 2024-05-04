@@ -4,11 +4,11 @@ import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import {useAddDeveloper, useRefreshGetDeveloperInfo} from "@/infrastructure/DeveloperClient";
 
-interface AddNewDeveloperProps {
+interface AddNewDeveloperFormProps {
     onSubmit: () => void
 }
 
-export default function AddNewDeveloper({onSubmit}: AddNewDeveloperProps) {
+export default function AddNewDeveloperForm({onSubmit}: AddNewDeveloperFormProps) {
     const [name, setName] = useState<string>("");
     const {trigger} = useAddDeveloper()
     const {refresh} = useRefreshGetDeveloperInfo()

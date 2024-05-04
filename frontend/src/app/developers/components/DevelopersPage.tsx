@@ -16,7 +16,7 @@ import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 import ButtonRow from "@/components/ButtonRow";
 import {PersonAdd} from "@mui/icons-material";
 import {useState} from "react";
-import AddNewDeveloper from "@/components/AddNewDeveloper";
+import AddNewDeveloperForm from "@/app/developers/components/AddNewDeveloperForm";
 import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
 
 export default function DevelopersPage() {
@@ -77,7 +77,7 @@ function AddNewDeveloperDialog({open, onClose}: AddNewDeveloperDialogProps) {
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Add new developer</DialogTitle>
             <DialogContent>
-                <AddNewDeveloper onSubmit={onClose}/>
+                <AddNewDeveloperForm onSubmit={onClose}/>
             </DialogContent>
         </Dialog>
     )

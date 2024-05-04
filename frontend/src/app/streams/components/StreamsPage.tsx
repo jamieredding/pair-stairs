@@ -17,7 +17,7 @@ import {PostAdd} from "@mui/icons-material";
 import {useState} from "react";
 import {useGetStreamInfos} from "@/infrastructure/StreamClient";
 import StreamInfoDto from "@/domain/StreamInfoDto";
-import AddNewStream from "@/components/AddNewStream";
+import AddNewStreamForm from "@/app/streams/components/AddNewStreamForm";
 
 export default function StreamsPage() {
     const {allStreams, isError, isLoading} = useGetStreamInfos();
@@ -75,7 +75,7 @@ function AddNewStreamDialog({open, onClose}: AddNewDialogProps) {
         <Dialog open={open} onClose={onClose}>
             <DialogTitle>Add new stream</DialogTitle>
             <DialogContent>
-                <AddNewStream onSubmit={onClose}/>
+                <AddNewStreamForm onSubmit={onClose}/>
             </DialogContent>
         </Dialog>
     )
