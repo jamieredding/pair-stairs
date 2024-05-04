@@ -50,8 +50,9 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
 
     const [combination, setCombination] = useState<PairStreamDto[]>([])
 
-    const hasNoPairsToSave: boolean = combination.length === 0
+    const somePairsInCombination: boolean = combination.length > 0
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
+    const validForm: boolean = somePairsInCombination && date !== null
 
     function addToCombination() {
         setCombination(prevState => {
@@ -99,7 +100,7 @@ export default function AddNewCombination({developerIds, streamIds}: AddNewCombi
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-                <SaveButton disabled={hasNoPairsToSave}/>
+                <SaveButton disabled={!validForm}/>
             </ButtonRow>
             <ManualSelectionTable combination={combination}
                                   removeFromCombination={removeFromCombination}/>
