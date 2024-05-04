@@ -4,7 +4,8 @@ import {useState} from "react";
 import {ArrowBack, List} from "@mui/icons-material";
 import ButtonRow from "@/components/ButtonRow";
 import StreamInfoDto from "@/domain/StreamInfoDto";
-import {useGetStreamInfos} from "@/infrastructure/StreamClient";
+
+import useStreamInfos from "@/hooks/streams/useStreamInfos";
 
 interface ChooseStreamsFormProps {
     savedStreamIds?: number[],
@@ -13,7 +14,7 @@ interface ChooseStreamsFormProps {
 }
 
 export default function ChooseStreamsForm({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsFormProps) {
-    const {allStreams, isError, isLoading} = useGetStreamInfos();
+    const {allStreams, isError, isLoading} = useStreamInfos();
 
     return (
         <>

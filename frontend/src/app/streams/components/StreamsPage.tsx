@@ -15,12 +15,12 @@ import {
 import ButtonRow from "@/components/ButtonRow";
 import {PostAdd} from "@mui/icons-material";
 import {useState} from "react";
-import {useGetStreamInfos} from "@/infrastructure/StreamClient";
 import StreamInfoDto from "@/domain/StreamInfoDto";
 import AddNewStreamForm from "@/app/streams/components/AddNewStreamForm";
+import useStreamInfos from "@/hooks/streams/useStreamInfos";
 
 export default function StreamsPage() {
-    const {allStreams, isError, isLoading} = useGetStreamInfos();
+    const {allStreams, isError, isLoading} = useStreamInfos();
 
     return (
         <>

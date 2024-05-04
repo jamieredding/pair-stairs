@@ -1,36 +1,15 @@
-import useSWRMutation from "swr/mutation";
 import CalculateInputDto from "@/domain/CalculateInputDto";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import SaveCombinationEventDto from "@/domain/SaveCombinationEventDto";
 
-export function usePostForCalculateCombinations() {
-    const {data, trigger, isMutating, error} = useSWRMutation("/api/v1/combinations/calculate", calculateCombinations)
-
-    return {
-        combinations: data,
-        trigger,
-        isError: error,
-        isLoading: isMutating
-    }
+export async function calculateCombinations(url: string, {arg}: {
+    arg: CalculateInputDto
+}): Promise<ScoredCombinationDto[]> {
+    const res = await fetch(url, {method: "POST", body: JSON.stringify(arg)});
+    return await res.json();
 }
 
-export function usePostForSaveCombinationEvent(){
-    // todo use data/error/mutating
-    const {data, trigger, isMutating, error} = useSWRMutation("/api/v1/combinations/event", saveCombinationEvent)
-
-    return {
-        trigger,
-        isError: error,
-        isLoading: isMutating
-    }
-}
-
-function calculateCombinations(url: string, {arg}: { arg: CalculateInputDto }): Promise<ScoredCombinationDto[]> {
-    return fetch(url, {method: "POST", body: JSON.stringify(arg)})
-        .then(res => res.json())
-}
-
-function saveCombinationEvent(url: string, {arg}: {arg: SaveCombinationEventDto}) {
+export function saveCombinationEvent(url: string, {arg}: {arg: SaveCombinationEventDto}) {
     return fetch(url, {method: "POST", body: JSON.stringify(arg)})
     // todo response handling
 }

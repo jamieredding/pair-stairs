@@ -1,13 +1,13 @@
 "use client"
 
 import ManualCombinationPage from "@/app/manual-combination/components/ManualCombinationPage";
-import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
-import {useGetStreamInfos} from "@/infrastructure/StreamClient";
 import PageCard from "@/components/PageCard";
+import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
+import useStreamInfos from "@/hooks/streams/useStreamInfos";
 
 export default function Home() {
-    const {allDevelopers, isLoading: loadingDevelopers, isError: erroringDevelopers} = useGetDeveloperInfos();
-    const {allStreams, isLoading: loadingStreams, isError: erroringStreams} = useGetStreamInfos()
+    const {allDevelopers, isLoading: loadingDevelopers, isError: erroringDevelopers} = useDeveloperInfos();
+    const {allStreams, isLoading: loadingStreams, isError: erroringStreams} = useStreamInfos()
 
     return (
         <main>

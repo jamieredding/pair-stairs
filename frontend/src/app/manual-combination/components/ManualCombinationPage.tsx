@@ -13,8 +13,8 @@ import ManualSelectionTable from "@/app/manual-combination/components/ManualSele
 import {format} from "date-fns";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
-import {usePostForSaveCombinationEvent} from "@/infrastructure/CombinationClient";
 import {useRouter} from "next/navigation";
+import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
 
 const dateFormat = "yyyy-MM-dd"
 
@@ -35,7 +35,7 @@ export default function ManualCombinationPage({allPossibleDevelopers, allPossibl
 
     const [combination, setCombination] = useState<PairStreamDto[]>([])
 
-    const {trigger} = usePostForSaveCombinationEvent()
+    const {trigger} = useAddCombinationEvent()
     const router = useRouter()
 
     const somePairsInCombination: boolean = combination.length > 0

@@ -17,10 +17,11 @@ import ButtonRow from "@/components/ButtonRow";
 import {PersonAdd} from "@mui/icons-material";
 import {useState} from "react";
 import AddNewDeveloperForm from "@/app/developers/components/AddNewDeveloperForm";
-import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
+
+import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
 
 export default function DevelopersPage() {
-    const {allDevelopers, isError, isLoading} = useGetDeveloperInfos();
+    const {allDevelopers, isError, isLoading} = useDeveloperInfos();
 
     return (
         <>

@@ -5,10 +5,11 @@ import ScoredCombinationsTable from "@/app/daily-combination/components/ScoredCo
 import {useEffect, useState} from "react";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
-import {usePostForCalculateCombinations, usePostForSaveCombinationEvent} from "@/infrastructure/CombinationClient";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
 import {formatISO} from "date-fns";
 import {useRouter} from "next/navigation";
+import usePostForCalculateCombinations from "@/hooks/combinations/useCalculateCombinations";
+import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
 
 interface ChooseCombinationFormProps {
     developerIds: number[],
@@ -53,7 +54,7 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
     const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
-    const {trigger} = usePostForSaveCombinationEvent()
+    const {trigger} = useAddCombinationEvent()
     const router = useRouter()
 
     const nothingSelected = selectedCombinationIndex === undefined;

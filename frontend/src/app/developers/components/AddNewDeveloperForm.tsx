@@ -2,7 +2,8 @@ import {Stack, TextField} from "@mui/material";
 import {useState} from "react";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
-import {useAddDeveloper, useRefreshGetDeveloperInfo} from "@/infrastructure/DeveloperClient";
+import useRefreshDeveloperInfos from "@/hooks/developers/useRefreshDeveloperInfos";
+import useAddDeveloper from "@/hooks/developers/useAddDeveloper";
 
 interface AddNewDeveloperFormProps {
     onSubmit: () => void
@@ -11,7 +12,7 @@ interface AddNewDeveloperFormProps {
 export default function AddNewDeveloperForm({onSubmit}: AddNewDeveloperFormProps) {
     const [name, setName] = useState<string>("");
     const {trigger} = useAddDeveloper()
-    const {refresh} = useRefreshGetDeveloperInfo()
+    const {refresh} = useRefreshDeveloperInfos()
 
     function handleSubmit() {
         const newName = name as string;

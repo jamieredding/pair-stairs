@@ -3,8 +3,8 @@ import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
 import {useState} from "react";
 import {ArrowForward} from "@mui/icons-material";
 import ButtonRow from "@/components/ButtonRow";
-import {useGetDeveloperInfos} from "@/infrastructure/DeveloperClient";
 import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
+import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
 
 interface ChooseDeveloperFormProps {
     savedDeveloperIds?: number[],
@@ -13,7 +13,7 @@ interface ChooseDeveloperFormProps {
 }
 
 export default function ChooseDevelopersForm({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperFormProps) {
-    const {allDevelopers, isError, isLoading} = useGetDeveloperInfos();
+    const {allDevelopers, isError, isLoading} = useDeveloperInfos();
 
     return (
         <>

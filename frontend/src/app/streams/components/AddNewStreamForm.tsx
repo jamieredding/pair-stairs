@@ -2,7 +2,8 @@ import {Stack, TextField} from "@mui/material";
 import SaveButton from "@/components/SaveButton";
 import {useState} from "react";
 import ButtonRow from "@/components/ButtonRow";
-import {useAddStream, useRefreshGetStreamInfo} from "@/infrastructure/StreamClient";
+import useRefreshStreamInfos from "@/hooks/streams/useRefreshStreamInfos";
+import useAddStream from "@/hooks/streams/useAddStream";
 
 interface AddNewStreamFormProps {
     onSubmit: () => void
@@ -11,7 +12,7 @@ interface AddNewStreamFormProps {
 export default function AddNewStreamForm({onSubmit}: AddNewStreamFormProps) {
     const [name, setName] = useState<string>("");
     const {trigger} = useAddStream()
-    const {refresh} = useRefreshGetStreamInfo()
+    const {refresh} = useRefreshStreamInfos()
 
     function handleSubmit() {
         const newName = name as string;
