@@ -1,13 +1,26 @@
-import useSWRMutation from "swr/mutation";
 import {calculateCombinations} from "@/infrastructure/CombinationClient";
+import useSWRInfinite, {SWRInfiniteKeyLoader} from "swr/infinite";
+import CalculateInputDto from "@/domain/CalculateInputDto";
 
-export default function usePostForCalculateCombinations() {
-    const {data, trigger, isMutating, error} = useSWRMutation("/api/v1/combinations/calculate", calculateCombinations)
+const getKey :SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
+    if (previousPageData && !previousPageData.length) {
+        return null
+    }
+    return `/api/v1/combinations/calculate?page=${pageIndex}`
+}
+
+export default function useCalculateCombinations(requestBody: CalculateInputDto) {
+    const {
+        data,
+        error,
+        isLoading,
+        setSize
+    } = useSWRInfinite(getKey, (url:string ) => calculateCombinations(url, {arg: requestBody}));
 
     return {
-        combinations: data,
-        trigger,
+        combinationsPages: data,
         isError: error,
-        isLoading: isMutating
+        isLoading,
+        setSize
     }
 }

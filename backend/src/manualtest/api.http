@@ -25,7 +25,7 @@ GET {{baseUrl}}/api/v1/streams/info
 
 ### Calculate combinations
 
-POST {{baseUrl}}/api/v1/combinations/calculate
+POST {{baseUrl}}/api/v1/combinations/calculate?page=1
 Content-Type: application/json
 
 {

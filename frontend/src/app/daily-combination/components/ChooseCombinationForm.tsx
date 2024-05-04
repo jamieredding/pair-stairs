@@ -2,13 +2,13 @@ import {Button, Divider, Stack, Typography} from "@mui/material";
 import {ArrowBack, ArrowDownward} from "@mui/icons-material";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import ScoredCombinationsTable from "@/app/daily-combination/components/ScoredCombinationsTable";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
 import {formatISO} from "date-fns";
 import {useRouter} from "next/navigation";
-import usePostForCalculateCombinations from "@/hooks/combinations/useCalculateCombinations";
+import useCalculateCombinations from "@/hooks/combinations/useCalculateCombinations";
 import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
@@ -25,22 +25,13 @@ interface CombinationIndex {
 }
 
 export default function ChooseCombinationForm({developerIds, streamIds, updateForm}: ChooseCombinationFormProps) {
-    const {combinations, trigger: calculateCombinations, isError, isLoading} = usePostForCalculateCombinations();
-    const dataLoaded = combinations !== undefined;
-
-    useEffect(() => {
-        calculateCombinations({
-            developerIds,
-            streamIds
-        })
-    }, [developerIds, streamIds, calculateCombinations])
-
-    const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([])
-    useEffect(() => {
-        if (combinations) {
-            setKnownCombinations([combinations])
-        }
-    }, [combinations]);
+    const {
+        combinationsPages,
+        isError,
+        isLoading,
+        setSize
+    } = useCalculateCombinations({developerIds, streamIds});
+    const dataLoaded = combinationsPages !== undefined;
 
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
@@ -54,7 +45,7 @@ export default function ChooseCombinationForm({developerIds, streamIds, updateFo
     }
 
     function getMoreCombinations() {
-        setKnownCombinations(prevState => [...prevState, combinations as ScoredCombinationDto[]]);
+        setSize(size => size + 1)
     }
 
     function getSelectedIndexForRow(rowIndex: number): number | undefined {
@@ -68,7 +59,8 @@ export default function ChooseCombinationForm({developerIds, streamIds, updateFo
 
     function saveCombination() {
         const index = selectedCombinationIndex as CombinationIndex;
-        const scoredCombination: ScoredCombinationDto = knownCombinations[index.row][index.column]
+        const pages = combinationsPages as ScoredCombinationDto[][]
+        const scoredCombination: ScoredCombinationDto = pages[index.row][index.column]
         const pairStreamsByIds: PairStreamByIds[] = scoredCombination.combination.map(c => ({
             streamId: c.stream.id,
             developerIds: c.developers.map(d => d.id)
@@ -88,10 +80,9 @@ export default function ChooseCombinationForm({developerIds, streamIds, updateFo
     return (
         <Stack gap={1}>
             <Typography variant="h4">Possible combinations</Typography>
-            {isLoading && <Loading/>}
-            {isError && <Error/>}
-            {combinations &&
-                knownCombinations.map((combinations, rowIndex) =>
+            {
+                combinationsPages &&
+                combinationsPages.map((combinations, rowIndex) =>
                     <ScoredCombinationsTable key={rowIndex} dtos={combinations}
                                              selectedIndex={getSelectedIndexForRow(rowIndex)}
                                              setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
@@ -101,6 +92,8 @@ export default function ChooseCombinationForm({developerIds, streamIds, updateFo
                     />
                 )
             }
+            {isLoading && <Loading/>}
+            {isError && <Error/>}
             <Divider/>
             <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>

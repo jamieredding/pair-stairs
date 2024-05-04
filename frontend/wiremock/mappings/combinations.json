@@ -3,7 +3,12 @@
     {
       "request": {
         "method": "POST",
-        "url": "/api/v1/combinations/calculate",
+        "urlPath": "/api/v1/combinations/calculate",
+        "queryParameters": {
+          "page": {
+            "matches": "\\d+"
+          }
+        },
         "bodyPatterns": [
           {"matchesJsonPath": "$[?(@.developerIds.length() > 0)]"},
           {"matchesJsonPath": "$[?(@.streamIds.length() > 0)]"}
