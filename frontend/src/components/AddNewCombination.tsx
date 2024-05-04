@@ -11,40 +11,20 @@ import ManualSelectionTable from "@/components/ManualSelectionTable";
 import {format} from "date-fns";
 import CustomDatePicker from "@/components/CustomDatePicker";
 
-// todo remove this
-const developers: DeveloperInfoDto[] = [
-    {id: 1, displayName: "dev-1"},
-    {id: 2, displayName: "dev-2"},
-    {id: 3, displayName: "dev-3"},
-    {id: 4, displayName: "dev-4"},
-    {id: 5, displayName: "dev-5"},
-    {id: 6, displayName: "dev-6"},
-    {id: 7, displayName: "Jamie with a long long name!"},
-]
-
-// todo remove this
-const streams: StreamInfoDto[] = [
-    {id: 1, displayName: "stream-a"},
-    {id: 2, displayName: "stream-b"},
-    {id: 3, displayName: "stream-c"},
-]
-
 const dateFormat = "yyyy-MM-dd"
 
 interface AddNewCombinationProps {
-    developerIds: number[],
-    streamIds: number[]
+    allPossibleDevelopers: DeveloperInfoDto[],
+    allPossibleStreams: StreamInfoDto[]
 }
 
-export default function AddNewCombination({developerIds, streamIds}: AddNewCombinationProps) {
+export default function AddNewCombination({allPossibleDevelopers, allPossibleStreams}: AddNewCombinationProps) {
     const today = format(new Date(), dateFormat)
     const [date, setDate] = useState<string | null>(today)
 
-    const allPossibleDevelopers = developers.filter(dev => developerIds.includes(dev.id));
     const [remainingDevelopers, setRemainingDevelopers] = useState<DeveloperInfoDto[]>(allPossibleDevelopers);
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>([])
 
-    const allPossibleStreams = streams.filter(stream => streamIds.includes(stream.id));
     const [remainingStreams, setRemainingStreams] = useState<StreamInfoDto[]>(allPossibleStreams);
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>([])
 

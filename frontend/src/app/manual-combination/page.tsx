@@ -24,8 +24,8 @@ export default function Home() {
                             }
                             {allDevelopers && allStreams &&
                                 <AddNewCombination
-                                    developerIds={allDevelopers.map(d => d.id)}
-                                    streamIds={allStreams.map(s => s.id)}/>
+                                    allPossibleDevelopers={allDevelopers}
+                                    allPossibleStreams={allStreams}/>
                             }
                         </CardContent>
                     </Card>
