@@ -12,35 +12,17 @@ import {
     Stack,
     Typography
 } from "@mui/material";
-import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 import ButtonRow from "@/components/ButtonRow";
 import {PersonAdd} from "@mui/icons-material";
 import {useState} from "react";
 import AddNewDeveloperForm from "@/app/developers/components/AddNewDeveloperForm";
 
 import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 
 export default function DevelopersPage() {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
-
-    return (
-        <>
-            {isError &&
-                <p>failed to load developers...</p>
-            }
-            {isLoading &&
-                <p>loading developers...</p>
-            }
-            {allDevelopers && <LoadedMode allDevelopers={allDevelopers}/>}
-        </>
-    )
-}
-
-interface LoadedModeProps {
-    allDevelopers: DeveloperInfoDto[]
-}
-
-function LoadedMode({allDevelopers}: LoadedModeProps) {
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
     return (
@@ -55,13 +37,16 @@ function LoadedMode({allDevelopers}: LoadedModeProps) {
                 </Button>
             </ButtonRow>
             <List>
-                {allDevelopers.map(developer =>
-                    <ListItem key={developer.id}>
-                        <ListItemButton>
-                            <ListItemText primary={developer.displayName}/>
-                        </ListItemButton>
-                    </ListItem>
-                )}
+                {isLoading && <Loading/>}
+                {isError && <Error/>}
+                {allDevelopers &&
+                    allDevelopers.map(developer =>
+                        <ListItem key={developer.id}>
+                            <ListItemButton>
+                                <ListItemText primary={developer.displayName}/>
+                            </ListItemButton>
+                        </ListItem>
+                    )}
             </List>
             <AddNewDeveloperDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}/>
         </Stack>

@@ -15,31 +15,13 @@ import {
 import ButtonRow from "@/components/ButtonRow";
 import {PostAdd} from "@mui/icons-material";
 import {useState} from "react";
-import StreamInfoDto from "@/domain/StreamInfoDto";
 import AddNewStreamForm from "@/app/streams/components/AddNewStreamForm";
 import useStreamInfos from "@/hooks/streams/useStreamInfos";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 
 export default function StreamsPage() {
     const {allStreams, isError, isLoading} = useStreamInfos();
-
-    return (
-        <>
-            {isError &&
-                <p>failed to load streams...</p>
-            }
-            {isLoading &&
-                <p>loading streams...</p>
-            }
-            {allStreams && <LoadedMode allStreams={allStreams}/>}
-        </>
-    )
-}
-
-interface LoadedModeProps {
-    allStreams: StreamInfoDto[];
-}
-
-function LoadedMode({allStreams}: LoadedModeProps) {
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
 
     return (
@@ -52,13 +34,16 @@ function LoadedMode({allStreams}: LoadedModeProps) {
                 </Button>
             </ButtonRow>
             <List>
-                {allStreams.map(stream =>
-                    <ListItem key={stream.id}>
-                        <ListItemButton>
-                            <ListItemText primary={stream.displayName}/>
-                        </ListItemButton>
-                    </ListItem>
-                )}
+                {isLoading && <Loading/>}
+                {isError && <Error/>}
+                {allStreams &&
+                    allStreams.map(stream =>
+                        <ListItem key={stream.id}>
+                            <ListItemButton>
+                                <ListItemText primary={stream.displayName}/>
+                            </ListItemButton>
+                        </ListItem>
+                    )}
             </List>
             <AddNewStreamDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}/>
         </Stack>

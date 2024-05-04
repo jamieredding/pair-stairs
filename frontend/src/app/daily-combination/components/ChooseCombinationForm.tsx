@@ -10,6 +10,8 @@ import {formatISO} from "date-fns";
 import {useRouter} from "next/navigation";
 import usePostForCalculateCombinations from "@/hooks/combinations/useCalculateCombinations";
 import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 
 interface ChooseCombinationFormProps {
     developerIds: number[],
@@ -23,38 +25,26 @@ interface CombinationIndex {
 }
 
 export default function ChooseCombinationForm({developerIds, streamIds, updateForm}: ChooseCombinationFormProps) {
-    const {combinations, trigger, isError, isLoading} = usePostForCalculateCombinations();
+    const {combinations, trigger: calculateCombinations, isError, isLoading} = usePostForCalculateCombinations();
+    const dataLoaded = combinations !== undefined;
 
     useEffect(() => {
-        trigger({
+        calculateCombinations({
             developerIds,
             streamIds
         })
-    }, [developerIds, streamIds, trigger])
+    }, [developerIds, streamIds, calculateCombinations])
 
-    return (
-        <>
-            {isError &&
-                <p>failed to load combinations...</p>
-            }
-            {isLoading &&
-                <p>calculating combinations...</p>
-            }
-            {combinations && <LoadedMode combinations={combinations} developerIds={developerIds} streamIds={streamIds}
-                                         updateForm={updateForm}/>}
-        </>
-    )
-}
+    const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([])
+    useEffect(() => {
+        if (combinations) {
+            setKnownCombinations([combinations])
+        }
+    }, [combinations]);
 
-interface LoadedModeProps extends ChooseCombinationFormProps {
-    combinations: ScoredCombinationDto[];
-}
-
-function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedModeProps) {
-    const [knownCombinations, setKnownCombinations] = useState<ScoredCombinationDto[][]>([combinations])
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
-    const {trigger} = useAddCombinationEvent()
+    const {trigger: addCombinationEvent} = useAddCombinationEvent()
     const router = useRouter()
 
     const nothingSelected = selectedCombinationIndex === undefined;
@@ -64,7 +54,7 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
     }
 
     function getMoreCombinations() {
-        setKnownCombinations(prevState => [...prevState, combinations]);
+        setKnownCombinations(prevState => [...prevState, combinations as ScoredCombinationDto[]]);
     }
 
     function getSelectedIndexForRow(rowIndex: number): number | undefined {
@@ -89,7 +79,7 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
             combination: pairStreamsByIds
         }
 
-        trigger(data)
+        addCombinationEvent(data)
             .then(_ => {
                 router.push("/")
             })
@@ -98,27 +88,31 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
     return (
         <Stack gap={1}>
             <Typography variant="h4">Possible combinations</Typography>
-            {knownCombinations.map((combinations, rowIndex) =>
-                <ScoredCombinationsTable key={rowIndex} dtos={combinations}
-                                         selectedIndex={getSelectedIndexForRow(rowIndex)}
-                                         setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
-                                        column: columnIndex,
-                                        row: rowIndex
-                                    })}
-                />
-            )}
+            {isLoading && <Loading/>}
+            {isError && <Error/>}
+            {combinations &&
+                knownCombinations.map((combinations, rowIndex) =>
+                    <ScoredCombinationsTable key={rowIndex} dtos={combinations}
+                                             selectedIndex={getSelectedIndexForRow(rowIndex)}
+                                             setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
+                                                 column: columnIndex,
+                                                 row: rowIndex
+                                             })}
+                    />
+                )
+            }
             <Divider/>
             <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
                 </Button>
-                <Button variant="outlined" onClick={getMoreCombinations}>
+                <Button variant="outlined" onClick={getMoreCombinations} disabled={!dataLoaded}>
                     <ArrowDownward sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     More
                 </Button>
 
-                <SaveButton disabled={nothingSelected} onClick={saveCombination}/>
+                <SaveButton disabled={!dataLoaded || nothingSelected} onClick={saveCombination}/>
             </ButtonRow>
         </Stack>
     );

@@ -1,10 +1,11 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import IdToggleButtonGroup from "@/components/IdToggleButtonGroup";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ArrowForward} from "@mui/icons-material";
 import ButtonRow from "@/components/ButtonRow";
-import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
 import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
 
 interface ChooseDeveloperFormProps {
     savedDeveloperIds?: number[],
@@ -12,29 +13,20 @@ interface ChooseDeveloperFormProps {
     updateForm: (value: ((prevState: number) => number)) => void
 }
 
-export default function ChooseDevelopersForm({savedDeveloperIds, setSavedDeveloperIds, updateForm}: ChooseDeveloperFormProps) {
+export default function ChooseDevelopersForm({
+                                                 savedDeveloperIds,
+                                                 setSavedDeveloperIds,
+                                                 updateForm
+                                             }: ChooseDeveloperFormProps) {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
+    const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => savedDeveloperIds || []);
+    const dataLoaded: boolean = allDevelopers !== undefined
 
-    return (
-        <>
-            {isError &&
-                <p>failed to load developers...</p>
-            }
-            {isLoading &&
-                <p>loading developers...</p>
-            }
-            {allDevelopers && <LoadedMode allDevelopers={allDevelopers} savedDeveloperIds={savedDeveloperIds}
-                                          setSavedDeveloperIds={setSavedDeveloperIds} updateForm={updateForm}/>}
-        </>
-    )
-}
-
-interface LoadedModeProps extends ChooseDeveloperFormProps {
-    allDevelopers: DeveloperInfoDto[]
-}
-
-function LoadedMode({allDevelopers, savedDeveloperIds, setSavedDeveloperIds, updateForm}: LoadedModeProps) {
-    const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => savedDeveloperIds || allDevelopers.map(dev => dev.id));
+    useEffect(() => {
+        if (allDevelopers) {
+            setSelectedDeveloperIds(allDevelopers.map(dev => dev.id))
+        }
+    }, [allDevelopers]);
 
     function progressForm() {
         setSavedDeveloperIds(selectedDeveloperIds);
@@ -44,12 +36,17 @@ function LoadedMode({allDevelopers, savedDeveloperIds, setSavedDeveloperIds, upd
     return (
         <Stack gap={1}>
             <Typography variant="h4">Who is in today?</Typography>
-            <IdToggleButtonGroup allItems={allDevelopers} selectedIds={selectedDeveloperIds}
-                                 setSelectedIds={setSelectedDeveloperIds}/>
+            {isLoading && <Loading/>}
+            {isError && <Error/>}
+            {allDevelopers &&
+                <IdToggleButtonGroup allItems={allDevelopers} selectedIds={selectedDeveloperIds}
+                                     setSelectedIds={setSelectedDeveloperIds}/>
+            }
             <Divider/>
             <ButtonRow>
                 <Button variant="contained"
                         onClick={progressForm}
+                        disabled={!dataLoaded}
                 >
                     Next
                     <ArrowForward sx={({marginLeft: (theme) => theme.spacing(1)})}/>
