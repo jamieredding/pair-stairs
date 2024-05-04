@@ -6,7 +6,6 @@ import Grid from "@mui/system/Unstable_Grid";
 import {useState} from "react";
 import ChooseStreams from "@/components/ChooseStreams";
 import ChooseCombination from "@/components/ChooseCombination";
-import LandingPlaceholder from "@/components/LandingPlaceholder";
 
 
 export default function NewCombinationForm() {
@@ -33,9 +32,6 @@ export default function NewCombinationForm() {
                             <ChooseCombination developerIds={savedDeveloperIds as number[]}
                                                streamIds={savedStreamIds as number[]}
                                                updateForm={setFormStage}/>
-                        }
-                        {formStage === 3 &&
-                            <LandingPlaceholder/>
                         }
                     </CardContent>
                 </Card>

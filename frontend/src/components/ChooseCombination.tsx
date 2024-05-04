@@ -8,6 +8,7 @@ import ButtonRow from "@/components/ButtonRow";
 import {usePostForCalculateCombinations, usePostForSaveCombinationEvent} from "@/infrastructure/CombinationClient";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
 import {formatISO} from "date-fns";
+import {useRouter} from "next/navigation";
 
 interface ChooseCombinationProps {
     developerIds: number[],
@@ -53,6 +54,7 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
     const {trigger} = usePostForSaveCombinationEvent()
+    const router = useRouter()
 
     const nothingSelected = selectedCombinationIndex === undefined;
 
@@ -88,7 +90,7 @@ function LoadedMode({combinations, developerIds, streamIds, updateForm}: LoadedM
 
         trigger(data)
             .then(_ => {
-                progressForm(1)
+                router.push("/")
             })
     }
 
