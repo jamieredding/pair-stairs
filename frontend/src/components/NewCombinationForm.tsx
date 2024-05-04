@@ -1,9 +1,7 @@
 "use client"
 
-import {Card, CardContent} from "@mui/material";
 import ChooseDevelopers from "@/components/ChooseDevelopers";
-import Grid from "@mui/system/Unstable_Grid";
-import {useState} from "react";
+import {Fragment, useState} from "react";
 import ChooseStreams from "@/components/ChooseStreams";
 import ChooseCombination from "@/components/ChooseCombination";
 
@@ -14,28 +12,22 @@ export default function NewCombinationForm() {
     const [formStage, setFormStage] = useState<number>(0)
 
     return (
-        <Grid container justifyContent="center">
-            <Grid xs={12} sm={4}>
-                <Card>
-                    <CardContent>
-                        {formStage === 0 &&
-                            <ChooseDevelopers savedDeveloperIds={savedDeveloperIds}
-                                              setSavedDeveloperIds={setSavedDeveloperIds}
-                                              updateForm={setFormStage}/>
-                        }
-                        {formStage === 1 &&
-                            <ChooseStreams savedStreamIds={savedStreamIds}
-                                           setSavedStreamIds={setSavedStreamIds}
-                                           updateForm={setFormStage}/>
-                        }
-                        {formStage === 2 &&
-                            <ChooseCombination developerIds={savedDeveloperIds as number[]}
-                                               streamIds={savedStreamIds as number[]}
-                                               updateForm={setFormStage}/>
-                        }
-                    </CardContent>
-                </Card>
-            </Grid>
-        </Grid>
+        <Fragment>
+            {formStage === 0 &&
+                <ChooseDevelopers savedDeveloperIds={savedDeveloperIds}
+                                  setSavedDeveloperIds={setSavedDeveloperIds}
+                                  updateForm={setFormStage}/>
+            }
+            {formStage === 1 &&
+                <ChooseStreams savedStreamIds={savedStreamIds}
+                               setSavedStreamIds={setSavedStreamIds}
+                               updateForm={setFormStage}/>
+            }
+            {formStage === 2 &&
+                <ChooseCombination developerIds={savedDeveloperIds as number[]}
+                                   streamIds={savedStreamIds as number[]}
+                                   updateForm={setFormStage}/>
+            }
+        </Fragment>
     )
 }

@@ -1,9 +1,12 @@
 import NewCombinationForm from "@/components/NewCombinationForm";
+import PageCard from "@/components/PageCard";
 
 export default function Home() {
     return (
         <main>
-            <NewCombinationForm/>
+            <PageCard>
+                <NewCombinationForm/>
+            </PageCard>
         </main>
     );
 }
