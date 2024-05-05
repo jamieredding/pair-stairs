@@ -29,6 +29,7 @@ prepare-new-iteration-frontend: check-vars
 	cd frontend && npm version $(DEVELOPMENT_VERSION) --no-git-tag-version
 	git add frontend/package.json frontend/package-lock.json
 	git commit -m "Update frontend version to $(DEVELOPMENT_VERSION)"
+	git push
 
 tag-image-with-release-version: check-vars
 	@echo "Tagging image with $(RELEASE_VERSION)"
