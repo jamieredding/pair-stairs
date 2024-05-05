@@ -1,13 +1,14 @@
 DB_CONTAINER_NAME=build_image__pair_stairs_db
+FRONTEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-frontend
 MVN=./mvnw
 TIMEOUT=120
 SLEEP=5
 
-.PHONY: build start-database wait-for-database run-db build-project stop-database
+.PHONY: build start-database wait-for-database run-db build-maven build-frontend build-frontend-image stop-database
 
 run-db: start-database wait-for-database
 
-build: run-db build-project stop-database
+build: run-db build-maven build-frontend build-frontend-image stop-database
 
 start-database:
 	@echo "Starting MySQL database container..."
@@ -34,9 +35,17 @@ wait-for-database:
 	done
 	@echo "MySQL database is ready!"
 
-build-project:
+build-maven:
 	@echo "Running Maven build..."
 	@$(MVN) clean verify || (echo "Maven build failed." ; exit 1)
+
+build-frontend:
+	@echo "Running frontend build..."
+	@cd frontend && npm install && npm run build || (echo "Frontend build failed." ; exit 1)
+
+build-frontend-image:
+	@echo "Building frontend image..."
+	@cd frontend && docker build -f docker/Dockerfile -t $(FRONTEND_IMAGE_NAME) . || (echo "Failed to build frontend image." ; exit 1)
 
 stop-database:
 	@echo "Stopping MySQL database container..."

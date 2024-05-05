@@ -1,6 +1,6 @@
 services:
   backend:
-    image: backend-manual:latest
+    image: ghcr.io/jamieredding/pair-stairs-backend:latest
     hostname: backend
     container_name: pair_stairs_backend
     restart: unless-stopped
@@ -11,6 +11,21 @@ services:
       - "18081:8080"
     depends_on:
       - db
+
+  frontend:
+    image: ghcr.io/jamieredding/pair-stairs-frontend:latest
+    hostname: frontend
+    container_name: pair_stairs_frontend
+    restart: unless-stopped
+    environment:
+      - BACKEND_HOST=http://backend:8080
+    networks:
+      - pair_stairs
+    ports:
+      - "18082:80"
+    depends_on:
+      - backend
+
   db:
     image: mysql:8.3.0
     hostname: db
