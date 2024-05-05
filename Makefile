@@ -1,10 +1,12 @@
 DB_CONTAINER_NAME=build_image__pair_stairs_db
 FRONTEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-frontend
 MVN=./mvnw
+VERSION ?= $(shell $(MVN) help:evaluate -Dexpression=project.version -q -DforceStdout)
+
 TIMEOUT=120
 SLEEP=5
 
-.PHONY: build start-database wait-for-database run-db build-maven build-frontend build-frontend-image stop-database
+.PHONY: build start-database wait-for-database run-db build-maven build-frontend build-frontend-image sync-version-with-frontend stop-database
 
 run-db: start-database wait-for-database
 
@@ -45,7 +47,11 @@ build-frontend:
 
 build-frontend-image:
 	@echo "Building frontend image..."
-	@cd frontend && docker build -f docker/Dockerfile -t $(FRONTEND_IMAGE_NAME) . || (echo "Failed to build frontend image." ; exit 1)
+	@cd frontend && docker build -f docker/Dockerfile -t $(FRONTEND_IMAGE_NAME):latest -t $(FRONTEND_IMAGE_NAME):$(VERSION) . || (echo "Failed to build frontend image." ; exit 1)
+
+sync-version-with-frontend:
+	@echo "Synchronising frontend version to $(VERSION)"
+	@cd frontend && npm version $(VERSION) --no-git-tag-version
 
 stop-database:
 	@echo "Stopping MySQL database container..."
