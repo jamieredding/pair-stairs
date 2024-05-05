@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-LABEL org.opencontainers.image.source="https://github.com/jamieredding/pair-stairs-frontend"
+LABEL org.opencontainers.image.source="https://github.com/jamieredding/pair-stairs"
 
 COPY out /usr/share/nginx/html
 

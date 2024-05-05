@@ -1,6 +1,6 @@
 FROM eclipse-temurin:21-jre-alpine
 
-LABEL org.opencontainers.image.source="https://github.com/jamieredding/pair-stairs-backend"
+LABEL org.opencontainers.image.source="https://github.com/jamieredding/pair-stairs"
 
 ARG JAR_FILE
 
