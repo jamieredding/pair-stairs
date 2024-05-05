@@ -16,7 +16,7 @@ sync-version-with-frontend:
 	@echo "Synchronising frontend version to $(VERSION)"
 	@cd frontend && npm version $(VERSION) --no-git-tag-version
 
-frontend-release: prepare-release-frontend build-frontend git-push
+frontend-release: prepare-release-frontend build-frontend tag-image-with-release-version git-push
 
 prepare-release-frontend: check-vars
 	@echo "Updating frontend version to $(RELEASE_VERSION)"
