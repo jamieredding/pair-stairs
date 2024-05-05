@@ -9,6 +9,11 @@
             "matches": "\\d+"
           }
         },
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
         "bodyPatterns": [
           {"matchesJsonPath": "$[?(@.developerIds.length() > 0)]"},
           {"matchesJsonPath": "$[?(@.streamIds.length() > 0)]"}
@@ -23,6 +28,11 @@
       "request": {
         "method": "POST",
         "url": "/api/v1/combinations/event",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
         "bodyPatterns": [
           {"matchesJsonPath": "$[?(@.date =~ /\\d{4}-\\d{2}-\\d{2}/)]"},
           {"matchesJsonPath": "$.combination[?(@)]"},

@@ -9,6 +9,12 @@ export async function getDeveloperInfos(url: string): Promise<DeveloperInfoDto[]
 }
 
 export function addDeveloper(url: string, {arg}: { arg: DeveloperDto }) {
-    return fetch(url, {method: "POST", body: JSON.stringify(arg)})
+    return fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(arg)
+    })
     // todo response handling
 }

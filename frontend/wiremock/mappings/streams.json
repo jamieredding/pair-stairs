@@ -19,6 +19,11 @@
       "request": {
         "method": "POST",
         "url": "/api/v1/streams",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
         "bodyPatterns": [
           { "contains": "new stream" }
         ]

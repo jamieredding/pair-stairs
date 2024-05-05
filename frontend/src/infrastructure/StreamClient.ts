@@ -9,6 +9,12 @@ export async function getStreamInfos(url: string): Promise<StreamInfoDto[]> {
 }
 
 export function addStream(url: string, {arg}: { arg: StreamDto }) {
-    return fetch(url, {method: "POST", body: JSON.stringify(arg)})
+    return fetch(url, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(arg)
+    })
     // todo response handling
 }
