@@ -1,52 +1,48 @@
 # pair-stairs
 
-This is a cli application to calculate pairing combinations
-for the day.
+This is a tool for helping developers in a team, decide the combinations of how they will pair with each other.
 
-## Usage
+## Web application
 
-Download the latest version from [releases](https://github.com/jamieredding/pair-stairs/releases/latest).
+Introduced as of 1.4.0 there is now a web application to make it easier for teams to choose their combinations.
 
-See `--help` for available options.
+It consists of a [Next.js frontend](frontend), a [Spring Boot backend](backend/README.md) and a database for
+persistence.
 
-### Option 1: Docker
+Each module is shipped as a docker image and there is a [docker-compose.yml](docker-compose.yml) to bring this stack up
+to try it out yourself.
 
-Download the latest [`pair-stairs.sh`](https://github.com/jamieredding/pair-stairs/releases/latest) from releases.
+## CLI
 
-This script will create a directory next to the script and mount this into the container.
-This allows you to use file storage and still access the config file that is created.
+Initially this project was a CLI only tool. For now, this is in maintenance mode in favour of the web application.
 
-Note: you will need to specify the path to the config file relative to where the jar file is mounted.
+You can find more about it in the [legacy](legacy/README.md) module.
 
-Eg.
-```shell
-./pair-stairs.sh -f data/config.json -d dev-a dev-b dev-c dev-d
-```
+## Core
 
-### Option 2: Non-Docker
+The core business logic of pair-stairs now resides in its own module [core](core/README.md).
 
-Download the zip file and unzip.
-
-Ensure the `java` in your current shell is Java 17 or higher.
-
-Use `bin/pair-stairs.sh` or update it to pass some of your default options in.
-
-Eg.
-```shell
-./pair-stairs.sh -f config.json -d dev-a dev-b dev-c dev-d
-```
+The algorithm for determining combinations is in here.
 
 ## Building the project
 
 The basic requirements to build are:
-- Java 17
-    - This can be downloaded and managed with [SDKMAN](https://sdkman.io/install)
+
+- Make
+  - This is likely already available on your system if you are a developer
+- Java 21
+  - This can be downloaded and managed with [SDKMAN](https://sdkman.io/install)
+- Node 20
+  - This can be downloaded and managed with [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating)
 - Maven
-    - This can be downloaded and managed with the included Maven wrapper script
+  - This can be downloaded and managed with the included Maven wrapper script
 - Docker
-    - Required to build the docker image
+  - Required to build the docker image
 
 Once SDKMAN has been installed, run `sdk env` to download and initialise your environment with the same
 version of Java used in the project.
 
-You should now be able to build the project using `./mvnw clean verify`.
+Once nvm has been installed, run `nvm use` to download and initialise your environment with the same
+version of Node used in the project.
+
+You should now be able to build the project using `make build`.
