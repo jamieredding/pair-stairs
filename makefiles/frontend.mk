@@ -1,0 +1,18 @@
+FRONTEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-frontend
+
+.PHONY: build-frontend build-npm build-frontend-image sync-version-with-frontend
+
+build-frontend: build-npm build-frontend-image
+
+build-npm:
+	@echo "Running frontend build..."
+	@cd frontend && npm install && npm run build || (echo "Frontend build failed." ; exit 1)
+
+build-frontend-image:
+	@echo "Building frontend image..."
+	@cd frontend && docker build -f docker/Dockerfile -t $(FRONTEND_IMAGE_NAME):latest -t $(FRONTEND_IMAGE_NAME):$(VERSION) . || (echo "Failed to build frontend image." ; exit 1)
+
+sync-version-with-frontend:
+	@echo "Synchronising frontend version to $(VERSION)"
+	@cd frontend && npm version $(VERSION) --no-git-tag-version
+
