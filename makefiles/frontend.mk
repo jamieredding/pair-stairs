@@ -1,6 +1,6 @@
 FRONTEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-frontend
 
-.PHONY: build-frontend build-npm build-frontend-image sync-version-with-frontend
+.PHONY: build-frontend build-npm build-frontend-image sync-version-with-frontend prepare-release-frontend prepare-new-iteration-frontend
 
 build-frontend: build-npm build-frontend-image
 
@@ -16,3 +16,14 @@ sync-version-with-frontend:
 	@echo "Synchronising frontend version to $(VERSION)"
 	@cd frontend && npm version $(VERSION) --no-git-tag-version
 
+prepare-release-frontend: check-vars
+	@echo "Updating frontend version to $(RELEASE_VERSION)"
+	cd frontend && npm version $(RELEASE_VERSION) --no-git-tag-version
+	git add frontend/package.json frontend/package-lock.json
+	git commit -m "Update frontend version to $(RELEASE_VERSION)"
+
+prepare-new-iteration-frontend: check-vars
+	@echo "Updating frontend version to $(DEVELOPMENT_VERSION)"
+	cd frontend && npm version $(DEVELOPMENT_VERSION) --no-git-tag-version
+	git add frontend/package.json frontend/package-lock.json
+	git commit -m "Update frontend version to $(DEVELOPMENT_VERSION)"

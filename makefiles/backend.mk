@@ -2,7 +2,7 @@ DB_CONTAINER_NAME=build_image__pair_stairs_db
 TIMEOUT=120
 SLEEP=5
 
-.PHONY: start-database wait-for-database run-db build-maven stop-database
+.PHONY: start-database wait-for-database run-db build-maven stop-database maven-release
 
 run-db: start-database wait-for-database
 
@@ -40,3 +40,7 @@ build-maven:
 stop-database:
 	@echo "Stopping MySQL database container..."
 	@(docker stop $(DB_CONTAINER_NAME) && echo "Stopped.") || echo "No container to stop."
+
+maven-release: check-vars
+	@echo "Running Maven release process"
+	mvn --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) release:clean release:prepare
