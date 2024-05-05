@@ -1,8 +1,9 @@
 DB_CONTAINER_NAME=build_image__pair_stairs_db
+BACKEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-backend
 TIMEOUT=120
 SLEEP=5
 
-.PHONY: start-database wait-for-database run-db build-maven stop-database maven-release
+.PHONY: start-database wait-for-database run-db build-maven stop-database maven-release push-image-backend
 
 run-db: start-database wait-for-database
 
@@ -44,3 +45,10 @@ stop-database:
 maven-release: check-vars
 	@echo "Running Maven release process"
 	mvn --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) release:clean release:prepare
+
+push-image-backend: check-vars
+	@echo "Pushing backend docker image"
+	docker push $(BACKEND_IMAGE_NAME):latest
+	docker rmi -f $(BACKEND_IMAGE_NAME):latest
+	docker push $(BACKEND_IMAGE_NAME):$(RELEASE_VERSION)
+	docker rmi -f $(BACKEND_IMAGE_NAME):$(RELEASE_VERSION)

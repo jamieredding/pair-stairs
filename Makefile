@@ -1,7 +1,7 @@
 MVN=./mvnw
 VERSION ?= $(shell $(MVN) help:evaluate -Dexpression=project.version -q -DforceStdout)
 
-.PHONY: build release git-push
+.PHONY: build release git-push push-images
 
 check-vars:
 ifndef RELEASE_VERSION
@@ -17,7 +17,10 @@ git-push:
 
 include makefiles/backend.mk
 include makefiles/frontend.mk
+include makefiles/legacy.mk
 
 build: build-backend build-frontend
 
 release: check-vars frontend-release maven-release prepare-new-iteration-frontend git-push
+
+push-images: push-image-legacy push-image-backend push-image-frontend
