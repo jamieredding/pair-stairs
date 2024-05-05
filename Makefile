@@ -21,6 +21,6 @@ include makefiles/legacy.mk
 
 build: build-backend build-frontend
 
-release: check-vars frontend-release maven-release prepare-new-iteration-frontend git-push
+release: check-vars frontend-release maven-release stop-database prepare-new-iteration-frontend git-push
 
 push-images: push-image-legacy push-image-backend push-image-frontend

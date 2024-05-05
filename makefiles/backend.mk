@@ -42,7 +42,7 @@ stop-database:
 	@echo "Stopping MySQL database container..."
 	@(docker stop $(DB_CONTAINER_NAME) && echo "Stopped.") || echo "No container to stop."
 
-maven-release: check-vars
+maven-release: check-vars run-db
 	@echo "Running Maven release process"
 	@$(MVN) --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) release:clean release:prepare
 
