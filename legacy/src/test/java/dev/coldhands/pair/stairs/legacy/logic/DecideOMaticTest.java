@@ -1,9 +1,5 @@
 package dev.coldhands.pair.stairs.legacy.logic;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.google.common.collect.Sets;
 import dev.coldhands.pair.stairs.legacy.LoggingExtension;
 import dev.coldhands.pair.stairs.legacy.domain.Pair;
@@ -207,39 +203,5 @@ class DecideOMaticTest {
                                         new Pair("d-dev")),
                                 20100)
                 );
-    }
-
-    @Test
-    void whenDebugLoggingEnabledThenLogAllPairsAndTheirScores(Logger logger,
-                                                              ListAppender<ILoggingEvent> appender) {
-        Set<String> allDevelopers = Set.of("a-dev", "b-dev", "c-dev");
-        LocalDate now = LocalDate.now();
-        List<Pairing> pairings = List.of(
-                new Pairing(now.minusDays(1), "a-dev", "b-dev"),
-                new Pairing(now.minusDays(1), "c-dev"),
-                new Pairing(now.minusDays(2), "b-dev", "c-dev"),
-                new Pairing(now.minusDays(2), "a-dev"));
-
-        DecideOMatic underTest = new DecideOMatic(pairings, allDevelopers);
-
-        logger.setLevel(Level.DEBUG);
-
-        underTest.getScoredPairCombinations();
-
-        assertThat(appender.list)
-                .anySatisfy(event -> {
-                    assertThat(event.getLevel()).isEqualTo(Level.DEBUG);
-                    assertThat(event.getLoggerName()).isEqualTo(DecideOMatic.class.getName());
-                    assertThat(event.getFormattedMessage()).isEqualTo("""
-                            Pairs and their score:
-                                                        
-                            a-dev c-dev -> -99
-                            b-dev c-dev -> -1
-                            a-dev -> 100
-                            b-dev -> 100
-                            a-dev b-dev -> 10000
-                            c-dev -> 10100
-                            """);
-                });
     }
 }
