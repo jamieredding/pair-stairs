@@ -32,18 +32,21 @@ class CombinationEventMapperTest {
                             )
 
                     )));
+            entity.setId(1L);
 
             assertThat(CombinationEventMapper.entityToDomain(entity)).isEqualTo(
-                    new CombinationEvent(LocalDate.of(2024, 5, 6), List.of(
-                            new PairStream(
-                                    List.of(new DeveloperInfo(2L, "c")),
-                                    new StreamInfo(20L, "y")
-                            ),
-                            new PairStream(
-                                    List.of(new DeveloperInfo(1L, "a"), new DeveloperInfo(0L, "b")),
-                                    new StreamInfo(10L, "z")
-                            )
-                    ))
+                    new CombinationEvent(1L,
+                            LocalDate.of(2024, 5, 6),
+                            List.of(
+                                    new PairStream(
+                                            List.of(new DeveloperInfo(2L, "c")),
+                                            new StreamInfo(20L, "y")
+                                    ),
+                                    new PairStream(
+                                            List.of(new DeveloperInfo(1L, "a"), new DeveloperInfo(0L, "b")),
+                                            new StreamInfo(10L, "z")
+                                    )
+                            ))
             );
         }
     }

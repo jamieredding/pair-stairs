@@ -78,11 +78,16 @@ class CombinationEventControllerTest {
                     new PairStreamByIds(List.of(dev1Id), stream1Id)
             ));
 
+            final Long eventId0 = getEventIdByDate(LocalDate.of(2024, 5, 5));
+            final Long eventId1 = getEventIdByDate(LocalDate.of(2024, 5, 6));
+
+
             mockMvc.perform(get("/api/v1/combinations/event"))
                     .andExpect(status().isOk())
                     .andExpect(content().json("""
                               [
                               {
+                                "id": %s,
                                 "date": "2024-05-06",
                                 "combination": [
                                   {
@@ -116,6 +121,7 @@ class CombinationEventControllerTest {
                                 ]
                               },
                               {
+                                "id": %s,
                                 "date": "2024-05-05",
                                 "combination": [
                                   {
@@ -150,9 +156,10 @@ class CombinationEventControllerTest {
                               }
                             ]
                             """
-                            .formatted(
+                            .formatted(eventId1,
                                     dev0Id, dev2Id, stream0Id,
                                     dev1Id, stream1Id,
+                                    eventId0,
                                     dev0Id, dev1Id, stream0Id,
                                     dev2Id, stream1Id
                             )));
@@ -180,12 +187,15 @@ class CombinationEventControllerTest {
                     new PairStreamByIds(List.of(dev0Id), stream1Id)
             ));
 
+            final long eventId = getEventIdByDate(LocalDate.of(2024, 5, 5));
+
             mockMvc.perform(get("/api/v1/combinations/event")
                             .queryParam("page", "1"))
                     .andExpect(status().isOk())
                     .andExpect(content().json("""
                               [
                               {
+                                "id": %s,
                                 "date": "2024-05-05",
                                 "combination": [
                                   {
@@ -220,10 +230,17 @@ class CombinationEventControllerTest {
                               }
                             ]
                             """
-                            .formatted(
+                            .formatted(eventId,
                                     dev0Id, dev1Id, stream0Id,
                                     dev2Id, stream1Id
                             )));
+        }
+
+        private long getEventIdByDate(LocalDate date) {
+            return testEntityManager.getEntityManager()
+                    .createQuery("SELECT c.id FROM CombinationEventEntity c WHERE c.date = :date", Long.class)
+                    .setParameter("date", date)
+                    .getSingleResult();
         }
     }
 

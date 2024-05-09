@@ -13,6 +13,6 @@ public final class CombinationEventMapper {
 
     public static CombinationEvent entityToDomain(CombinationEventEntity entity) {
         final List<PairStream> combination = CombinationMapper.entityToDomain(entity.getCombination());
-        return new CombinationEvent(entity.getDate(), combination);
+        return new CombinationEvent(entity.getId(), entity.getDate(), combination);
     }
 }
