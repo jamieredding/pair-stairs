@@ -20,17 +20,15 @@ public class CoreCombinationCalculationService implements CombinationCalculation
     private final DeveloperRepository developerRepository;
     private final StreamRepository streamRepository;
     private final EntryPointFactory entryPointFactory;
-    private final int pageSize;
 
-    public CoreCombinationCalculationService(DeveloperRepository developerRepository, StreamRepository streamRepository, EntryPointFactory entryPointFactory, int pageSize) {
+    public CoreCombinationCalculationService(DeveloperRepository developerRepository, StreamRepository streamRepository, EntryPointFactory entryPointFactory) {
         this.developerRepository = developerRepository;
         this.streamRepository = streamRepository;
         this.entryPointFactory = entryPointFactory;
-        this.pageSize = pageSize;
     }
 
     @Override
-    public List<ScoredCombination> calculate(List<Long> developerIds, List<Long> streamIds, int page) {
+    public List<ScoredCombination> calculate(List<Long> developerIds, List<Long> streamIds, int page, int pageSize) {
         // todo validate that ids are real?
 
         final PairStreamEntryPoint entryPoint = entryPointFactory.create(

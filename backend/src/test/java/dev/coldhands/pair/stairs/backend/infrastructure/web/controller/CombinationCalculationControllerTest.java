@@ -32,7 +32,7 @@ public class CombinationCalculationControllerTest {
 
         @Test
         void calculateCombinations() throws Exception {
-            when(service.calculate(any(), any(), anyInt()))
+            when(service.calculate(any(), any(), anyInt(), anyInt()))
                     .thenReturn(List.of(
                             new ScoredCombination(10,
                                     List.of(new PairStream(
@@ -145,18 +145,18 @@ public class CombinationCalculationControllerTest {
                             ]"""))
             ;
 
-            verify(service).calculate(eq(List.of(0L, 1L, 2L)), eq(List.of(0L, 1L)), eq(0));
+            verify(service).calculate(eq(List.of(0L, 1L, 2L)), eq(List.of(0L, 1L)), eq(0), eq(3));
         }
 
         @Test
-        void calculateCombinationsRequestingPage2() throws Exception {
-            when(service.calculate(any(), any(), anyInt()))
+        void calculateCombinationsRequestingPage1() throws Exception {
+            when(service.calculate(any(), any(), anyInt(), anyInt()))
                     .thenReturn(List.of(
                             new ScoredCombination(0, List.of()),
                             new ScoredCombination(1, List.of())));
 
             mockMvc.perform(post("/api/v1/combinations/calculate")
-                            .queryParam("page", "2")
+                            .queryParam("page", "1")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
@@ -167,7 +167,7 @@ public class CombinationCalculationControllerTest {
                     .andExpect(status().isOk())
             ;
 
-            verify(service).calculate(any(), any(), eq(2));
+            verify(service).calculate(any(), any(), eq(1), eq(3));
         }
 
     }

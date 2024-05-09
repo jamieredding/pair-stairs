@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,10 +15,13 @@ import java.util.Optional;
 public class CombinationCalculationController {
 
     private final CombinationCalculationService service;
+    private final int pageSize;
 
     @Autowired
-    public CombinationCalculationController(CombinationCalculationService service) {
+    public CombinationCalculationController(CombinationCalculationService service,
+                                            @Value("${app.combinations.calculate.pageSize}") int pageSize) {
         this.service = service;
+        this.pageSize = pageSize;
     }
 
     @PostMapping
@@ -28,6 +32,6 @@ public class CombinationCalculationController {
         final List<Long> developerIds = request.developerIds();
         final List<Long> streamIds = request.streamIds();
 
-        return service.calculate(developerIds, streamIds, requestedPage);
+        return service.calculate(developerIds, streamIds, requestedPage, pageSize);
     }
 }

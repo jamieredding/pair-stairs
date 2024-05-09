@@ -39,7 +39,7 @@ class CoreCombinationCalculationServiceTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory, 10);
+        underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory);
     }
 
     @Test
@@ -74,7 +74,7 @@ class CoreCombinationCalculationServiceTest {
                 )
         ));
 
-        final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L, 1L, 2L), List.of(0L, 1L), 0);
+        final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L, 1L, 2L), List.of(0L, 1L), 0, 10);
 
         assertThat(scoredCombinations).containsExactly(
                 new ScoredCombination(10,
@@ -132,9 +132,9 @@ class CoreCombinationCalculationServiceTest {
 
             final int pageSize = 2;
             final int requestedPage = 0;
-            final CoreCombinationCalculationService underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory, pageSize);
+            final CoreCombinationCalculationService underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory);
 
-            final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L), List.of(0L), requestedPage);
+            final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L), List.of(0L), requestedPage, pageSize);
             final List<Integer> scores = scoredCombinations.stream()
                     .map(ScoredCombination::score)
                     .toList();
@@ -162,9 +162,9 @@ class CoreCombinationCalculationServiceTest {
 
             final int pageSize = 2;
             final int requestedPage = 1;
-            final CoreCombinationCalculationService underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory, pageSize);
+            final CoreCombinationCalculationService underTest = new CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory);
 
-            final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L), List.of(0L), requestedPage);
+            final List<ScoredCombination> scoredCombinations = underTest.calculate(List.of(0L), List.of(0L), requestedPage, pageSize);
             final List<Integer> scores = scoredCombinations.stream()
                     .map(ScoredCombination::score)
                     .toList();

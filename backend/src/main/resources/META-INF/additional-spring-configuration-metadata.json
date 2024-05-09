@@ -4,6 +4,11 @@
       "name": "app.combinations.event.pageSize",
       "type": "java.lang.String",
       "description": "The page size allowed for the combinations event resource"
+    },
+    {
+      "name": "app.combinations.calculate.pageSize",
+      "type": "java.lang.String",
+      "description": "The page size allowed for the combinations calculate resource"
     }
   ]
 }

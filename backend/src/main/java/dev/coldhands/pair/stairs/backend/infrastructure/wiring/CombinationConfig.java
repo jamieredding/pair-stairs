@@ -32,8 +32,7 @@ public class CombinationConfig {
     public CombinationCalculationService combinationCalculationService() {
         return new CoreCombinationCalculationService(developerRepository,
                 streamRepository,
-                new EntryPointFactory(backendCombinationHistoryRepository()),
-                3); // todo stop hardcoding 3
+                new EntryPointFactory(backendCombinationHistoryRepository()));
     }
 
     @Bean
