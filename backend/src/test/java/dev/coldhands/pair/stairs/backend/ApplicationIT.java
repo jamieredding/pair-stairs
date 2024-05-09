@@ -69,6 +69,15 @@ public class ApplicationIT {
 
         saveCombinationEventFor(LocalDate.of(2024, 4, 27), bestCombination.combination());
 
+        final List<CombinationEvent> combinationEvents = getCombinationEvents();
+
+        assertThat(combinationEvents).hasSize(1);
+
+        final CombinationEvent savedEvent = combinationEvents.getFirst();
+
+        assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 27));
+        assertThat(savedEvent.combination()).hasSize(2);
+        assertThat(savedEvent.combination()).isEqualTo(bestCombination.combination());
     }
 
     private void createDeveloper(String developerName) {
@@ -159,6 +168,16 @@ public class ApplicationIT {
 
         ResponseEntity<Void> response = REST_TEMPLATE.postForEntity(BASE_URL + "/api/v1/combinations/event", request, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    private List<CombinationEvent> getCombinationEvents() throws Exception {
+        ResponseEntity<String> response = REST_TEMPLATE.getForEntity(BASE_URL + "/api/v1/combinations/event", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        final String responseBody = response.getBody();
+
+        return OBJECT_MAPPER.readValue(responseBody, new TypeReference<>() {
+        });
     }
 
 }

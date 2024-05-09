@@ -3,9 +3,6 @@ package dev.coldhands.pair.stairs.backend;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.coldhands.pair.stairs.backend.domain.*;
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.PairStreamMapper;
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEventEntity;
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationEventRepository;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
 import jakarta.transaction.Transactional;
@@ -35,9 +32,6 @@ public abstract class AbstractAcceptanceTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private CombinationEventRepository combinationEventRepository;
 
     @Test
     void basicFlowStartingFromScratch() throws Exception {
@@ -78,28 +72,28 @@ public abstract class AbstractAcceptanceTest {
                 .toList())
                 .containsExactlyInAnyOrder("stream-a", "stream-b");
 
-        final List<CombinationEventEntity> startingEvents = findAllCombinationEvents();
+        final List<CombinationEvent> startingEvents = findAllCombinationEvents();
 
         assertThat(startingEvents).isEmpty();
 
         saveCombinationEventFor(LocalDate.of(2024, 4, 27), bestCombination.combination());
 
-        final List<CombinationEventEntity> allCombinationEvents = findAllCombinationEvents();
+        final List<CombinationEvent> allCombinationEvents = findAllCombinationEvents();
 
         assertThat(allCombinationEvents).hasSize(1);
 
-        final CombinationEventEntity savedEvent = allCombinationEvents.getFirst();
+        final CombinationEvent savedEvent = allCombinationEvents.getFirst();
 
-        assertThat(savedEvent.getDate()).isEqualTo(LocalDate.of(2024, 4, 27));
-        assertThat(savedEvent.getCombination()
-                .getPairs()).hasSize(2);
+        assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 27));
+        assertThat(savedEvent.combination()).hasSize(2);
+        assertThat(savedEvent.combination()).isEqualTo(bestCombination.combination());
     }
 
     @Test
     void exampleOfSecondDay() throws Exception {
         basicFlowStartingFromScratch();
 
-        final CombinationEventEntity yesterdayEvent = findAllCombinationEvents().getFirst();
+        final CombinationEvent yesterdayEvent = findAllCombinationEvents().getFirst();
 
         List<Long> developersToIncludeInCombinations = getDeveloperIdsFor(List.of(
                 "dev-0",
@@ -118,9 +112,7 @@ public abstract class AbstractAcceptanceTest {
 
         final List<PairStream> todayCombination = scoredCombinations.getFirst().combination();
 
-        final List<PairStream> yesterdayCombination = yesterdayEvent.getCombination().getPairs().stream()
-                .map(PairStreamMapper::entityToInfo)
-                .toList();
+        final List<PairStream> yesterdayCombination = yesterdayEvent.combination();
 
         assertThat(todayCombination)
                 .isNotEqualTo(yesterdayCombination);
@@ -128,15 +120,14 @@ public abstract class AbstractAcceptanceTest {
 
         saveCombinationEventFor(LocalDate.of(2024, 4, 28), todayCombination);
 
-        final List<CombinationEventEntity> allCombinationEvents = findAllCombinationEvents();
+        final List<CombinationEvent> allCombinationEvents = findAllCombinationEvents();
 
         assertThat(allCombinationEvents).hasSize(2);
 
-        final CombinationEventEntity savedEvent = allCombinationEvents.getFirst();
+        final CombinationEvent savedEvent = allCombinationEvents.getFirst();
 
-        assertThat(savedEvent.getDate()).isEqualTo(LocalDate.of(2024, 4, 28));
-        assertThat(savedEvent.getCombination()
-                .getPairs()).hasSize(2);
+        assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 28));
+        assertThat(savedEvent.combination()).hasSize(2);
     }
 
     private void createDeveloper(String developerName) throws Exception {
@@ -229,7 +220,12 @@ public abstract class AbstractAcceptanceTest {
                 .andExpect(status().isCreated());
     }
 
-    private List<CombinationEventEntity> findAllCombinationEvents() {
-        return combinationEventRepository.getMostRecentCombinationEvents(5);
+    private List<CombinationEvent> findAllCombinationEvents() throws Exception {
+        final String responseBody = mockMvc.perform(get("/api/v1/combinations/event"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse().getContentAsString();
+        return objectMapper.readValue(responseBody, new TypeReference<>() {
+        });
     }
 }
