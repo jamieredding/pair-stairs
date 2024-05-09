@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationEventM
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -66,6 +67,13 @@ public class CombinationEventService {
         final CombinationEntity combination = findOrCreateCombinationEntity(pairStreamEntities);
 
         combinationEventRepository.save(new CombinationEventEntity(date, combination));
+    }
+
+    public void deleteEvent(long id) {
+        if (!combinationEventRepository.existsById(id)) {
+            throw new EntityNotFoundException();
+        }
+        combinationEventRepository.deleteById(id);
     }
 
     private PairStreamEntity findOrCreatePairStreamEntity(SaveCombinationEventDto.PairStreamByIds ids, Map<Long, DeveloperEntity> developersById, Map<Long, StreamEntity> streamsById) {

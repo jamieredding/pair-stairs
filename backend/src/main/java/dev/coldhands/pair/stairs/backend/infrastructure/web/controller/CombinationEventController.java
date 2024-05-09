@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 import dev.coldhands.pair.stairs.backend.domain.CombinationEvent;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +37,16 @@ public class CombinationEventController {
     ResponseEntity<Void> saveEvent(@RequestBody SaveCombinationEventDto request) {
         combinationEventService.saveEvent(request.date(), request.combination());
 
-        return ResponseEntity.status(201)
-                .build();
+        return ResponseEntity.status(201).build();
+    }
+
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> deleteEvent(@PathVariable("id") long id) {
+        try {
+            combinationEventService.deleteEvent(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

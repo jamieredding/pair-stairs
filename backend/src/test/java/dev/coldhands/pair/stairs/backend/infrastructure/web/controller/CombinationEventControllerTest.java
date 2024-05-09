@@ -21,13 +21,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -78,8 +78,8 @@ class CombinationEventControllerTest {
                     new PairStreamByIds(List.of(dev1Id), stream1Id)
             ));
 
-            final Long eventId0 = getEventIdByDate(LocalDate.of(2024, 5, 5));
-            final Long eventId1 = getEventIdByDate(LocalDate.of(2024, 5, 6));
+            final Long eventId0 = getEventIdByDate(LocalDate.of(2024, 5, 5)).getAsLong();
+            final Long eventId1 = getEventIdByDate(LocalDate.of(2024, 5, 6)).getAsLong();
 
 
             mockMvc.perform(get("/api/v1/combinations/event"))
@@ -187,7 +187,7 @@ class CombinationEventControllerTest {
                     new PairStreamByIds(List.of(dev0Id), stream1Id)
             ));
 
-            final long eventId = getEventIdByDate(LocalDate.of(2024, 5, 5));
+            final long eventId = getEventIdByDate(LocalDate.of(2024, 5, 5)).getAsLong();
 
             mockMvc.perform(get("/api/v1/combinations/event")
                             .queryParam("page", "1"))
@@ -235,20 +235,13 @@ class CombinationEventControllerTest {
                                     dev2Id, stream1Id
                             )));
         }
-
-        private long getEventIdByDate(LocalDate date) {
-            return testEntityManager.getEntityManager()
-                    .createQuery("SELECT c.id FROM CombinationEventEntity c WHERE c.date = :date", Long.class)
-                    .setParameter("date", date)
-                    .getSingleResult();
-        }
     }
 
     @Nested
     class Write {
 
         @Test
-        void saveACombination() throws Exception {
+        void saveACombinationEvent() throws Exception {
             final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
             final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
             final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
@@ -294,6 +287,38 @@ class CombinationEventControllerTest {
 
     }
 
+    @Nested
+    class Delete {
+
+        @Test
+        void deleteACombinationEvent() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+            final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
+
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+            service.saveEvent(LocalDate.of(2024, 5, 5), List.of(
+                    new PairStreamByIds(List.of(dev0Id, dev1Id), stream0Id),
+                    new PairStreamByIds(List.of(dev2Id), stream1Id)
+            ));
+
+            final Long eventId0 = getEventIdByDate(LocalDate.of(2024, 5, 5)).getAsLong();
+
+            mockMvc.perform(delete("/api/v1/combinations/event/{id}", eventId0))
+                    .andExpect(status().isNoContent());
+
+            assertThat(getEventIdByDate(LocalDate.of(2024, 5, 5))).isEmpty();
+        }
+
+        @Test
+        void returnNotFoundIfEventDoesNotExist() throws Exception {
+            mockMvc.perform(delete("/api/v1/combinations/event/{id}", 1))
+                    .andExpect(status().isNotFound());
+        }
+    }
+
     private static List<PairStream> toSimpleDomain(List<PairStreamEntity> pairs) {
         return pairs.stream()
                 .map(ps -> {
@@ -303,5 +328,14 @@ class CombinationEventControllerTest {
                     return new PairStream(developers, ps.getStream().getName());
                 })
                 .toList();
+    }
+
+    private OptionalLong getEventIdByDate(LocalDate date) {
+        return testEntityManager.getEntityManager()
+                .createQuery("SELECT c.id FROM CombinationEventEntity c WHERE c.date = :date", Long.class)
+                .setParameter("date", date)
+                .getResultStream()
+                .mapToLong(Long::longValue)
+                .findFirst();
     }
 }

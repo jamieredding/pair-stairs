@@ -78,15 +78,20 @@ public class ApplicationIT {
         assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 27));
         assertThat(savedEvent.combination()).hasSize(2);
         assertThat(savedEvent.combination()).isEqualTo(bestCombination.combination());
+
+        deleteCombinationEvent(savedEvent.id());
+
+        final List<CombinationEvent> combinationEventsAfterDelete = getCombinationEvents();
+        assertThat(combinationEventsAfterDelete).isEmpty();
     }
 
     private void createDeveloper(String developerName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>("""
-                                                  {
-                                                    "name": "%s"
-                                                  }""".formatted(developerName), headers);
+                {
+                  "name": "%s"
+                }""".formatted(developerName), headers);
 
         ResponseEntity<Void> response = REST_TEMPLATE.postForEntity(BASE_URL + "/api/v1/developers", request, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -111,9 +116,9 @@ public class ApplicationIT {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>("""
-                                                  {
-                                                    "name": "%s"
-                                                  }""".formatted(streamName), headers);
+                {
+                  "name": "%s"
+                }""".formatted(streamName), headers);
 
         ResponseEntity<Void> response = REST_TEMPLATE.postForEntity(BASE_URL + "/api/v1/streams", request, Void.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -178,6 +183,11 @@ public class ApplicationIT {
 
         return OBJECT_MAPPER.readValue(responseBody, new TypeReference<>() {
         });
+    }
+
+    private void deleteCombinationEvent(long id) {
+        ResponseEntity<Void> response = REST_TEMPLATE.exchange(BASE_URL + "/api/v1/combinations/event/{id}", HttpMethod.DELETE, null, Void.class, id);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
 }

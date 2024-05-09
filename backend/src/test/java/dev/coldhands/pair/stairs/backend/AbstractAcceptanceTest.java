@@ -18,8 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -128,6 +127,13 @@ public abstract class AbstractAcceptanceTest {
 
         assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 28));
         assertThat(savedEvent.combination()).hasSize(2);
+
+        deleteCombinationEvent(savedEvent.id());
+
+        final List<CombinationEvent> allCombinationEventsAfterDelete = findAllCombinationEvents();
+
+        assertThat(allCombinationEventsAfterDelete).hasSize(1);
+        assertThat(allCombinationEventsAfterDelete).containsExactly(yesterdayEvent);
     }
 
     private void createDeveloper(String developerName) throws Exception {
@@ -227,5 +233,10 @@ public abstract class AbstractAcceptanceTest {
                 .getResponse().getContentAsString();
         return objectMapper.readValue(responseBody, new TypeReference<>() {
         });
+    }
+
+    private void deleteCombinationEvent(long id) throws Exception {
+        mockMvc.perform(delete("/api/v1/combinations/event/{id}", id))
+                .andExpect(status().isNoContent());
     }
 }
