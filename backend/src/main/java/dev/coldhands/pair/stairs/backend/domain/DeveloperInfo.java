@@ -1,4 +1,13 @@
 package dev.coldhands.pair.stairs.backend.domain;
 
-public record DeveloperInfo(long id, String displayName) {
+import java.util.Comparator;
+
+public record DeveloperInfo(long id, String displayName) implements Comparable<DeveloperInfo> {
+
+    public static final Comparator<DeveloperInfo> COMPARATOR = Comparator.comparing(DeveloperInfo::displayName);
+
+    @Override
+    public int compareTo(DeveloperInfo o) {
+        return COMPARATOR.compare(this,o);
+    }
 }

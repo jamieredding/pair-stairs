@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.backend.usecase;
 
+import dev.coldhands.pair.stairs.backend.domain.CombinationEvent;
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationEventMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
@@ -9,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.*;
 
 public class CombinationEventService {
@@ -25,6 +28,14 @@ public class CombinationEventService {
         this.pairStreamRepository = pairStreamRepository;
         this.combinationRepository = combinationRepository;
         this.combinationEventRepository = combinationEventRepository;
+    }
+
+    public List<CombinationEvent> getCombinationEvents() {
+        final List<CombinationEventEntity> entities = combinationEventRepository.findAll();
+        return entities.stream()
+                .map(CombinationEventMapper::entityToDomain)
+                .sorted(comparing(CombinationEvent::date).reversed()) // todo move this comparator to CombinationEvent if reused
+                .toList();
     }
 
     // todo exposing the Dto here seems wrong

@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.Combi
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 
+import java.util.List;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toSet;
@@ -19,5 +20,12 @@ public final class CombinationMapper {
                 .collect(toSet());
 
         return new Combination<>(pairs);
+    }
+
+    public static List<dev.coldhands.pair.stairs.backend.domain.PairStream> entityToDomain(CombinationEntity entity) {
+        return entity.getPairs().stream()
+                .map(PairStreamMapper::entityToInfo)
+                .sorted()
+                .toList();
     }
 }

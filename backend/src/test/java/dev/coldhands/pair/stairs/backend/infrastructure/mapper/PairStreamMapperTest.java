@@ -79,6 +79,23 @@ class PairStreamMapperTest {
                     new StreamInfo(10, "stream-a")
             ));
         }
+
+        @Test
+        void willSortDevelopersByDisplayNameAlphabetically() {
+            final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.entityToInfo(
+                    new PairStreamEntity(
+                            List.of(new DeveloperEntity(0L, "b"), new DeveloperEntity(1L, "a")),
+                            new StreamEntity(10L, "")
+                    ));
+
+            assertThat(actual).isEqualTo(new dev.coldhands.pair.stairs.backend.domain.PairStream(
+                    List.of(
+                            new DeveloperInfo(1, "a"),
+                            new DeveloperInfo(0, "b")
+                    ),
+                    new StreamInfo(10, "")
+            ));
+        }
     }
 
     @Nested

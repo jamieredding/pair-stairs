@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.mapper;
 
+import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo;
+import dev.coldhands.pair.stairs.backend.domain.StreamInfo;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity;
@@ -36,4 +38,33 @@ class CombinationMapperTest {
 
                 )));
     }
+
+    @Test
+    void canMapEntityToDomainAndSortDependenciesAlphabetically() {
+        CombinationEntity entity = new CombinationEntity(List.of(
+                new PairStreamEntity(
+                        List.of(new DeveloperEntity(0L, "b"), new DeveloperEntity(1L, "a")),
+                        new StreamEntity(10L, "z")
+                ),
+                new PairStreamEntity(
+                        List.of(new DeveloperEntity(2L, "c")),
+                        new StreamEntity(20L, "y")
+                )
+
+        ));
+
+        assertThat(CombinationMapper.entityToDomain(entity)).isEqualTo(
+                List.of(
+                        new dev.coldhands.pair.stairs.backend.domain.PairStream(
+                                List.of(new DeveloperInfo(2L, "c")),
+                                new StreamInfo(20L, "y")
+                        ),
+                        new dev.coldhands.pair.stairs.backend.domain.PairStream(
+                                List.of(new DeveloperInfo(1L, "a"), new DeveloperInfo(0L, "b")),
+                                new StreamInfo(10L, "z")
+                        )
+                )
+        );
+    }
+
 }

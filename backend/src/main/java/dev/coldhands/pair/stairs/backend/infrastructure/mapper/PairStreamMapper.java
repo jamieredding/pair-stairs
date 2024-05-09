@@ -1,6 +1,5 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.mapper;
 
-import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo;
 import dev.coldhands.pair.stairs.backend.domain.PairStream;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity;
@@ -8,7 +7,6 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.Strea
 
 import java.util.Set;
 
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toSet;
 
 public final class PairStreamMapper {
@@ -22,7 +20,7 @@ public final class PairStreamMapper {
         return new PairStream(
                 core.developers().stream()
                         .map(developerId -> DeveloperMapper.coreToInfo(developerId, developerLookup))
-                        .sorted(comparing(DeveloperInfo::displayName))
+                        .sorted()
                         .toList(),
                 StreamMapper.coreToInfo(core.stream(), streamLookup)
         );
@@ -31,7 +29,8 @@ public final class PairStreamMapper {
     public static PairStream entityToInfo(PairStreamEntity entity) {
         return new PairStream(
                 entity.getDevelopers().stream()
-                        .map(DeveloperMapper::entityToInfo) // todo should thi also sort the developers or should they be sorted in the entity already
+                        .map(DeveloperMapper::entityToInfo)
+                        .sorted()
                         .toList(),
                 StreamMapper.entityToInfo(entity.getStream())
         );

@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.Combi
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
+import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
@@ -22,8 +23,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -38,6 +42,118 @@ class CombinationEventControllerTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
+
+    @Autowired
+    private CombinationEventService service;
+
+    @Nested
+    class Read {
+
+        @Test
+        void whenNoEventsThenReturnEmptyArray() throws Exception {
+            mockMvc.perform(get("/api/v1/combinations/event"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("[]"));
+        }
+
+        @Test
+        void whenMultipleEventsThenReturnThemInDescendingOrder() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+            final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
+
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+            service.saveEvent(LocalDate.of(2024, 5, 5), List.of(
+                    new PairStreamByIds(List.of(dev0Id, dev1Id), stream0Id),
+                    new PairStreamByIds(List.of(dev2Id), stream1Id)
+            ));
+            service.saveEvent(LocalDate.of(2024, 5, 6), List.of(
+                    new PairStreamByIds(List.of(dev0Id, dev2Id), stream0Id),
+                    new PairStreamByIds(List.of(dev1Id), stream1Id)
+            ));
+
+            mockMvc.perform(get("/api/v1/combinations/event"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
+                              [
+                              {
+                                "date": "2024-05-06",
+                                "combination": [
+                                  {
+                                    "developers": [
+                                      {
+                                        "displayName": "dev-0",
+                                        "id": %s
+                                      },
+                                      {
+                                        "displayName": "dev-2",
+                                        "id": %s
+                                      }
+                                    ],
+                                    "stream": {
+                                      "displayName": "stream-a",
+                                      "id": %s
+                                    }
+                                  },
+                                  {
+                                    "developers": [
+                                      {
+                                        "displayName": "dev-1",
+                                        "id": %s
+                                      }
+                                    ],
+                                    "stream": {
+                                      "displayName": "stream-b",
+                                      "id": %s
+                                    }
+                                  }
+                                ]
+                              },
+                              {
+                                "date": "2024-05-05",
+                                "combination": [
+                                  {
+                                    "developers": [
+                                      {
+                                        "displayName": "dev-0",
+                                        "id": %s
+                                      },
+                                      {
+                                        "displayName": "dev-1",
+                                        "id": %s
+                                      }
+                                    ],
+                                    "stream": {
+                                      "displayName": "stream-a",
+                                      "id": %s
+                                    }
+                                  },
+                                  {
+                                    "developers": [
+                                      {
+                                        "displayName": "dev-2",
+                                        "id": %s
+                                      }
+                                    ],
+                                    "stream": {
+                                      "displayName": "stream-b",
+                                      "id": %s
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                            """
+                            .formatted(
+                                    dev0Id, dev2Id, stream0Id,
+                                    dev1Id, stream1Id,
+                                    dev0Id, dev1Id, stream0Id,
+                                    dev2Id, stream1Id
+                            )));
+        }
+    }
 
     @Nested
     class Write {

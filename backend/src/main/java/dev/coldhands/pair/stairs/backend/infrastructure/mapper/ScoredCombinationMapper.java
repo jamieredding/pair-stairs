@@ -5,8 +5,6 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.Devel
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 
-import static java.util.Comparator.comparing;
-
 public final class ScoredCombinationMapper {
 
     private ScoredCombinationMapper() {
@@ -19,7 +17,7 @@ public final class ScoredCombinationMapper {
                 core.totalScore(),
                 core.combination().pairs().stream()
                         .map(ps -> PairStreamMapper.coreToDomain(ps, developerLookup, streamLookup))
-                        .sorted(comparing(ps -> ps.stream().displayName()))
+                        .sorted()
                         .toList()
         );
     }
