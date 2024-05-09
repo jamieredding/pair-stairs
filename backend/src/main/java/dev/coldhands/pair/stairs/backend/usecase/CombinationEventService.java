@@ -5,13 +5,14 @@ import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationEventM
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.*;
 
 public class CombinationEventService {
@@ -30,11 +31,11 @@ public class CombinationEventService {
         this.combinationEventRepository = combinationEventRepository;
     }
 
-    public List<CombinationEvent> getCombinationEvents() {
-        final List<CombinationEventEntity> entities = combinationEventRepository.findAll();
-        return entities.stream()
+    public List<CombinationEvent> getCombinationEvents(int requestedPage, int pageSize) {
+        final PageRequest pageRequest = PageRequest.of(requestedPage, pageSize, Sort.by(Sort.Direction.DESC, "date"));
+
+        return combinationEventRepository.findAll(pageRequest).stream()
                 .map(CombinationEventMapper::entityToDomain)
-                .sorted(comparing(CombinationEvent::date).reversed()) // todo move this comparator to CombinationEvent if reused
                 .toList();
     }
 
