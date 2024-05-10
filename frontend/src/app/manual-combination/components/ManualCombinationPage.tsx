@@ -9,7 +9,7 @@ import PairStreamDto from "@/domain/PairStreamDto";
 import {Add} from "@mui/icons-material";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
-import CombinationTable from "@/app/manual-combination/components/CombinationTable";
+import CombinationTable from "@/components/CombinationTable";
 import {format} from "date-fns";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";

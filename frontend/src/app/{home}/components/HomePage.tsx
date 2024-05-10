@@ -1,6 +1,6 @@
 import {Card, CardContent, Stack, Typography} from "@mui/material";
 import CombinationEventDto from "@/domain/CombinationEventDto";
-import CombinationTable from "@/app/manual-combination/components/CombinationTable";
+import CombinationTable from "@/components/CombinationTable";
 import {formatFriendlyDate} from "@/utils/dateUtils";
 import {parse} from "date-fns";
 
