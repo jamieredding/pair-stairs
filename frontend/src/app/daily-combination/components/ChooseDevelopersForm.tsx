@@ -35,7 +35,7 @@ export default function ChooseDevelopersForm({
 
     return (
         <Stack gap={1}>
-            <Typography variant="h4">Who is in today?</Typography>
+            <Typography variant="h5">Who is in today?</Typography>
             {isLoading && <Loading/>}
             {isError && <Error/>}
             {allDevelopers &&

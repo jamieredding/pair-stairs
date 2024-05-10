@@ -1,9 +1,10 @@
 "use client"
 
 import ChooseDevelopersForm from "@/app/daily-combination/components/ChooseDevelopersForm";
-import {Fragment, useState} from "react";
+import {useState} from "react";
 import ChooseStreamsForm from "@/app/daily-combination/components/ChooseStreamsForm";
 import ChooseCombinationForm from "@/app/daily-combination/components/ChooseCombinationForm";
+import {Stack, Typography} from "@mui/material";
 
 
 export default function DailyCombinationPage() {
@@ -12,7 +13,8 @@ export default function DailyCombinationPage() {
     const [formStage, setFormStage] = useState<number>(0)
 
     return (
-        <Fragment>
+        <Stack gap={1}>
+            <Typography variant="h4">Calculate Combination</Typography>
             {formStage === 0 &&
                 <ChooseDevelopersForm savedDeveloperIds={savedDeveloperIds}
                                       setSavedDeveloperIds={setSavedDeveloperIds}
@@ -28,6 +30,6 @@ export default function DailyCombinationPage() {
                                        streamIds={savedStreamIds as number[]}
                                        updateForm={setFormStage}/>
             }
-        </Fragment>
+        </Stack>
     )
 }

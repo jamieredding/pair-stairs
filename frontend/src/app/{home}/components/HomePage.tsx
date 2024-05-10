@@ -1,8 +1,15 @@
-import {Card, CardContent, Stack, Typography} from "@mui/material";
+"use client"
+
+import {Button, Card, CardContent, Stack, Typography} from "@mui/material";
 import CombinationEventDto from "@/domain/CombinationEventDto";
 import CombinationTable from "@/components/CombinationTable";
 import {formatFriendlyDate} from "@/utils/dateUtils";
-import {parse} from "date-fns";
+import {parseISO} from "date-fns";
+import Grid from "@mui/system/Unstable_Grid";
+import {useState} from "react";
+import ButtonRow from "@/components/ButtonRow";
+import DailyCombinationPage from "@/app/daily-combination/components/DailyCombinationPage";
+import ManualCombinationPage from "@/app/manual-combination/components/ManualCombinationPage";
 
 const combinationEvents: CombinationEventDto[] = [
     {
@@ -78,22 +85,73 @@ const combinationEvents: CombinationEventDto[] = [
     },
 ];
 
+interface CombinationEventsCardProps {
+    combinationEvents: CombinationEventDto[],
+    handleOpenPanel: (chosenPanel: SupportedPanel) => void
+}
+
+enum SupportedPanel {
+    CalculateCombinations,
+    ManualCombinations
+}
+
+function CombinationEventsCard({combinationEvents, handleOpenPanel}: CombinationEventsCardProps) {
+
+    return (
+        <Card>
+            <CardContent>
+                <Stack gap={1}>
+                    <Typography variant="h4">Combination Events</Typography>
+                    <Typography variant="h5">Create a new combination</Typography>
+                    <ButtonRow>
+                        <Button variant="outlined"
+                                onClick={() => handleOpenPanel(SupportedPanel.CalculateCombinations)}>Calculate</Button>
+                        <Button variant="outlined"
+                                onClick={() => handleOpenPanel(SupportedPanel.ManualCombinations)}>Manual</Button>
+                    </ButtonRow>
+                    <Stack gap={1}>
+                        {combinationEvents.map((combinationEvent) =>
+                            <Card key={combinationEvent.id}>
+                                <CardContent>
+                                    <Stack gap={1}>
+                                        <Typography variant="h5">
+                                            {formatFriendlyDate(parseISO(combinationEvent.date))}
+                                        </Typography>
+                                        <CombinationTable combination={combinationEvent.combination}/>
+                                    </Stack>
+                                </CardContent>
+                            </Card>
+                        )}
+                    </Stack>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function HomePage() {
+    const [selectedPanel, setSelectedPanel] = useState<SupportedPanel>(SupportedPanel.CalculateCombinations);
+
     return (
         <main>
-            <Typography variant="h4">Combination Events</Typography>
-            <Stack gap={1}>
-                {combinationEvents.map((combinationEvent) =>
-                    <Card key={combinationEvent.id}>
+            <Grid container justifyContent="center" gap={1}>
+                <Grid xs={12} sm={4}>
+                    <CombinationEventsCard combinationEvents={combinationEvents}
+                                           handleOpenPanel={setSelectedPanel}/>
+                </Grid>
+                <Grid xs={12} sm={4}>
+                    <Card>
                         <CardContent>
-                            <Stack gap={1}>
-                                <Typography variant="h5">{formatFriendlyDate(parse(combinationEvent.date, "yyyy-MM-dd", new Date()))}</Typography>
-                                <CombinationTable combination={combinationEvent.combination}/>
-                            </Stack>
+                            {selectedPanel === SupportedPanel.CalculateCombinations &&
+                                <DailyCombinationPage/>
+                            }
+                            {selectedPanel === SupportedPanel.ManualCombinations &&
+                                <ManualCombinationPage/>
+                            }
                         </CardContent>
                     </Card>
-                )}
-            </Stack>
+                </Grid>
+            </Grid>
         </main>
     );
 }

@@ -79,7 +79,7 @@ export default function ChooseCombinationForm({developerIds, streamIds, updateFo
 
     return (
         <Stack gap={1}>
-            <Typography variant="h4">Possible combinations</Typography>
+            <Typography variant="h5">Possible combinations</Typography>
             {
                 combinationsPages &&
                 combinationsPages.map((combinations, rowIndex) =>

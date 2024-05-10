@@ -32,7 +32,7 @@ export default function ChooseStreamsForm({savedStreamIds, setSavedStreamIds, up
 
     return (
         <Stack gap={1}>
-            <Typography variant="h4">What streams will be worked on?</Typography>
+            <Typography variant="h5">What streams will be worked on?</Typography>
             {isLoading && <Loading/>}
             {isError && <Error/>}
             {allStreams &&
