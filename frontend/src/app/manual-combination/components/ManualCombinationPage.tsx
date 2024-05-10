@@ -9,7 +9,7 @@ import PairStreamDto from "@/domain/PairStreamDto";
 import {Add} from "@mui/icons-material";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
-import ManualSelectionTable from "@/app/manual-combination/components/ManualSelectionTable";
+import CombinationTable from "@/app/manual-combination/components/CombinationTable";
 import {format} from "date-fns";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
@@ -129,8 +129,8 @@ export default function ManualCombinationPage() {
                 </Button>
                 <SaveButton disabled={!dataLoaded || !validForm} onClick={saveCombination}/>
             </ButtonRow>
-            <ManualSelectionTable combination={combination}
-                                  removeFromCombination={removeFromCombination}/>
+            <CombinationTable combination={combination}
+                              removeFromCombination={removeFromCombination}/>
         </Stack>
     )
 }

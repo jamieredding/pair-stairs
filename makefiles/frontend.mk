@@ -6,7 +6,7 @@ build-frontend: build-npm build-frontend-image
 
 build-npm:
 	@echo "Running frontend build..."
-	@cd frontend && npm install && npm run build || (echo "Frontend build failed." ; exit 1)
+	@cd frontend && npm install && npm run ci && npm run build || (echo "Frontend build failed." ; exit 1)
 
 build-frontend-image:
 	@echo "Building frontend image..."
