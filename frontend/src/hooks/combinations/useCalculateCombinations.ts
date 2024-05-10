@@ -1,8 +1,9 @@
 import {calculateCombinations} from "@/infrastructure/CombinationClient";
-import useSWRInfinite, {SWRInfiniteKeyLoader} from "swr/infinite";
+import useSWRInfinite, {SWRInfiniteKeyLoader, SWRInfiniteResponse} from "swr/infinite";
 import CalculateInputDto from "@/domain/CalculateInputDto";
+import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 
-const getKey :SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
+const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.length) {
         return null
     }
@@ -15,7 +16,8 @@ export default function useCalculateCombinations(requestBody: CalculateInputDto)
         error,
         isLoading,
         setSize
-    } = useSWRInfinite(getKey, (url:string ) => calculateCombinations(url, {arg: requestBody}));
+    }: SWRInfiniteResponse<ScoredCombinationDto[], any> =
+        useSWRInfinite(getKey, (url: string) => calculateCombinations(url, {arg: requestBody}));
 
     return {
         combinationsPages: data,
