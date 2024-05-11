@@ -285,7 +285,71 @@ class CombinationEventControllerTest {
             );
         }
 
-    }
+@Test
+void saveEventWithSoloMemberWhoWasNotSoloPreviously() throws Exception {
+    final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+    final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+    final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
+    final Long dev3Id = testEntityManager.persist(new DeveloperEntity("dev-3")).getId();
+
+    final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+    final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+    mockMvc.perform(post("/api/v1/combinations/event")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                              "date": "2024-04-27",
+                              "combination": [
+                                {
+                                  "developerIds": [%s, %s],
+                                  "streamId": %s
+                                },
+                                {
+                                  "developerIds": [%s, %s],
+                                  "streamId": %s
+                                }
+                              ]
+                            }""".formatted(dev0Id, dev1Id, stream0Id, dev2Id, dev3Id, stream1Id))
+            )
+            .andExpect(status().isCreated());
+
+    mockMvc.perform(post("/api/v1/combinations/event")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("""
+                            {
+                              "date": "2024-04-28",
+                              "combination": [
+                                {
+                                  "developerIds": [%s, %s],
+                                  "streamId": %s
+                                },
+                                {
+                                  "developerIds": [%s],
+                                  "streamId": %s
+                                }
+                              ]
+                            }""".formatted(dev0Id, dev1Id, stream0Id, dev2Id, stream1Id))
+            )
+            .andExpect(status().isCreated());
+
+    final CombinationEventEntity savedCombinationEvent = testEntityManager.getEntityManager()
+            .createQuery("SELECT c FROM CombinationEventEntity c WHERE c.date = :date", CombinationEventEntity.class)
+            .setParameter("date", LocalDate.parse("2024-04-28"))
+            .getSingleResult();
+
+    assertThat(savedCombinationEvent.getDate()).isEqualTo(LocalDate.of(2024, 4, 28));
+
+    final List<PairStreamEntity> pairs = savedCombinationEvent.getCombination().getPairs();
+
+    final List<PairStream> pairStreams = toSimpleDomain(pairs);
+
+    assertThat(pairStreams).containsExactly(
+            new PairStream(Set.of("dev-0", "dev-1"), "stream-a"),
+            new PairStream(Set.of("dev-2"), "stream-b")
+    );
+}
+}
 
     @Nested
     class Delete {
