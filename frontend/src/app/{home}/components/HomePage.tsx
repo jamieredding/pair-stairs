@@ -1,13 +1,12 @@
 "use client"
 
-import {Button, Card, CardContent, Stack, Typography} from "@mui/material";
+import {Box, Card, CardContent, Stack, Tab, Tabs, Typography} from "@mui/material";
 import CombinationEventDto from "@/domain/CombinationEventDto";
 import CombinationTable from "@/components/CombinationTable";
 import {formatFriendlyDate} from "@/utils/dateUtils";
 import {parseISO} from "date-fns";
 import Grid from "@mui/system/Unstable_Grid";
-import {useState} from "react";
-import ButtonRow from "@/components/ButtonRow";
+import {ReactNode, useState} from "react";
 import DailyCombinationPage from "@/app/daily-combination/components/DailyCombinationPage";
 import ManualCombinationPage from "@/app/manual-combination/components/ManualCombinationPage";
 
@@ -85,30 +84,68 @@ const combinationEvents: CombinationEventDto[] = [
     },
 ];
 
-interface CombinationEventsCardProps {
-    combinationEvents: CombinationEventDto[],
-    handleOpenPanel: (chosenPanel: SupportedPanel) => void
+
+interface TabPanelProps {
+    children: ReactNode;
+    index: number;
+    value: number;
 }
 
-enum SupportedPanel {
-    CalculateCombinations,
-    ManualCombinations
+function TabPanel(props: TabPanelProps) {
+    const {children, value, index, ...other} = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+        >
+            {value === index && (
+                <Box sx={{padding: 1}}>
+                    {children}
+                </Box>
+            )}
+        </div>
+    );
 }
 
-function CombinationEventsCard({combinationEvents, handleOpenPanel}: CombinationEventsCardProps) {
+function NewCombinationCard() {
+    const [tabIndex, setTabIndex] = useState(0);
 
     return (
         <Card>
             <CardContent>
                 <Stack gap={1}>
-                    <Typography variant="h4">Combination Events</Typography>
-                    <Typography variant="h5">Create a new combination</Typography>
-                    <ButtonRow>
-                        <Button variant="outlined"
-                                onClick={() => handleOpenPanel(SupportedPanel.CalculateCombinations)}>Calculate</Button>
-                        <Button variant="outlined"
-                                onClick={() => handleOpenPanel(SupportedPanel.ManualCombinations)}>Manual</Button>
-                    </ButtonRow>
+                    <Typography variant="h4">New Combination</Typography>
+                    <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
+                        <Tabs value={tabIndex} onChange={(_, newValue) => setTabIndex(newValue)}>
+                            <Tab label="Calculate"/>
+                            <Tab label="Manual"/>
+                        </Tabs>
+                    </Box>
+                    <TabPanel value={tabIndex} index={0}>
+                        <DailyCombinationPage/>
+                    </TabPanel>
+                    <TabPanel value={tabIndex} index={1}>
+                        <ManualCombinationPage/>
+                    </TabPanel>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+}
+
+
+interface CombinationHistoryCardProps {
+    combinationEvents: CombinationEventDto[],
+}
+
+function CombinationHistoryCard({combinationEvents}: CombinationHistoryCardProps) {
+
+    return (
+        <Card>
+            <CardContent>
+                <Stack gap={1}>
+                    <Typography variant="h4">Combination History</Typography>
                     <Stack gap={1}>
                         {combinationEvents.map((combinationEvent) =>
                             <Card key={combinationEvent.id}>
@@ -130,26 +167,14 @@ function CombinationEventsCard({combinationEvents, handleOpenPanel}: Combination
 }
 
 export default function HomePage() {
-    const [selectedPanel, setSelectedPanel] = useState<SupportedPanel>(SupportedPanel.CalculateCombinations);
-
     return (
         <main>
             <Grid container justifyContent="center" gap={1}>
                 <Grid xs={12} sm={4}>
-                    <CombinationEventsCard combinationEvents={combinationEvents}
-                                           handleOpenPanel={setSelectedPanel}/>
+                    <NewCombinationCard/>
                 </Grid>
                 <Grid xs={12} sm={4}>
-                    <Card>
-                        <CardContent>
-                            {selectedPanel === SupportedPanel.CalculateCombinations &&
-                                <DailyCombinationPage/>
-                            }
-                            {selectedPanel === SupportedPanel.ManualCombinations &&
-                                <ManualCombinationPage/>
-                            }
-                        </CardContent>
-                    </Card>
+                    <CombinationHistoryCard combinationEvents={combinationEvents}/>
                 </Grid>
             </Grid>
         </main>

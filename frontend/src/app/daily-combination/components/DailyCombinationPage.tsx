@@ -4,7 +4,7 @@ import ChooseDevelopersForm from "@/app/daily-combination/components/ChooseDevel
 import {useState} from "react";
 import ChooseStreamsForm from "@/app/daily-combination/components/ChooseStreamsForm";
 import ChooseCombinationForm from "@/app/daily-combination/components/ChooseCombinationForm";
-import {Stack, Typography} from "@mui/material";
+import {Stack} from "@mui/material";
 
 
 export default function DailyCombinationPage() {
@@ -14,7 +14,6 @@ export default function DailyCombinationPage() {
 
     return (
         <Stack gap={1}>
-            <Typography variant="h4">Calculate Combination</Typography>
             {formStage === 0 &&
                 <ChooseDevelopersForm savedDeveloperIds={savedDeveloperIds}
                                       setSavedDeveloperIds={setSavedDeveloperIds}

@@ -103,7 +103,6 @@ export default function ManualCombinationPage() {
 
     return (
         <Stack gap={1}>
-            <Typography variant="h4">Manual Combination</Typography>
             <CustomDatePicker label="Date of combination" value={date} setValue={setDate} dateFormat={dateFormat}/>
             <Divider/>
             <Typography variant="h5">Developers</Typography>
