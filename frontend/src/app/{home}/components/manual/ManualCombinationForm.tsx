@@ -18,6 +18,7 @@ import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
 import useStreamInfos from "@/hooks/streams/useStreamInfos";
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
+import useRefreshCombinationEvents from "@/hooks/combinations/useRefreshCombinationEvents";
 
 const dateFormat = "yyyy-MM-dd"
 
@@ -48,6 +49,7 @@ export default function ManualCombinationForm() {
     const [combination, setCombination] = useState<PairStreamDto[]>([])
 
     const {trigger} = useAddCombinationEvent()
+    const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents();
 
     const dataLoaded = allDevelopers && allStreams;
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
@@ -103,7 +105,8 @@ export default function ManualCombinationForm() {
         }
 
         trigger(data)
-            .then(_ => {
+            .then(async _ => {
+                await refreshCombinationEvents()
                 resetForm()
             })
     }
