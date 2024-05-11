@@ -13,6 +13,7 @@ import {
     Stack,
     Tab,
     Tabs,
+    Tooltip,
     Typography
 } from "@mui/material";
 import CombinationEventDto from "@/domain/CombinationEventDto";
@@ -145,9 +146,11 @@ function CombinationHistoryCard() {
                                     <CardContent>
                                         <Stack gap={1}>
                                             <Stack direction="row">
-                                                <Typography variant="h5">
-                                                    {formatFriendlyDate(parseISO(combinationEvent.date))}
-                                                </Typography>
+                                                <Tooltip title={combinationEvent.date} placement="right">
+                                                    <Typography variant="h5">
+                                                        {formatFriendlyDate(parseISO(combinationEvent.date))}
+                                                    </Typography>
+                                                </Tooltip>
                                                 <CloseButton
                                                     sx={{marginLeft: "auto"}}
                                                     onClick={() => setCombinationEventToDelete(combinationEvent)}/>
