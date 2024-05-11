@@ -15,8 +15,12 @@
           }
         },
         "bodyPatterns": [
-          {"matchesJsonPath": "$[?(@.developerIds.length() > 0)]"},
-          {"matchesJsonPath": "$[?(@.streamIds.length() > 0)]"}
+          {
+            "matchesJsonPath": "$[?(@.developerIds.length() > 0)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.streamIds.length() > 0)]"
+          }
         ]
       },
       "response": {
@@ -34,14 +38,529 @@
           }
         },
         "bodyPatterns": [
-          {"matchesJsonPath": "$[?(@.date =~ /\\d{4}-\\d{2}-\\d{2}/)]"},
-          {"matchesJsonPath": "$.combination[?(@)]"},
-          {"matchesJsonPath": "$.combination[*].developerIds[?(@)]"},
-          {"matchesJsonPath": "$[?(@.combination[*].streamId =~ /\\d+/)]"}
+          {
+            "matchesJsonPath": "$[?(@.date =~ /\\d{4}-\\d{2}-\\d{2}/)]"
+          },
+          {
+            "matchesJsonPath": "$.combination[?(@)]"
+          },
+          {
+            "matchesJsonPath": "$.combination[*].developerIds[?(@)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.combination[*].streamId =~ /\\d+/)]"
+          }
         ]
       },
       "response": {
         "status": 201
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Create event 1",
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/combinations/event",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.date =~ /\\d{4}-\\d{2}-\\d{2}/)]"
+          },
+          {
+            "matchesJsonPath": "$.combination[?(@)]"
+          },
+          {
+            "matchesJsonPath": "$.combination[*].developerIds[?(@)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.combination[*].streamId =~ /\\d+/)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 201
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "0"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 1,
+            "date": "2024-05-10",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          },
+          {
+            "id": 2,
+            "date": "2024-05-09",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 3,
+            "date": "2024-05-08",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "2"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": []
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "Delete event 1",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/api/v1/combinations/event/1"
+      },
+      "response": {
+        "status": 204
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Delete event 1",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "0"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 2,
+            "date": "2024-05-09",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "date": "2024-05-08",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Delete event 1",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": []
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Delete event 1",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "2"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": []
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Create event 1",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "0"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 10,
+            "date": "2024-05-11",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              }
+            ]
+          },
+          {
+            "id": 1,
+            "date": "2024-05-10",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Create event 1",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "1"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 2,
+            "date": "2024-05-09",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "date": "2024-05-08",
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "scenarioName": "HomePage",
+      "requiredScenarioState": "Create event 1",
+      "request": {
+        "method": "GET",
+        "urlPath": "/api/v1/combinations/event",
+        "queryParameters": {
+          "page": {
+            "equalTo": "2"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": []
       }
     }
   ]

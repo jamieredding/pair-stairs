@@ -58,3 +58,11 @@ Content-Type: application/json
     }
   ]
 }
+
+### Get combination events
+
+GET {{baseUrl}}/api/v1/combinations/event?page=0
+
+### Delete combination event
+
+DELETE {{baseUrl}}/api/v1/combinations/event/1
