@@ -7,7 +7,6 @@ import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
 import {formatISO} from "date-fns";
-import {useRouter} from "next/navigation";
 import useCalculateCombinations from "@/hooks/combinations/useCalculateCombinations";
 import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
 import Loading from "@/components/Loading";
@@ -16,7 +15,8 @@ import Error from "@/components/Error";
 interface ChooseCombinationStepProps {
     developerIds: number[],
     streamIds: number[],
-    updateForm: (value: ((prevState: number) => number)) => void
+    updateForm: (value: ((prevState: number) => number)) => void,
+    resetForm: () => void
 }
 
 interface CombinationIndex {
@@ -24,7 +24,12 @@ interface CombinationIndex {
     column: number;
 }
 
-export default function ChooseCombinationStep({developerIds, streamIds, updateForm}: ChooseCombinationStepProps) {
+export default function ChooseCombinationStep({
+                                                  developerIds,
+                                                  streamIds,
+                                                  updateForm,
+                                                  resetForm
+                                              }: ChooseCombinationStepProps) {
     const {
         combinationsPages,
         isError,
@@ -36,7 +41,6 @@ export default function ChooseCombinationStep({developerIds, streamIds, updateFo
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
     const {trigger: addCombinationEvent} = useAddCombinationEvent()
-    const router = useRouter()
 
     const nothingSelected = selectedCombinationIndex === undefined;
 
@@ -73,7 +77,7 @@ export default function ChooseCombinationStep({developerIds, streamIds, updateFo
 
         addCombinationEvent(data)
             .then(_ => {
-                router.push("/")
+                resetForm()
             })
     }
 
@@ -83,7 +87,8 @@ export default function ChooseCombinationStep({developerIds, streamIds, updateFo
             {
                 combinationsPages &&
                 combinationsPages.map((combinations, rowIndex) =>
-                    <ScoredCombinationsTable key={rowIndex} dtos={combinations}
+                    <ScoredCombinationsTable key={rowIndex}
+                                             dtos={combinations}
                                              selectedIndex={getSelectedIndexForRow(rowIndex)}
                                              setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
                                                  column: columnIndex,

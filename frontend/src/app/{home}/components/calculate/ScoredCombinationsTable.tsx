@@ -4,12 +4,17 @@ import {Fragment} from "react";
 
 
 interface ScoredCombinationsTableProps {
+    key: number
     dtos: ScoredCombinationDto[],
     selectedIndex?: number,
-    setSelectedIndex: (columnIndex: number) => void
+    setSelectedIndex: (columnIndex: number) => void,
 }
 
-export default function ScoredCombinationsTable({dtos, selectedIndex, setSelectedIndex}: ScoredCombinationsTableProps) {
+export default function ScoredCombinationsTable({
+                                                    dtos,
+                                                    selectedIndex,
+                                                    setSelectedIndex
+                                                }: ScoredCombinationsTableProps) {
     const numberOfPairs = dtos[0].combination.length
 
     function highlightCell(index: number) {
@@ -41,9 +46,9 @@ export default function ScoredCombinationsTable({dtos, selectedIndex, setSelecte
                                     {dto.combination[pairIndex].developers.length === 2 &&
                                         <Fragment>
                                             <TableCell sx={highlightCell(index)}
-                                                align="center">{h6(dto.combination[pairIndex].developers[0].displayName)}</TableCell>
+                                                       align="center">{h6(dto.combination[pairIndex].developers[0].displayName)}</TableCell>
                                             <TableCell sx={highlightCell(index)}
-                                                align="center">{h6(dto.combination[pairIndex].developers[1].displayName)}</TableCell>
+                                                       align="center">{h6(dto.combination[pairIndex].developers[1].displayName)}</TableCell>
                                         </Fragment>
                                     }
                                     {dto.combination[pairIndex].developers.length === 1 &&
@@ -58,7 +63,8 @@ export default function ScoredCombinationsTable({dtos, selectedIndex, setSelecte
                     <TableRow>
                         <TableCell>{h6("Score")}</TableCell>
                         {dtos.map((dto, index) =>
-                            <TableCell key={index} align="center" colSpan={2} sx={highlightCell(index)}>{h6(String(dto.score))}</TableCell>
+                            <TableCell key={index} align="center" colSpan={2}
+                                       sx={highlightCell(index)}>{h6(String(dto.score))}</TableCell>
                         )}
                     </TableRow>
                     <TableRow>
