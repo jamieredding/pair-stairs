@@ -2,7 +2,7 @@ import {Button, Divider, Stack, Typography} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import ScoredCombinationsTable from "@/app/{home}/components/calculate/ScoredCombinationsTable";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
@@ -39,6 +39,12 @@ export default function ChooseCombinationStep({
         setSize
     } = useCalculateCombinations({developerIds, streamIds});
     const dataLoaded = combinationsPages !== undefined;
+
+    // Reset the size of the list of combinations when the developer or stream ids change
+    // This is necessary because the list of combinations is paginated and otherwise the list would start with too many options
+    useEffect(() => {
+        setSize(1)
+    }, [setSize, developerIds, streamIds]);
 
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
