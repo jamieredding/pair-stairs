@@ -1,6 +1,6 @@
 "use client"
 
-import {Box, Card, CardContent, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {Box, Card, CardContent, Divider, Stack, Tab, Tabs, Typography} from "@mui/material";
 import CombinationEventDto from "@/domain/CombinationEventDto";
 import CombinationTable from "@/components/CombinationTable";
 import {formatFriendlyDate} from "@/utils/dateUtils";
@@ -154,6 +154,7 @@ function CombinationHistoryCard({combinationEvents}: CombinationHistoryCardProps
                                         <Typography variant="h5">
                                             {formatFriendlyDate(parseISO(combinationEvent.date))}
                                         </Typography>
+                                        <Divider/>
                                         <CombinationTable combination={combinationEvent.combination}/>
                                     </Stack>
                                 </CardContent>
