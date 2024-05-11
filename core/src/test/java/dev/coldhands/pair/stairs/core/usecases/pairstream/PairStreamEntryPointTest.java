@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -139,35 +140,6 @@ class PairStreamEntryPointTest {
                     );
         }
 
-        private void saveARealisticFiveDayHistory() {
-            final LocalDate now = LocalDate.now();
-            combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
-                    new PairStream(Set.of("a-dev", "f-dev"), "2-stream"),
-                    new PairStream(Set.of("d-dev", "e-dev"), "3-stream"),
-                    new PairStream(Set.of("b-dev", "c-dev"), "1-stream")
-            )), now.minusDays(1));
-            combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
-                    new PairStream(Set.of("a-dev", "e-dev"), "2-stream"),
-                    new PairStream(Set.of("d-dev", "c-dev"), "3-stream"),
-                    new PairStream(Set.of("b-dev", "f-dev"), "1-stream")
-            )), now.minusDays(2));
-            combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
-                    new PairStream(Set.of("a-dev", "c-dev"), "2-stream"),
-                    new PairStream(Set.of("d-dev", "b-dev"), "3-stream"),
-                    new PairStream(Set.of("e-dev", "f-dev"), "1-stream")
-            )), now.minusDays(3));
-            combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
-                    new PairStream(Set.of("f-dev", "c-dev"), "2-stream"),
-                    new PairStream(Set.of("a-dev", "b-dev"), "3-stream"),
-                    new PairStream(Set.of("e-dev", "d-dev"), "1-stream")
-            )), now.minusDays(4));
-            combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
-                    new PairStream(Set.of("f-dev", "e-dev"), "2-stream"),
-                    new PairStream(Set.of("a-dev", "c-dev"), "3-stream"),
-                    new PairStream(Set.of("b-dev", "d-dev"), "1-stream")
-            )), now.minusDays(5));
-        }
-
         @Test
         @Disabled("Implemented by EveryPairShouldHappenAfterXDaysRule but is currently unsuitable")
         void everyPairShouldHappenAfterXDays() {
@@ -249,6 +221,34 @@ class PairStreamEntryPointTest {
         }
     }
 
+    @Test
+    void sortedCombinationsShouldBeDeterministic() {
+        saveARealisticFiveDayHistory();
+
+        final var underTest = initialiseUnderTest(
+                List.of("a-dev", "b-dev", "c-dev", "d-dev", "e-dev", "f-dev"),
+                List.of("1-stream", "2-stream", "3-stream")
+        );
+
+        final var attempt1 = underTest.computeScoredCombinations();
+
+        final Map<Combination<PairStream>, Integer> combinationToScore = attempt1.stream()
+                .collect(Collectors.toMap(ScoredCombination::combination, ScoredCombination::totalScore));
+
+        final var attempt2 = underTest.computeScoredCombinations();
+
+        assertThat(attempt1).isNotEmpty();
+        assertThat(attempt1.size()).isEqualTo(attempt2.size());
+
+        attempt2.forEach(scoredCombination -> {
+            final Integer scoreInAttempt1 = combinationToScore.get(scoredCombination.combination());
+            assertThat(scoreInAttempt1).isNotNull();
+            assertThat(scoredCombination.totalScore()).isEqualTo(scoreInAttempt1);
+        });
+
+        assertThat(attempt1).isEqualTo(attempt2);
+    }
+
     private PairStreamEntryPoint initialiseUnderTest(List<String> developers, List<String> streams) {
         final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams, 5);
         statisticsService.updateStatistics();
@@ -269,5 +269,34 @@ class PairStreamEntryPointTest {
                 .stream()
                 .map(ScoredCombination::combination)
                 .toList();
+    }
+
+    private void saveARealisticFiveDayHistory() {
+        final LocalDate now = LocalDate.now();
+        combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
+                new PairStream(Set.of("a-dev", "f-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "e-dev"), "3-stream"),
+                new PairStream(Set.of("b-dev", "c-dev"), "1-stream")
+        )), now.minusDays(1));
+        combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
+                new PairStream(Set.of("a-dev", "e-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "c-dev"), "3-stream"),
+                new PairStream(Set.of("b-dev", "f-dev"), "1-stream")
+        )), now.minusDays(2));
+        combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
+                new PairStream(Set.of("a-dev", "c-dev"), "2-stream"),
+                new PairStream(Set.of("d-dev", "b-dev"), "3-stream"),
+                new PairStream(Set.of("e-dev", "f-dev"), "1-stream")
+        )), now.minusDays(3));
+        combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
+                new PairStream(Set.of("f-dev", "c-dev"), "2-stream"),
+                new PairStream(Set.of("a-dev", "b-dev"), "3-stream"),
+                new PairStream(Set.of("e-dev", "d-dev"), "1-stream")
+        )), now.minusDays(4));
+        combinationHistoryRepository.saveCombination(new Combination<>(Set.of(
+                new PairStream(Set.of("f-dev", "e-dev"), "2-stream"),
+                new PairStream(Set.of("a-dev", "c-dev"), "3-stream"),
+                new PairStream(Set.of("b-dev", "d-dev"), "1-stream")
+        )), now.minusDays(5));
     }
 }

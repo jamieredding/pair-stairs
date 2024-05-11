@@ -2,8 +2,14 @@ package dev.coldhands.pair.stairs.legacy.cli;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import dev.coldhands.pair.stairs.core.domain.CombinationService;
+import dev.coldhands.pair.stairs.legacy.domain.Pair;
 import dev.coldhands.pair.stairs.legacy.domain.Pairing;
-import dev.coldhands.pair.stairs.legacy.logic.DecideOMatic;
+import dev.coldhands.pair.stairs.legacy.domain.ScoredPairCombination;
+import dev.coldhands.pair.stairs.legacy.logic.EntryPoint;
+import dev.coldhands.pair.stairs.legacy.logic.ScoringStrategy;
+import dev.coldhands.pair.stairs.legacy.logic.legacy.LegacyCombinationService;
+import dev.coldhands.pair.stairs.legacy.logic.legacy.LegacyScoringStrategy;
 import dev.coldhands.pair.stairs.legacy.persistance.Configuration;
 import dev.coldhands.pair.stairs.legacy.persistance.Storage;
 import org.junit.jupiter.api.AfterEach;
@@ -21,7 +27,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -80,8 +85,8 @@ interface RunnerContractTest {
                                    Picked 2:
                                                            
                                            a-dev  b-dev  c-dev\s
-                                    a-dev   1 *     0      0  \s
-                                    b-dev           0     1 * \s
+                                    a-dev    0      0     1 * \s
+                                    b-dev          1 *     0  \s
                                     c-dev                  0  \s
                                                            
                                    Saved pairings to: %s
@@ -130,9 +135,9 @@ interface RunnerContractTest {
                                    Picked 1:
 
                                            c-dev  d-dev  e-dev\s
-                                    c-dev    0     1 *     1  \s
-                                    d-dev           1      0  \s
-                                    e-dev                 1 * \s
+                                    c-dev   1 *     0      1  \s
+                                    d-dev           1     1 * \s
+                                    e-dev                  0  \s
 
                                    Saved pairings to: %s
 
@@ -154,9 +159,9 @@ interface RunnerContractTest {
                            """
                                    {"date":"%s","pair":{"first":"d-dev","second":null}},""".formatted(now.minusDays(1)) +
                            """
-                                   {"date":"%s","pair":{"first":"c-dev","second":"d-dev"}},""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":"e-dev"}},""".formatted(now) +
                            """
-                                   {"date":"%s","pair":{"first":"e-dev","second":null}}""".formatted(now) +
+                                   {"date":"%s","pair":{"first":"c-dev","second":null}}""".formatted(now) +
                            """
                                    ]}""");
     }
@@ -187,9 +192,9 @@ interface RunnerContractTest {
 
                                            a-dev  c-dev  d-dev  e-dev\s
                                     a-dev    0      0      0      0  \s
-                                    c-dev           0     1 *     0  \s
-                                    d-dev                  0      0  \s
-                                    e-dev                        1 * \s
+                                    c-dev           0      0     1 * \s
+                                    d-dev                 1 *     0  \s
+                                    e-dev                         0  \s
 
                                    Saved pairings to: %s
 
@@ -663,9 +668,9 @@ interface RunnerContractTest {
                                    Picked 1:
 
                                            a-dev  c-dev  d-dev  e-dev\s
-                                    a-dev    0      0      0     1 * \s
-                                    c-dev           0     1 *     0  \s
-                                    d-dev                  0      0  \s
+                                    a-dev    0     1 *     0      0  \s
+                                    c-dev           0      0      0  \s
+                                    d-dev                  0     1 * \s
                                     e-dev                         0  \s
 
                                    Saved pairings to: %s
@@ -684,9 +689,9 @@ interface RunnerContractTest {
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"%s","pair":{"first":"a-dev","second":"e-dev"}},""".formatted(LocalDate.now()) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":"e-dev"}},""".formatted(LocalDate.now()) +
                            """
-                                   {"date":"%s","pair":{"first":"c-dev","second":"d-dev"}}""".formatted(LocalDate.now()) +
+                                   {"date":"%s","pair":{"first":"a-dev","second":"c-dev"}}""".formatted(LocalDate.now()) +
                            """
                                    ]}""");
     }
@@ -713,9 +718,9 @@ interface RunnerContractTest {
                                    Picked 1:
 
                                            a-dev  c-dev  d-dev  e-dev\s
-                                    a-dev    0      0      0     1 * \s
-                                    c-dev           0     1 *     0  \s
-                                    d-dev                  0      0  \s
+                                    a-dev    0     1 *     0      0  \s
+                                    c-dev           0      0      0  \s
+                                    d-dev                  0     1 * \s
                                     e-dev                         0  \s
 
                                    Saved pairings to: %s
@@ -735,9 +740,9 @@ interface RunnerContractTest {
                            """
                                    "pairings":[""" +
                            """
-                                   {"date":"%s","pair":{"first":"a-dev","second":"e-dev"}},""".formatted(LocalDate.now()) +
+                                   {"date":"%s","pair":{"first":"d-dev","second":"e-dev"}},""".formatted(LocalDate.now()) +
                            """
-                                   {"date":"%s","pair":{"first":"c-dev","second":"d-dev"}}""".formatted(LocalDate.now()) +
+                                   {"date":"%s","pair":{"first":"a-dev","second":"c-dev"}}""".formatted(LocalDate.now()) +
                            """
                                    ]}""");
     }
@@ -918,7 +923,11 @@ interface RunnerContractTest {
     }
 
     private String pairChoices(List<Pairing> pairings, List<String> allDevelopers, List<String> newJoiners) {
-        return PairPrinter.drawPairChoices(new DecideOMatic(pairings, new HashSet<>(allDevelopers), new HashSet<>(newJoiners))
-                .getScoredPairCombinations(), 3);
+        final CombinationService<Pair> combinationService = new LegacyCombinationService(allDevelopers);
+        final ScoringStrategy scoringStrategy = new LegacyScoringStrategy(allDevelopers, pairings, newJoiners);
+        final EntryPoint entryPoint = new EntryPoint(combinationService, scoringStrategy);
+        final List<ScoredPairCombination> scoredPairCombinations = entryPoint.computeScoredPairCombinations();
+
+        return PairPrinter.drawPairChoices(scoredPairCombinations, 3);
     }
 }
