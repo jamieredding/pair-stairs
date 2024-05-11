@@ -31,3 +31,10 @@ export async function getCombinationEvents(url: string): Promise<CombinationEven
     const res = await fetch(url);
     return await res.json();
 }
+
+export function deleteCombinationEvent(url: string, {arg: id} : {arg: number}) {
+    return fetch(`${url}/${id}`, {
+        method: "DELETE"
+    })
+    // todo response handling
+}

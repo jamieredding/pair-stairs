@@ -1,6 +1,20 @@
 "use client"
 
-import {Box, Card, CardContent, Divider, Stack, Tab, Tabs, Typography} from "@mui/material";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    Divider,
+    Stack,
+    Tab,
+    Tabs,
+    Typography
+} from "@mui/material";
 import CombinationEventDto from "@/domain/CombinationEventDto";
 import CombinationTable from "@/components/CombinationTable";
 import {formatFriendlyDate} from "@/utils/dateUtils";
@@ -13,6 +27,9 @@ import useCombinationEvents from "@/hooks/combinations/useCombinationEvents";
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
 import MoreButton from "@/components/MoreButton";
+import CloseButton from "@/components/CloseButton";
+import useDeleteCombinationEvent from "@/hooks/combinations/useDeleteCombinationEvent";
+import useRefreshCombinationEvents from "@/hooks/combinations/useRefreshCombinationEvents";
 
 interface TabPanelProps {
     children: ReactNode;
@@ -63,6 +80,43 @@ function NewCombinationCard() {
     );
 }
 
+interface ConfirmDeleteDialogProps {
+    combinationEvent: CombinationEventDto;
+    onClose: () => void
+}
+
+function ConfirmDeleteDialog({combinationEvent, onClose}: ConfirmDeleteDialogProps) {
+    const {trigger: deleteCombinationEvent} = useDeleteCombinationEvent();
+    const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents();
+
+    function handleDeleteCombinationEvent() {
+        deleteCombinationEvent(combinationEvent.id)
+            .then(async _ => {
+                await refreshCombinationEvents()
+                onClose()
+            })
+    }
+
+    return (
+        <Dialog open={true}>
+            <DialogContent>
+                <DialogContentText>
+                    <p>
+                        Are you sure you want to delete the combination for {combinationEvent.date}?
+                    </p>
+                    <p>
+                        This action cannot be undone.
+                    </p>
+                </DialogContentText>
+                <DialogActions>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button onClick={handleDeleteCombinationEvent}>Delete</Button>
+                </DialogActions>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
 
 function CombinationHistoryCard() {
     const {
@@ -72,6 +126,8 @@ function CombinationHistoryCard() {
         setSize
     } = useCombinationEvents();
     const dataLoaded = combinationEvents !== undefined;
+
+    const [combinationEventToDelete, setCombinationEventToDelete] = useState<CombinationEventDto>();
 
     function getMoreCombinationEvents() {
         setSize(size => size + 1);
@@ -88,9 +144,14 @@ function CombinationHistoryCard() {
                                 <Card key={combinationEvent.id}>
                                     <CardContent>
                                         <Stack gap={1}>
-                                            <Typography variant="h5">
-                                                {formatFriendlyDate(parseISO(combinationEvent.date))}
-                                            </Typography>
+                                            <Stack direction="row">
+                                                <Typography variant="h5">
+                                                    {formatFriendlyDate(parseISO(combinationEvent.date))}
+                                                </Typography>
+                                                <CloseButton
+                                                    sx={{marginLeft: "auto"}}
+                                                    onClick={() => setCombinationEventToDelete(combinationEvent)}/>
+                                            </Stack>
                                             <Divider/>
                                             <CombinationTable combination={combinationEvent.combination}/>
                                         </Stack>
@@ -102,6 +163,11 @@ function CombinationHistoryCard() {
                         <MoreButton onClick={getMoreCombinationEvents} disabled={!dataLoaded}/>
                     </Stack>
                 </Stack>
+                {combinationEventToDelete &&
+                    <ConfirmDeleteDialog combinationEvent={combinationEventToDelete}
+                                         onClose={() => setCombinationEventToDelete(undefined)}
+                    />
+                }
             </CardContent>
         </Card>
     );

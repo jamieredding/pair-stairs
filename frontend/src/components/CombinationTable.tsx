@@ -1,17 +1,7 @@
-import {
-    Button,
-    Stack,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Typography
-} from "@mui/material";
-import {Close} from "@mui/icons-material";
+import {Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import PairStreamDto from "@/domain/PairStreamDto";
 import {Fragment} from "react";
+import CloseButton from "@/components/CloseButton";
 
 interface CombinationTableProps {
     combination: PairStreamDto[]
@@ -65,10 +55,7 @@ export default function CombinationTable({combination, removeFromCombination}: C
                                 }
                                 {removeFromCombination &&
                                     <TableCell align="right">
-                                        <Button
-                                            onClick={() => handleRemoveFromCombination(combination[pairIndex])}>
-                                            <Close/>
-                                        </Button>
+                                        <CloseButton onClick={() => handleRemoveFromCombination(combination[pairIndex])}/>
                                     </TableCell>
                                 }
                             </TableRow>
