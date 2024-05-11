@@ -12,6 +12,7 @@ import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent"
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
 import MoreButton from "@/components/MoreButton";
+import useRefreshCombinationEvents from "@/hooks/combinations/useRefreshCombinationEvents";
 
 interface ChooseCombinationStepProps {
     developerIds: number[],
@@ -42,6 +43,7 @@ export default function ChooseCombinationStep({
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
     const {trigger: addCombinationEvent} = useAddCombinationEvent()
+    const {refresh: refreshCombinationEvents } = useRefreshCombinationEvents()
 
     const nothingSelected = selectedCombinationIndex === undefined;
 
@@ -77,7 +79,8 @@ export default function ChooseCombinationStep({
         }
 
         addCombinationEvent(data)
-            .then(_ => {
+            .then(async _ => {
+                await refreshCombinationEvents()
                 resetForm()
             })
     }

@@ -65,7 +65,12 @@ function NewCombinationCard() {
 
 
 function CombinationHistoryCard() {
-    const {combinationEvents, isError, isLoading, setSize} = useCombinationEvents();
+    const {
+        combinationEvents,
+        isError,
+        isLoading,
+        setSize
+    } = useCombinationEvents();
     const dataLoaded = combinationEvents !== undefined;
 
     function getMoreCombinationEvents() {
@@ -78,8 +83,6 @@ function CombinationHistoryCard() {
                 <Stack gap={1}>
                     <Typography variant="h4">Combination History</Typography>
                     <Stack gap={1}>
-                        {isLoading && <Loading/>}
-                        {isError && <Error/>}
                         {combinationEvents &&
                             (combinationEvents as CombinationEventDto[][]).flat().map((combinationEvent) =>
                                 <Card key={combinationEvent.id}>
@@ -94,6 +97,8 @@ function CombinationHistoryCard() {
                                     </CardContent>
                                 </Card>
                             )}
+                        {isLoading && <Loading/>}
+                        {isError && <Error/>}
                         <MoreButton onClick={getMoreCombinationEvents} disabled={!dataLoaded}/>
                     </Stack>
                 </Stack>

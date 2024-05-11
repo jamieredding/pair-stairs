@@ -2,7 +2,7 @@ import CombinationEventDto from "@/domain/CombinationEventDto";
 import {getCombinationEvents} from "@/infrastructure/CombinationClient";
 import useSWRInfinite, {SWRInfiniteKeyLoader, SWRInfiniteResponse} from "swr/infinite";
 
-const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
+export const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.length) {
         return null
     }
