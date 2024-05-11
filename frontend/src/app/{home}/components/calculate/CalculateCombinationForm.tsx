@@ -1,13 +1,13 @@
 "use client"
 
-import ChooseDevelopersForm from "@/app/daily-combination/components/ChooseDevelopersForm";
+import ChooseDevelopersStep from "@/app/{home}/components/calculate/ChooseDevelopersStep";
 import {useState} from "react";
-import ChooseStreamsForm from "@/app/daily-combination/components/ChooseStreamsForm";
-import ChooseCombinationForm from "@/app/daily-combination/components/ChooseCombinationForm";
+import ChooseStreamsStep from "@/app/{home}/components/calculate/ChooseStreamsStep";
+import ChooseCombinationStep from "@/app/{home}/components/calculate/ChooseCombinationStep";
 import {Stack} from "@mui/material";
 
 
-export default function DailyCombinationPage() {
+export default function CalculateCombinationForm() {
     const [savedDeveloperIds, setSavedDeveloperIds] = useState<number[]>()
     const [savedStreamIds, setSavedStreamIds] = useState<number[]>()
     const [formStage, setFormStage] = useState<number>(0)
@@ -15,17 +15,17 @@ export default function DailyCombinationPage() {
     return (
         <Stack gap={1}>
             {formStage === 0 &&
-                <ChooseDevelopersForm savedDeveloperIds={savedDeveloperIds}
+                <ChooseDevelopersStep savedDeveloperIds={savedDeveloperIds}
                                       setSavedDeveloperIds={setSavedDeveloperIds}
                                       updateForm={setFormStage}/>
             }
             {formStage === 1 &&
-                <ChooseStreamsForm savedStreamIds={savedStreamIds}
+                <ChooseStreamsStep savedStreamIds={savedStreamIds}
                                    setSavedStreamIds={setSavedStreamIds}
                                    updateForm={setFormStage}/>
             }
             {formStage === 2 &&
-                <ChooseCombinationForm developerIds={savedDeveloperIds as number[]}
+                <ChooseCombinationStep developerIds={savedDeveloperIds as number[]}
                                        streamIds={savedStreamIds as number[]}
                                        updateForm={setFormStage}/>
             }

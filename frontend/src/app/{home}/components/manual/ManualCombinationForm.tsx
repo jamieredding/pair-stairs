@@ -22,7 +22,7 @@ import Error from "@/components/Error";
 
 const dateFormat = "yyyy-MM-dd"
 
-export default function ManualCombinationPage() {
+export default function ManualCombinationForm() {
     const {allDevelopers, isLoading: loadingDevelopers, isError: erroringDevelopers} = useDeveloperInfos();
     const {allStreams, isLoading: loadingStreams, isError: erroringStreams} = useStreamInfos()
 

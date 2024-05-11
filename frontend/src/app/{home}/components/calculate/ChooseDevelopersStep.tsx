@@ -7,17 +7,17 @@ import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
 
-interface ChooseDeveloperFormProps {
+interface ChooseDeveloperStepProps {
     savedDeveloperIds?: number[],
     setSavedDeveloperIds: (newDeveloperIds: number[]) => any,
     updateForm: (value: ((prevState: number) => number)) => void
 }
 
-export default function ChooseDevelopersForm({
+export default function ChooseDevelopersStep({
                                                  savedDeveloperIds,
                                                  setSavedDeveloperIds,
                                                  updateForm
-                                             }: ChooseDeveloperFormProps) {
+                                             }: ChooseDeveloperStepProps) {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>(() => savedDeveloperIds || []);
     const dataLoaded: boolean = allDevelopers !== undefined

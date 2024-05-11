@@ -7,8 +7,8 @@ import {formatFriendlyDate} from "@/utils/dateUtils";
 import {parseISO} from "date-fns";
 import Grid from "@mui/system/Unstable_Grid";
 import {ReactNode, useState} from "react";
-import DailyCombinationPage from "@/app/daily-combination/components/DailyCombinationPage";
-import ManualCombinationPage from "@/app/manual-combination/components/ManualCombinationPage";
+import CalculateCombinationForm from "@/app/{home}/components/calculate/CalculateCombinationForm";
+import ManualCombinationForm from "@/app/{home}/components/manual/ManualCombinationForm";
 
 const combinationEvents: CombinationEventDto[] = [
     {
@@ -123,10 +123,10 @@ function NewCombinationCard() {
                         </Tabs>
                     </Box>
                     <TabPanel value={tabIndex} index={0}>
-                        <DailyCombinationPage/>
+                        <CalculateCombinationForm/>
                     </TabPanel>
                     <TabPanel value={tabIndex} index={1}>
-                        <ManualCombinationPage/>
+                        <ManualCombinationForm/>
                     </TabPanel>
                 </Stack>
             </CardContent>

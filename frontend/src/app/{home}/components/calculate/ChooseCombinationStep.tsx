@@ -1,7 +1,7 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
 import {ArrowBack, ArrowDownward} from "@mui/icons-material";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
-import ScoredCombinationsTable from "@/app/daily-combination/components/ScoredCombinationsTable";
+import ScoredCombinationsTable from "@/app/{home}/components/calculate/ScoredCombinationsTable";
 import {useState} from "react";
 import SaveButton from "@/components/SaveButton";
 import ButtonRow from "@/components/ButtonRow";
@@ -13,7 +13,7 @@ import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent"
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
 
-interface ChooseCombinationFormProps {
+interface ChooseCombinationStepProps {
     developerIds: number[],
     streamIds: number[],
     updateForm: (value: ((prevState: number) => number)) => void
@@ -24,7 +24,7 @@ interface CombinationIndex {
     column: number;
 }
 
-export default function ChooseCombinationForm({developerIds, streamIds, updateForm}: ChooseCombinationFormProps) {
+export default function ChooseCombinationStep({developerIds, streamIds, updateForm}: ChooseCombinationStepProps) {
     const {
         combinationsPages,
         isError,

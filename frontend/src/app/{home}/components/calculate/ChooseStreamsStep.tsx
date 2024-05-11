@@ -8,13 +8,13 @@ import useStreamInfos from "@/hooks/streams/useStreamInfos";
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
 
-interface ChooseStreamsFormProps {
+interface ChooseStreamsStepProps {
     savedStreamIds?: number[],
     setSavedStreamIds: (newStreamIds: number[]) => any,
     updateForm: (value: ((prevState: number) => number)) => void
 }
 
-export default function ChooseStreamsForm({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsFormProps) {
+export default function ChooseStreamsStep({savedStreamIds, setSavedStreamIds, updateForm}: ChooseStreamsStepProps) {
     const {allStreams, isError, isLoading} = useStreamInfos();
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>(() => savedStreamIds || []);
     const dataLoaded = allStreams !== undefined;
