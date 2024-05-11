@@ -13,7 +13,6 @@ import CombinationTable from "@/components/CombinationTable";
 import {format} from "date-fns";
 import CustomDatePicker from "@/components/CustomDatePicker";
 import SaveCombinationEventDto, {PairStreamByIds} from "@/domain/SaveCombinationEventDto";
-import {useRouter} from "next/navigation";
 import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
 import useDeveloperInfos from "@/hooks/developers/useDeveloperInfos";
 import useStreamInfos from "@/hooks/streams/useStreamInfos";
@@ -49,7 +48,6 @@ export default function ManualCombinationForm() {
     const [combination, setCombination] = useState<PairStreamDto[]>([])
 
     const {trigger} = useAddCombinationEvent()
-    const router = useRouter()
 
     const dataLoaded = allDevelopers && allStreams;
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
@@ -84,6 +82,15 @@ export default function ManualCombinationForm() {
         setRemainingStreams(prevState => [...(prevState as StreamInfoDto[]), toRemove.stream])
     }
 
+    function resetForm() {
+        setCombination([])
+        setSelectedDeveloperIds([])
+        setSelectedStreamIds([])
+        setRemainingDevelopers(allDevelopers)
+        setRemainingStreams(allStreams)
+        setDate(today)
+    }
+
     function saveCombination() {
         const pairStreamsByIds: PairStreamByIds[] = combination.map(c => ({
             streamId: c.stream.id,
@@ -97,7 +104,7 @@ export default function ManualCombinationForm() {
 
         trigger(data)
             .then(_ => {
-                router.push("/")
+                resetForm()
             })
     }
 
