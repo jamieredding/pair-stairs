@@ -1,5 +1,5 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import {ArrowBack, ArrowDownward} from "@mui/icons-material";
+import {ArrowBack} from "@mui/icons-material";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import ScoredCombinationsTable from "@/app/{home}/components/calculate/ScoredCombinationsTable";
 import {useState} from "react";
@@ -11,6 +11,7 @@ import useCalculateCombinations from "@/hooks/combinations/useCalculateCombinati
 import useAddCombinationEvent from "@/hooks/combinations/useAddCombinationEvent";
 import Loading from "@/components/Loading";
 import Error from "@/components/Error";
+import MoreButton from "@/components/MoreButton";
 
 interface ChooseCombinationStepProps {
     developerIds: number[],
@@ -105,11 +106,7 @@ export default function ChooseCombinationStep({
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
                 </Button>
-                <Button variant="outlined" onClick={getMoreCombinations} disabled={!dataLoaded}>
-                    <ArrowDownward sx={({marginRight: (theme) => theme.spacing(1)})}/>
-                    More
-                </Button>
-
+                <MoreButton onClick={getMoreCombinations} disabled={!dataLoaded}/>
                 <SaveButton disabled={!dataLoaded || nothingSelected} onClick={saveCombination}/>
             </ButtonRow>
         </Stack>

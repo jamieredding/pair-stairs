@@ -9,81 +9,10 @@ import Grid from "@mui/system/Unstable_Grid";
 import {ReactNode, useState} from "react";
 import CalculateCombinationForm from "@/app/{home}/components/calculate/CalculateCombinationForm";
 import ManualCombinationForm from "@/app/{home}/components/manual/ManualCombinationForm";
-
-const combinationEvents: CombinationEventDto[] = [
-    {
-        id: 1,
-        date: "2024-05-10",
-        combination: [
-            {
-                developers: [
-                    {id: 0, displayName: "dev-0"},
-                    {id: 1, displayName: "dev-1"},
-                ],
-                stream:
-                    {id: 1, displayName: "stream-a"}
-
-            },
-            {
-                developers: [
-                    {id: 2, displayName: "dev-2"},
-                ],
-                stream:
-                    {id: 2, displayName: "stream-b"}
-
-            }
-        ]
-    },
-
-    {
-        id: 2,
-        date: "2024-05-09",
-        combination: [
-            {
-                developers: [
-                    {id: 0, displayName: "dev-0"},
-                    {id: 2, displayName: "dev-2"},
-                ],
-                stream:
-                    {id: 1, displayName: "stream-a"}
-
-            },
-            {
-                developers: [
-                    {id: 1, displayName: "dev-1"},
-                ],
-                stream:
-                    {id: 2, displayName: "stream-b"}
-
-            }
-        ]
-    },
-
-    {
-        id: 3,
-        date: "2024-05-08",
-        combination: [
-            {
-                developers: [
-                    {id: 1, displayName: "dev-1"},
-                    {id: 2, displayName: "dev-2"},
-                ],
-                stream:
-                    {id: 1, displayName: "stream-a"}
-
-            },
-            {
-                developers: [
-                    {id: 0, displayName: "dev-0"},
-                ],
-                stream:
-                    {id: 2, displayName: "stream-b"}
-
-            }
-        ]
-    },
-];
-
+import useCombinationEvents from "@/hooks/combinations/useCombinationEvents";
+import Loading from "@/components/Loading";
+import Error from "@/components/Error";
+import MoreButton from "@/components/MoreButton";
 
 interface TabPanelProps {
     children: ReactNode;
@@ -135,11 +64,13 @@ function NewCombinationCard() {
 }
 
 
-interface CombinationHistoryCardProps {
-    combinationEvents: CombinationEventDto[],
-}
+function CombinationHistoryCard() {
+    const {combinationEvents, isError, isLoading, setSize} = useCombinationEvents();
+    const dataLoaded = combinationEvents !== undefined;
 
-function CombinationHistoryCard({combinationEvents}: CombinationHistoryCardProps) {
+    function getMoreCombinationEvents() {
+        setSize(size => size + 1);
+    }
 
     return (
         <Card>
@@ -147,19 +78,23 @@ function CombinationHistoryCard({combinationEvents}: CombinationHistoryCardProps
                 <Stack gap={1}>
                     <Typography variant="h4">Combination History</Typography>
                     <Stack gap={1}>
-                        {combinationEvents.map((combinationEvent) =>
-                            <Card key={combinationEvent.id}>
-                                <CardContent>
-                                    <Stack gap={1}>
-                                        <Typography variant="h5">
-                                            {formatFriendlyDate(parseISO(combinationEvent.date))}
-                                        </Typography>
-                                        <Divider/>
-                                        <CombinationTable combination={combinationEvent.combination}/>
-                                    </Stack>
-                                </CardContent>
-                            </Card>
-                        )}
+                        {isLoading && <Loading/>}
+                        {isError && <Error/>}
+                        {combinationEvents &&
+                            (combinationEvents as CombinationEventDto[][]).flat().map((combinationEvent) =>
+                                <Card key={combinationEvent.id}>
+                                    <CardContent>
+                                        <Stack gap={1}>
+                                            <Typography variant="h5">
+                                                {formatFriendlyDate(parseISO(combinationEvent.date))}
+                                            </Typography>
+                                            <Divider/>
+                                            <CombinationTable combination={combinationEvent.combination}/>
+                                        </Stack>
+                                    </CardContent>
+                                </Card>
+                            )}
+                        <MoreButton onClick={getMoreCombinationEvents} disabled={!dataLoaded}/>
                     </Stack>
                 </Stack>
             </CardContent>
@@ -175,7 +110,7 @@ export default function HomePage() {
                     <NewCombinationCard/>
                 </Grid>
                 <Grid xs={12} sm={4}>
-                    <CombinationHistoryCard combinationEvents={combinationEvents}/>
+                    <CombinationHistoryCard/>
                 </Grid>
             </Grid>
         </main>

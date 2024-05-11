@@ -1,6 +1,7 @@
 import CalculateInputDto from "@/domain/CalculateInputDto";
 import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import SaveCombinationEventDto from "@/domain/SaveCombinationEventDto";
+import CombinationEventDto from "@/domain/CombinationEventDto";
 
 export async function calculateCombinations(url: string, {arg}: {
     arg: CalculateInputDto
@@ -24,4 +25,9 @@ export function saveCombinationEvent(url: string, {arg}: { arg: SaveCombinationE
         body: JSON.stringify(arg)
     })
     // todo response handling
+}
+
+export async function getCombinationEvents(url: string): Promise<CombinationEventDto[]> {
+    const res = await fetch(url);
+    return await res.json();
 }
