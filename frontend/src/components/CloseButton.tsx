@@ -1,9 +1,9 @@
-import {Button} from "@mui/material";
+import {Button, SxProps} from "@mui/material";
 import {Close} from "@mui/icons-material";
 
 interface CloseButtonProps {
     onClick: () => void;
-    sx?: any;
+    sx?: SxProps;
 
 }
 
