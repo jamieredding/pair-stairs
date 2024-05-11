@@ -2,10 +2,10 @@ import type {Metadata} from "next";
 import {inter} from "@/app/fonts";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Toolbar from "@mui/material/Toolbar";
 import RootContext from "@/components/RootContext";
 import {CssBaseline} from "@mui/material";
 import {ReactNode} from "react";
+import Toolbar from "@mui/material/Toolbar";
 
 export const metadata: Metadata = {
     title: "Pair Stairs",
@@ -23,8 +23,8 @@ export default function RootLayout({
         <RootContext>
             <CssBaseline/>
             <Navbar/>
-            {/*To pad the navbar above*/}
-            <Toolbar/>
+            {/*To pad the navbar above, see: https://github.com/mui/material-ui/issues/16844#issuecomment-517205129 */}
+            <Toolbar sx={{mb: 1}}/>
             {children}
         </RootContext>
         </body>
