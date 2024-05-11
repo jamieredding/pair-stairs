@@ -34,6 +34,8 @@ services:
     env_file: docker-compose.env
     networks:
       - pair_stairs
+    ports:
+      - "18083:3306"
     volumes:
       - pair_stairs_db:/var/lib/mysql
 
