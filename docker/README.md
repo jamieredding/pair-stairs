@@ -16,7 +16,7 @@ There are currently 3 containers required for running pair-stairs:
 
 ## Running the containers
 
-To run the containers, there is a provided `docker-compose.yml` file in this directory.
+To run the containers, there is a provided [docker-compose.yml](docker-compose.yml) file in this directory.
 
 To start the containers, run the following command:
 ```shell
