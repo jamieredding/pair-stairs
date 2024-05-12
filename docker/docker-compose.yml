@@ -1,41 +1,38 @@
 services:
-  backend:
+  pair_stairs_backend:
     image: ghcr.io/jamieredding/pair-stairs-backend:latest
     hostname: backend
-    container_name: pair_stairs_backend
     restart: unless-stopped
-    env_file: docker-compose.env
+    env_file: application.env
     networks:
-      - pair_stairs
+      - pair_stairs_net
     ports:
-      - "18081:8080"
+      - "${BACKEND_PORT}:8080"
     depends_on:
-      - db
+      - pair_stairs_db
 
-  frontend:
+  pair_stairs_frontend:
     image: ghcr.io/jamieredding/pair-stairs-frontend:latest
     hostname: frontend
-    container_name: pair_stairs_frontend
     restart: unless-stopped
     environment:
       - BACKEND_HOST=http://backend:8080
     networks:
-      - pair_stairs
+      - pair_stairs_net
     ports:
-      - "18082:80"
+      - "${FRONTEND_PORT}:80"
     depends_on:
-      - backend
+      - pair_stairs_backend
 
-  db:
+  pair_stairs_db:
     image: mysql:8.4.0
     hostname: db
-    container_name: pair_stairs_db
     restart: unless-stopped
-    env_file: docker-compose.env
+    env_file: application.env
     networks:
-      - pair_stairs
+      - pair_stairs_net
     ports:
-      - "18083:3306"
+      - "${DB_PORT}:3306"
     volumes:
       - pair_stairs_db:/var/lib/mysql
 
@@ -43,4 +40,4 @@ volumes:
   pair_stairs_db:
 
 networks:
-  pair_stairs:
+  pair_stairs_net:

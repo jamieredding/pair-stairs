@@ -9,8 +9,8 @@ Introduced as of 1.4.0 there is now a web application to make it easier for team
 It consists of a [Next.js frontend](frontend), a [Spring Boot backend](backend/README.md) and a database for
 persistence.
 
-Each module is shipped as a docker image and there is a [docker-compose.yml](docker-compose.yml) to bring this stack up
-to try it out yourself.
+Each module is shipped as a docker image, please see the [README.md](docker/README.md)
+for instructions on how to bring this stack up yourself.
 
 ## CLI
 
