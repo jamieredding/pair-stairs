@@ -38,6 +38,8 @@ The basic requirements to build are:
   - This can be downloaded and managed with the included Maven wrapper script
 - Docker
   - Required to build the docker image
+- Playwright
+  - Instructions for installing this can be found in the [e2e](e2e/README.md) module
 
 Once SDKMAN has been installed, run `sdk env` to download and initialise your environment with the same
 version of Java used in the project.

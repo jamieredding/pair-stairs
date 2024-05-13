@@ -33,18 +33,20 @@ import useDeleteCombinationEvent from "@/hooks/combinations/useDeleteCombination
 import useRefreshCombinationEvents from "@/hooks/combinations/useRefreshCombinationEvents";
 
 interface TabPanelProps {
-    children: ReactNode;
-    index: number;
-    value: number;
+    children: ReactNode,
+    index: number,
+    value: number,
+    id: string,
+    ariaLabelledBy: string
 }
 
-function TabPanel(props: TabPanelProps) {
-    const {children, value, index, ...other} = props;
-
+function TabPanel({ariaLabelledBy, children, id, index, value}: TabPanelProps) {
     return (
         <div
             role="tabpanel"
             hidden={value !== index}
+            id={id}
+            aria-labelledby={ariaLabelledBy}
         >
             {value === index && (
                 <Box sx={{padding: 1}}>
@@ -64,15 +66,18 @@ function NewCombinationCard() {
                 <Stack gap={1}>
                     <Typography variant="h4">New Combination</Typography>
                     <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                        <Tabs value={tabIndex} onChange={(_, newValue) => setTabIndex(newValue)}>
-                            <Tab label="Calculate"/>
-                            <Tab label="Manual"/>
+                        <Tabs value={tabIndex} onChange={(_, newValue) => setTabIndex(newValue)}
+                              aria-label="new combination tabs">
+                            <Tab label="Calculate" id="new-combination-tab-0" aria-controls="calculate-tabpanel-0"/>
+                            <Tab label="Manual" id="new-combination-tab-1" aria-controls="manual-tabpanel-1"/>
                         </Tabs>
                     </Box>
-                    <TabPanel value={tabIndex} index={0}>
+                    <TabPanel value={tabIndex} index={0}
+                              id="calculate-tabpanel-0" ariaLabelledBy="new-combination-tab-0">
                         <CalculateCombinationForm/>
                     </TabPanel>
-                    <TabPanel value={tabIndex} index={1}>
+                    <TabPanel value={tabIndex} index={1}
+                              id="manual-tabpanel-1" ariaLabelledBy="new-combination-tab-1">
                         <ManualCombinationForm/>
                     </TabPanel>
                 </Stack>

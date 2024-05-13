@@ -1,7 +1,5 @@
 DB_CONTAINER_NAME=build_image__pair_stairs_db
 BACKEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-backend
-TIMEOUT=120
-SLEEP=5
 
 .PHONY: start-database wait-for-database run-db build-maven stop-database maven-release push-image-backend
 
