@@ -23,7 +23,7 @@ export default function ScoredCombinationsTable({
         return selectedIndex === index ? {backgroundColor: highlightedCellColor} : {};
     }
 
-    const h6 = (text: string) => <Typography variant="h6">{text}</Typography>;
+    const h6 = (text: string) => <Typography variant="h6" component="text">{text}</Typography>;
 
     return (
         <TableContainer>
