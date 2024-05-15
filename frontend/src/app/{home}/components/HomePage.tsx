@@ -184,11 +184,11 @@ function CombinationHistoryCard() {
 export default function HomePage() {
     return (
         <main>
-            <Grid container justifyContent="center" gap={1}>
-                <Grid xs={12} sm={4}>
+            <Grid container justifyContent="center" spacing={1}>
+                <Grid xs={12} md={12} lg={6}>
                     <NewCombinationCard/>
                 </Grid>
-                <Grid xs={12} sm={4}>
+                <Grid xs={12} md={12} lg={4}>
                     <CombinationHistoryCard/>
                 </Grid>
             </Grid>
