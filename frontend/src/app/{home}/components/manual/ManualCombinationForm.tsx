@@ -118,17 +118,19 @@ export default function ManualCombinationForm() {
             <Typography variant="h5">Developers</Typography>
             {loadingDevelopers && <Loading/>}
             {erroringDevelopers && <Error/>}
-            {remainingDevelopers &&
-                <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
-                                     setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
+            {remainingDevelopers && remainingDevelopers.length > 0
+                ? <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
+                                       setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
+                : <Typography variant="body1">No developers left to pick</Typography>
             }
             <Divider/>
             <Typography variant="h5">Streams</Typography>
             {loadingStreams && <Loading/>}
             {erroringStreams && <Error/>}
-            {remainingStreams &&
-                <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
+            {remainingStreams && remainingStreams.length > 0
+                ? <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
                                      setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
+                : <Typography variant="body1">No streams left to pick</Typography>
             }
             <Divider/>
             <ButtonRow>
