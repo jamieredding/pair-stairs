@@ -11,6 +11,7 @@ interface CustomDatePickerProps {
 export default function CustomDatePicker({value, setValue, dateFormat, label}: CustomDatePickerProps) {
     return (
         <DatePicker label={label} format={dateFormat}
+                    sx={{marginRight: "auto"}}
                     value={value ? parse(value, dateFormat, new Date()) : null}
                     onChange={(newValue, context) => {
                         if (!context.validationError && newValue !== null) {
