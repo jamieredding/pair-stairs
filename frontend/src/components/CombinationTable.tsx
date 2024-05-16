@@ -1,6 +1,5 @@
 import {Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
 import PairStreamDto from "@/domain/PairStreamDto";
-import {Fragment} from "react";
 import CloseButton from "@/components/CloseButton";
 
 interface CombinationTableProps {
@@ -17,7 +16,7 @@ export default function CombinationTable({combination, removeFromCombination}: C
         }
     }
 
-    const h6 = (text: string) => <Typography variant="h6" component="text">{text}</Typography>;
+    const h6 = (text: string) => <Typography variant="h6" component="p">{text}</Typography>;
 
     return (
         <Stack gap={1}>
@@ -38,24 +37,16 @@ export default function CombinationTable({combination, removeFromCombination}: C
                                 <TableCell colSpan={1}>
                                     {h6(combination[pairIndex].stream.displayName)}
                                 </TableCell>
-                                {combination[pairIndex].developers.length === 2 &&
-                                    <Fragment>
-                                        <TableCell align="center">
-                                            {h6(combination[pairIndex].developers[0].displayName)}
-                                        </TableCell>
-                                        <TableCell align="center">
-                                            {h6(combination[pairIndex].developers[1].displayName)}
-                                        </TableCell>
-                                    </Fragment>
-                                }
-                                {combination[pairIndex].developers.length === 1 &&
-                                    <TableCell align="center" colSpan={2}>
-                                        {h6(combination[pairIndex].developers[0].displayName)}
+                                {combination[pairIndex].developers.map(developer =>
+                                    <TableCell key={developer.id} align="center"
+                                               colSpan={2 / combination[pairIndex].developers.length}>
+                                        {h6(developer.displayName)}
                                     </TableCell>
-                                }
+                                )}
                                 {removeFromCombination &&
                                     <TableCell align="right">
-                                        <CloseButton onClick={() => handleRemoveFromCombination(combination[pairIndex])}/>
+                                        <CloseButton
+                                            onClick={() => handleRemoveFromCombination(combination[pairIndex])}/>
                                     </TableCell>
                                 }
                             </TableRow>

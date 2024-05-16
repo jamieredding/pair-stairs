@@ -9,7 +9,20 @@
       },
       "response": {
         "status": 200,
-        "body": "[{\"id\": 1, \"displayName\": \"stream-a\"}, {\"id\": 2, \"displayName\": \"stream-b\"}, {\"id\": 3, \"displayName\": \"stream-c\"}]"
+        "jsonBody": [
+          {
+            "id": 1,
+            "displayName": "stream-a"
+          },
+          {
+            "id": 2,
+            "displayName": "stream-b"
+          },
+          {
+            "id": 3,
+            "displayName": "stream-c"
+          }
+        ]
       }
     },
     {
@@ -25,7 +38,9 @@
           }
         },
         "bodyPatterns": [
-          { "contains": "new stream" }
+          {
+            "contains": "new stream"
+          }
         ]
       },
       "response": {
@@ -41,7 +56,24 @@
       },
       "response": {
         "status": 200,
-        "body": "[{\"id\": 1, \"displayName\": \"stream-a\"}, {\"id\": 2, \"displayName\": \"stream-b\"}, {\"id\": 3, \"displayName\": \"stream-c\"}, {\"id\": 4, \"displayName\": \"new stream\"}]"
+        "jsonBody": [
+          {
+            "id": 1,
+            "displayName": "stream-a"
+          },
+          {
+            "id": 2,
+            "displayName": "stream-b"
+          },
+          {
+            "id": 3,
+            "displayName": "stream-c"
+          },
+          {
+            "id": 4,
+            "displayName": "new stream"
+          }
+        ]
       }
     }
   ]

@@ -25,7 +25,74 @@
       },
       "response": {
         "status": 200,
-        "body": "[{\"score\": 10, \"combination\": [{\"developers\": [{\"id\": 0, \"displayName\": \"dev-0\"}, {\"id\": 1, \"displayName\": \"dev-1\"}], \"stream\": {\"id\": 0, \"displayName\": \"stream-a\"}}, {\"developers\": [{\"id\": 2, \"displayName\": \"dev-2\"}], \"stream\": {\"id\": 1, \"displayName\": \"stream-b\"}}]}, {\"score\": 20, \"combination\": [{\"developers\": [{\"id\": 0, \"displayName\": \"dev-0\"}, {\"id\": 2, \"displayName\": \"dev-2\"}], \"stream\": {\"id\": 0, \"displayName\": \"stream-a\"}}, {\"developers\": [{\"id\": 1, \"displayName\": \"dev-1\"}], \"stream\": {\"id\": 1, \"displayName\": \"stream-b\"}}]}]"
+        "jsonBody": [
+          {
+            "score": 10,
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          },
+          {
+            "score": 20,
+            "combination": [
+              {
+                "developers": [
+                  {
+                    "id": 0,
+                    "displayName": "dev-0"
+                  },
+                  {
+                    "id": 2,
+                    "displayName": "dev-2"
+                  }
+                ],
+                "stream": {
+                  "id": 1,
+                  "displayName": "stream-a"
+                }
+              },
+              {
+                "developers": [
+                  {
+                    "id": 1,
+                    "displayName": "dev-1"
+                  }
+                ],
+                "stream": {
+                  "id": 2,
+                  "displayName": "stream-b"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {

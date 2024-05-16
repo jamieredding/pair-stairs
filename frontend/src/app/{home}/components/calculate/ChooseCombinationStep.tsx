@@ -49,7 +49,7 @@ export default function ChooseCombinationStep({
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
     const {trigger: addCombinationEvent} = useAddCombinationEvent()
-    const {refresh: refreshCombinationEvents } = useRefreshCombinationEvents()
+    const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents()
 
     const nothingSelected = selectedCombinationIndex === undefined;
 
