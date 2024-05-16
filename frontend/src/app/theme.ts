@@ -8,6 +8,15 @@ export const theme = createTheme({
                 root: ({theme}) => ({paddingTop: `${theme.spacing(1)} !important`}),
             },
         },
+        MuiTypography: {
+            defaultProps: {
+                variantMapping: {
+                    h4: 'h2',
+                    h5: 'h3',
+                    h6: 'h4',
+                },
+            },
+        }
     },
     palette: {
         mode: 'dark',
