@@ -11,3 +11,4 @@ dependency-reduced-pom.xml
 # Personal files
 config.json
 ManualPairingTest.java
+/all-databases.sql
