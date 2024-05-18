@@ -6,6 +6,8 @@ ARG JAR_FILE
 
 COPY target/${JAR_FILE} /opt/backend.jar
 
+COPY target/classes/application.properties /opt/application.properties
+
 WORKDIR /opt
 
-ENTRYPOINT ["java", "--enable-preview", "-jar", "backend.jar"]
+ENTRYPOINT ["java", "--enable-preview", "-Dspring.config.location=file:application.properties", "-jar", "backend.jar"]

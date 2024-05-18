@@ -8,6 +8,9 @@ services:
       - pair_stairs_net
     ports:
       - "${BACKEND_PORT}:8080"
+# Example of mounting your own properties
+#    volumes:
+#      - "./application.properties:/opt/application.properties"
     depends_on:
       - pair_stairs_db
 

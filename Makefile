@@ -21,6 +21,7 @@ include makefiles/backend.mk
 include makefiles/frontend.mk
 include makefiles/legacy.mk
 include makefiles/e2e.mk
+include makefiles/docker.mk
 
 build: build-backend build-frontend run-e2e-suite
 
