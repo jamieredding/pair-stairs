@@ -66,3 +66,14 @@ GET {{baseUrl}}/api/v1/combinations/event?page=0
 ### Delete combination event
 
 DELETE {{baseUrl}}/api/v1/combinations/event/1
+
+### Actuator
+
+### health
+GET {{baseUrl}}/actuator/health
+
+### readiness
+GET {{baseUrl}}/actuator/health/readiness
+
+### liveness
+GET {{baseUrl}}/actuator/health/liveness
