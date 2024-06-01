@@ -77,3 +77,6 @@ GET {{baseUrl}}/actuator/health/readiness
 
 ### liveness
 GET {{baseUrl}}/actuator/health/liveness
+
+### info
+GET {{baseUrl}}/actuator/info

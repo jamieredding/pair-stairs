@@ -3,9 +3,12 @@ package dev.coldhands.pair.stairs.backend;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import dev.coldhands.pair.stairs.backend.domain.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.*;
 import org.springframework.test.context.jdbc.Sql;
@@ -83,6 +86,39 @@ public class ApplicationIT {
 
         final List<CombinationEvent> combinationEventsAfterDelete = getCombinationEvents();
         assertThat(combinationEventsAfterDelete).isEmpty();
+    }
+
+    @Nested
+    class Actuator {
+
+        @Test
+        void health() {
+            final ResponseEntity<String> response = REST_TEMPLATE.getForEntity(BASE_URL + "/actuator/health", String.class);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            final String responseBody = response.getBody();
+            final DocumentContext parsed = JsonPath.parse(responseBody);
+
+            assertThat(parsed.read("$.status", String.class)).isEqualTo("UP");
+            assertThat(parsed.read("$.components.db.status", String.class)).isEqualTo("UP");
+            assertThat(parsed.read("$.components.db.details.database", String.class)).isEqualTo("MySQL");
+            assertThat(parsed.read("$.components.livenessState.status", String.class)).isEqualTo("UP");
+            assertThat(parsed.read("$.components.readinessState.status", String.class)).isEqualTo("UP");
+        }
+
+        @Test
+        void info() {
+            final ResponseEntity<String> response = REST_TEMPLATE.getForEntity(BASE_URL + "/actuator/info", String.class);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            final String responseBody = response.getBody();
+            final DocumentContext parsed = JsonPath.parse(responseBody);
+
+            assertThat(parsed.read("$.build.version", String.class)).isNotNull();
+
+            assertThat(parsed.read("$.git.branch", String.class)).isNotNull();
+            assertThat(parsed.read("$.git.commit.id", String.class)).isNotNull();
+        }
     }
 
     private void createDeveloper(String developerName) {
