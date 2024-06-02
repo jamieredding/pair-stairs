@@ -12,3 +12,8 @@ dependency-reduced-pom.xml
 config.json
 ManualPairingTest.java
 /all-databases.sql
+data.mv.db
+backup.sql
+restore.sql
+large_data.mv.db
+data.trace.db
