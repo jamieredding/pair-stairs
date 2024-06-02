@@ -80,3 +80,6 @@ GET {{baseUrl}}/actuator/health/liveness
 
 ### info
 GET {{baseUrl}}/actuator/info
+
+### prometheus
+GET {{baseUrl}}/actuator/prometheus
