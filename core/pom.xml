@@ -4,7 +4,7 @@
     <parent>
         <groupId>dev.coldhands.pair.stairs</groupId>
         <artifactId>pair-stairs</artifactId>
-        <version>1.5.2-SNAPSHOT</version>
+        <version>1.5.2</version>
     </parent>
 
     <artifactId>core</artifactId>
