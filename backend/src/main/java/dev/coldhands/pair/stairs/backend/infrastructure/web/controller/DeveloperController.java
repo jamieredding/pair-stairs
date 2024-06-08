@@ -1,9 +1,11 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo;
+import dev.coldhands.pair.stairs.backend.domain.DeveloperStats;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository;
+import dev.coldhands.pair.stairs.backend.usecase.StatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +17,13 @@ import java.util.List;
 public class DeveloperController {
 
     private final DeveloperRepository repository;
+    private final StatsService statsService;
 
     @Autowired
-    public DeveloperController(DeveloperRepository repository) {
+    public DeveloperController(DeveloperRepository repository,
+                               StatsService statsService) {
         this.repository = repository;
+        this.statsService = statsService;
     }
 
     @GetMapping
@@ -41,5 +46,13 @@ public class DeveloperController {
 
         return ResponseEntity.status(201)
                 .body(savedDeveloper);
+    }
+
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<DeveloperStats> getStats(@PathVariable("id") long id) {
+        return repository.findById(id)
+                .map(_ -> statsService.getPairOccurrencesForDeveloper(id))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

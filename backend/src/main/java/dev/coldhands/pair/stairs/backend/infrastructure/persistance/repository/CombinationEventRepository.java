@@ -4,6 +4,8 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.Combi
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -13,4 +15,7 @@ public interface CombinationEventRepository extends JpaRepository<CombinationEve
         final PageRequest pageRequest = PageRequest.of(0, count, Sort.by(Sort.Direction.DESC, "date"));
         return findAll(pageRequest).toList();
     }
+
+    @Query("SELECT c FROM CombinationEventEntity c JOIN c.combination.pairs p JOIN p.developers d WHERE d.id = :developerId")
+    List<CombinationEventEntity> findByDeveloperId(@Param("developerId") long developerId);
 }
