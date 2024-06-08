@@ -9,6 +9,9 @@ import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -18,9 +21,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -314,9 +320,113 @@ public class DeveloperControllerTest {
                             }""".formatted(dev1Id, dev2Id, dev3Id, dev0Id, streamAId, streamBId, streamCId)));
         }
 
-        /*
-        todo
-            - date range search
-         */
+        @Test
+        void allowsFilteringByDateRange() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+            final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
+            final Long dev3Id = testEntityManager.persist(new DeveloperEntity("dev-3")).getId();
+
+            final Long streamAId = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+            final Long streamBId = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+            combinationEventService.saveEvent(LocalDate.of(2024, 5, 5), List.of(
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev0Id, dev1Id), streamAId),
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev2Id), streamBId)
+            ));
+            combinationEventService.saveEvent(LocalDate.of(2024, 5, 6), List.of(
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev0Id, dev2Id), streamAId),
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev1Id), streamBId)
+            ));
+            combinationEventService.saveEvent(LocalDate.of(2024, 5, 7), List.of(
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev0Id, dev1Id), streamAId),
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev2Id), streamBId)
+            ));
+            combinationEventService.saveEvent(LocalDate.of(2024, 5, 8), List.of(
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev0Id, dev2Id), streamAId),
+                    new SaveCombinationEventDto.PairStreamByIds(List.of(dev1Id), streamBId)
+            ));
+
+            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id)
+                            .queryParam("startDate", "2024-05-06")
+                            .queryParam("endDate", "2024-05-07"))
+                    .andExpect(status().isOk())
+                    .andExpect(content().json("""
+                            {
+                              "developerStats": [
+                                {
+                                  "developer": {
+                                    "id": %s,
+                                    "displayName": "dev-1"
+                                  },
+                                  "count": 1
+                                },
+                                {
+                                  "developer": {
+                                    "id": %s,
+                                    "displayName": "dev-2"
+                                  },
+                                  "count": 1
+                                },
+                                {
+                                  "developer": {
+                                    "id": %s,
+                                    "displayName": "dev-3"
+                                  },
+                                  "count": 0
+                                },
+                                {
+                                  "developer": {
+                                    "id": %s,
+                                    "displayName": "dev-0"
+                                  },
+                                  "count": 0
+                                }
+                              ],
+                              "streamStats": [
+                                {
+                                  "stream": {
+                                    "id": %s,
+                                    "displayName": "stream-a"
+                                  },
+                                  "count": 2
+                                },
+                                {
+                                  "stream": {
+                                    "id": %s,
+                                    "displayName": "stream-b"
+                                  },
+                                  "count": 0
+                                }
+                              ]
+                            }""".formatted(dev1Id, dev2Id, dev3Id, dev0Id, streamAId, streamBId)));
+        }
+
+        static Stream<Arguments> badRequestIfInvalidRange() {
+            return Stream.of(
+                    Arguments.of(
+                            "startDate only",
+                            (Function<MockHttpServletRequestBuilder, MockHttpServletRequestBuilder>) builder ->
+                                    builder.queryParam("startDate", "2024-05-06")),
+                    Arguments.of(
+                            "endDate only",
+                            (Function<MockHttpServletRequestBuilder, MockHttpServletRequestBuilder>) builder ->
+                                    builder.queryParam("endDate", "2024-05-06")),
+                    Arguments.of(
+                            "startDate after endDate",
+                            (Function<MockHttpServletRequestBuilder, MockHttpServletRequestBuilder>) builder ->
+                                    builder
+                                            .queryParam("startDate", "2024-05-07")
+                                            .queryParam("endDate", "2024-05-06"))
+            );
+        }
+
+        @ParameterizedTest(name = "{0}")
+        @MethodSource
+        void badRequestIfInvalidRange(String testName, Function<MockHttpServletRequestBuilder, MockHttpServletRequestBuilder> builder) throws Exception {
+            mockMvc.perform(builder.apply(get("/api/v1/developers/1/stats")))
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().string(""));
+        }
     }
 }

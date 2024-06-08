@@ -10,6 +10,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.C
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,18 +33,27 @@ public class StatsService {
         this.combinationEventRepository = combinationEventRepository;
     }
 
-    public DeveloperStats getPairOccurrencesForDeveloper(long id) {
-        final List<CombinationEventEntity> events = combinationEventRepository.findByDeveloperId(id);
+    public DeveloperStats getDeveloperStats(long developerId) {
+        final List<CombinationEventEntity> events = combinationEventRepository.findByDeveloperId(developerId);
+        return getDeveloperStats(developerId, events);
+    }
+
+    public DeveloperStats getDeveloperStatsBetween(long developerId, LocalDate startDate, LocalDate endDate) {
+        final List<CombinationEventEntity> events = combinationEventRepository.findByDeveloperIdBetween(developerId, startDate, endDate);
+        return getDeveloperStats(developerId, events);
+    }
+
+    private DeveloperStats getDeveloperStats(long developerId, List<CombinationEventEntity> events) {
         final List<PairStreamEntity> pairStreamsWithDeveloper = events.stream()
                 .map(event -> event.getCombination().getPairs().stream()
                         .filter(pairStreamEntity -> pairStreamEntity.getDevelopers().stream()
-                                .anyMatch(developerEntity -> developerEntity.getId() == id))
+                                .anyMatch(developerEntity -> developerEntity.getId() == developerId))
                         .findFirst()
-                        .orElseThrow(() -> new IllegalStateException(STR."Should have found a PairStream that had developer with id: \{id}"))
+                        .orElseThrow(() -> new IllegalStateException(STR."Should have found a PairStream that had developer with id: \{developerId}"))
                 )
                 .toList();
 
-        return new DeveloperStats(getRelatedDeveloperStats(id, pairStreamsWithDeveloper), getRelatedStreamStats(pairStreamsWithDeveloper));
+        return new DeveloperStats(getRelatedDeveloperStats(developerId, pairStreamsWithDeveloper), getRelatedStreamStats(pairStreamsWithDeveloper));
     }
 
     private List<RelatedDeveloperStats> getRelatedDeveloperStats(long developerId, List<PairStreamEntity> pairStreamsWithDeveloper) {

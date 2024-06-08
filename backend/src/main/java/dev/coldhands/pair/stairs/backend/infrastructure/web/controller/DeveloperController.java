@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/developers")
@@ -49,9 +51,20 @@ public class DeveloperController {
     }
 
     @GetMapping("/{id}/stats")
-    public ResponseEntity<DeveloperStats> getStats(@PathVariable("id") long id) {
+    public ResponseEntity<DeveloperStats> getStats(@PathVariable("id") long id,
+                                                   @RequestParam("startDate") Optional<LocalDate> requestedStartDate,
+                                                   @RequestParam("endDate") Optional<LocalDate> requestedEndDate) {
+        if ((requestedStartDate.isPresent() && requestedEndDate.isEmpty()) ||
+                (requestedStartDate.isEmpty() && requestedEndDate.isPresent()) ||
+                (requestedStartDate.isPresent() && requestedStartDate.get().isAfter(requestedEndDate.get()))) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return repository.findById(id)
-                .map(_ -> statsService.getPairOccurrencesForDeveloper(id))
+                .map(_ ->
+                        requestedStartDate.isPresent()
+                                ? statsService.getDeveloperStatsBetween(id, requestedStartDate.get(), requestedEndDate.get())
+                                : statsService.getDeveloperStats(id))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CombinationEventRepository extends JpaRepository<CombinationEventEntity, Long> {
@@ -18,4 +19,9 @@ public interface CombinationEventRepository extends JpaRepository<CombinationEve
 
     @Query("SELECT c FROM CombinationEventEntity c JOIN c.combination.pairs p JOIN p.developers d WHERE d.id = :developerId")
     List<CombinationEventEntity> findByDeveloperId(@Param("developerId") long developerId);
+
+    @Query("SELECT c FROM CombinationEventEntity c JOIN c.combination.pairs p JOIN p.developers d WHERE d.id = :developerId AND c.date BETWEEN :startDate AND :endDate")
+    List<CombinationEventEntity> findByDeveloperIdBetween(@Param("developerId") long developerId,
+                                                          @Param("startDate") LocalDate startDate,
+                                                          @Param("endDate") LocalDate endDate);
 }
