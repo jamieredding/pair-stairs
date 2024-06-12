@@ -64,14 +64,6 @@ public class StatsService {
                 )
                 .toList();
 
-        return new DeveloperStats(getRelatedDeveloperStats(developerId, pairStreamsWithDeveloper), getRelatedStreamStats(pairStreamsWithDeveloper));
-    }
-
-    private List<RelatedDeveloperStats> getRelatedDeveloperStats(long developerId, List<PairStreamEntity> pairStreamsWithDeveloper) {
-        final List<DeveloperInfo> allDevelopers = developerRepository.findAll().stream()
-                .map(DeveloperMapper::entityToInfo)
-                .toList();
-
         final Stream<DeveloperEntity> developerAsSoloOrOtherDeveloperInPair = pairStreamsWithDeveloper.stream()
                 .map(PairStreamEntity::getDevelopers)
                 .map(developerEntities -> developerEntities.size() == 1
@@ -81,13 +73,21 @@ public class StatsService {
                         .findFirst()
                         .orElseThrow(() -> new IllegalStateException(STR."Should have found a list of developers that contained developer with id: \{developerId}")));
 
-        final Map<DeveloperInfo, Long> developerOccurrences = new HashMap<>(developerAsSoloOrOtherDeveloperInPair
+        return new DeveloperStats(getRelatedDeveloperStats(developerAsSoloOrOtherDeveloperInPair), getRelatedStreamStats(pairStreamsWithDeveloper));
+    }
+
+    private List<RelatedDeveloperStats> getRelatedDeveloperStats(Stream<DeveloperEntity> allRelevantDeveloperOccurrences) {
+        final List<DeveloperInfo> allDevelopers = developerRepository.findAll().stream()
+                .map(DeveloperMapper::entityToInfo)
+                .toList();
+
+        final Map<DeveloperInfo, Long> developerCounts = new HashMap<>(allRelevantDeveloperOccurrences
                 .map(DeveloperMapper::entityToInfo)
                 .collect(groupingBy(Function.identity(), Collectors.counting())));
 
-        allDevelopers.forEach(developerInfo -> developerOccurrences.putIfAbsent(developerInfo, 0L));
+        allDevelopers.forEach(developerInfo -> developerCounts.putIfAbsent(developerInfo, 0L));
 
-        return developerOccurrences
+        return developerCounts
                 .entrySet().stream()
                 .map(entry -> new RelatedDeveloperStats(entry.getKey(), entry.getValue()))
                 .sorted(comparing(RelatedDeveloperStats::count))
@@ -99,14 +99,14 @@ public class StatsService {
                 .map(StreamMapper::entityToInfo)
                 .toList();
 
-        final Map<StreamInfo, Long> streamOccurrences = new HashMap<>(pairStreamsWithDeveloper.stream()
+        final Map<StreamInfo, Long> streamCounts = new HashMap<>(pairStreamsWithDeveloper.stream()
                 .map(PairStreamEntity::getStream)
                 .map(StreamMapper::entityToInfo)
                 .collect(groupingBy(Function.identity(), Collectors.counting())));
 
-        allStreams.forEach(streamInfo -> streamOccurrences.putIfAbsent(streamInfo, 0L));
+        allStreams.forEach(streamInfo -> streamCounts.putIfAbsent(streamInfo, 0L));
 
-        return streamOccurrences
+        return streamCounts
                 .entrySet().stream()
                 .map(entry -> new RelatedStreamStats(entry.getKey(), entry.getValue()))
                 .sorted(comparing(RelatedStreamStats::count))
@@ -122,29 +122,11 @@ public class StatsService {
                 )
                 .toList();
 
-        return new StreamStats(ddd(pairStreamsWithStream));
-    }
-
-    // todo refactor this
-    private List<RelatedDeveloperStats> ddd(List<PairStreamEntity> pairStreamsWithStream) {
-        final List<DeveloperInfo> allDevelopers = developerRepository.findAll().stream()
-                .map(DeveloperMapper::entityToInfo)
-                .toList();
-
         final Stream<DeveloperEntity> allDevelopersThatWereInTheStream = pairStreamsWithStream.stream()
                 .map(PairStreamEntity::getDevelopers)
                 .flatMap(Collection::stream);
 
-        final Map<DeveloperInfo, Long> developerOccurrences = new HashMap<>(allDevelopersThatWereInTheStream
-                .map(DeveloperMapper::entityToInfo)
-                .collect(groupingBy(Function.identity(), Collectors.counting())));
-
-        allDevelopers.forEach(developerInfo -> developerOccurrences.putIfAbsent(developerInfo, 0L));
-
-        return developerOccurrences
-                .entrySet().stream()
-                .map(entry -> new RelatedDeveloperStats(entry.getKey(), entry.getValue()))
-                .sorted(comparing(RelatedDeveloperStats::count))
-                .toList();
+        return new StreamStats(getRelatedDeveloperStats(allDevelopersThatWereInTheStream));
     }
+
 }
