@@ -46,7 +46,7 @@ public abstract class AbstractAcceptanceTest {
                 "dev-2"
         ));
 
-        createStream("stream-a");
+        long streamAId = createStream("stream-a");
         createStream("stream-b");
 
         List<Long> streamsToIncludeInCombinations = getStreamIdsFor(List.of(
@@ -93,6 +93,10 @@ public abstract class AbstractAcceptanceTest {
 
         assertThat(developerStats.developerStats()).hasSize(4);
         assertThat(developerStats.streamStats()).hasSize(2);
+
+        final StreamStats streamStats = getStreamStatsBetween(streamAId, today, today);
+
+        assertThat(streamStats.developerStats()).hasSize(4);
     }
 
     @Test
@@ -176,15 +180,21 @@ public abstract class AbstractAcceptanceTest {
                 .toList();
     }
 
-    private void createStream(String streamName) throws Exception {
-        mockMvc.perform(post("/api/v1/streams")
+    private long createStream(String streamName) throws Exception {
+        final MvcResult result = mockMvc.perform(post("/api/v1/streams")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
                                   "name": "%s"
                                 }""".formatted(streamName))
                 )
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        final String responseBody = result.getResponse().getContentAsString();
+
+        final Stream stream = objectMapper.readValue(responseBody, Stream.class);
+        return stream.id();
     }
 
     private List<Long> getStreamIdsFor(List<String> streamNames) throws Exception {
@@ -262,5 +272,16 @@ public abstract class AbstractAcceptanceTest {
                 .getResponse().getContentAsString();
 
         return objectMapper.readValue(responseBody, DeveloperStats.class);
+    }
+
+    private StreamStats getStreamStatsBetween(long streamId, LocalDate startDate, LocalDate endDate) throws Exception {
+        final String responseBody = mockMvc.perform(get("/api/v1/streams/{id}/stats", streamId)
+                        .queryParam("startDate", startDate.format(DateTimeFormatter.ISO_DATE))
+                        .queryParam("endDate", endDate.format(DateTimeFormatter.ISO_DATE)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse().getContentAsString();
+
+        return objectMapper.readValue(responseBody, StreamStats.class);
     }
 }

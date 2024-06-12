@@ -31,7 +31,7 @@ public class ApplicationIT implements WithBackendHttpClient {
                 "dev-2"
         ));
 
-        createStream("stream-a");
+        final long streamAId = createStream("stream-a");
         createStream("stream-b");
 
         List<Long> streamsToIncludeInCombinations = getStreamIdsFor(List.of(
@@ -80,6 +80,10 @@ public class ApplicationIT implements WithBackendHttpClient {
 
         assertThat(developerStats.developerStats()).hasSize(4);
         assertThat(developerStats.streamStats()).hasSize(2);
+
+        final StreamStats streamStats = getStreamStatsBetween(streamAId, today, today);
+
+        assertThat(streamStats.developerStats()).hasSize(4);
     }
 
     @Nested

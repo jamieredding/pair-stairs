@@ -10,9 +10,9 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import static java.time.format.DateTimeFormatter.ISO_DATE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.DELETE;
 
@@ -55,7 +55,7 @@ public interface WithBackendHttpClient {
                 .toList();
     }
 
-    default void createStream(String streamName) {
+    default long createStream(String streamName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>("""
@@ -63,8 +63,11 @@ public interface WithBackendHttpClient {
                   "name": "%s"
                 }""".formatted(streamName), headers);
 
-        ResponseEntity<Void> response = REST_TEMPLATE.postForEntity(STR."\{BASE_URL}/api/v1/streams", request, Void.class);
+        ResponseEntity<Stream> response = REST_TEMPLATE.postForEntity(STR."\{BASE_URL}/api/v1/streams", request, Stream.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        final Stream stream = response.getBody();
+        return stream.id();
     }
 
     default List<Long> getStreamIdsFor(List<String> streamNames) throws Exception {
@@ -134,7 +137,17 @@ public interface WithBackendHttpClient {
     }
 
     default DeveloperStats getDeveloperStatsBetween(long developerId, LocalDate startDate, LocalDate endDate) throws Exception {
-        final ResponseEntity<String> response = REST_TEMPLATE.getForEntity(STR."\{BASE_URL}/api/v1/developers/\{developerId}/stats?startDate=\{startDate.format(DateTimeFormatter.ISO_DATE)}&endDate=\{endDate.format(DateTimeFormatter.ISO_DATE)}", String.class);
+        final ResponseEntity<String> response = REST_TEMPLATE.getForEntity(STR."\{BASE_URL}/api/v1/developers/\{developerId}/stats?startDate=\{startDate.format(ISO_DATE)}&endDate=\{endDate.format(ISO_DATE)}", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        final String responseBody = response.getBody();
+
+        return OBJECT_MAPPER.readValue(responseBody, new TypeReference<>() {
+        });
+    }
+
+    default StreamStats getStreamStatsBetween(long streamId, LocalDate startDate, LocalDate endDate) throws Exception {
+        final ResponseEntity<String> response = REST_TEMPLATE.getForEntity(STR."\{BASE_URL}/api/v1/streams/\{streamId}/stats?startDate=\{startDate.format(ISO_DATE)}&endDate=\{endDate.format(ISO_DATE)}", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         final String responseBody = response.getBody();
