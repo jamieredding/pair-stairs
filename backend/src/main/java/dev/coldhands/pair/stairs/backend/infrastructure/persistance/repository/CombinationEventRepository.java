@@ -24,4 +24,12 @@ public interface CombinationEventRepository extends JpaRepository<CombinationEve
     List<CombinationEventEntity> findByDeveloperIdBetween(@Param("developerId") long developerId,
                                                           @Param("startDate") LocalDate startDate,
                                                           @Param("endDate") LocalDate endDate);
+
+    @Query("SELECT c FROM CombinationEventEntity c JOIN c.combination.pairs p WHERE p.stream.id = :streamId")
+    List<CombinationEventEntity> findByStreamId(@Param("streamId") long streamId);
+
+    @Query("SELECT c FROM CombinationEventEntity c JOIN c.combination.pairs p WHERE p.stream.id = :streamId AND c.date BETWEEN :startDate AND :endDate")
+    List<CombinationEventEntity> findByStreamIdBetween(@Param("streamId") long streamId,
+                                                       @Param("startDate") LocalDate startDate,
+                                                       @Param("endDate") LocalDate endDate);
 }

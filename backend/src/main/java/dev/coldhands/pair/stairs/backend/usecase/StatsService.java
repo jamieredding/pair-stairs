@@ -11,6 +11,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.D
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,16 @@ public class StatsService {
         return getDeveloperStats(developerId, events);
     }
 
+    public StreamStats getStreamStats(long streamId) {
+        final List<CombinationEventEntity> events = combinationEventRepository.findByStreamId(streamId);
+        return getStreamStats(streamId, events);
+    }
+
+    public StreamStats getStreamStatsBetween(long streamId, LocalDate startDate, LocalDate endDate) {
+        final List<CombinationEventEntity> events = combinationEventRepository.findByStreamIdBetween(streamId, startDate, endDate);
+        return getStreamStats(streamId, events);
+    }
+
     private DeveloperStats getDeveloperStats(long developerId, List<CombinationEventEntity> events) {
         final List<PairStreamEntity> pairStreamsWithDeveloper = events.stream()
                 .map(event -> event.getCombination().getPairs().stream()
@@ -69,7 +80,7 @@ public class StatsService {
                         .filter(developerEntity -> developerEntity.getId() != developerId)
                         .findFirst()
                         .orElseThrow(() -> new IllegalStateException(STR."Should have found a list of developers that contained developer with id: \{developerId}")));
-        
+
         final Map<DeveloperInfo, Long> developerOccurrences = new HashMap<>(developerAsSoloOrOtherDeveloperInPair
                 .map(DeveloperMapper::entityToInfo)
                 .collect(groupingBy(Function.identity(), Collectors.counting())));
@@ -99,6 +110,41 @@ public class StatsService {
                 .entrySet().stream()
                 .map(entry -> new RelatedStreamStats(entry.getKey(), entry.getValue()))
                 .sorted(comparing(RelatedStreamStats::count))
+                .toList();
+    }
+
+    private StreamStats getStreamStats(long streamId, List<CombinationEventEntity> events) {
+        final List<PairStreamEntity> pairStreamsWithStream = events.stream()
+                .map(event -> event.getCombination().getPairs().stream()
+                        .filter(pairStreamEntity -> pairStreamEntity.getStream().getId() == streamId)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException(STR."Should have found a PairStream that had stream with id: \{streamId}"))
+                )
+                .toList();
+
+        return new StreamStats(ddd(pairStreamsWithStream));
+    }
+
+    // todo refactor this
+    private List<RelatedDeveloperStats> ddd(List<PairStreamEntity> pairStreamsWithStream) {
+        final List<DeveloperInfo> allDevelopers = developerRepository.findAll().stream()
+                .map(DeveloperMapper::entityToInfo)
+                .toList();
+
+        final Stream<DeveloperEntity> allDevelopersThatWereInTheStream = pairStreamsWithStream.stream()
+                .map(PairStreamEntity::getDevelopers)
+                .flatMap(Collection::stream);
+
+        final Map<DeveloperInfo, Long> developerOccurrences = new HashMap<>(allDevelopersThatWereInTheStream
+                .map(DeveloperMapper::entityToInfo)
+                .collect(groupingBy(Function.identity(), Collectors.counting())));
+
+        allDevelopers.forEach(developerInfo -> developerOccurrences.putIfAbsent(developerInfo, 0L));
+
+        return developerOccurrences
+                .entrySet().stream()
+                .map(entry -> new RelatedDeveloperStats(entry.getKey(), entry.getValue()))
+                .sorted(comparing(RelatedDeveloperStats::count))
                 .toList();
     }
 }

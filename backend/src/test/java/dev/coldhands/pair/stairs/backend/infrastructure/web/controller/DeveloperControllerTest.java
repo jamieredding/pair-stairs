@@ -153,7 +153,7 @@ public class DeveloperControllerTest {
         }
 
         @Test
-        void whenDeveloperExistsButNoPairsHaveHappenedTheReturnJustThemselves() throws Exception {
+        void whenDeveloperExistsButNoPairsHaveHappenedThenReturnJustThemselves() throws Exception {
             final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
 
             mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id))
