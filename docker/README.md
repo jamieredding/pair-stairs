@@ -87,28 +87,38 @@ Please see the relevant README.md ([h2](./h2/README.md), [mysql](./mysql/README.
       ```
     - Then copy it out of the container
     - ```shell
-      docker cp mysql-pair_stairs_db-1:/tmp/backup.sql .
+      docker cp mysql-pair_stairs_db-1:/backup.sql .
       ```
-3. Edit the dumped sql (`backup.sql`) to make it compatible for mysql (`restore.sql`)
+3. Copy `backup.sql` to `restore.sql`
+4. Edit the dumped sql (`restore.sql`) to make it compatible for mysql
     - Remove everything except the `INSERT` statements
     - Remove the inserts into the `flyway_schema_history` as they will already exist
     - Ensure all inserts are in a valid order
+      - Likely:
+        - developers
+        - streams
+        - pair_streams
+        - developer_pair_member
+        - combinations
+        - combination_pair_member
+        - combination_events
     - Ensure all tables and schemas are correctly named
         - In IntelliJ, configure the file to use the mysql database as a data source to try and identify further errors
+        - Tables should be `PUBLIC.<table_name>` in h2
     - Ensure all data that you expect to be in the file is present
-4. Have an up to date h2 database running with the latest migrated schema (this should be empty other than the flyway table)
-5. Obtain a copy of the database file (`data.mv.db`)
+5. Have an up to date h2 database running with the latest migrated schema (this should be empty other than the flyway table)
+6. Obtain a copy of the database file (`data.mv.db`)
     - Shut down the database
     - Copy it out of the volume
     - ```shell
       docker run --name h2_dump --rm -it -v h2_pair_stairs_h2:/tmp/test bash
       docker cp h2_dump:/tmp/test/data.mv.db .
       ```
-6. Run the compatible sql file (`restore.sql`) against the h2 database
+7. Run the compatible sql file (`restore.sql`) against the h2 database
     - Against the `data.mv.db` file run the `restore.sql` file
         - You can connect to the file using IntelliJ and an `embedded` h2 connection type
-7. Ensure data looks valid in h2
-8. Update the auto-increment on the tables as I have observed this not working in h2
+8. Ensure data looks valid in h2
+9. Update the auto-increment on the tables as I have observed this not working in h2
     - ```h2
       select MAX(id) FROM PUBLIC.developers;
       alter table PUBLIC.developers ALTER COLUMN id RESTART WITH ?;
@@ -125,9 +135,9 @@ Please see the relevant README.md ([h2](./h2/README.md), [mysql](./mysql/README.
       select MAX(id) FROM PUBLIC.combination_events;
       alter table PUBLIC.combination_events ALTER COLUMN id RESTART WITH ?;
       ``` 
-9. Import the `data.mv.db` database back into volume
-    - Copy it into the volume
-    - ```shell
-      docker run --name h2_dump --rm -it -v h2_pair_stairs_h2:/tmp/test bash
-      docker cp data.mv.db h2_dump:/tmp/test/data.mv.db
-      ```
+10. Import the `data.mv.db` database back into volume
+     - Copy it into the volume
+     - ```shell
+       docker run --name h2_dump --rm -it -v h2_pair_stairs_h2:/tmp/test bash
+       docker cp data.mv.db h2_dump:/tmp/test/data.mv.db
+       ```
