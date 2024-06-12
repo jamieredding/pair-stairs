@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +35,7 @@ public abstract class AbstractAcceptanceTest {
 
     @Test
     void basicFlowStartingFromScratch() throws Exception {
-        createDeveloper("dev-0");
+        final long dev0Id = createDeveloper("dev-0");
         createDeveloper("dev-1");
         createDeveloper("dev-2");
         createDeveloper("dev-3");
@@ -75,7 +76,8 @@ public abstract class AbstractAcceptanceTest {
 
         assertThat(startingEvents).isEmpty();
 
-        saveCombinationEventFor(LocalDate.of(2024, 4, 27), bestCombination.combination());
+        final LocalDate today = LocalDate.of(2024, 4, 27);
+        saveCombinationEventFor(today, bestCombination.combination());
 
         final List<CombinationEvent> allCombinationEvents = findAllCombinationEvents();
 
@@ -83,9 +85,14 @@ public abstract class AbstractAcceptanceTest {
 
         final CombinationEvent savedEvent = allCombinationEvents.getFirst();
 
-        assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 27));
+        assertThat(savedEvent.date()).isEqualTo(today);
         assertThat(savedEvent.combination()).hasSize(2);
         assertThat(savedEvent.combination()).isEqualTo(bestCombination.combination());
+
+        final DeveloperStats developerStats = getDeveloperStatsBetween(dev0Id, today, today);
+
+        assertThat(developerStats.developerStats()).hasSize(4);
+        assertThat(developerStats.streamStats()).hasSize(2);
     }
 
     @Test
@@ -117,7 +124,8 @@ public abstract class AbstractAcceptanceTest {
                 .isNotEqualTo(yesterdayCombination);
 
 
-        saveCombinationEventFor(LocalDate.of(2024, 4, 28), todayCombination);
+        final LocalDate tomorrow = LocalDate.of(2024, 4, 28);
+        saveCombinationEventFor(tomorrow, todayCombination);
 
         final List<CombinationEvent> allCombinationEvents = findAllCombinationEvents();
 
@@ -125,7 +133,7 @@ public abstract class AbstractAcceptanceTest {
 
         final CombinationEvent savedEvent = allCombinationEvents.getFirst();
 
-        assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 28));
+        assertThat(savedEvent.date()).isEqualTo(tomorrow);
         assertThat(savedEvent.combination()).hasSize(2);
 
         deleteCombinationEvent(savedEvent.id());
@@ -136,15 +144,20 @@ public abstract class AbstractAcceptanceTest {
         assertThat(allCombinationEventsAfterDelete).containsExactly(yesterdayEvent);
     }
 
-    private void createDeveloper(String developerName) throws Exception {
-        mockMvc.perform(post("/api/v1/developers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                          "name": "%s"
-                        }""".formatted(developerName))
+    private long createDeveloper(String developerName) throws Exception {
+        final MvcResult result = mockMvc.perform(post("/api/v1/developers")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "name": "%s"
+                                }""".formatted(developerName))
 
-        ).andExpect(status().isCreated());
+                ).andExpect(status().isCreated())
+                .andReturn();
+        final String responseBody = result.getResponse().getContentAsString();
+
+        final Developer developer = objectMapper.readValue(responseBody, Developer.class);
+        return developer.id();
     }
 
     private List<Long> getDeveloperIdsFor(List<String> developerNames) throws Exception {
@@ -238,5 +251,16 @@ public abstract class AbstractAcceptanceTest {
     private void deleteCombinationEvent(long id) throws Exception {
         mockMvc.perform(delete("/api/v1/combinations/event/{id}", id))
                 .andExpect(status().isNoContent());
+    }
+
+    private DeveloperStats getDeveloperStatsBetween(long developerId, LocalDate startDate, LocalDate endDate) throws Exception {
+        final String responseBody = mockMvc.perform(get("/api/v1/developers/{id}/stats", developerId)
+                        .queryParam("startDate", startDate.format(DateTimeFormatter.ISO_DATE))
+                        .queryParam("endDate", endDate.format(DateTimeFormatter.ISO_DATE)))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse().getContentAsString();
+
+        return objectMapper.readValue(responseBody, DeveloperStats.class);
     }
 }

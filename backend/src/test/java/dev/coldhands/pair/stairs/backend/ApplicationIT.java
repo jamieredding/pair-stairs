@@ -20,7 +20,7 @@ public class ApplicationIT implements WithBackendHttpClient {
     @Sql(value = "/delete-test-data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
     @Sql(value = "/delete-test-data.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
     void basicFlowStartingFromScratch() throws Exception {
-        createDeveloper("dev-0");
+        final long dev0Id = createDeveloper("dev-0");
         createDeveloper("dev-1");
         createDeveloper("dev-2");
         createDeveloper("dev-3");
@@ -58,7 +58,8 @@ public class ApplicationIT implements WithBackendHttpClient {
                 .containsExactlyInAnyOrder("stream-a", "stream-b");
 
 
-        saveCombinationEventFor(LocalDate.of(2024, 4, 27), bestCombination.combination());
+        final LocalDate today = LocalDate.of(2024, 4, 27);
+        saveCombinationEventFor(today, bestCombination.combination());
 
         final List<CombinationEvent> combinationEvents = getCombinationEvents();
 
@@ -66,7 +67,7 @@ public class ApplicationIT implements WithBackendHttpClient {
 
         final CombinationEvent savedEvent = combinationEvents.getFirst();
 
-        assertThat(savedEvent.date()).isEqualTo(LocalDate.of(2024, 4, 27));
+        assertThat(savedEvent.date()).isEqualTo(today);
         assertThat(savedEvent.combination()).hasSize(2);
         assertThat(savedEvent.combination()).isEqualTo(bestCombination.combination());
 
@@ -74,6 +75,11 @@ public class ApplicationIT implements WithBackendHttpClient {
 
         final List<CombinationEvent> combinationEventsAfterDelete = getCombinationEvents();
         assertThat(combinationEventsAfterDelete).isEmpty();
+
+        final DeveloperStats developerStats = getDeveloperStatsBetween(dev0Id, today, today);
+
+        assertThat(developerStats.developerStats()).hasSize(4);
+        assertThat(developerStats.streamStats()).hasSize(2);
     }
 
     @Nested

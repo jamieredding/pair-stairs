@@ -10,6 +10,7 @@ import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -24,7 +25,7 @@ public interface WithBackendHttpClient {
 
     RestTemplate REST_TEMPLATE = new RestTemplate();
 
-    default void createDeveloper(String developerName) {
+    default long createDeveloper(String developerName) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request = new HttpEntity<>("""
@@ -32,8 +33,11 @@ public interface WithBackendHttpClient {
                   "name": "%s"
                 }""".formatted(developerName), headers);
 
-        ResponseEntity<Void> response = REST_TEMPLATE.postForEntity(STR."\{BASE_URL}/api/v1/developers", request, Void.class);
+        ResponseEntity<Developer> response = REST_TEMPLATE.postForEntity(STR."\{BASE_URL}/api/v1/developers", request, Developer.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+        final Developer developer = response.getBody();
+        return developer.id();
     }
 
     default List<Long> getDeveloperIdsFor(List<String> developerNames) throws Exception {
@@ -127,6 +131,16 @@ public interface WithBackendHttpClient {
     default void deleteCombinationEvent(long id) {
         ResponseEntity<Void> response = REST_TEMPLATE.exchange(STR."\{BASE_URL}/api/v1/combinations/event/{id}", DELETE, null, Void.class, id);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    default DeveloperStats getDeveloperStatsBetween(long developerId, LocalDate startDate, LocalDate endDate) throws Exception {
+        final ResponseEntity<String> response = REST_TEMPLATE.getForEntity(STR."\{BASE_URL}/api/v1/developers/\{developerId}/stats?startDate=\{startDate.format(DateTimeFormatter.ISO_DATE)}&endDate=\{endDate.format(DateTimeFormatter.ISO_DATE)}", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        final String responseBody = response.getBody();
+
+        return OBJECT_MAPPER.readValue(responseBody, new TypeReference<>() {
+        });
     }
 
 }
