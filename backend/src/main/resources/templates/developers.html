@@ -12,35 +12,40 @@
 
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/developers.css">
 
     <script type="text/javascript" src="js/developers.js"></script>
 </head>
 <body>
 <header class="h-stack">
     <div class="h-stack">
-        <a class="index-link" href="/">pair-stairs</a>
+        <h1><a class="index-link" href="/">pair-stairs</a></h1>
         <a href="/developers">Developers</a>
         <a href="/streams">Streams</a>
     </div>
 </header>
 <main>
-    <h2>Developers</h2>
-    <button type="button" onclick="openDialog()">New Developer</button>
+    <div class="main-card">
+        <div class="paper v-stack">
+            <h1>Developers</h1>
+            <button type="button" onclick="openDialog()">New Developer</button>
 
-    <dialog id="add-developer-dialog">
-        <form id="add-developer-form" method="dialog">
-            <h3>Add new developer</h3>
-            <label for="name">Developer Name</label>
-            <input type="text" name="name" id="name" required/>
-            <button>Save</button>
-        </form>
-    </dialog>
+            <dialog id="add-developer-dialog">
+                <form id="add-developer-form" method="dialog">
+                    <h3>Add new developer</h3>
+                    <label for="name">Developer Name</label>
+                    <input type="text" name="name" id="name" required/>
+                    <button>Save</button>
+                </form>
+            </dialog>
 
-    <ul id="developers-list">
-        <li th:each="developerInfo : ${developerInfos}"
-            th:text="${developerInfo.displayName()}">
-        </li>
-    </ul>
+            <ul id="developers-list">
+                <li th:each="developerInfo : ${developerInfos}"
+                    th:text="${developerInfo.displayName()}">
+                </li>
+            </ul>
+        </div>
+    </div>
 </main>
 </body>
 </html>
