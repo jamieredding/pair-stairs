@@ -7,3 +7,11 @@
         width: calc(100% * 4 / 12);
     }
 }
+
+#developers-list {
+    padding: calc(var(--gap) * 2);
+
+    li {
+        padding: var(--gap);
+    }
+}

@@ -32,15 +32,15 @@
                 <button class="button-outlined" type="button" onclick="openDialog()">New Developer</button>
             </div>
             <dialog id="add-developer-dialog">
-                <form id="add-developer-form" method="dialog">
-                    <h3>Add new developer</h3>
+                <h3>Add new developer</h3>
+                <form id="add-developer-form" class="v-stack" method="dialog">
                     <label for="name">Developer Name</label>
                     <input type="text" name="name" id="name" required/>
                     <button>Save</button>
                 </form>
             </dialog>
 
-            <ul id="developers-list">
+            <ul id="developers-list" class="v-stack">
                 <li th:each="developerInfo : ${developerInfos}"
                     th:text="${developerInfo.displayName()}">
                 </li>
