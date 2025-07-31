@@ -77,9 +77,19 @@ dialog {
     color: white;
     border: none;
     border-radius: var(--border-radius);
+    padding: 0;
 
-    > h3 {
-        padding: 16px 24px;
+    .dialog {
+        display: flex;
+        flex-direction: column;
+
+        .dialog-title {
+            padding: 16px 24px;
+        }
+
+        .dialog-content {
+            padding: 8px 24px 20px 24px;
+        }
     }
 }
 
