@@ -1,5 +1,6 @@
 :root {
     --background-color: #121212;
+    --primary-color: #3f51b5;
 }
 
 body {
@@ -38,6 +39,23 @@ header {
     }
 }
 
+button {
+    font-family: "Roboto", sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    letter-spacing: 0.02857em;
+    text-transform: uppercase;
+    min-width: 64px;
+    cursor: pointer;
+    user-select: none;
+    padding: 5px 15px;
+    border-radius: 4px;
+}
+
+/*
+    classes
+*/
+
 .h-stack {
     display: flex;
     flex-direction: row;
@@ -58,4 +76,14 @@ header {
     padding: 16px;
 }
 
+.button-outlined {
+    color: var(--primary-color);
+    background-color: transparent;
+    border: 1px solid rgba(63, 81, 181, 0.5);
+}
+
+.button-outlined:hover {
+    background-color: rgba(63, 81, 181, 0.08);
+    border: 1px solid var(--primary-color);
+}
 
