@@ -2,13 +2,13 @@ import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
 import {
     Box,
     Button,
-    SxProps,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
+    Tooltip,
     Typography
 } from "@mui/material";
 import {Fragment} from "react";
@@ -39,21 +39,11 @@ export default function ScoredCombinationsTable({
         return selectedIndex === index ? {backgroundColor: highlightedCellColor} : {};
     }
 
-    const h6 = (text: string) => <Typography variant="h6" component="p">{text}</Typography>;
-
-    function isStayingInStream(developerId: number, streamId: number) {
+    function isStayingInStream(developerId: number, streamId: number): boolean {
         return mostRecentCombinationEvent?.combination.some(pair =>
             pair.stream.id === streamId &&
             pair.developers.some(developer => developer.id === developerId)
-        )
-    }
-
-    function maybeMarkNew(developerId: number, streamId: number): SxProps {
-        return isStayingInStream(developerId, streamId) ? {} : {
-            '&::after': {content: '"*"'},
-            display: "flex", // allow the asterisk to be right of the name
-            justifyContent: "center" // push the name back to the center
-        }
+        ) || false
     }
 
     return (
@@ -78,10 +68,10 @@ export default function ScoredCombinationsTable({
                                         <TableCell key={developer.id} align="center"
                                                    colSpan={2 / dto.combination[pairIndex].developers.length} // either 1 or 2
                                                    sx={highlightCell(index)}>
-                                            {<Box
-                                                sx={{...maybeMarkNew(developer.id, dto.combination[pairIndex].stream.id)}}>
-                                                {h6(developer.displayName)}
-                                            </Box>}
+                                            {<DeveloperCell
+                                                isStayingInStream={isStayingInStream(developer.id, dto.combination[pairIndex].stream.id)}
+                                                displayName={developer.displayName}>
+                                            </DeveloperCell>}
                                         </TableCell>
                                     )}
                                 </Fragment>
@@ -107,4 +97,27 @@ export default function ScoredCombinationsTable({
             </Table>
         </TableContainer>
     )
+}
+
+const h6 = (text: string) => <Typography variant="h6" component="p">{text}</Typography>;
+
+interface DeveloperCellProps {
+    displayName: string,
+    isStayingInStream: boolean,
+}
+
+function DeveloperCell({
+                           displayName,
+                           isStayingInStream,
+                       }: DeveloperCellProps) {
+    const style = isStayingInStream ? {} : {
+        '&::after': {content: '"*"'},
+        display: "flex", // allow the asterisk to be right of the name
+        justifyContent: "center" // push the name back to the center
+    }
+    const content = <Tooltip title={isStayingInStream ? "Staying in stream" : "New to stream"}>{
+        h6(displayName)
+    }</Tooltip>
+
+    return (<Box sx={style}>{content}</Box>)
 }
