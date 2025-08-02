@@ -1,0 +1,30 @@
+x-navbar {
+    header {
+        background-image: linear-gradient(rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.09));
+        box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12);
+        padding-left: 24px;
+        padding-right: 24px;
+        margin-bottom: 8px;
+        min-height: 64px;
+
+        gap: calc(var(--gap) * 2);
+
+        > .h-stack {
+            gap: calc(var(--gap) * 2);
+        }
+
+        a {
+            color: white;
+            text-decoration: underline;
+            text-decoration-color: rgba(63, 81, 181, 0.4);
+        }
+
+        a:hover {
+            text-decoration-color: inherit;
+        }
+
+        .index-link {
+            text-decoration: none;
+        }
+    }
+}
