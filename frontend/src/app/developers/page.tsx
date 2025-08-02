@@ -1,3 +1,5 @@
+"use client"
+
 import DevelopersPage from "@/app/developers/components/DevelopersPage";
 import PageCard from "@/components/PageCard";
 

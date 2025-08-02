@@ -1,5 +1,5 @@
 import {expect, Page, test} from '@playwright/test';
-import {formatISO, subDays} from "date-fns";
+import {format, subDays} from "date-fns";
 
 test('test', async ({page}) => {
     await page.goto('/');
@@ -94,6 +94,8 @@ async function createStream(page: Page, name: string) {
 
 async function chooseYesterdayDate(page: Page) {
     const yesterdayDate = subDays(new Date(), 1)
-    const yesterdayDateFormat = formatISO(yesterdayDate, {representation: "date"})
-    await page.getByPlaceholder('YYYY-MM-DD').fill(yesterdayDateFormat);
+    const yesterdayDateFormat = format(yesterdayDate, "yyyyMMdd")
+
+    await page.getByRole('group', { name: 'Date of combination' }).click();
+    await page.keyboard.type(yesterdayDateFormat)
 }

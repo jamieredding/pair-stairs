@@ -1,3 +1,5 @@
+"use client"
+
 import PageCard from "@/components/PageCard";
 import StreamsPage from "@/app/streams/components/StreamsPage";
 

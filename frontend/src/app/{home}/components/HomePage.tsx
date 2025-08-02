@@ -20,7 +20,7 @@ import CombinationEventDto from "@/domain/CombinationEventDto";
 import CombinationTable from "@/components/CombinationTable";
 import {formatFriendlyDate} from "@/utils/dateUtils";
 import {parseISO} from "date-fns";
-import Grid from "@mui/system/Unstable_Grid";
+import {Grid} from "@mui/system";
 import {ReactNode, useState} from "react";
 import CalculateCombinationForm from "@/app/{home}/components/calculate/CalculateCombinationForm";
 import ManualCombinationForm from "@/app/{home}/components/manual/ManualCombinationForm";
@@ -185,10 +185,10 @@ export default function HomePage() {
     return (
         <main>
             <Grid container justifyContent="center" spacing={1}>
-                <Grid xs={12} md={12} lg={6}>
+                <Grid size={{xs: 12, md: 12, lg: 6}}>
                     <NewCombinationCard/>
                 </Grid>
-                <Grid xs={12} md={12} lg={4}>
+                <Grid size={{xs: 12, md: 12, lg: 6}}>
                     <CombinationHistoryCard/>
                 </Grid>
             </Grid>

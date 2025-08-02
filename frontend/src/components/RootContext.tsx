@@ -2,7 +2,7 @@
 
 import {PropsWithChildren} from "react";
 import {LocalizationProvider} from "@mui/x-date-pickers";
-import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFnsV3";
+import {AdapterDateFns} from "@mui/x-date-pickers/AdapterDateFns";
 import {ThemeProvider} from "@mui/material";
 import {theme} from "@/app/theme";
 
