@@ -1,5 +1,5 @@
 DB_CONTAINER_NAME=build_image__pair_stairs_db
-DATABASE_IMAGE_NAME=mysql:8.3.0
+DATABASE_IMAGE_NAME=mysql:8.4.6
 MYSQL_HOST?=$(DB_CONTAINER_NAME)
 MYSQL_USER?=pair_stairs_user
 MYSQL_PASSWORD?=some-password
