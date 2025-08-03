@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StreamsRouteImport } from './routes/streams'
 import { Route as DevelopersRouteImport } from './routes/developers'
-import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
 const StreamsRoute = StreamsRouteImport.update({
@@ -24,11 +23,6 @@ const DevelopersRoute = DevelopersRouteImport.update({
   path: '/developers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutRoute = AboutRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -37,34 +31,30 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/developers': typeof DevelopersRoute
   '/streams': typeof StreamsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/developers': typeof DevelopersRoute
   '/streams': typeof StreamsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/developers': typeof DevelopersRoute
   '/streams': typeof StreamsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/developers' | '/streams'
+  fullPaths: '/' | '/developers' | '/streams'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/developers' | '/streams'
-  id: '__root__' | '/' | '/about' | '/developers' | '/streams'
+  to: '/' | '/developers' | '/streams'
+  id: '__root__' | '/' | '/developers' | '/streams'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   DevelopersRoute: typeof DevelopersRoute
   StreamsRoute: typeof StreamsRoute
 }
@@ -85,13 +75,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DevelopersRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -104,7 +87,6 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   DevelopersRoute: DevelopersRoute,
   StreamsRoute: StreamsRoute,
 }
