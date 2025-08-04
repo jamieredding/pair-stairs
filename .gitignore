@@ -17,3 +17,9 @@ backup.sql
 restore.sql
 large_data.mv.db
 data.trace.db
+
+# Frontend
+node_modules
+dist
+test-reports
+.tanstack
