@@ -9,6 +9,9 @@ export default defineConfig(
         const useWiremock = command === 'serve' && mode === 'development';
 
         return {
+            test: {
+                environment: 'jsdom',
+            },
             plugins: [
                 tanstackRouter({
                     target: "react",
