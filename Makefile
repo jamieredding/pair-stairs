@@ -23,10 +23,10 @@ include makefiles/legacy.mk
 include makefiles/e2e.mk
 include makefiles/docker.mk
 
-build: build-backend build-frontend run-all-e2e-suites
+build: build-backend run-all-e2e-suites
 
 release: check-vars frontend-release maven-release stop-database prepare-new-iteration-frontend git-push
 
-push-images: push-image-legacy push-image-backend push-image-frontend
+push-images: push-image-legacy push-image-backend
 
 teardown: stop-database teardown-e2e-suites
