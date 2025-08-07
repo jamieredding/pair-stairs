@@ -1,14 +1,13 @@
-import useSWRMutation, {SWRMutationResponse} from "swr/mutation";
-import {saveCombinationEvent} from "@/infrastructure/CombinationClient";
-import SaveCombinationEventDto from "@/domain/SaveCombinationEventDto";
+import useSWRMutation, {type SWRMutationResponse} from "swr/mutation";
+import type {SaveCombinationEventDto} from "../../domain/SaveCombinationEventDto.ts";
+import {saveCombinationEvent} from "../../infrastructure/CombinationClient.ts";
 
 export default function useAddCombinationEvent() {
     const {
-        data,
         trigger,
         isMutating,
         error
-    }: SWRMutationResponse<Response, any, "/api/v1/combinations/event", SaveCombinationEventDto> =
+    }: SWRMutationResponse<Response, never, "/api/v1/combinations/event", SaveCombinationEventDto> =
         useSWRMutation("/api/v1/combinations/event", saveCombinationEvent)
 
     return {

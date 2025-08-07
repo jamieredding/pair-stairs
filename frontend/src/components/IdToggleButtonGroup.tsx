@@ -1,5 +1,5 @@
 import {Button} from "@mui/material";
-import ButtonRow from "@/components/ButtonRow";
+import ButtonRow from "./ButtonRow";
 
 interface Displayable {
     id: number;

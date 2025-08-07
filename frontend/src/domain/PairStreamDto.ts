@@ -1,5 +1,5 @@
-import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
-import StreamInfoDto from "@/domain/StreamInfoDto";
+import type DeveloperInfoDto from "./DeveloperInfoDto.ts";
+import type StreamInfoDto from "./StreamInfoDto.ts";
 
 export default interface PairStreamDto {
     developers: DeveloperInfoDto[];

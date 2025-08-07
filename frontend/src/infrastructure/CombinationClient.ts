@@ -1,7 +1,7 @@
-import CalculateInputDto from "@/domain/CalculateInputDto";
-import ScoredCombinationDto from "@/domain/ScoredCombinationDto";
-import SaveCombinationEventDto from "@/domain/SaveCombinationEventDto";
-import CombinationEventDto from "@/domain/CombinationEventDto";
+import type CalculateInputDto from "../domain/CalculateInputDto";
+import type {SaveCombinationEventDto} from "../domain/SaveCombinationEventDto.ts";
+import type ScoredCombinationDto from "../domain/ScoredCombinationDto.ts";
+import type CombinationEventDto from "../domain/CombinationEventDto.ts";
 
 export async function calculateCombinations(url: string, {arg}: {
     arg: CalculateInputDto

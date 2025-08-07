@@ -1,4 +1,4 @@
-import {endOfWeek, format, isSameDay, isSameWeek, startOfWeek, StartOfWeekOptions, subDays} from "date-fns";
+import {endOfWeek, format, isSameDay, isSameWeek, startOfWeek, type StartOfWeekOptions, subDays} from "date-fns";
 
 const weekStartsOnMonday : StartOfWeekOptions = {weekStartsOn: 1};
 

@@ -1,7 +1,8 @@
 import Toolbar from "@mui/material/Toolbar";
 import AppBar from "@mui/material/AppBar";
-import {Link, Stack} from "@mui/material";
 import {Fragment} from "react";
+import {CustomLink} from "./CustomLink.tsx";
+import {Stack} from "@mui/material";
 
 interface NavItem {
     displayText: string;
@@ -18,17 +19,18 @@ export default function Navbar() {
         <AppBar>
             <Toolbar>
                 <Stack direction="row" gap={2} alignItems="center">
-                    <Link variant="h4" href="/" sx={{color: '#fff'}} underline="none" pr={1}>
+                    <CustomLink to="/" variant="h4" sx={{color: '#fff'}} underline="none" pr={1}>
                         pair-stairs
-                    </Link>
+                    </CustomLink>
                     {navItems.map((item, index) => (
                         <Fragment key={index}>
-                            <Link
+                            <CustomLink
+                                to={item.link}
                                 key={item.link}
                                 sx={{color: '#fff'}}
-                                href={item.link}>
+                            >
                                 {item.displayText}
-                            </Link>
+                            </CustomLink>
                         </Fragment>
                     ))}
                 </Stack>

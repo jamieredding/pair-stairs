@@ -1,6 +1,6 @@
-import {PropsWithChildren} from "react";
 import {Grid} from "@mui/system";
 import {Card, CardContent} from "@mui/material";
+import type {PropsWithChildren} from "react";
 
 export default function PageCard({children}: PropsWithChildren) {
     return (

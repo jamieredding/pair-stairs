@@ -1,6 +1,6 @@
 import {useSWRConfig} from "swr";
-import StreamInfoDto from "@/domain/StreamInfoDto";
-import {getStreamInfos, STREAM_INFO_PATH} from "@/infrastructure/StreamClient";
+import type StreamInfoDto from "../../domain/StreamInfoDto.ts";
+import {getStreamInfos, STREAM_INFO_PATH} from "../../infrastructure/StreamClient.ts";
 
 export default function useRefreshStreamInfos() {
     const {mutate} = useSWRConfig()

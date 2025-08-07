@@ -1,9 +1,9 @@
-import useSWRMutation, {SWRMutationResponse} from "swr/mutation";
-import {addDeveloper} from "@/infrastructure/DeveloperClient";
-import DeveloperDto from "@/domain/DeveloperDto";
+import type DeveloperDto from "../../domain/DeveloperDto.ts";
+import {addDeveloper} from "../../infrastructure/DeveloperClient.ts";
+import useSWRMutation, {type SWRMutationResponse} from "swr/mutation";
 
 export default function useAddDeveloper() {
-    const {data, trigger, isMutating}: SWRMutationResponse<Response, any, "/api/v1/developers", DeveloperDto> =
+    const {trigger}: SWRMutationResponse<Response, never, "/api/v1/developers", DeveloperDto> =
         useSWRMutation("/api/v1/developers", addDeveloper);
 
     return {trigger}

@@ -1,6 +1,6 @@
 import {Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography} from "@mui/material";
-import PairStreamDto from "@/domain/PairStreamDto";
-import CloseButton from "@/components/CloseButton";
+import type PairStreamDto from "../domain/PairStreamDto.ts";
+import CloseButton from "./CloseButton.tsx";
 
 interface CombinationTableProps {
     combination: PairStreamDto[]
