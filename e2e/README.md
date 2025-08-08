@@ -21,7 +21,7 @@ Your normal loop for developing tests will look like this:
 - Run the tests
   - `npx playwright test --ui`
 - Use the codegen feature of playwright to help get the rough shape of your test by generating the selectors
-  - `npx playwright codegen http://localhost:28082/`
+  - `npx playwright codegen http://localhost:28081/`
 - Run [cleanTables.sql](./cleanTables.sql) to delete all data from the database
 
 ## Environment setup

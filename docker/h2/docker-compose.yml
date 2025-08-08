@@ -11,20 +11,6 @@ services:
       - "./application.properties:/opt/application.properties"
       - "pair_stairs_h2:/opt/h2"
 
-  pair_stairs_frontend:
-    image: ghcr.io/jamieredding/pair-stairs-frontend:latest
-    hostname: frontend
-    restart: unless-stopped
-    environment:
-      - BACKEND_HOST=http://backend:8080
-    networks:
-      - pair_stairs_net
-    ports:
-      - "${FRONTEND_PORT}:80"
-    depends_on:
-      - pair_stairs_backend
-
-
 volumes:
   pair_stairs_h2:
 
