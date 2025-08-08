@@ -11,9 +11,3 @@ prepare-new-iteration-frontend: check-vars
 	cd frontend && npm version $(DEVELOPMENT_VERSION) --no-git-tag-version
 	git add frontend/package.json frontend/package-lock.json
 	git commit -m "Update frontend version to $(DEVELOPMENT_VERSION)"
-	@if $(PUSH_CHANGES); then \
-  		 @echo "Pushing changes"; \
-    	 @git push; \
-    	 else \
-    	 @echo "Push disabled, but would have pushed"; \
-	 fi

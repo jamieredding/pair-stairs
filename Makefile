@@ -16,9 +16,9 @@ endif
 
 git-push:
 	@if $(PUSH_CHANGES); then \
-    	 @git push; \
-    	 else \
-    	 @echo "Push disabled, but would have pushed"; \
+		 git push; \
+		 else \
+		 echo "Push disabled, but would have pushed"; \
 	 fi
 
 include makefiles/backend.mk
