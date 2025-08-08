@@ -25,6 +25,16 @@
                     </execution>
 
                     <execution>
+                        <id>bump-frontend-version</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>pkg set version=${project.version}</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>npm clean-install</id>
                         <goals>
                             <goal>npm</goal>
@@ -71,36 +81,4 @@
             </resource>
         </resources>
     </build>
-
-    <profiles>
-        <profile>
-            <id>frontend-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-
-                        <executions>
-                            <execution>
-                                <id>install node and npm</id>
-                                <goals>
-                                    <goal>install-node-and-npm</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>bump-frontend-version</id>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <configuration>
-                                    <arguments>pkg set version=${project.version}</arguments>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

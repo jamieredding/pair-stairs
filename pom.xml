@@ -168,8 +168,6 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <tagNameFormat>@{project.version}</tagNameFormat>
                         <signTag>true</signTag>
-                        <releaseProfiles>frontend-release</releaseProfiles>
-<!--                        <preparationGoals>frontend:npm@bump-frontend-version</preparationGoals>-->
                     </configuration>
                 </plugin>
 
