@@ -78,7 +78,7 @@ stop-database:
 
 maven-release: check-vars run-db
 	@echo "Running Maven release process"
-	@$(MVN) --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) -DpushChanges=false release:clean release:prepare
+	@$(MVN) --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) -DpushChanges=$(PUSH_CHANGES) release:clean release:prepare
 
 push-image-backend: check-vars
 	@echo "Pushing backend docker image"

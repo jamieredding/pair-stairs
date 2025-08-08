@@ -2,6 +2,7 @@ MVN=./mvnw
 VERSION ?= $(shell $(MVN) help:evaluate -Dexpression=project.version -q -DforceStdout)
 TIMEOUT=120
 SLEEP=5
+PUSH_CHANGES?=true
 
 .PHONY: build release git-push push-images teardown
 
@@ -14,8 +15,11 @@ ifndef DEVELOPMENT_VERSION
 endif
 
 git-push:
-	@echo "Pushing changes"
-	@git push
+	@if $(PUSH_CHANGES); then \
+    	 @git push; \
+    	 else \
+    	 @echo "Push disabled, but would have pushed"; \
+	 fi
 
 include makefiles/backend.mk
 include makefiles/frontend.mk
@@ -25,7 +29,7 @@ include makefiles/docker.mk
 
 build: build-backend run-all-e2e-suites
 
-release: check-vars prepare-release-frontend maven-release stop-database prepare-new-iteration-frontend
+release: check-vars prepare-release-frontend maven-release stop-database prepare-new-iteration-frontend git-push
 
 push-images: push-image-legacy push-image-backend
 
