@@ -1,8 +1,4 @@
-FRONTEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-frontend
-
-.PHONY: prepare-release-frontend prepare-new-iteration-frontend frontend-release tag-image-with-release-version
-
-frontend-release: prepare-release-frontend tag-image-with-release-version
+.PHONY: prepare-release-frontend prepare-new-iteration-frontend
 
 prepare-release-frontend: check-vars
 	@echo "Updating frontend version to $(RELEASE_VERSION)"
@@ -16,7 +12,3 @@ prepare-new-iteration-frontend: check-vars
 	git add frontend/package.json frontend/package-lock.json
 	git commit -m "Update frontend version to $(DEVELOPMENT_VERSION)"
 	git push
-
-tag-image-with-release-version: check-vars
-	@echo "Tagging image with $(RELEASE_VERSION)"
-	docker image tag $(FRONTEND_IMAGE_NAME):latest $(FRONTEND_IMAGE_NAME):$(RELEASE_VERSION)
