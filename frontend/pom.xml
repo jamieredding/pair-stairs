@@ -25,16 +25,6 @@
                     </execution>
 
                     <execution>
-                        <id>bump-frontend-version</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>pkg set version=${project.version}</arguments>
-                        </configuration>
-                    </execution>
-
-                    <execution>
                         <id>npm clean-install</id>
                         <goals>
                             <goal>npm</goal>
