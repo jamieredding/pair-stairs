@@ -8,7 +8,7 @@ This is a tool for helping developers in a team, decide the combinations of how 
 
 Introduced as of 1.4.0 there is now a web application to make it easier for teams to choose their combinations.
 
-It consists of a [React](frontend/README.md), a [Spring Boot backend](backend/README.md) and a database for
+It consists of a [React frontend](frontend/README.md), a [Spring Boot backend](backend/README.md) and a database for
 persistence.
 
 The application is shipped as docker image, please see the [README.md](docker/README.md)
