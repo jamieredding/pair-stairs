@@ -1,0 +1,54 @@
+package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        RequestMatcher apiMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
+
+        // Where to send browsers when they’re unauthenticated (non-API):
+        var loginEntryPoint = new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/azure");
+        // For API calls, return 401 (don’t HTML-redirect):
+        AuthenticationEntryPoint apiEntryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
+
+        var delegating = new DelegatingAuthenticationEntryPoint(
+                new LinkedHashMap<>(Map.of(apiMatcher, apiEntryPoint)));
+        delegating.setDefaultEntryPoint(loginEntryPoint);
+
+        http
+                .authorizeHttpRequests(a -> a
+                        // allow the OAuth2 machinery itself + error page
+                        .requestMatchers("/login**", "/oauth2/**", "/login/oauth2/**", "/error").permitAll()
+
+                        // allow static assets (adjust to your paths)
+//                        .requestMatchers("/assets/**", "/favicon.ico").permitAll()
+                        // everything else (/, /streams, your SPA routes) must be authenticated
+                        .anyRequest().authenticated()
+                )
+                // Send users directly to Microsoft (no intermediate default login page)
+                .oauth2Login(o -> o.loginPage("/oauth2/authorization/azure"))
+                .logout(l -> l.logoutSuccessUrl("/"))
+                // Make APIs return 401 instead of redirect
+                .exceptionHandling(e -> e.authenticationEntryPoint(delegating))
+                // While developing a cookie-session SPA, ignore CSRF for APIs
+                .csrf(c -> c.ignoringRequestMatchers("/api/**"));
+
+        return http.build();
+    }
+}
