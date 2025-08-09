@@ -1,6 +1,6 @@
 PLAYWRIGHT_CONTAINER_NAME=build_image__playwright
 PLAYWRIGHT_IMAGE=mcr.microsoft.com/playwright:v1.44.0-jammy
-E2E_BACKEND_CONTAINER_NAME=e2e-pair_stairs_backend-1
+E2E_WEB_CONTAINER_NAME=e2e-pair_stairs_web-1
 E2E_DOCKER_NETWORK=e2e_pair_stairs_net
 MYSQL_DOCKER_COMPOSE_ROOT=docker/mysql
 H2_DOCKER_COMPOSE_ROOT=docker/h2
@@ -51,7 +51,7 @@ restart-e2e-pair-stairs: stop-e2e-pair-stairs start-e2e-pair-stairs
 wait-for-e2e-pair-stairs:
 	@echo "Waiting for backend to be ready... ($(COMPOSE_PATH))"
 	@timeout=$(TIMEOUT); \
-	while ! docker logs $(E2E_BACKEND_CONTAINER_NAME) 2>&1 | grep "Started Application in" > /dev/null; do \
+	while ! docker logs $(E2E_WEB_CONTAINER_NAME) 2>&1 | grep "Started Application in" > /dev/null; do \
 		if [ $$timeout -eq 0 ]; then \
 			echo "Backend did not become ready in $(TIMEOUT) seconds."; \
 			exit 1; \

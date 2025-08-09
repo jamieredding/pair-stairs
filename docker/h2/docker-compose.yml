@@ -1,7 +1,7 @@
 services:
-  pair_stairs_backend:
-    image: ghcr.io/jamieredding/pair-stairs-backend:latest
-    hostname: backend
+  pair_stairs_web:
+    image: ghcr.io/jamieredding/pair-stairs-web:latest
+    hostname: web
     restart: unless-stopped
     networks:
       - pair_stairs_net

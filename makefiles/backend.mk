@@ -8,13 +8,13 @@ MYSQL_NETWORK?=default
 MYSQL_PORT?=3306
 DUMP_FILE_PATH?=./all-databases.sql
 
-BACKEND_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-backend
+WEB_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-web
 
-.PHONY: start-database dump-database restore-database dump-docker restore-docker wait-for-database run-db build-maven stop-database maven-release push-image-backend
+.PHONY: start-database dump-database restore-database dump-docker restore-docker wait-for-database run-db build-maven stop-database maven-release push-image-web
 
 run-db: start-database wait-for-database
 
-build-backend: run-db build-maven stop-database
+run-maven-build: run-db build-maven stop-database
 
 start-database:
 	@echo "Starting MySQL database container..."
@@ -80,9 +80,9 @@ maven-release: check-vars run-db
 	@echo "Running Maven release process"
 	@$(MVN) --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) -DpushChanges=false release:clean release:prepare
 
-push-image-backend: check-vars
-	@echo "Pushing backend docker image"
-	docker push $(BACKEND_IMAGE_NAME):latest
-	docker rmi -f $(BACKEND_IMAGE_NAME):latest
-	docker push $(BACKEND_IMAGE_NAME):$(RELEASE_VERSION)
-	docker rmi -f $(BACKEND_IMAGE_NAME):$(RELEASE_VERSION)
+push-image-web: check-vars
+	@echo "Pushing web docker image"
+	docker push $(WEB_IMAGE_NAME):latest
+	docker rmi -f $(WEB_IMAGE_NAME):latest
+	docker push $(WEB_IMAGE_NAME):$(RELEASE_VERSION)
+	docker rmi -f $(WEB_IMAGE_NAME):$(RELEASE_VERSION)
