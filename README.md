@@ -4,12 +4,14 @@ This is a tool for helping developers in a team, decide the combinations of how 
 
 ## Web application
 
+<img src="screenshots/home.png" alt="home page screenshot" width="800"/>
+
 Introduced as of 1.4.0 there is now a web application to make it easier for teams to choose their combinations.
 
-It consists of a [Next.js frontend](frontend), a [Spring Boot backend](backend/README.md) and a database for
+It consists of a [React](frontend/README.md), a [Spring Boot backend](backend/README.md) and a database for
 persistence.
 
-Each module is shipped as a docker image, please see the [README.md](docker/README.md)
+The application is shipped as docker image, please see the [README.md](docker/README.md)
 for instructions on how to bring this stack up yourself.
 
 ## CLI
@@ -30,10 +32,12 @@ The basic requirements to build are:
 
 - Make
   - This is likely already available on your system if you are a developer
-- Java 21
+- Java
   - This can be downloaded and managed with [SDKMAN](https://sdkman.io/install)
-- Node 20
+  - The version is defined in [.sdkmanrc](.sdkmanrc)
+- Node
   - This can be downloaded and managed with [nvm](https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating)
+  - The version is defined in [.nvmrc](.nvmrc)
 - Maven
   - This can be downloaded and managed with the included Maven wrapper script
 - Docker

@@ -14,11 +14,8 @@ There are two example stacks to use here, the main difference being how the back
 - pair-stairs-backend
   - This container runs the backend server for pair-stairs
     - Handling API requests from the frontend and persisting data to the database
+    - Serving frontend as static content 
   - It is built from [/backend/Dockerfile](/backend/Dockerfile) using `dockerfile-maven-plugin` in the [/backend/pom.xml](/backend/pom.xml)
-- pair-stairs-frontend
-  - This container runs the frontend server (nginx) for pair-stairs
-    - It serves both the static files and proxies API requests to the backend server
-  - It is built from [/frontend/docker/Dockerfile](/frontend/docker/Dockerfile) by the makefile target `build-frontend-image` in [/makefiles/frontend.mk](/makefiles/frontend.mk)
 
 ## Running the containers
 

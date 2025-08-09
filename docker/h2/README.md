@@ -22,7 +22,7 @@ docker compose --env-file environment/prod.env down
 You can mount your own [application.properties](/backend/src/main/resources/application.properties)
 file to `/opt/application.properties` to override the defaults.
 
-If you don't need to override all of the properties, consider using spring-boot's environment 
+If you don't need to override all the properties, consider using spring-boot's environment 
 variable binding functionality ([link](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.relaxed-binding.environment-variables)).
 
 E.g. `-e SPRING_DATASOURCE_URL=xxx` will convert to a property of `spring.datasource.url=xxx`.
