@@ -1,4 +1,4 @@
-import PairStreamDto from "@/domain/PairStreamDto";
+import type PairStreamDto from "./PairStreamDto";
 
 export default interface ScoredCombinationDto {
     score: number;

@@ -1,6 +1,6 @@
 import {useSWRConfig} from "swr";
-import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
-import {DEVELOPER_INFO_PATH, getDeveloperInfos} from "@/infrastructure/DeveloperClient";
+import type DeveloperInfoDto from "../../domain/DeveloperInfoDto.ts";
+import {DEVELOPER_INFO_PATH, getDeveloperInfos} from "../../infrastructure/DeveloperClient.ts";
 
 export default function useRefreshDeveloperInfos() {
     const {mutate} = useSWRConfig()

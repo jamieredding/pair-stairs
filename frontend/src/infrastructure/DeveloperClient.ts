@@ -1,5 +1,5 @@
-import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
-import DeveloperDto from "@/domain/DeveloperDto";
+import type DeveloperInfoDto from "../domain/DeveloperInfoDto.ts";
+import type DeveloperDto from "../domain/DeveloperDto.ts";
 
 export const DEVELOPER_INFO_PATH = "/api/v1/developers/info"
 

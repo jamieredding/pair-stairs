@@ -12,17 +12,20 @@ make run-e2e-suite
 ### Pre-requisites
 
 1. You will need to have playwright installed locally to run the tests.
-2. You will need to start the stack up in e2e mode: `make run-e2e-pair-stairs`
-   - This can be stopped with `make stop-e2e-pair-stairs`
-   - The UI will be visible at `http://localhost:28082/`
+2. You will need to start the stack up in e2e mode: `COMPOSE_PATH=docker/h2 make run-e2e-pair-stairs`
+   - This can be stopped with `COMPOSE_PATH=docker/h2 make stop-e2e-pair-stairs`
+   - The UI will be visible at `http://localhost:28081/`
+   - If you'd prefer to run this against a mysql database instead of h2, set `COMPOSE_PATH=docker/mysql` instead
 
 Your normal loop for developing tests will look like this:
 - From the [e2e](.) directory
 - Run the tests
   - `npx playwright test --ui`
 - Use the codegen feature of playwright to help get the rough shape of your test by generating the selectors
-  - `npx playwright codegen http://localhost:28082/`
-- Run [cleanTables.sql](./cleanTables.sql) to delete all data from the database
+  - `npx playwright codegen http://localhost:28081/`
+- Clean the database
+  - Just restart the app: `COMPOSE_PATH=docker/h2 make stop-e2e-pair-stairs`
+  - Or run [cleanTables.sql](./cleanTables.sql) to delete all data from the database
 
 ## Environment setup
 Please see the [playwright documentation](https://playwright.dev/docs/intro) for installing playwright locally.

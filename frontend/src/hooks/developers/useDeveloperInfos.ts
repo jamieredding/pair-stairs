@@ -1,9 +1,9 @@
-import useSWR, {SWRResponse} from "swr";
-import {DEVELOPER_INFO_PATH, getDeveloperInfos} from "@/infrastructure/DeveloperClient";
-import DeveloperInfoDto from "@/domain/DeveloperInfoDto";
+import type DeveloperInfoDto from "../../domain/DeveloperInfoDto.ts";
+import {DEVELOPER_INFO_PATH, getDeveloperInfos} from "../../infrastructure/DeveloperClient.ts";
+import useSWR, {type SWRResponse} from "swr";
 
 export default function useDeveloperInfos() {
-    const {data, error, isLoading}: SWRResponse<DeveloperInfoDto[], any> =
+    const {data, error, isLoading}: SWRResponse<DeveloperInfoDto[]> =
         useSWR(DEVELOPER_INFO_PATH, getDeveloperInfos)
 
     return {

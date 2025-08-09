@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>dev.coldhands.pair.stairs</groupId>
@@ -10,7 +11,7 @@
     <artifactId>backend</artifactId>
     <properties>
         <spring-boot.version>3.5.4</spring-boot.version>
-        <dockerImageName>ghcr.io/jamieredding/pair-stairs-backend</dockerImageName>
+        <dockerImageName>ghcr.io/jamieredding/pair-stairs-web</dockerImageName>
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
     </properties>
 
@@ -49,6 +50,10 @@
             <groupId>dev.coldhands.pair.stairs</groupId>
             <artifactId>core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>dev.coldhands.pair.stairs</groupId>
+            <artifactId>frontend</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -86,7 +91,8 @@
                 <configuration>
                     <verbose>true</verbose>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties
+                    </generateGitPropertiesFilename>
                 </configuration>
             </plugin>
             <plugin>
@@ -175,6 +181,7 @@
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
+
         </plugins>
     </build>
 </project>

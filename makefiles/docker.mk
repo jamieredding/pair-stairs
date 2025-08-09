@@ -1,4 +1,4 @@
-BACKEND_CONTAINER_NAME=docker-pair_stairs_backend-1
+WEB_CONTAINER_NAME=docker-pair_stairs_web-1
 DOCKER_NETWORK=docker_pair_stairs_net
 
 .PHONY: run-stack start-stack wait-for-pair-stairs stop-stack stop-stack-and-volume
@@ -20,7 +20,7 @@ stop-stack-and-volume:
 wait-for-pair-stairs:
 	@echo "Waiting for backend to be ready..."
 	@timeout=$(TIMEOUT); \
-	while ! docker logs $(BACKEND_CONTAINER_NAME) 2>&1 | grep "Started Application in" > /dev/null; do \
+	while ! docker logs $(WEB_CONTAINER_NAME) 2>&1 | grep "Started Application in" > /dev/null; do \
 		if [ $$timeout -eq 0 ]; then \
 			echo "Backend did not become ready in $(TIMEOUT) seconds."; \
 			exit 1; \

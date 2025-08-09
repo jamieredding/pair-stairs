@@ -41,14 +41,19 @@ test('test', async ({page}) => {
     await page.getByRole('button', {name: 'Save'}).click();
 
     // check that combination appeared in combination history
-    const combinationHistoryCard = page.locator('div').filter({hasText: "Combination History"}).nth(1)
+    const combinationHistoryCard = page.locator(".MuiCard-root", {
+        has: page.getByRole("heading", {level: 2, name: /^Combination History$/})
+    });
 
-    const yesterdayCombination = combinationHistoryCard.locator("div").filter({hasText: "Yesterday"}).nth(4)
+    const yesterdayISO  = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+    const yesterdayCombination = combinationHistoryCard.locator(".MuiCard-root", {
+        has: page.getByRole("heading", {level: 3, name: yesterdayISO})
+    })
     await expect(yesterdayCombination).toBeVisible();
 
-    const yesterdayPairStreams = yesterdayCombination.locator("tbody").locator("tr")
-    await expect(yesterdayPairStreams.nth(0)).toContainText(["stream-a", "dev-0", "dev-1"].join(""))
-    await expect(yesterdayPairStreams.nth(1)).toContainText(["stream-b", "dev-2"].join(""))
+    const yesterdayPairStreams = yesterdayCombination.getByRole("row")
+    await expect(yesterdayPairStreams.nth(1)).toContainText(["stream-a", "dev-0", "dev-1"].join(""))
+    await expect(yesterdayPairStreams.nth(2)).toContainText(["stream-b", "dev-2"].join(""))
 
     // calculate a combination
     await page.getByRole('tab', {name: 'Calculate'}).click();
@@ -59,12 +64,15 @@ test('test', async ({page}) => {
     await page.getByRole('button', {name: 'Save'}).click();
 
     // check that combination appeared in combination history
-    const todayCombination = combinationHistoryCard.locator("div").filter({hasText: "Today"}).nth(4)
+    const todayISO = format(new Date(), 'yyyy-MM-dd');
+    const todayCombination = combinationHistoryCard.locator(".MuiCard-root", {
+        has: page.getByRole("heading", {level: 3, name: todayISO})
+    })
     await expect(todayCombination).toBeVisible();
 
-    const todayPairStreams = todayCombination.locator("tbody").locator("tr")
-    await expect(todayPairStreams.nth(0)).toContainText(["stream-a", "dev-0"].join(""))
-    await expect(todayPairStreams.nth(1)).toContainText(["stream-b", "dev-1", "dev-2"].join(""))
+    const todayPairStreams = todayCombination.getByRole("row")
+    await expect(todayPairStreams.nth(1)).toContainText(["stream-a", "dev-0"].join(""))
+    await expect(todayPairStreams.nth(2)).toContainText(["stream-b", "dev-1", "dev-2"].join(""))
 
     // delete today's combination
     await page.locator('div').filter({hasText: /^Today$/}).getByRole('button').click();

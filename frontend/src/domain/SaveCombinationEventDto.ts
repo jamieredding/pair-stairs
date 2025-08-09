@@ -1,4 +1,4 @@
-export default interface SaveCombinationEventDto {
+export interface SaveCombinationEventDto {
     date: string;
     combination: PairStreamByIds[];
 }

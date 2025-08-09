@@ -1,4 +1,4 @@
-import {Button, SxProps} from "@mui/material";
+import {Button, type SxProps} from "@mui/material";
 import {Close} from "@mui/icons-material";
 
 interface CloseButtonProps {

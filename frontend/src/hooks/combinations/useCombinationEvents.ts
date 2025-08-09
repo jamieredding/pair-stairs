@@ -1,6 +1,6 @@
-import CombinationEventDto from "@/domain/CombinationEventDto";
-import {getCombinationEvents} from "@/infrastructure/CombinationClient";
-import useSWRInfinite, {SWRInfiniteKeyLoader, SWRInfiniteResponse} from "swr/infinite";
+import useSWRInfinite, {type SWRInfiniteKeyLoader, type SWRInfiniteResponse} from "swr/infinite";
+import type CombinationEventDto from "../../domain/CombinationEventDto.ts";
+import {getCombinationEvents} from "../../infrastructure/CombinationClient.ts";
 
 export const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
     if (previousPageData && !previousPageData.length) {
@@ -11,7 +11,7 @@ export const getKey: SWRInfiniteKeyLoader = (pageIndex, previousPageData) => {
 }
 
 export default function useCombinationEvents() {
-    const {data, error, isLoading, setSize}: SWRInfiniteResponse<CombinationEventDto[], any> =
+    const {data, error, isLoading, setSize}: SWRInfiniteResponse<CombinationEventDto[]> =
         useSWRInfinite(getKey, (url: string) => getCombinationEvents(url));
 
     return {

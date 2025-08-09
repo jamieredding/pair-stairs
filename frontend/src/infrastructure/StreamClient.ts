@@ -1,5 +1,5 @@
-import StreamDto from "@/domain/StreamDto";
-import StreamInfoDto from "@/domain/StreamInfoDto";
+import type StreamInfoDto from "../domain/StreamInfoDto.ts";
+import type StreamDto from "../domain/StreamDto.ts";
 
 export const STREAM_INFO_PATH = "/api/v1/streams/info"
 
