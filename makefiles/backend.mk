@@ -1,48 +1,23 @@
-DB_CONTAINER_NAME=build_image__pair_stairs_db
-DATABASE_IMAGE_NAME=mysql:8.4.6
-MYSQL_HOST?=$(DB_CONTAINER_NAME)
-MYSQL_USER?=pair_stairs_user
-MYSQL_PASSWORD?=some-password
+DATABASE_IMAGE_NAME=mysql:9.4.0
+MYSQL_HOST?=build_image__pair_stairs_db
 MYSQL_ROOT_PASSWORD?=some-root-password
 MYSQL_NETWORK?=default
 MYSQL_PORT?=3306
 DUMP_FILE_PATH?=./all-databases.sql
-WIREMOCK_IMAGE_NAME=wiremock/wiremock:3.5.2
-OAUTH_CONTAINER_NAME=build_image__oauth
-OAUTH_PORT=18085
 
 WEB_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-web
 
-.PHONY: start-database dump-database restore-database dump-docker restore-docker wait-for-database run-db build-maven stop-database maven-release push-image-web run-oauth
+COMPOSE = docker compose --file makefiles/docker-compose.yml --env-file makefiles/.env
 
-run-db: start-database wait-for-database
+.PHONY: start-services dump-database restore-database dump-docker restore-docker build-maven maven-release push-image-web
 
-run-maven-build: run-db run-oauth build-maven stop-database stop-oauth
+run-maven-build: start-services build-maven stop-services
 
-start-database:
-	@echo "Starting MySQL database container..."
-	@docker run --rm -d --name $(DB_CONTAINER_NAME) \
-	-e MYSQL_DATABASE=pair_stairs \
-	-e MYSQL_USER=$(MYSQL_USER) \
-	-e MYSQL_PASSWORD=$(MYSQL_PASSWORD) \
-	-e MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
-	-p 3306:3306 \
-	$(DATABASE_IMAGE_NAME) || (echo "Failed to start MySQL container." ; exit 1)
+start-services:
+	$(COMPOSE) up --detach --wait --wait-timeout 60 db oauth
 
-
-wait-for-database:
-	@echo "Waiting for MySQL to be ready..."
-	@timeout=$(TIMEOUT); \
-	while ! docker logs $(DB_CONTAINER_NAME) 2>&1 | grep "/usr/sbin/mysqld: ready for connections" | grep "port: 3306" > /dev/null; do \
-		if [ $$timeout -eq 0 ]; then \
-			echo "Database did not become ready in $(TIMEOUT) seconds."; \
-			exit 1; \
-		fi; \
-		echo "Waiting for database..."; \
-		sleep $(SLEEP); \
-		timeout=$$((timeout - 1)); \
-	done
-	@echo "MySQL database is ready!"
+stop-services:
+	$(COMPOSE) down --volumes --timeout 10 db oauth
 
 dump-docker:
 	$(MAKE) dump-database MYSQL_HOST=docker-pair_stairs_db-1 MYSQL_NETWORK=docker_pair_stairs_net
@@ -75,11 +50,7 @@ build-maven:
 	@echo "Running Maven build..."
 	@$(MVN) clean verify || (echo "Maven build failed." ; exit 1)
 
-stop-database:
-	@echo "Stopping MySQL database container..."
-	@(docker stop $(DB_CONTAINER_NAME) && echo "Stopped.") || echo "No container to stop."
-
-maven-release: check-vars run-db
+maven-release: check-vars start-services
 	@echo "Running Maven release process"
 	@$(MVN) --batch-mode -DreleaseVersion=$(RELEASE_VERSION) -DdevelopmentVersion=$(DEVELOPMENT_VERSION) -DpushChanges=false release:clean release:prepare
 
@@ -89,14 +60,3 @@ push-image-web: check-vars
 	docker rmi -f $(WEB_IMAGE_NAME):latest
 	docker push $(WEB_IMAGE_NAME):$(RELEASE_VERSION)
 	docker rmi -f $(WEB_IMAGE_NAME):$(RELEASE_VERSION)
-
-run-oauth:
-	@echo "Running oauth2 wiremock server"
-	docker run --rm -d --name $(OAUTH_CONTAINER_NAME) \
-        -p $(OAUTH_PORT):8080 \
-        -v "`pwd`/wiremock-oauth2":/home/wiremock \
-        wiremock/wiremock:3.5.2 --verbose
-
-stop-oauth:
-	@echo "Stopping oauth container..."
-	@(docker stop $(OAUTH_CONTAINER_NAME) && echo "Stopped.") || echo "No container to stop."
