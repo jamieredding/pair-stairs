@@ -20,6 +20,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -53,6 +55,7 @@ public class CombinationCalculationControllerTest {
             final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
 
             final String contentAsString = mockMvc.perform(post("/api/v1/combinations/calculate")
+                            .with(oidcLogin())
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
