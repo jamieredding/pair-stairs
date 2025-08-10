@@ -1,173 +1,99 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
-import dev.coldhands.pair.stairs.backend.domain.*;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = CombinationCalculationController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@AutoConfigureTestDatabase
+@AutoConfigureTestEntityManager
+@Transactional
+@TestPropertySource(properties = {
+        "app.combinations.calculate.pageSize=2"
+})
 public class CombinationCalculationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
-    private CombinationCalculationService service;
+    @Autowired
+    private TestEntityManager testEntityManager;
+
 
     @Nested
     class Calculate {
 
         @Test
-        void calculateCombinations() throws Exception {
-            when(service.calculate(any(), any(), anyInt(), anyInt()))
-                    .thenReturn(List.of(
-                            new ScoredCombination(10,
-                                    List.of(new PairStream(
-                                                    List.of(
-                                                            new DeveloperInfo(0, "dev-0"),
-                                                            new DeveloperInfo(1, "dev-1")
-                                                    ),
-                                                    new StreamInfo(0, "stream-a")
-                                            ),
-                                            new PairStream(
-                                                    List.of(
-                                                            new DeveloperInfo(2, "dev-2")
-                                                    ),
-                                                    new StreamInfo(1, "stream-b")
-                                            ))
-                            ),
-                            new ScoredCombination(20,
-                                    List.of(new PairStream(
-                                                    List.of(
-                                                            new DeveloperInfo(0, "dev-0"),
-                                                            new DeveloperInfo(2, "dev-2")
-                                                    ),
-                                                    new StreamInfo(0, "stream-a")
-                                            ),
-                                            new PairStream(
-                                                    List.of(
-                                                            new DeveloperInfo(1, "dev-1")
-                                                    ),
-                                                    new StreamInfo(1, "stream-b")
-                                            ))
-                            )));
+        void calculateCombinationsHasADefaultPageSize() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+            final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
 
-            mockMvc.perform(post("/api/v1/combinations/calculate")
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+            final String contentAsString = mockMvc.perform(post("/api/v1/combinations/calculate")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "developerIds": [0, 1, 2],
-                                      "streamIds": [0, 1]
-                                    }""")
+                                      "developerIds": [%s, %s, %s],
+                                      "streamIds": [%s, %s]
+                                    }""".formatted(dev0Id, dev1Id, dev2Id, stream0Id, stream1Id))
                     )
                     .andExpect(status().isOk())
-                    .andExpect(content().json("""
-                            [
-                              {
-                                "score": 10,
-                                "combination": [
-                                  {
-                                    "developers": [
-                                      {
-                                        "id": 0,
-                                        "displayName": "dev-0"
-                                      },
-                                      {
-                                        "id": 1,
-                                        "displayName": "dev-1"
-                                      }
-                                    ],
-                                    "stream": {
-                                      "id": 0,
-                                      "displayName": "stream-a"
-                                    }
-                                  },
-                                  {
-                                    "developers": [
-                                      {
-                                        "id": 2,
-                                        "displayName": "dev-2"
-                                      }
-                                    ],
-                                    "stream": {
-                                      "id": 1,
-                                      "displayName": "stream-b"
-                                    }
-                                  }
-                                ]
-                              },
-                              {
-                                "score": 20,
-                                "combination": [
-                                  {
-                                    "developers": [
-                                      {
-                                        "id": 0,
-                                        "displayName": "dev-0"
-                                      },
-                                      {
-                                        "id": 2,
-                                        "displayName": "dev-2"
-                                      }
-                                    ],
-                                    "stream": {
-                                      "id": 0,
-                                      "displayName": "stream-a"
-                                    }
-                                  },
-                                  {
-                                    "developers": [
-                                      {
-                                        "id": 1,
-                                        "displayName": "dev-1"
-                                      }
-                                    ],
-                                    "stream": {
-                                      "id": 1,
-                                      "displayName": "stream-b"
-                                    }
-                                  }
-                                ]
-                              }
-                            ]"""))
-            ;
+                    .andReturn()
+                    .getResponse().getContentAsString();
 
-            verify(service).calculate(eq(List.of(0L, 1L, 2L)), eq(List.of(0L, 1L)), eq(0), eq(3));
+            final DocumentContext parsed = JsonPath.parse(contentAsString);
+
+            assertThat(parsed.read("$", List.class)).size().isEqualTo(2);
         }
 
         @Test
-        void calculateCombinationsRequestingPage1() throws Exception {
-            when(service.calculate(any(), any(), anyInt(), anyInt()))
-                    .thenReturn(List.of(
-                            new ScoredCombination(0, List.of()),
-                            new ScoredCombination(1, List.of())));
+        void calculateCombinationsRequestingPageWithNoResults() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+            final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
 
-            mockMvc.perform(post("/api/v1/combinations/calculate")
-                            .queryParam("page", "1")
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+            final String contentAsString = mockMvc.perform(post("/api/v1/combinations/calculate")
+                            .queryParam("page", "10")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content("""
                                     {
-                                      "developerIds": [],
-                                      "streamIds": []
-                                    }""")
+                                      "developerIds": [%s, %s, %s],
+                                      "streamIds": [%s, %s]
+                                    }""".formatted(dev0Id, dev1Id, dev2Id, stream0Id, stream1Id))
                     )
                     .andExpect(status().isOk())
-            ;
+                    .andReturn()
+                    .getResponse().getContentAsString();
 
-            verify(service).calculate(any(), any(), eq(1), eq(3));
+            final DocumentContext parsed = JsonPath.parse(contentAsString);
+
+            assertThat(parsed.read("$", List.class)).size().isEqualTo(0);
         }
 
     }
