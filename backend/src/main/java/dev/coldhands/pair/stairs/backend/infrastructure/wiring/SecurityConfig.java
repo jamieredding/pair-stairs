@@ -33,13 +33,18 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(a -> a
-                        // allow the OAuth2 machinery itself + error page
-                        .requestMatchers("/login**", "/oauth2/**", "/login/oauth2/**", "/error").permitAll()
+                                .requestMatchers("/login**", "/oauth2/**", "/login/oauth2/**", "/error").permitAll()
 
-                        // allow static assets (adjust to your paths)
-//                        .requestMatchers("/assets/**", "/favicon.ico").permitAll()
-                        // everything else (/, /streams, your SPA routes) must be authenticated
-                        .anyRequest().authenticated()
+                                .requestMatchers(
+                                        "/actuator/health",
+                                        "/actuator/health/readiness",
+                                        "/actuator/health/liveness",
+                                        "/actuator/info",
+                                        "/actuator/prometheus"
+                                )
+                                .permitAll()
+
+                                .anyRequest().authenticated()
                 )
                 // Send users directly to Microsoft (no intermediate default login page)
                 .oauth2Login(o -> o.loginPage("/oauth2/authorization/azure"))
