@@ -7,14 +7,17 @@ MYSQL_ROOT_PASSWORD?=some-root-password
 MYSQL_NETWORK?=default
 MYSQL_PORT?=3306
 DUMP_FILE_PATH?=./all-databases.sql
+WIREMOCK_IMAGE_NAME=wiremock/wiremock:3.5.2
+OAUTH_CONTAINER_NAME=build_image__oauth
+OAUTH_PORT=18085
 
 WEB_IMAGE_NAME=ghcr.io/jamieredding/pair-stairs-web
 
-.PHONY: start-database dump-database restore-database dump-docker restore-docker wait-for-database run-db build-maven stop-database maven-release push-image-web
+.PHONY: start-database dump-database restore-database dump-docker restore-docker wait-for-database run-db build-maven stop-database maven-release push-image-web run-oauth
 
 run-db: start-database wait-for-database
 
-run-maven-build: run-db build-maven stop-database
+run-maven-build: run-db run-oauth build-maven stop-database stop-oauth
 
 start-database:
 	@echo "Starting MySQL database container..."
@@ -86,3 +89,14 @@ push-image-web: check-vars
 	docker rmi -f $(WEB_IMAGE_NAME):latest
 	docker push $(WEB_IMAGE_NAME):$(RELEASE_VERSION)
 	docker rmi -f $(WEB_IMAGE_NAME):$(RELEASE_VERSION)
+
+run-oauth:
+	@echo "Running oauth2 wiremock server"
+	docker run --rm -d --name $(OAUTH_CONTAINER_NAME) \
+        -p $(OAUTH_PORT):8080 \
+        -v "`pwd`/wiremock-oauth2":/home/wiremock \
+        wiremock/wiremock:3.5.2 --verbose
+
+stop-oauth:
+	@echo "Stopping oauth container..."
+	@(docker stop $(OAUTH_CONTAINER_NAME) && echo "Stopped.") || echo "No container to stop."

@@ -33,4 +33,4 @@ release: check-vars prepare-release-frontend maven-release stop-database prepare
 
 push-images: push-image-legacy push-image-web
 
-teardown: stop-database teardown-e2e-suites
+teardown: stop-database teardown-e2e-suites stop-oauth
