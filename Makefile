@@ -29,8 +29,8 @@ include makefiles/docker.mk
 
 build: run-maven-build run-all-e2e-suites
 
-release: check-vars prepare-release-frontend maven-release stop-database prepare-new-iteration-frontend git-push
+release: check-vars prepare-release-frontend maven-release stop-services prepare-new-iteration-frontend git-push
 
 push-images: push-image-legacy push-image-web
 
-teardown: stop-database teardown-e2e-suites stop-oauth
+teardown: stop-services teardown-e2e-suites
