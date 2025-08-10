@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -25,7 +26,9 @@ public class HealthEndpointTest {
 
     @Test
     void healthIsConfigured() throws Exception {
-        mockMvc.perform(get("/actuator/health"))
+        mockMvc.perform(get("/actuator/health")
+                        .with(anonymous())
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                         {
@@ -36,7 +39,9 @@ public class HealthEndpointTest {
 
     @Test
     void readinessIsConfigured() throws Exception {
-        mockMvc.perform(get("/actuator/health/readiness"))
+        mockMvc.perform(get("/actuator/health/readiness")
+                        .with(anonymous())
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                         {
@@ -47,7 +52,9 @@ public class HealthEndpointTest {
 
     @Test
     void livenessIsConfigured() throws Exception {
-        mockMvc.perform(get("/actuator/health/liveness"))
+        mockMvc.perform(get("/actuator/health/liveness")
+                        .with(anonymous())
+                )
                 .andExpect(status().isOk())
                 .andExpect(content().json("""
                         {
