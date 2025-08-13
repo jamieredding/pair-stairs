@@ -99,6 +99,22 @@ class PairStreamCombinationServiceTest {
     }
 
     @Test
+    void allowACombinationOfASingleDeveloperAndStream() {
+        List<String> developers = List.of("a-dev");
+        List<String> streams = List.of("1-stream");
+
+        given(developers, streams);
+
+        Set<Combination<PairStream>> allCombinations = underTest.getAllCombinations();
+
+        assertThat(allCombinations)
+                .containsOnly(
+                        new Combination<>(Set.of(new PairStream(Set.of("a-dev"), "1-stream")))
+                );
+    }
+
+
+    @Test
     void throwsExceptionWhenNotEnoughDevelopersForStreams() { // todo should this make single pairs instead and only fail if you can't even have single devs?
         List<String> developers = List.of("a-dev", "b-dev", "c-dev");
         List<String> streams = List.of("1-stream", "2-stream", "3-stream");

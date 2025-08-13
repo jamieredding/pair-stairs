@@ -22,6 +22,13 @@ public class PairCombinationService implements CombinationService<Set<String>> {
 
     @Override
     public Set<Combination<Set<String>>> getAllCombinations() {
+        if (developers.size() == 1) {
+            final var singleDeveloper = developers.stream().findFirst().get();
+            return Set.of(
+                    new Combination<>(Set.of(Set.of(singleDeveloper)))
+            );
+        }
+
         final int requiredNumberOfPairsPerCombination = Math.ceilDiv(developers.size(), 2);
 
         final Set<JustDevs> allPossiblePairsOfDevelopers = Sets.combinations(developers, 2).stream()

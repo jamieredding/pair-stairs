@@ -74,4 +74,18 @@ class PairCombinationServiceTest {
                 });
     }
 
+    @Test
+    void allowACombinationsOfSingleDeveloper() {
+        List<String> developers = List.of("a-dev");
+
+        given(developers);
+
+        Set<Combination<Set<String>>> allCombinations = underTest.getAllCombinations();
+
+        assertThat(allCombinations)
+                .containsOnly(
+                        new Combination<>(Set.of(Set.of("a-dev")))
+                );
+    }
+
 }

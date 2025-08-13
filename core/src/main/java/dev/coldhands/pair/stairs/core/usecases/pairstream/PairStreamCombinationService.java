@@ -37,6 +37,14 @@ public class PairStreamCombinationService implements CombinationService<PairStre
             throw new IllegalStateException("Not enough developers to pair on streams");
         }
 
+        if (developers.size() == 1 && streams.size() == 1) {
+            final var onlyDeveloper = developers.stream().findFirst().get();
+            final var onlyStream = streams.stream().findFirst().get();
+            return Set.of(
+                    new Combination<>(Set.of(new PairStream(Set.of(onlyDeveloper), onlyStream)))
+            );
+        }
+
         final PairCombinationService pairCombinationService = new PairCombinationService(developers);
         final Set<Combination<Set<String>>> allCombinationsOfDevelopers = pairCombinationService.getAllCombinations();
         final Collection<List<String>> allPermutationsOfStreams = Collections2.orderedPermutations(streams);
