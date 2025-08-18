@@ -1,8 +1,34 @@
 {
   "packageRules": [
     {
-      "matchPackagePrefixes": ["ch.qos.logback"],
+      "matchManagers": [
+        "npm"
+      ],
+      "extends": [
+        "schedule:weekly"
+      ]
+    },
+    {
+      "matchPackagePrefixes": [
+        "ch.qos.logback"
+      ],
       "groupName": "logback"
+    },
+    {
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "@tanstack/react-router",
+        "@tanstack/react-router-devtools",
+        "@tanstack/router-plugin"
+      ],
+      "groupName": "tanstack react-router",
+      "matchUpdateTypes": [
+        "major",
+        "minor"
+      ],
+      "rangeStrategy": "bump"
     }
   ]
 }
