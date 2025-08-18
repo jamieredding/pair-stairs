@@ -1,6 +1,6 @@
-import {Button, Divider, Stack, Typography} from "@mui/material";
+import {Alert, AlertTitle, Button, Divider, Snackbar, Stack, Typography} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {formatISO} from "date-fns";
 import useCalculateCombinations from "../../../hooks/combinations/useCalculateCombinations";
 import useAddCombinationEvent from "../../../hooks/combinations/useAddCombinationEvent.ts";
@@ -14,6 +14,7 @@ import Error from "../../Error.tsx";
 import ButtonRow from "../../ButtonRow.tsx";
 import MoreButton from "../../MoreButton.tsx";
 import SaveButton from "../../SaveButton.tsx";
+import type {ApiError} from "../../../infrastructure/CombinationClient.ts";
 
 
 interface ChooseCombinationStepProps {
@@ -49,6 +50,17 @@ export default function ChooseCombinationStep({
     }, [setSize, developerIds, streamIds]);
 
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
+    const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false)
+    const prevErrorRef = useRef<ApiError | null>(null);
+
+    // Open snackbar when a *new* error appears
+    useEffect(() => {
+        const prev = prevErrorRef.current;
+        if (isError && isError !== prev) {
+            setErrorSnackbarOpen(true);
+        }
+        prevErrorRef.current = (isError as ApiError | null) ?? null;
+    }, [isError]);
 
     const {trigger: addCombinationEvent} = useAddCombinationEvent()
     const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents()
@@ -110,7 +122,21 @@ export default function ChooseCombinationStep({
                 )
             }
             {isLoading && <Loading/>}
-            {isError && <Error/>}
+            {isError &&
+                <>
+                    <Error/>
+                    <Snackbar
+                        open={errorSnackbarOpen}
+                        onClose={() => setErrorSnackbarOpen(false)}
+                        anchorOrigin={{vertical: "bottom", horizontal: "center"}}
+                    >
+                        <div>
+                            <CustomAlert errorCode={isError?.errorCode ?? "UNKNOWN"}
+                                         onClose={() => setErrorSnackbarOpen(false)}/>
+                        </div>
+                    </Snackbar>
+                </>
+            }
             <Divider/>
             <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
@@ -122,4 +148,39 @@ export default function ChooseCombinationStep({
             </ButtonRow>
         </Stack>
     );
+}
+
+interface CustomAlertProps {
+    errorCode: string;
+    onClose: () => void;
+}
+
+function CustomAlert({errorCode, onClose}: CustomAlertProps) {
+    switch (errorCode) {
+        case "NOT_ENOUGH_DEVELOPERS":
+            return <Alert severity="error" onClose={onClose}>
+                <AlertTitle>Not enough developers for pairing</AlertTitle>
+                Click back to choose another option:
+                <ul>
+                    <li>Choose fewer streams</li>
+                    <li>Choose more developers</li>
+                    <li>Manually choose the combination you want</li>
+                </ul>
+            </Alert>
+        case "NOT_ENOUGH_STREAMS":
+            return <Alert severity="error" onClose={onClose}>
+                <AlertTitle>Not enough streams for the developers</AlertTitle>
+                Click back to choose another option:
+                <ul>
+                    <li>Choose fewer developers</li>
+                    <li>Create a new stream</li>
+                    <li>Manually choose the combination you want</li>
+                </ul>
+            </Alert>
+        default:
+            return <Alert severity="error" onClose={onClose}>
+                <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                Click back to try again or refresh the page.
+            </Alert>
+    }
 }

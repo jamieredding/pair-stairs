@@ -3,6 +3,14 @@ import type {SaveCombinationEventDto} from "../domain/SaveCombinationEventDto.ts
 import type ScoredCombinationDto from "../domain/ScoredCombinationDto.ts";
 import type CombinationEventDto from "../domain/CombinationEventDto.ts";
 
+interface ErrorDto {
+    errorCode: string;
+}
+
+export interface ApiError {
+    errorCode: string
+}
+
 export async function calculateCombinations(url: string, {arg}: {
     arg: CalculateInputDto
 }): Promise<ScoredCombinationDto[]> {
@@ -13,7 +21,24 @@ export async function calculateCombinations(url: string, {arg}: {
         },
         body: JSON.stringify(arg)
     });
-    return await res.json();
+
+    if (res.status === 400) {
+        let returnedErrorCode: string = "UNKNOWN";
+        try {
+            const {errorCode} = (await res.json()) as ErrorDto;
+            returnedErrorCode = errorCode;
+        } catch {
+            /* ignored */
+        }
+
+        throw {errorCode: returnedErrorCode} as ApiError;
+    }
+
+    if (!res.ok) {
+        throw {errorCode: "UNKNOWN"} as ApiError;
+    }
+
+    return res.json();
 }
 
 export function saveCombinationEvent(url: string, {arg}: { arg: SaveCombinationEventDto }) {
@@ -32,7 +57,7 @@ export async function getCombinationEvents(url: string): Promise<CombinationEven
     return await res.json();
 }
 
-export function deleteCombinationEvent(url: string, {arg: id} : {arg: number}) {
+export function deleteCombinationEvent(url: string, {arg: id}: { arg: number }) {
     return fetch(`${url}/${id}`, {
         method: "DELETE"
     })
