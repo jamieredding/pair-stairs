@@ -16,6 +16,66 @@
         },
         "bodyPatterns": [
           {
+            "matchesJsonPath": "$[?(@.developerIds.length() == 1)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.streamIds.length() == 0)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "jsonBody": {
+          "errorCode": "NOT_ENOUGH_STREAMS"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/combinations/calculate",
+        "queryParameters": {
+          "page": {
+            "matches": "\\d+"
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.developerIds.length() == 2)]"
+          },
+          {
+            "matchesJsonPath": "$[?(@.streamIds.length() == 2)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "jsonBody": {
+          "errorCode": "NOT_ENOUGH_DEVELOPERS"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/combinations/calculate",
+        "queryParameters": {
+          "page": {
+            "matches": "\\d+"
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
             "matchesJsonPath": "$[?(@.developerIds.length() > 0)]"
           },
           {
