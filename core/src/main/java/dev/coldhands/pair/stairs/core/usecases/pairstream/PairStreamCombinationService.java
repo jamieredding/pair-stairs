@@ -4,6 +4,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Streams;
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
+import dev.coldhands.pair.stairs.core.domain.pairstream.NotEnoughDevelopersException;
+import dev.coldhands.pair.stairs.core.domain.pairstream.NotEnoughStreamsException;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import dev.coldhands.pair.stairs.core.usecases.pair.PairCombinationService;
 
@@ -28,16 +30,18 @@ public class PairStreamCombinationService implements CombinationService<PairStre
 
     @Override
     public Set<Combination<PairStream>> getAllCombinations() {
-        final int requiredNumberOfPairsPerCombination = Math.ceilDiv(developers.size(), 2);
-        if (requiredNumberOfPairsPerCombination > streams.size()) {
-            throw new IllegalStateException("Not enough streams for developers");
+        final int actualNumberOfPairsPerCombination = Math.ceilDiv(developers.size(), 2);
+        final int requiredNumberOfPairsPerCombination = streams.size();
+
+        if (actualNumberOfPairsPerCombination > requiredNumberOfPairsPerCombination) {
+            throw new NotEnoughStreamsException(actualNumberOfPairsPerCombination, requiredNumberOfPairsPerCombination);
         }
 
-        if (requiredNumberOfPairsPerCombination < streams.size()) {
-            throw new IllegalStateException("Not enough developers to pair on streams");
+        if (actualNumberOfPairsPerCombination < requiredNumberOfPairsPerCombination) {
+            throw new NotEnoughDevelopersException(requiredNumberOfPairsPerCombination, actualNumberOfPairsPerCombination);
         }
 
-        if (developers.size() == 1 && streams.size() == 1) {
+        if (developers.size() == 1 && requiredNumberOfPairsPerCombination == 1) {
             final var onlyDeveloper = developers.stream().findFirst().get();
             final var onlyStream = streams.stream().findFirst().get();
             return Set.of(

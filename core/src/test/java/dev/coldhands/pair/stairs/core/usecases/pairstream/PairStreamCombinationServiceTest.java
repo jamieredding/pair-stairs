@@ -2,6 +2,8 @@ package dev.coldhands.pair.stairs.core.usecases.pairstream;
 
 import dev.coldhands.pair.stairs.core.domain.Combination;
 import dev.coldhands.pair.stairs.core.domain.CombinationService;
+import dev.coldhands.pair.stairs.core.domain.pairstream.NotEnoughDevelopersException;
+import dev.coldhands.pair.stairs.core.domain.pairstream.NotEnoughStreamsException;
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream;
 import org.junit.jupiter.api.Test;
 
@@ -122,8 +124,8 @@ class PairStreamCombinationServiceTest {
         given(developers, streams);
 
         assertThatThrownBy(() -> underTest.getAllCombinations())
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Not enough developers to pair on streams");
+                .isInstanceOf(NotEnoughDevelopersException.class)
+                .hasMessage("Not enough developers to pair on streams. Requires [3] pairs but only [2] available.");
     }
 
     @Test
@@ -134,7 +136,7 @@ class PairStreamCombinationServiceTest {
         given(developers, streams);
 
         assertThatThrownBy(() -> underTest.getAllCombinations())
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Not enough streams for developers");
+                .isInstanceOf(NotEnoughStreamsException.class)
+                .hasMessage("Not enough streams for developers. Requires [2] streams but only [1] available.");
     }
 }

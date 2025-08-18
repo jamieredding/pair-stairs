@@ -96,5 +96,54 @@ public class CombinationCalculationControllerTest {
             assertThat(parsed.read("$", List.class)).size().isEqualTo(0);
         }
 
+        @Test
+        void returnBadRequestWhenThereAreNotEnoughDevelopersToBeAbleToPair() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+            final Long stream1Id = testEntityManager.persist(new StreamEntity("stream-b")).getId();
+
+            final String contentAsString = mockMvc.perform(post("/api/v1/combinations/calculate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                      "developerIds": [%s, %s],
+                                      "streamIds": [%s, %s]
+                                    }""".formatted(dev0Id, dev1Id, stream0Id, stream1Id))
+                    )
+                    .andExpect(status().isBadRequest())
+                    .andReturn()
+                    .getResponse().getContentAsString();
+
+            final DocumentContext parsed = JsonPath.parse(contentAsString);
+
+            assertThat(parsed.read("$.errorCode", String.class)).isEqualTo("NOT_ENOUGH_DEVELOPERS");
+        }
+
+        @Test
+        void returnBadRequestWhenThereAreNotEnoughStreamsToBeAbleToPair() throws Exception {
+            final Long dev0Id = testEntityManager.persist(new DeveloperEntity("dev-0")).getId();
+            final Long dev1Id = testEntityManager.persist(new DeveloperEntity("dev-1")).getId();
+            final Long dev2Id = testEntityManager.persist(new DeveloperEntity("dev-2")).getId();
+
+            final Long stream0Id = testEntityManager.persist(new StreamEntity("stream-a")).getId();
+
+            final String contentAsString = mockMvc.perform(post("/api/v1/combinations/calculate")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content("""
+                                    {
+                                      "developerIds": [%s, %s, %s],
+                                      "streamIds": [%s]
+                                    }""".formatted(dev0Id, dev1Id, dev2Id, stream0Id))
+                    )
+                    .andExpect(status().isBadRequest())
+                    .andReturn()
+                    .getResponse().getContentAsString();
+
+            final DocumentContext parsed = JsonPath.parse(contentAsString);
+
+            assertThat(parsed.read("$.errorCode", String.class)).isEqualTo("NOT_ENOUGH_STREAMS");
+        }
     }
 }
