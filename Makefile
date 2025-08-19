@@ -16,7 +16,7 @@ endif
 
 git-push:
 	@if $(PUSH_CHANGES); then \
-		 git push --tags; \
+		 git push --follow-tags; \
 		 else \
 		 echo "Push disabled, but would have pushed"; \
 	 fi
