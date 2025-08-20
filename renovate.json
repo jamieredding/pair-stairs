@@ -24,10 +24,6 @@
         "@tanstack/router-plugin"
       ],
       "groupName": "tanstack react-router",
-      "matchUpdateTypes": [
-        "major",
-        "minor"
-      ],
       "rangeStrategy": "bump"
     }
   ]
