@@ -14,11 +14,11 @@ oauth2:
   passwordConnector: local
 
 staticClients:
-  - id: pair-stairs
+  - id: "{{ .Env.OAUTH_CLIENT_ID }}"
     redirectURIs:
       - 'http://web:8080/login/oauth2/code/oauth'
     name: 'Pair Stairs'
-    secret: ZXhhbXBsZS1hcHAtc2VjcmV0
+    secret: "{{ .Env.OAUTH_CLIENT_SECRET }}"
 
 enablePasswordDB: true
 
