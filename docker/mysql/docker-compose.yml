@@ -9,10 +9,35 @@ services:
     ports:
       - "${BACKEND_PORT}:8080"
 # Example of mounting your own properties
-#    volumes:
-#      - "./application.properties:/opt/application.properties"
+    volumes:
+      - "./application.properties:/opt/application.properties"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q 'UP' || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+      start_period: 1m
     depends_on:
-      - pair_stairs_db
+      oauth:
+        condition: service_healthy
+      pair_stairs_db:
+        condition: service_healthy
+
+  oauth:
+    image: ghcr.io/dexidp/dex:latest
+    container_name: oauth
+    ports:
+      - 5556:5556
+    networks:
+      - pair_stairs_net
+    volumes:
+      - ./oauth/config.docker.yaml:/etc/dex/config.docker.yaml
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5556/dex/healthz | grep -q 'Health check passed' || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+      start_period: 1m
 
   pair_stairs_db:
     image: mysql:9.4.0
@@ -25,6 +50,13 @@ services:
       - "${DB_PORT}:3306"
     volumes:
       - pair_stairs_db:/var/lib/mysql
+    healthcheck:
+      # Waits until MySQL responds
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+      start_period: 1m
 
 volumes:
   pair_stairs_db:
