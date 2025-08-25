@@ -7,6 +7,7 @@ import dev.coldhands.pair.stairs.backend.domain.*;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto;
 import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -19,11 +20,28 @@ import static org.springframework.http.HttpMethod.DELETE;
 public interface WithBackendHttpClient {
 
     String BASE_URL = "http://localhost:8080";
+    String IDP_TOKEN_URL = "http://localhost:5556/dex/token";
+    String OAUTH_CLIENT_ID = "pair-stairs";
+    String OAUTH_CLIENT_SECRET = "ZXhhbXBsZS1hcHAtc2VjcmV0";
+    String USERNAME = "admin@example.com";
+    String PASSWORD = "password";
 
     ObjectMapper OBJECT_MAPPER = new ObjectMapper()
             .registerModule(new JavaTimeModule());
 
-    RestTemplate REST_TEMPLATE = new RestTemplate();
+    RestTemplate REST_TEMPLATE = initialiseRestTemplate();
+
+    private static RestTemplate initialiseRestTemplate() {
+        final var restTemplate = new RestTemplate();
+        final String jwt = fetchJwt(restTemplate);
+
+        restTemplate.getInterceptors().add(((request, body, execution) -> {
+            request.getHeaders().setBearerAuth(jwt);
+            return execution.execute(request, body);
+        }));
+
+        return restTemplate;
+    }
 
     default long createDeveloper(String developerName) {
         HttpHeaders headers = new HttpHeaders();
@@ -154,6 +172,25 @@ public interface WithBackendHttpClient {
 
         return OBJECT_MAPPER.readValue(responseBody, new TypeReference<>() {
         });
+    }
+
+    record TokenResponse(String access_token) {
+    }
+
+    private static String fetchJwt(RestTemplate restTemplate) {
+        var form = new LinkedMultiValueMap<String, String>();
+        form.add("grant_type", "password");
+        form.add("username", USERNAME);
+        form.add("password", PASSWORD);
+        form.add("scope", "openid profile email"); // add offline_access if needed
+
+        var headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setBasicAuth(OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET);
+
+        var response = restTemplate.postForEntity(IDP_TOKEN_URL, new HttpEntity<>(form, headers), TokenResponse.class);
+
+        return response.getBody().access_token();
     }
 
 }
