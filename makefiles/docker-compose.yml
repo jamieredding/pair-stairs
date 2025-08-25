@@ -3,7 +3,6 @@ name: build_image
 services:
   db:
     image: mysql:9.4.0
-    container_name: pair_stairs_db
     ports:
       - "${DB_PORT}:3306"
     env_file:
@@ -18,7 +17,6 @@ services:
 
   oauth:
     image: ghcr.io/dexidp/dex:latest
-    container_name: pair_stairs_oauth
     ports:
       - 5556:5556
     volumes:
