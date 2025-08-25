@@ -7,6 +7,14 @@ export default defineConfig(
     ({command, mode}) => {
         /** Only run the proxy while the dev-server is running */
         const useWiremock = command === 'serve' && mode === 'development';
+        const backend = "http://localhost:8080"
+        const authProxy = {
+            target: backend,
+            changeOrigin: false,
+            xfwd: true,
+            secure: false,
+            headers: {"X-Forwarded-Proto": "http"}
+        }
 
         return {
             test: {
@@ -31,6 +39,8 @@ export default defineConfig(
                             // rewrite is optional here because the path is unchanged:
                             //   rewrite: p => p   //  /api/foo -> /api/foo
                         },
+                        '/oauth2': authProxy,
+                        '/login': authProxy,
                     },
                 }
                 : {},

@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Application (vite development)" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <envs>
+      <env name="SERVER_FORWARD_HEADERS_STRATEGY" value="framework" />
+      <env name="SPRING_SECURITY_OAUTH_2_CLIENT_REGISTRATION_DEX_REDIRECT_URI" value="{baseUrl}/login/oauth2/code/{registrationId}" />
+    </envs>
+    <module name="backend" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="dev.coldhands.pair.stairs.backend.Application" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
