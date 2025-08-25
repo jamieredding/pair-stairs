@@ -114,10 +114,10 @@ logger:
 #
 # Alternatively, clients may be added through the gRPC API.
 staticClients:
-  - id: example-app
+  - id: pair-stairs
     redirectURIs:
-      - 'http://localhost:8080/login/oauth2/code/azure'
-    name: 'Example App'
+      - 'http://localhost:8080/login/oauth2/code/oauth'
+    name: 'Pair Stairs'
     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
 
 # Connectors are used to authenticate users against upstream identity providers.

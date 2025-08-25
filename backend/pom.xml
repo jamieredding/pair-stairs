@@ -130,11 +130,6 @@
                             <jvmArguments>
                                 --enable-preview
                             </jvmArguments>
-                            <environmentVariables>
-                                <AZURE_CLIENT_ID>test-client-id</AZURE_CLIENT_ID>
-                                <AZURE_CLIENT_SECRET>test-client-secret</AZURE_CLIENT_SECRET>
-                                <AZURE_ISSUER_URI>http://localhost:18085</AZURE_ISSUER_URI>
-                            </environmentVariables>
                         </configuration>
                     </execution>
                     <execution>
@@ -180,18 +175,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <environmentVariables>
-                        <AZURE_CLIENT_ID>test-client-id</AZURE_CLIENT_ID>
-                        <AZURE_CLIENT_SECRET>test-client-secret</AZURE_CLIENT_SECRET>
-                        <AZURE_ISSUER_URI>http://localhost:18085</AZURE_ISSUER_URI>
-                    </environmentVariables>
-                </configuration>
             </plugin>
 
             <plugin>

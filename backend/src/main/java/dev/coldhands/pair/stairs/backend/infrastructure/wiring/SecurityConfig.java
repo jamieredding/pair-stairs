@@ -23,7 +23,7 @@ public class SecurityConfig {
         RequestMatcher apiMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
 
         // Where to send browsers when they’re unauthenticated (non-API):
-        var loginEntryPoint = new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/azure");
+        var loginEntryPoint = new LoginUrlAuthenticationEntryPoint("/oauth2/authorization/oauth");
         // For API calls, return 401 (don’t HTML-redirect):
         AuthenticationEntryPoint apiEntryPoint = new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED);
 
@@ -46,8 +46,8 @@ public class SecurityConfig {
 
                                 .anyRequest().authenticated()
                 )
-                // Send users directly to Microsoft (no intermediate default login page)
-                .oauth2Login(o -> o.loginPage("/oauth2/authorization/azure"))
+                // Send users directly to IDP (no intermediate default login page)
+                .oauth2Login(o -> o.loginPage("/oauth2/authorization/oauth"))
                 .logout(l -> l.logoutSuccessUrl("/"))
                 // Make APIs return 401 instead of redirect
                 .exceptionHandling(e -> e.authenticationEntryPoint(delegating))
