@@ -25,6 +25,7 @@ services:
 
   pair_stairs_oauth:
     image: ghcr.io/dexidp/dex:latest
+    env_file: application.env
     hostname: oauth
     ports:
       - 5556:5556
