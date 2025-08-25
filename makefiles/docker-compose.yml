@@ -35,11 +35,11 @@ services:
 #      start_period: 2s
   oauth:
     image: ghcr.io/dexidp/dex:latest
-    container_name: dex_idp
+    container_name: oauth
     ports:
       - 5556:5556
     volumes:
-      - ./dex_idp/config.docker.yaml:/etc/dex/config.docker.yaml
+      - ./oauth/config.docker.yaml:/etc/dex/config.docker.yaml
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5556/dex/healthz | grep -q 'Health check passed' || exit 1"]
       interval: 2s
