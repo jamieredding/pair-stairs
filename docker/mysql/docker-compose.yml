@@ -18,14 +18,14 @@ services:
       retries: 60
       start_period: 1m
     depends_on:
-      oauth:
+      pair_stairs_oauth:
         condition: service_healthy
       pair_stairs_db:
         condition: service_healthy
 
-  oauth:
+  pair_stairs_oauth:
     image: ghcr.io/dexidp/dex:latest
-    container_name: oauth
+    hostname: oauth
     ports:
       - 5556:5556
     networks:
