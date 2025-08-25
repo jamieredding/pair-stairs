@@ -35,7 +35,7 @@ services:
 #      start_period: 2s
   oauth:
     image: ghcr.io/dexidp/dex:latest
-    container_name: oauth
+    container_name: pair_stairs_oauth
     ports:
       - 5556:5556
     volumes:
