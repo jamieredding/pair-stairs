@@ -16,21 +16,33 @@ services:
       retries: 60
       start_period: 5s
 
+#  oauth:
+#    image: wiremock/wiremock:3.5.2
+#    container_name: oauth
+#    command: ["--verbose"]
+#    ports:
+#      - "${OAUTH_PORT}:8080"
+#    env_file:
+#      - .env
+#    volumes:
+#      - ./wiremock-oauth2:/home/wiremock
+#    healthcheck:
+#      # Simple check against admin endpoint
+#      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/__admin/ | grep -q mappings || exit 1"]
+#      interval: 2s
+#      timeout: 3s
+#      retries: 30
+#      start_period: 2s
   oauth:
-    image: wiremock/wiremock:3.5.2
-    container_name: oauth
-    command: ["--verbose"]
+    image: ghcr.io/dexidp/dex:latest
+    container_name: dex_idp
     ports:
-      - "${OAUTH_PORT}:8080"
-    env_file:
-      - .env
+      - 5556:5556
     volumes:
-      - ./wiremock-oauth2:/home/wiremock
+      - ./dex_idp/config.docker.yaml:/etc/dex/config.docker.yaml
     healthcheck:
-      # Simple check against admin endpoint
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/__admin/ | grep -q mappings || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5556/dex/healthz | grep -q 'Health check passed' || exit 1"]
       interval: 2s
       timeout: 3s
-      retries: 30
-      start_period: 2s
-
+      retries: 60
+      start_period: 5s
