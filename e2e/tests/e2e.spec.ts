@@ -1,8 +1,13 @@
 import {expect, Page, test} from '@playwright/test';
 import {format, subDays} from "date-fns";
 
+const USERNAME = 'admin@example.com';
+const PASSWORD = 'password';
+
 test('test', async ({page}) => {
     await page.goto('/');
+
+    await login(page)
 
     // create some developers
     await page.getByRole('link', {name: 'Developers'}).click();
@@ -80,6 +85,16 @@ test('test', async ({page}) => {
     // ensure it disappears
     await expect(todayCombination).not.toBeVisible();
 });
+
+async function login(page: Page) {
+    await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
+    await page.getByPlaceholder('email address').click();
+    await page.getByPlaceholder('email address').fill(USERNAME);
+    await page.getByPlaceholder('password').click();
+    await page.getByPlaceholder('password').fill(PASSWORD);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await page.getByRole('button', { name: 'Grant Access' }).click();
+}
 
 async function createDeveloper(page: Page, name: string) {
     await page.getByRole('button', {name: 'New developer'}).click();
