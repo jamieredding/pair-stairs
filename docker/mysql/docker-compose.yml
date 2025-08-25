@@ -4,6 +4,9 @@ services:
     hostname: web
     restart: unless-stopped
     env_file: application.env
+    environment:
+      OAUTH_EXTERNAL_BASE_URL: "${OAUTH_EXTERNAL_BASE_URL}"
+      OAUTH_INTERNAL_BASE_URL: "${OAUTH_INTERNAL_BASE_URL}"
     networks:
       - pair_stairs_net
     ports:
