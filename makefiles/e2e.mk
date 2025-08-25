@@ -5,7 +5,7 @@ E2E_DOCKER_NETWORK=e2e_pair_stairs_net
 MYSQL_DOCKER_COMPOSE_ROOT=docker/mysql
 H2_DOCKER_COMPOSE_ROOT=docker/h2
 
-.PHONY: run-e2e-suite run-e2e-tests start-e2e-pair-stairs stop-e2e-pair-stairs run-e2e-pair-stairs run-all-e2e-suites run-e2e-suite-h2 run-e2e-suite-mysql teardown-e2e-suites teardown-e2e-suite-mysql teardown-e2e-suite-h2 restart-dev-e2e-pair-stairs
+.PHONY: run-e2e-suite run-e2e-tests start-e2e-pair-stairs stop-e2e-pair-stairs run-all-e2e-suites run-e2e-suite-h2 run-e2e-suite-mysql teardown-e2e-suites teardown-e2e-suite-mysql teardown-e2e-suite-h2 restart-dev-e2e-pair-stairs
 
 run-e2e-suite-mysql:
 	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(MYSQL_DOCKER_COMPOSE_ROOT)
@@ -15,7 +15,7 @@ run-e2e-suite-h2:
 
 run-all-e2e-suites: run-e2e-suite-h2 run-e2e-suite-mysql
 
-run-e2e-suite: run-e2e-pair-stairs run-e2e-tests stop-e2e-pair-stairs
+run-e2e-suite: start-e2e-pair-stairs run-e2e-tests stop-e2e-pair-stairs
 
 teardown-e2e-suite-mysql:
 	@$(MAKE) stop-e2e-pair-stairs COMPOSE_PATH=$(MYSQL_DOCKER_COMPOSE_ROOT)
@@ -35,8 +35,6 @@ run-e2e-tests:
 	--user pwuser --security-opt seccomp="$(PWD)/e2e/seccomp_profile.json" \
 	$(PLAYWRIGHT_IMAGE) \
 	/bin/bash -c 'cd ~/e2e && npm install && npx playwright test' || (echo "e2e tests have failed" ; exit 1)
-
-run-e2e-pair-stairs: start-e2e-pair-stairs
 
 start-e2e-pair-stairs:
 	@echo "Starting e2e pair stairs... ($(COMPOSE_PATH))"
