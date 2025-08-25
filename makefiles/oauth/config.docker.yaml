@@ -117,6 +117,7 @@ staticClients:
   - id: pair-stairs
     redirectURIs:
       - 'http://localhost:8080/login/oauth2/code/oauth'
+      - 'http://localhost:5173/login/oauth2/code/oauth'
     name: 'Pair Stairs'
     secret: ZXhhbXBsZS1hcHAtc2VjcmV0
 
