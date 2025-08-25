@@ -94,7 +94,7 @@ logger:
 #     absoluteLifetime: "3960h" # 165 days
 
 # OAuth2 configuration
-# oauth2:
+oauth2:
 #   # use ["code", "token", "id_token"] to enable implicit flow for web-only clients
 #   responseTypes: [ "code" ] # also allowed are "token" and "id_token"
 #
@@ -108,7 +108,7 @@ logger:
 #   alwaysShowLoginScreen: false
 #
 #   # Uncomment to use a specific connector for password grants
-#   passwordConnector: local
+  passwordConnector: local
 
 # Static clients registered in Dex by default.
 #

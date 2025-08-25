@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -33,18 +34,18 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(a -> a
-                                .requestMatchers("/login**", "/oauth2/**", "/login/oauth2/**", "/error").permitAll()
+                        .requestMatchers("/login**", "/oauth2/**", "/login/oauth2/**", "/error").permitAll()
 
-                                .requestMatchers(
-                                        "/actuator/health",
-                                        "/actuator/health/readiness",
-                                        "/actuator/health/liveness",
-                                        "/actuator/info",
-                                        "/actuator/prometheus"
-                                )
-                                .permitAll()
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/actuator/health/readiness",
+                                "/actuator/health/liveness",
+                                "/actuator/info",
+                                "/actuator/prometheus"
+                        )
+                        .permitAll()
 
-                                .anyRequest().authenticated()
+                        .anyRequest().authenticated()
                 )
                 // Send users directly to IDP (no intermediate default login page)
                 .oauth2Login(o -> o.loginPage("/oauth2/authorization/oauth"))
@@ -52,7 +53,9 @@ public class SecurityConfig {
                 // Make APIs return 401 instead of redirect
                 .exceptionHandling(e -> e.authenticationEntryPoint(delegating))
                 // While developing a cookie-session SPA, ignore CSRF for APIs
-                .csrf(c -> c.ignoringRequestMatchers("/api/**"));
+                .csrf(c -> c.ignoringRequestMatchers("/api/**"))
+                .oauth2ResourceServer(oauth -> oauth.jwt(Customizer.withDefaults()))
+        ;
 
         return http.build();
     }
