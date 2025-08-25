@@ -13,7 +13,7 @@ To run the containers, there is a provided [docker-compose.yml](./docker-compose
 
 To start the containers, run the following command:
 ```shell
-docker compose --env-file environment/prod.env up
+docker compose --env-file environment/prod.env up --wait --wait-timeout 60
 ```
 
 To stop the containers, run the following command (include -v to also remove the volumes):
@@ -39,12 +39,9 @@ Separately, there are environment variables for the `docker-compose.yml` file it
 These are for running the stack in different environments:
 - [prod.env](./environment/prod.env)
   - This is the default environment for running the stack
-- [e2e.env](./environment/e2e.env)
-  - This is the environment for running the stack in an end-to-end testing environment
-  - Primarily used for running the full-stack playwright tests
-
-To run both environments simultaneously, please ensure you specify the `--project-name` flag to add a unique namespace for all services, volumes, and networks:
-```shell
-docker compose --env-file environment/prod.env --project-name prod up -d
-docker compose --env-file environment/e2e.env --project-name e2e up -d
-```
+- [e2e_dev.env](environment/e2e_dev.env)
+    - Used during development of the e2e tests
+    - This differs from `e2e_ci.env` due to the oauth server needing to be accessed both by a browser (via localhost) and inside the e2e docker network
+- [e2e_ci.env](environment/e2e_ci.env)
+    - Used during CI/running the e2e tests directly using make
+    - This differs from `e2e_dev.env` due to the oauth server only being accessed within a single docker network
