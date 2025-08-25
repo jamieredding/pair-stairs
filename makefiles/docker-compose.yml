@@ -16,23 +16,6 @@ services:
       retries: 60
       start_period: 1m
 
-#  oauth:
-#    image: wiremock/wiremock:3.5.2
-#    container_name: oauth
-#    command: ["--verbose"]
-#    ports:
-#      - "${OAUTH_PORT}:8080"
-#    env_file:
-#      - .env
-#    volumes:
-#      - ./wiremock-oauth2:/home/wiremock
-#    healthcheck:
-#      # Simple check against admin endpoint
-#      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/__admin/ | grep -q mappings || exit 1"]
-#      interval: 2s
-#      timeout: 3s
-#      retries: 30
-#      start_period: 2s
   oauth:
     image: ghcr.io/dexidp/dex:latest
     container_name: pair_stairs_oauth
