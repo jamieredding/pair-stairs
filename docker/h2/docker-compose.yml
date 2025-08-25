@@ -15,7 +15,10 @@ services:
       interval: 2s
       timeout: 3s
       retries: 60
-      start_period: 5s
+      start_period: 1m
+    depends_on:
+      oauth:
+        condition: service_healthy
 
   oauth:
     image: ghcr.io/dexidp/dex:latest
@@ -31,7 +34,7 @@ services:
       interval: 2s
       timeout: 3s
       retries: 60
-      start_period: 5s
+      start_period: 1m
 
 volumes:
   pair_stairs_h2:
