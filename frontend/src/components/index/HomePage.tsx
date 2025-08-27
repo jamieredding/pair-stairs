@@ -28,6 +28,8 @@ import CombinationTable from "../CombinationTable.tsx";
 import Loading from "../Loading.tsx";
 import Error from "../Error.tsx";
 import MoreButton from "../MoreButton.tsx";
+import {useNavigate, useSearch} from "@tanstack/react-router";
+import {CustomLink} from "../CustomLink.tsx";
 
 interface TabPanelProps {
     children: ReactNode,
@@ -54,8 +56,15 @@ function TabPanel({ariaLabelledBy, children, id, index, value}: TabPanelProps) {
     );
 }
 
+type TabKey = 'calculate' | 'manual';
+const indexByKey: Record<TabKey, number> = {calculate: 0, manual: 1};
+const keyByIndex = (i: number): TabKey => (i === 1 ? 'manual' : 'calculate');
+
 function NewCombinationCard() {
-    const [tabIndex, setTabIndex] = useState(0);
+    const navigate = useNavigate();
+    const search = useSearch({from: "/"})
+    const tabKey: TabKey = search.newCombinationTab;
+    const tabIndex = indexByKey[tabKey]
 
     return (
         <Card>
@@ -63,10 +72,43 @@ function NewCombinationCard() {
                 <Stack gap={1}>
                     <Typography variant="h4">New Combination</Typography>
                     <Box sx={{borderBottom: 1, borderColor: 'divider'}}>
-                        <Tabs value={tabIndex} onChange={(_, newValue) => setTabIndex(newValue)}
-                              aria-label="new combination tabs">
-                            <Tab label="Calculate" id="new-combination-tab-0" aria-controls="calculate-tabpanel-0"/>
-                            <Tab label="Manual" id="new-combination-tab-1" aria-controls="manual-tabpanel-1"/>
+                        <Tabs
+                            value={tabIndex}
+                            onChange={(_, nextIndex: number) => {
+                                navigate({
+                                    to: '.',
+                                    search: (prev) => ({
+                                        ...prev,
+                                        newCombinationTab: keyByIndex(nextIndex)
+                                    }),
+                                });
+                            }}
+                            aria-label="new combination tabs"
+                        >
+                            <Tab
+                                label="Calculate"
+                                id="new-combination-tab-0"
+                                aria-controls="calculate-tabpanel-0"
+                                value={0}
+                                component={CustomLink as React.ElementType}
+                                to="."
+                                search={(prev: Record<string, unknown>) => ({
+                                    ...prev,
+                                    newCombinationTab: 'calculate'
+                                })}
+                            />
+                            <Tab
+                                label="Manual"
+                                id="new-combination-tab-1"
+                                aria-controls="manual-tabpanel-1"
+                                value={1}
+                                component={CustomLink as React.ElementType}
+                                to="."
+                                search={(prev: Record<string, unknown>) => ({
+                                    ...prev,
+                                    newCombinationTab: 'manual'
+                                })}
+                            />
                         </Tabs>
                     </Box>
                     <TabPanel value={tabIndex} index={0}
@@ -103,14 +145,12 @@ function ConfirmDeleteDialog({combinationEvent, onClose}: ConfirmDeleteDialogPro
     return (
         <Dialog open={true}>
             <DialogContent>
-                {/*<DialogContentText>*/}
-                    <p>
-                        Are you sure you want to delete the combination for {combinationEvent.date}?
-                    </p>
-                    <p>
-                        This action cannot be undone.
-                    </p>
-                {/*</DialogContentText>*/}
+                <p>
+                    Are you sure you want to delete the combination for {combinationEvent.date}?
+                </p>
+                <p>
+                    This action cannot be undone.
+                </p>
                 <DialogActions>
                     <Button onClick={onClose}>Cancel</Button>
                     <Button onClick={handleDeleteCombinationEvent}>Delete</Button>
