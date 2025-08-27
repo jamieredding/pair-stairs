@@ -8,13 +8,15 @@ interface IdCheckboxGroupProps {
     selectedIds: number[];
     setSelectedIds: Dispatch<SetStateAction<number[]>>;
     maxSelectable?: number;
+    disabled?: boolean;
 }
 
 export default function IdCheckboxGroup({
                                             allItems,
                                             selectedIds,
                                             setSelectedIds,
-                                            maxSelectable
+                                            maxSelectable,
+                                            disabled = false
                                         }: IdCheckboxGroupProps) {
     const error = selectedIds.length == 0
     const allItemsSorted = sorted(allItems)
@@ -48,7 +50,7 @@ export default function IdCheckboxGroup({
     }
 
     return (
-        <FormControl error={error}>
+        <FormControl disabled={disabled} error={!disabled && error}>
             <FormLabel component="legend">{legendText}</FormLabel>
             <FormGroup>
                 {allItemsSorted.map(item =>

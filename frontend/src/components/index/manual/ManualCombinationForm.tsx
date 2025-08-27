@@ -114,7 +114,6 @@ export default function ManualCombinationForm() {
         <Stack gap={1}>
             <CustomDatePicker label="Date of combination" value={date} setValue={setDate} dateFormat={dateFormat}/>
             <Divider/>
-            {/*TODO share CombinationComponentsPicker */}
             <Typography variant="h5">Choose your combination by adding one pair at a time</Typography>
             <Stack gap={4} direction="row" justifyContent="flex-start">
                 <Stack gap={1}>
@@ -123,8 +122,9 @@ export default function ManualCombinationForm() {
                     {erroringDevelopers && <Error/>}
                     {remainingDevelopers && remainingDevelopers.length > 0
                         ? <IdCheckboxGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
-                                           setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
-                        : <Typography variant="body1">No developers left to pick</Typography> // todo show something if you run out of streams to assign
+                                           setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}
+                                           disabled={remainingStreams !== undefined && remainingStreams.length == 0}/>
+                        : <Typography variant="body1">No developers left to pick</Typography>
                     }
                 </Stack>
                 <Divider orientation="vertical" flexItem/>
@@ -134,8 +134,9 @@ export default function ManualCombinationForm() {
                     {erroringStreams && <Error/>}
                     {remainingStreams && remainingStreams.length > 0
                         ? <IdCheckboxGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
-                                           setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
-                        : <Typography variant="body1">No streams left to pick</Typography> // todo show something if you run out of developers to assign
+                                           setSelectedIds={setSelectedStreamIds} maxSelectable={1}
+                                           disabled={remainingDevelopers !== undefined && remainingDevelopers.length == 0}/>
+                        : <Typography variant="body1">No streams left to pick</Typography>
                     }
                 </Stack>
             </Stack>
@@ -147,7 +148,8 @@ export default function ManualCombinationForm() {
                     Add
                 </Button>
                 <SaveButton disabled={saveButtonDisabled} onClick={saveCombination}/>
-                {!saveButtonDisabled && <Typography variant="h6">Save when you have chosen your combination</Typography> }
+                {!saveButtonDisabled &&
+                    <Typography variant="h6">Save when you have chosen your combination</Typography>}
             </ButtonRow>
             <CombinationTable combination={combination}
                               removeFromCombination={removeFromCombination}/>
