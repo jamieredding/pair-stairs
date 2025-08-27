@@ -49,10 +49,11 @@ function DeveloperPicker({
             <Typography variant="h6">Developers</Typography>
             {isLoading && <Loading/>}
             {isError && <Error/>}
-            {allDevelopers &&
-                <IdCheckboxGroup allItems={allDevelopers}
+            {allDevelopers && allDevelopers.length > 0
+                ? <IdCheckboxGroup allItems={allDevelopers}
                                  selectedIds={savedDeveloperIds}
                                  setSelectedIds={setSavedDeveloperIds}/>
+                : <Typography variant="body1">No developers left to pick</Typography>
             }
         </Stack>
     )
@@ -80,10 +81,11 @@ function StreamPicker({
             <Typography variant="h6">Streams</Typography>
             {isLoading && <Loading/>}
             {isError && <Error/>}
-            {allStreams &&
-                <IdCheckboxGroup allItems={allStreams}
+            {allStreams && allStreams.length > 0
+                ? <IdCheckboxGroup allItems={allStreams}
                                  selectedIds={savedStreamIds}
                                  setSelectedIds={setSavedStreamIds}/>
+                : <Typography variant="body1">No streams left to pick</Typography>
             }
         </Stack>
     )
