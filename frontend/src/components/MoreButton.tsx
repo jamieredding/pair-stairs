@@ -8,7 +8,7 @@ interface MoreButtonProps {
 
 export default function MoreButton({onClick, disabled}: MoreButtonProps) {
     return (
-        <Button variant="outlined" onClick={onClick} disabled={disabled}>
+        <Button variant="contained" onClick={onClick} disabled={disabled}>
             <ArrowDownward sx={({marginRight: (theme) => theme.spacing(1)})}/>
             More
         </Button>
