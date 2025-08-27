@@ -29,13 +29,13 @@ test('test', async ({page}) => {
     // choose a manual combination for yesterday
     await chooseYesterdayDate(page);
 
-    await page.getByRole('button', {name: 'dev-0'}).click();
-    await page.getByRole('button', {name: 'dev-1'}).click();
-    await page.getByRole('button', {name: 'stream-a'}).click();
+    await page.getByText('dev-0').click();
+    await page.getByText('dev-1').click();
+    await page.getByText('stream-a').click();
     await page.getByRole('button', {name: 'Add'}).click();
 
-    await page.getByRole('button', {name: 'dev-2'}).click();
-    await page.getByRole('button', {name: 'stream-b'}).click();
+    await page.getByText('dev-2').click();
+    await page.getByText('stream-b').click();
     await page.getByRole('button', {name: 'Add'}).click();
 
     await page.getByRole('button', {name: 'Save'}).click();
@@ -57,7 +57,6 @@ test('test', async ({page}) => {
 
     // calculate a combination
     await page.getByRole('tab', {name: 'Calculate'}).click();
-    await page.getByRole('button', {name: 'Next'}).click();
     await page.getByRole('button', {name: 'See combinations'}).click();
 
     await page.getByRole('button', {name: 'Choose'}).first().click();

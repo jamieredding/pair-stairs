@@ -9,11 +9,11 @@ import type StreamInfoDto from "../../../domain/StreamInfoDto";
 import type PairStreamDto from "../../../domain/PairStreamDto";
 import useAddCombinationEvent from "../../../hooks/combinations/useAddCombinationEvent";
 import useRefreshCombinationEvents from "../../../hooks/combinations/useRefreshCombinationEvents";
-import type { PairStreamByIds, SaveCombinationEventDto } from "../../../domain/SaveCombinationEventDto";
+import type {PairStreamByIds, SaveCombinationEventDto} from "../../../domain/SaveCombinationEventDto";
 import CustomDatePicker from "../../CustomDatePicker";
 import Loading from "../../Loading";
 import Error from "../../Error";
-import IdToggleButtonGroup from "../../IdToggleButtonGroup.tsx";
+import IdCheckboxGroup from "../../IdCheckboxGroup.tsx";
 import ButtonRow from "../../ButtonRow.tsx";
 import SaveButton from "../../SaveButton.tsx";
 import CombinationTable from "../../CombinationTable.tsx";
@@ -53,6 +53,7 @@ export default function ManualCombinationForm() {
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
     const somePairsInCombination: boolean = combination.length > 0
     const validForm: boolean = somePairsInCombination && date !== null
+    const saveButtonDisabled = !dataLoaded || !validForm;
 
     function addToCombination() {
         setCombination(prevState => {
@@ -113,23 +114,31 @@ export default function ManualCombinationForm() {
         <Stack gap={1}>
             <CustomDatePicker label="Date of combination" value={date} setValue={setDate} dateFormat={dateFormat}/>
             <Divider/>
-            <Typography variant="h5">Developers</Typography>
-            {loadingDevelopers && <Loading/>}
-            {erroringDevelopers && <Error/>}
-            {remainingDevelopers && remainingDevelopers.length > 0
-                ? <IdToggleButtonGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
-                                       setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
-                : <Typography variant="body1">No developers left to pick</Typography>
-            }
-            <Divider/>
-            <Typography variant="h5">Streams</Typography>
-            {loadingStreams && <Loading/>}
-            {erroringStreams && <Error/>}
-            {remainingStreams && remainingStreams.length > 0
-                ? <IdToggleButtonGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
-                                     setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
-                : <Typography variant="body1">No streams left to pick</Typography>
-            }
+            {/*TODO share CombinationComponentsPicker */}
+            <Typography variant="h5">Choose your combination by adding one pair at a time</Typography>
+            <Stack gap={4} direction="row" justifyContent="flex-start">
+                <Stack gap={1}>
+                    <Typography variant="h6">Developers</Typography>
+                    {loadingDevelopers && <Loading/>}
+                    {erroringDevelopers && <Error/>}
+                    {remainingDevelopers && remainingDevelopers.length > 0
+                        ? <IdCheckboxGroup allItems={remainingDevelopers} selectedIds={selectedDeveloperIds}
+                                           setSelectedIds={setSelectedDeveloperIds} maxSelectable={2}/>
+                        : <Typography variant="body1">No developers left to pick</Typography> // todo show something if you run out of streams to assign
+                    }
+                </Stack>
+                <Divider orientation="vertical" flexItem/>
+                <Stack gap={1}>
+                    <Typography variant="h6">Streams</Typography>
+                    {loadingStreams && <Loading/>}
+                    {erroringStreams && <Error/>}
+                    {remainingStreams && remainingStreams.length > 0
+                        ? <IdCheckboxGroup allItems={remainingStreams} selectedIds={selectedStreamIds}
+                                           setSelectedIds={setSelectedStreamIds} maxSelectable={1}/>
+                        : <Typography variant="body1">No streams left to pick</Typography> // todo show something if you run out of developers to assign
+                    }
+                </Stack>
+            </Stack>
             <Divider/>
             <ButtonRow>
                 <Button variant="contained" disabled={!dataLoaded || !validPairStreamSelected}
@@ -137,7 +146,8 @@ export default function ManualCombinationForm() {
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-                <SaveButton disabled={!dataLoaded || !validForm} onClick={saveCombination}/>
+                <SaveButton disabled={saveButtonDisabled} onClick={saveCombination}/>
+                {!saveButtonDisabled && <Typography variant="h6">Save when you have chosen your combination</Typography> }
             </ButtonRow>
             <CombinationTable combination={combination}
                               removeFromCombination={removeFromCombination}/>
