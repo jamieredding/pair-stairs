@@ -17,10 +17,12 @@ import ButtonRow from "../ButtonRow.tsx";
 import Loading from "../Loading.tsx";
 import Error from "../Error.tsx";
 import AddNewStreamForm from "./AddNewStreamForm.tsx";
+import {sorted} from "../../utils/displayUtils.ts";
 
 export default function StreamsPage() {
     const {allStreams, isError, isLoading} = useStreamInfos();
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+    const allStreamsSorted = allStreams && sorted(allStreams)
 
     return (
         <Stack gap={1}>
@@ -34,8 +36,8 @@ export default function StreamsPage() {
             <List>
                 {isLoading && <Loading/>}
                 {isError && <Error/>}
-                {allStreams &&
-                    allStreams.map(stream =>
+                {allStreamsSorted &&
+                    allStreamsSorted.map(stream =>
                         <ListItem key={stream.id}>
                             <ListItemButton>
                                 <ListItemText primary={stream.displayName}/>

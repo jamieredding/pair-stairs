@@ -18,10 +18,12 @@ import useDeveloperInfos from "../../hooks/developers/useDeveloperInfos.ts";
 import AddNewDeveloperForm from "./AddNewDeveloperForm.tsx";
 import Loading from "../Loading.tsx";
 import Error from "../Error.tsx";
+import {sorted} from "../../utils/displayUtils.ts";
 
 export default function DevelopersPage() {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
+    const allDevelopersSorted = allDevelopers && sorted(allDevelopers)
 
     return (
         <Stack gap={1}>
@@ -37,8 +39,8 @@ export default function DevelopersPage() {
             <List>
                 {isLoading && <Loading/>}
                 {isError && <Error/>}
-                {allDevelopers &&
-                    allDevelopers.map(developer =>
+                {allDevelopersSorted &&
+                    allDevelopersSorted.map(developer =>
                         <ListItem key={developer.id}>
                             <ListItemButton>
                                 <ListItemText primary={developer.displayName}/>

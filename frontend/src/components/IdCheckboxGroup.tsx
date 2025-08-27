@@ -1,10 +1,7 @@
 import {Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel} from "@mui/material";
 import {type Dispatch, type SetStateAction} from "react";
-
-interface Displayable {
-    id: number;
-    displayName: string;
-}
+import type {Displayable} from "../domain/Displayable.tsx";
+import {sorted} from "../utils/displayUtils.ts";
 
 interface IdCheckboxGroupProps {
     allItems: Displayable[];
@@ -20,6 +17,7 @@ export default function IdCheckboxGroup({
                                             maxSelectable
                                         }: IdCheckboxGroupProps) {
     const error = selectedIds.length == 0
+    const allItemsSorted = sorted(allItems)
 
     function toggleItem(id: number) {
         if (selectedIds.includes(id)) {
@@ -53,7 +51,7 @@ export default function IdCheckboxGroup({
         <FormControl error={error}>
             <FormLabel component="legend">{legendText}</FormLabel>
             <FormGroup>
-                {allItems.map(item =>
+                {allItemsSorted.map(item =>
                     <FormControlLabel key={item.id}
                                       control={
                                           <Checkbox checked={selectedIds.includes(item.id)}
