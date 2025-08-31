@@ -16,6 +16,9 @@ There are two example stacks to use here, the main difference being how the back
     - Handling API requests from the frontend and persisting data to the database
     - Serving frontend as static content 
   - It is built from [/backend/Dockerfile](/backend/Dockerfile) using `dockerfile-maven-plugin` in the [/backend/pom.xml](/backend/pom.xml)
+- pair_stairs_oauth
+  - This acts as a local IDP (Identity Provider) for supporting a single-sign-on login flow during testing
+  - In production, this could be removed in favour of configuring `pair-stairs-web` to use a third-party IDP like Azure
 
 ## Running the containers
 
