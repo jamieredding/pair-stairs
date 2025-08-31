@@ -84,6 +84,10 @@ test('test', async ({page}) => {
 
     // ensure it disappears
     await expect(todayCombination).not.toBeVisible();
+
+    // logout
+    await page.getByRole('link', { name: 'Log out' }).click();
+    await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
 });
 
 async function login(page: Page) {
