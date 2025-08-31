@@ -25,6 +25,13 @@ Then go to [http://localhost:5173/](http://localhost:5173/)
 If you make a change in the frontend source code and save, e.g. [HomePage.tsx](src/components/index/HomePage.tsx),
 you should see the changes happen live in the browser.
 
+### Auth
+If you are doing any work around login, you will also need to have a running backend.
+
+Run `make start-services` to bring up a database and oauth server for the backend to use.
+
+Then run an instance of the backend using the `Application (vite development)` IntelliJ run configuration.
+
 ## Packaging
 
 This is a static single page application that is packaged into a `/static` directory as a maven dependency that

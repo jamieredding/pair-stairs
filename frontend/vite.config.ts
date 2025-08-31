@@ -41,6 +41,8 @@ export default defineConfig(
                         },
                         '/oauth2': authProxy,
                         '/login': authProxy,
+                        '/logout': authProxy,
+                        '/csrf': authProxy,
                     },
                 }
                 : {},
