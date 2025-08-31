@@ -32,6 +32,12 @@ Run `make start-services` to bring up a database and oauth server for the backen
 
 Then run an instance of the backend using the `Application (vite development)` IntelliJ run configuration.
 
+Go to [http://localhost:5173/login](http://localhost:5173/login) and log in with:
+- username: `admin@example.com`
+- password: `password`
+
+Then go to [http://localhost:5173/](http://localhost:5173/), you should now have the correct session set up.
+
 ## Packaging
 
 This is a static single page application that is packaged into a `/static` directory as a maven dependency that
