@@ -8,6 +8,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationE
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -32,6 +33,16 @@ public abstract class AbstractAcceptanceTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Value("${spring.datasource.url}")
+    private String dbUrl;
+
+    abstract String getExpectedDbUrlPrefix();
+
+    @Test
+    void checkDbUrl() {
+        assertThat(dbUrl).startsWith(getExpectedDbUrlPrefix());
+    }
 
     @Test
     void basicFlowStartingFromScratch() throws Exception {

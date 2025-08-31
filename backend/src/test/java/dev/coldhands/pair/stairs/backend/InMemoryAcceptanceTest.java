@@ -1,8 +1,13 @@
 package dev.coldhands.pair.stairs.backend;
 
 
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.test.context.ActiveProfiles;
 
-@AutoConfigureTestDatabase
+@ActiveProfiles("inmemory-test")
 public class InMemoryAcceptanceTest extends AbstractAcceptanceTest {
+
+    @Override
+    String getExpectedDbUrlPrefix() {
+        return "jdbc:h2";
+    }
 }
