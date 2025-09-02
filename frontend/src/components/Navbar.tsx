@@ -2,8 +2,10 @@ import Toolbar from "@mui/material/Toolbar";
 import AppBar from "@mui/material/AppBar";
 import {Fragment} from "react";
 import {CustomLink} from "./CustomLink.tsx";
-import {Stack} from "@mui/material";
+import {Divider, Stack, Typography} from "@mui/material";
 import {logout} from "../infrastructure/LogoutClient.ts";
+import useCurrentUser from "../hooks/currentUser/useCurrentUser.ts";
+import {greet} from "../utils/greetingUtils.ts";
 
 interface NavItem {
     displayText: string;
@@ -16,13 +18,14 @@ const navItems: NavItem[] = [
 ]
 
 export default function Navbar() {
+    const {currentUser} = useCurrentUser();
     const handleLogout = () => {
         logout()
     }
 
     return (
         <AppBar>
-            <Toolbar>
+            <Toolbar sx={{gap: 2}}>
                 <Stack direction="row" gap={2} alignItems="center" sx={{flexGrow: 1}}>
                     <CustomLink to="/" variant="h4" sx={{color: '#fff'}} underline="none" pr={1}>
                         pair-stairs
@@ -39,6 +42,8 @@ export default function Navbar() {
                         </Fragment>
                     ))}
                 </Stack>
+                {currentUser && <Typography variant="body1">{greet(currentUser.displayName)}</Typography>}
+                <Divider orientation="vertical" flexItem/>
                 <CustomLink to="." sx={{color: '#fff'}} onClick={handleLogout}>Log out</CustomLink>
             </Toolbar>
         </AppBar>

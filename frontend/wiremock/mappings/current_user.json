@@ -1,0 +1,17 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/me"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "fullName": "Jamie Redding",
+          "displayName": "Jamie"
+        }
+      }
+    }
+  ]
+}
