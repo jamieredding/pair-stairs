@@ -4,7 +4,7 @@ import {format, subDays} from "date-fns";
 const USERNAME = 'admin@example.com';
 const PASSWORD = 'password';
 
-test('test', async ({page}) => {
+test('acceptance test', async ({page}) => {
     await page.goto('/');
 
     await login(page)
@@ -89,6 +89,12 @@ test('test', async ({page}) => {
     await page.getByRole('link', { name: 'Log out' }).click();
     await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
 });
+
+test('redirect when not logged in', async ({page}) => {
+    await page.goto('/developers');
+
+    await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
+})
 
 async function login(page: Page) {
     await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
