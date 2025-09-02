@@ -18,6 +18,7 @@ staticClients:
     redirectURIs:
       - 'http://web:8080/login/oauth2/code/oauth'
       - 'http://localhost:28081/login/oauth2/code/oauth'
+      - 'http://localhost:18081/login/oauth2/code/oauth'
     name: 'Pair Stairs'
     secret: "{{ .Env.OAUTH_CLIENT_SECRET }}"
 
