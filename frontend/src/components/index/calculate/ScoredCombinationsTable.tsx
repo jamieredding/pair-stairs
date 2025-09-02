@@ -49,6 +49,7 @@ export default function ScoredCombinationsTable({
     return (
         <TableContainer>
             <Table>
+                <caption>* new to stream</caption>
                 <TableHead>
                     <TableRow>
                         <TableCell colSpan={1}/>
