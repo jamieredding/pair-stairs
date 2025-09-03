@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,16 @@ import java.util.Map;
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @ConditionalOnBooleanProperty(value = "app.feature.flag.teams.enabled", havingValue = false)
+    SecurityFilterChain noSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http.authorizeHttpRequests(a -> a.anyRequest().permitAll())
+                .build();
+    }
+
+
+    @Bean
+    @ConditionalOnBooleanProperty("app.feature.flag.teams.enabled")
+    SecurityFilterChain oauthSecurityFilterChain(HttpSecurity http) throws Exception {
         RequestMatcher apiMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
 
         // Where to send browsers when they’re unauthenticated (non-API):
