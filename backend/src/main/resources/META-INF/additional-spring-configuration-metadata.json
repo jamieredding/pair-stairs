@@ -9,6 +9,11 @@
       "name": "app.combinations.calculate.pageSize",
       "type": "java.lang.String",
       "description": "The page size allowed for the combinations calculate resource."
+    },
+    {
+      "name": "app.feature.flag.teams.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Feature flag for all teams functionality."
     }
   ]
 }

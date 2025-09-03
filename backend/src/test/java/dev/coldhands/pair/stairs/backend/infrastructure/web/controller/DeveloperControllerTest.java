@@ -18,11 +18,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEnti
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Function;
@@ -30,8 +32,10 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
@@ -46,6 +50,23 @@ public class DeveloperControllerTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
+
+    @ParameterizedTest
+    @MethodSource
+    void whenAnonymousUserThenReturnUnauthorized(HttpMethod httpMethod, String uri) throws Exception {
+        mockMvc.perform(request(httpMethod, URI.create(uri))
+                        .with(anonymous()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    static java.util.stream.Stream<Arguments> whenAnonymousUserThenReturnUnauthorized() {
+        return java.util.stream.Stream.of(
+                Arguments.of(HttpMethod.GET, "/api/v1/developers"),
+                Arguments.of(HttpMethod.GET, "/api/v1/developers/info"),
+                Arguments.of(HttpMethod.POST, "/api/v1/developers"),
+                Arguments.of(HttpMethod.GET, "/api/v1/developers/1/stats")
+        );
+    }
 
     @Nested
     class Read {
