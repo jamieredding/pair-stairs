@@ -23,7 +23,10 @@ public class SecurityConfig {
     @Bean
     @ConditionalOnBooleanProperty(value = "app.feature.flag.teams.enabled", havingValue = false)
     SecurityFilterChain noSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(a -> a.anyRequest().permitAll())
+        return http.authorizeHttpRequests(a ->
+                        a.anyRequest().permitAll()
+                )
+                .csrf(c -> c.ignoringRequestMatchers("/api/**"))
                 .build();
     }
 
