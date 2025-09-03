@@ -9,6 +9,9 @@ There are two example stacks to use here, the main difference being how the back
   - The backend data is stored in a mysql database running in its own container
   - This will offer a more scalable solution but required more considered maintenance
 
+There is now a third [teams-disabled](./teams-disabled/README.md), which is used for backwards compatibility
+whilst teams support is under development.
+
 ## Primary containers
 
 - pair-stairs-web

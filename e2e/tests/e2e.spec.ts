@@ -4,10 +4,21 @@ import {format, subDays} from "date-fns";
 const USERNAME = 'admin@example.com';
 const PASSWORD = 'password';
 
+function boolEnvVar(envVar: string | undefined) : boolean {
+    const boolString = (envVar == null || envVar.trim() === "") ? "true" : envVar.trim();
+    return boolString.toLowerCase() === "true"
+}
+
+const teamsEnabled = boolEnvVar(process.env.E2E_FEATURE_FLAGS_TEAMS_ENABLED);
+
+console.log(`Running with teamsEnabled=${teamsEnabled}`)
+
 test('acceptance test', async ({page}) => {
     await page.goto('/');
 
-    await login(page)
+    if (teamsEnabled) {
+        await login(page)
+    }
 
     // create some developers
     await page.getByRole('link', {name: 'Developers'}).click();
@@ -50,7 +61,7 @@ test('acceptance test', async ({page}) => {
         has: page.getByRole("heading", {level: 2, name: /^Combination History$/})
     });
 
-    const yesterdayISO  = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+    const yesterdayISO = format(subDays(new Date(), 1), 'yyyy-MM-dd');
     const yesterdayCombination = combinationHistoryCard.locator(".MuiCard-root", {
         has: page.getByRole("heading", {level: 3, name: yesterdayISO})
     })
@@ -85,25 +96,29 @@ test('acceptance test', async ({page}) => {
     // ensure it disappears
     await expect(todayCombination).not.toBeVisible();
 
-    // logout
-    await page.getByRole('link', { name: 'Log out' }).click();
-    await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
+    if (teamsEnabled) {
+        // logout
+        await page.getByRole('link', {name: 'Log out'}).click();
+        await expect(page.getByRole('heading', {name: 'Log in to Your Account'})).toBeVisible();
+    }
 });
 
 test('redirect when not logged in', async ({page}) => {
-    await page.goto('/developers');
+    if (teamsEnabled) {
+        await page.goto('/developers');
 
-    await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
+        await expect(page.getByRole('heading', {name: 'Log in to Your Account'})).toBeVisible();
+    }
 })
 
 async function login(page: Page) {
-    await expect(page.getByRole('heading', { name: 'Log in to Your Account' })).toBeVisible();
+    await expect(page.getByRole('heading', {name: 'Log in to Your Account'})).toBeVisible();
     await page.getByPlaceholder('email address').click();
     await page.getByPlaceholder('email address').fill(USERNAME);
     await page.getByPlaceholder('password').click();
     await page.getByPlaceholder('password').fill(PASSWORD);
-    await page.getByRole('button', { name: 'Login' }).click();
-    await page.getByRole('button', { name: 'Grant Access' }).click();
+    await page.getByRole('button', {name: 'Login'}).click();
+    await page.getByRole('button', {name: 'Grant Access'}).click();
 }
 
 async function createDeveloper(page: Page, name: string) {
@@ -128,6 +143,6 @@ async function chooseYesterdayDate(page: Page) {
     const yesterdayDate = subDays(new Date(), 1)
     const yesterdayDateFormat = format(yesterdayDate, "yyyyMMdd")
 
-    await page.getByRole('group', { name: 'Date of combination' }).click();
+    await page.getByRole('group', {name: 'Date of combination'}).click();
     await page.keyboard.type(yesterdayDateFormat)
 }
