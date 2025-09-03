@@ -6,6 +6,7 @@ import {Divider, Stack, Typography} from "@mui/material";
 import {logout} from "../infrastructure/LogoutClient.ts";
 import useCurrentUser from "../hooks/currentUser/useCurrentUser.ts";
 import {greet} from "../utils/greetingUtils.ts";
+import useFeatureFlags from "../hooks/featureFlags/useFeatureFlags.ts";
 
 interface NavItem {
     displayText: string;
@@ -18,6 +19,7 @@ const navItems: NavItem[] = [
 ]
 
 export default function Navbar() {
+    const {featureFlags} = useFeatureFlags()
     const {currentUser} = useCurrentUser();
     const handleLogout = () => {
         logout()
@@ -42,9 +44,13 @@ export default function Navbar() {
                         </Fragment>
                     ))}
                 </Stack>
-                {currentUser && <Typography variant="body1">{greet(currentUser.displayName)}</Typography>}
-                <Divider orientation="vertical" flexItem/>
-                <CustomLink to="." sx={{color: '#fff'}} onClick={handleLogout}>Log out</CustomLink>
+                {featureFlags && featureFlags.teamsEnabled &&
+                    <>
+                        {currentUser && <Typography variant="body1">{greet(currentUser.displayName)}</Typography>}
+                        <Divider orientation="vertical" flexItem/>
+                        <CustomLink to="." sx={{color: '#fff'}} onClick={handleLogout}>Log out</CustomLink>
+                    </>
+                }
             </Toolbar>
         </AppBar>
     )
