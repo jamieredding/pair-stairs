@@ -55,6 +55,11 @@ public class SecurityConfig {
                         )
                         .permitAll()
 
+                        .requestMatchers(
+                                "/api/v1/feature-flags"
+                        )
+                        .permitAll()
+
                         .anyRequest().authenticated()
                 )
                 // Send users directly to IDP (no intermediate default login page)
