@@ -39,4 +39,12 @@ public class TeamFeatureFlagTest {
                 .andExpect(content().json("[]"));
     }
 
+    @Test
+    void teamFeatureFlagIsFalse() throws Exception {
+        mockMvc.perform(get("/api/v1/feature-flags")
+                        .with(anonymous()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.teamsEnabled").value(false));
+    }
+
 }
