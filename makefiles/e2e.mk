@@ -4,8 +4,9 @@ E2E_WEB_CONTAINER_NAME=e2e-pair_stairs_web-1
 E2E_DOCKER_NETWORK=e2e_pair_stairs_net
 MYSQL_DOCKER_COMPOSE_ROOT=docker/mysql
 H2_DOCKER_COMPOSE_ROOT=docker/h2
+TEAMS_DISABLED_DOCKER_COMPOSE_ROOT=docker/teams-disabled
 
-.PHONY: run-e2e-suite run-e2e-tests start-ci-e2e-pair-stairs stop-ci-e2e-pair-stairs run-all-e2e-suites run-e2e-suite-h2 run-e2e-suite-mysql teardown-e2e-suites teardown-e2e-suite-mysql teardown-e2e-suite-h2 restart-dev-e2e-pair-stairs
+.PHONY: run-e2e-suite run-e2e-tests start-ci-e2e-pair-stairs stop-ci-e2e-pair-stairs run-all-e2e-suites run-e2e-suite-h2 run-e2e-suite-mysql run-e2e-suite-teams-disabled teardown-e2e-suites teardown-e2e-suite-mysql teardown-e2e-suite-h2 teardown-e2e-suite-teams-disabled restart-dev-e2e-pair-stairs
 
 run-e2e-suite-mysql:
 	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(MYSQL_DOCKER_COMPOSE_ROOT)
@@ -13,7 +14,10 @@ run-e2e-suite-mysql:
 run-e2e-suite-h2:
 	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(H2_DOCKER_COMPOSE_ROOT)
 
-run-all-e2e-suites: run-e2e-suite-h2 run-e2e-suite-mysql
+run-e2e-suite-teams-disabled:
+	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT) E2E_FEATURE_FLAGS_TEAMS_ENABLED=false
+
+run-all-e2e-suites: run-e2e-suite-h2 run-e2e-suite-mysql run-e2e-suite-teams-disabled
 
 run-e2e-suite: start-ci-e2e-pair-stairs run-e2e-tests stop-ci-e2e-pair-stairs
 
@@ -23,7 +27,10 @@ teardown-e2e-suite-mysql:
 teardown-e2e-suite-h2:
 	@$(MAKE) stop-ci-e2e-pair-stairs COMPOSE_PATH=$(H2_DOCKER_COMPOSE_ROOT)
 
-teardown-e2e-suites: teardown-e2e-suite-mysql teardown-e2e-suite-h2
+teardown-e2e-suite-teams-disabled:
+	@$(MAKE) stop-ci-e2e-pair-stairs COMPOSE_PATH=$(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT)
+
+teardown-e2e-suites: teardown-e2e-suite-mysql teardown-e2e-suite-h2 teardown-e2e-suite-teams-disabled
 
 run-e2e-tests:
 	@echo "Running e2e tests..."
@@ -32,6 +39,7 @@ run-e2e-tests:
 	--network $(E2E_DOCKER_NETWORK) \
 	-v "$(PWD)/e2e:/home/pwuser/e2e" \
 	-e CI="yes" \
+	-e E2E_FEATURE_FLAGS_TEAMS_ENABLED=$(E2E_FEATURE_FLAGS_TEAMS_ENABLED) \
 	--user pwuser --security-opt seccomp="$(PWD)/e2e/seccomp_profile.json" \
 	$(PLAYWRIGHT_IMAGE) \
 	/bin/bash -c 'cd ~/e2e && npm install && npx playwright test' || (echo "e2e tests have failed" ; exit 1)
