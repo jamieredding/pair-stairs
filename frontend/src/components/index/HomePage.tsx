@@ -60,9 +60,13 @@ type TabKey = 'calculate' | 'manual';
 const indexByKey: Record<TabKey, number> = {calculate: 0, manual: 1};
 const keyByIndex = (i: number): TabKey => (i === 1 ? 'manual' : 'calculate');
 
-function NewCombinationCard() {
+export interface Props {
+    route: "/" | "/team/$teamName";
+}
+
+function NewCombinationCard({route} : Props) {
     const navigate = useNavigate();
-    const search = useSearch({from: "/"})
+    const search = useSearch({from: route})
     const tabKey: TabKey = search.newCombinationTab;
     const tabIndex = indexByKey[tabKey]
 
@@ -218,12 +222,12 @@ function CombinationHistoryCard() {
     );
 }
 
-export default function HomePage() {
+export default function HomePage({route} : Props) {
     return (
         <main>
             <Grid container justifyContent="center" spacing={1}>
                 <Grid size={{xs: 12, md: 12, lg: 6}}>
-                    <NewCombinationCard/>
+                    <NewCombinationCard route={route} />
                 </Grid>
                 <Grid size={{xs: 12, md: 12, lg: 6}}>
                     <CombinationHistoryCard/>

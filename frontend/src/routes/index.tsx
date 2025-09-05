@@ -12,7 +12,7 @@ export const Route = createFileRoute('/')({
 function Index() {
     return (
         <main>
-            <HomePage/>
+            <HomePage route="/"/>
         </main>
     )
 }
