@@ -9,16 +9,13 @@ services:
       - "${BACKEND_PORT}:8080"
     volumes:
       - "./application.properties:/opt/application.properties"
-      - "pair_stairs_h2:/opt/h2"
+      - "./old-schemas/build/h2_v1_database.mv.db:/opt/h2_v1_database.mv.db"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q 'UP' || exit 1"]
       interval: 2s
       timeout: 3s
       retries: 60
       start_period: 1m
-
-volumes:
-  pair_stairs_h2:
 
 networks:
   pair_stairs_net:

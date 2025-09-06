@@ -3,6 +3,9 @@
 This stack is for running without teams and login support.
 Primarily this is for backwards compatibility support while teams support is under development.
 
+This is run using pre-existing data that is created based on the V1_4 schema version.
+The intention being that this suite provides test coverage of data migration to the latest schema.
+
 ## Running the containers
 
 To run the containers, there is a provided [docker-compose.yml](./docker-compose.yml) file in this directory.

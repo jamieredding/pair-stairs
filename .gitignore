@@ -7,6 +7,7 @@ target
 .mvn/wrapper/*.jar
 pom.xml.versionsBackup
 dependency-reduced-pom.xml
+build
 
 # Personal files
 config.json
