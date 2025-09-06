@@ -1,10 +1,10 @@
 import {expect, Page, test} from '@playwright/test';
-import {format, subDays} from "date-fns";
+import {endOfYear, format, subDays} from "date-fns";
 
 const USERNAME = 'admin@example.com';
 const PASSWORD = 'password';
 
-function boolEnvVar(envVar: string | undefined) : boolean {
+function boolEnvVar(envVar: string | undefined): boolean {
     const boolString = (envVar == null || envVar.trim() === "") ? "true" : envVar.trim();
     return boolString.toLowerCase() === "true"
 }
@@ -13,103 +13,172 @@ const teamsEnabled = boolEnvVar(process.env.E2E_FEATURE_FLAGS_TEAMS_ENABLED);
 
 console.log(`Running with teamsEnabled=${teamsEnabled}`)
 
-test('acceptance test', async ({page}) => {
-    await page.goto('/');
+if (teamsEnabled) {
+    test('acceptance test', async ({page}) => {
+        await page.goto('/');
 
-    if (teamsEnabled) {
         await login(page)
-    }
 
-    // create some developers
-    await page.getByRole('link', {name: 'Developers'}).click();
+        // create some developers
+        await page.getByRole('link', {name: 'Developers'}).click();
 
-    await createDeveloper(page, 'dev-0');
-    await createDeveloper(page, 'dev-1');
-    await createDeveloper(page, 'dev-2');
+        await createDeveloper(page, 'dev-0');
+        await createDeveloper(page, 'dev-1');
+        await createDeveloper(page, 'dev-2');
 
-    // create some streams
-    await page.getByRole('link', {name: 'Streams'}).click();
+        // create some streams
+        await page.getByRole('link', {name: 'Streams'}).click();
 
-    await createStream(page, 'stream-a');
-    await createStream(page, 'stream-b');
+        await createStream(page, 'stream-a');
+        await createStream(page, 'stream-b');
 
-    await page.getByRole('link', {name: 'pair-stairs'}).click();
+        await page.getByRole('link', {name: 'pair-stairs'}).click();
 
-    // see that calculate form contains developers
-    await expect(page.getByLabel("Calculate")).toContainText('dev-0');
-    await expect(page.getByLabel("Calculate")).toContainText('dev-1');
-    await expect(page.getByLabel("Calculate")).toContainText('dev-2');
+        // see that calculate form contains developers
+        await expect(page.getByLabel("Calculate")).toContainText('dev-0');
+        await expect(page.getByLabel("Calculate")).toContainText('dev-1');
+        await expect(page.getByLabel("Calculate")).toContainText('dev-2');
 
-    await page.getByRole('tab', {name: 'Manual'}).click();
+        await page.getByRole('tab', {name: 'Manual'}).click();
 
-    // choose a manual combination for yesterday
-    await chooseYesterdayDate(page);
+        // choose a manual combination for yesterday
+        await chooseYesterdayDate(page);
 
-    await page.getByText('dev-0').click();
-    await page.getByText('dev-1').click();
-    await page.getByText('stream-a').click();
-    await page.getByRole('button', {name: 'Add'}).click();
+        await page.getByText('dev-0').click();
+        await page.getByText('dev-1').click();
+        await page.getByText('stream-a').click();
+        await page.getByRole('button', {name: 'Add'}).click();
 
-    await page.getByText('dev-2').click();
-    await page.getByText('stream-b').click();
-    await page.getByRole('button', {name: 'Add'}).click();
+        await page.getByText('dev-2').click();
+        await page.getByText('stream-b').click();
+        await page.getByRole('button', {name: 'Add'}).click();
 
-    await page.getByRole('button', {name: 'Save'}).click();
+        await page.getByRole('button', {name: 'Save'}).click();
 
-    // check that combination appeared in combination history
-    const combinationHistoryCard = page.locator(".MuiCard-root", {
-        has: page.getByRole("heading", {level: 2, name: /^Combination History$/})
-    });
+        // check that combination appeared in combination history
+        const combinationHistoryCard = page.locator(".MuiCard-root", {
+            has: page.getByRole("heading", {level: 2, name: /^Combination History$/})
+        });
 
-    const yesterdayISO = format(subDays(new Date(), 1), 'yyyy-MM-dd');
-    const yesterdayCombination = combinationHistoryCard.locator(".MuiCard-root", {
-        has: page.getByRole("heading", {level: 3, name: yesterdayISO})
-    })
-    await expect(yesterdayCombination).toBeVisible();
+        const yesterdayISO = format(subDays(new Date(), 1), 'yyyy-MM-dd');
+        const yesterdayCombination = combinationHistoryCard.locator(".MuiCard-root", {
+            has: page.getByRole("heading", {level: 3, name: yesterdayISO})
+        })
+        await expect(yesterdayCombination).toBeVisible();
 
-    const yesterdayPairStreams = yesterdayCombination.getByRole("row")
-    await expect(yesterdayPairStreams.nth(1)).toContainText(["stream-a", "dev-0", "dev-1"].join(""))
-    await expect(yesterdayPairStreams.nth(2)).toContainText(["stream-b", "dev-2"].join(""))
+        const yesterdayPairStreams = yesterdayCombination.getByRole("row")
+        await expect(yesterdayPairStreams.nth(1)).toContainText(["stream-a", "dev-0", "dev-1"].join(""))
+        await expect(yesterdayPairStreams.nth(2)).toContainText(["stream-b", "dev-2"].join(""))
 
-    // calculate a combination
-    await page.getByRole('tab', {name: 'Calculate'}).click();
-    await page.getByRole('button', {name: 'See combinations'}).click();
+        // calculate a combination
+        await page.getByRole('tab', {name: 'Calculate'}).click();
+        await page.getByRole('button', {name: 'See combinations'}).click();
 
-    await page.getByRole('button', {name: 'Choose'}).first().click();
-    await page.getByRole('button', {name: 'Save'}).click();
+        await page.getByRole('button', {name: 'Choose'}).first().click();
+        await page.getByRole('button', {name: 'Save'}).click();
 
-    // check that combination appeared in combination history
-    const todayISO = format(new Date(), 'yyyy-MM-dd');
-    const todayCombination = combinationHistoryCard.locator(".MuiCard-root", {
-        has: page.getByRole("heading", {level: 3, name: todayISO})
-    })
-    await expect(todayCombination).toBeVisible();
+        // check that combination appeared in combination history
+        const todayISO = format(new Date(), 'yyyy-MM-dd');
+        const todayCombination = combinationHistoryCard.locator(".MuiCard-root", {
+            has: page.getByRole("heading", {level: 3, name: todayISO})
+        })
+        await expect(todayCombination).toBeVisible();
 
-    const todayPairStreams = todayCombination.getByRole("row")
-    await expect(todayPairStreams.nth(1)).toContainText(["stream-a", "dev-0"].join(""))
-    await expect(todayPairStreams.nth(2)).toContainText(["stream-b", "dev-1", "dev-2"].join(""))
+        const todayPairStreams = todayCombination.getByRole("row")
+        await expect(todayPairStreams.nth(1)).toContainText(["stream-a", "dev-0"].join(""))
+        await expect(todayPairStreams.nth(2)).toContainText(["stream-b", "dev-1", "dev-2"].join(""))
 
-    // delete today's combination
-    await page.locator('div').filter({hasText: /^Today$/}).getByRole('button').click();
-    await page.getByRole('button', {name: 'Delete'}).click();
+        // delete today's combination
+        await page.locator('div').filter({hasText: /^Today$/}).getByRole('button').click();
+        await page.getByRole('button', {name: 'Delete'}).click();
 
-    // ensure it disappears
-    await expect(todayCombination).not.toBeVisible();
+        // ensure it disappears
+        await expect(todayCombination).not.toBeVisible();
 
-    if (teamsEnabled) {
         // logout
         await page.getByRole('link', {name: 'Log out'}).click();
         await expect(page.getByRole('heading', {name: 'Log in to Your Account'})).toBeVisible();
-    }
-});
+    });
 
-test('redirect when not logged in', async ({page}) => {
-    if (teamsEnabled) {
+    test('redirect when not logged in', async ({page}) => {
         await page.goto('/developers');
 
         await expect(page.getByRole('heading', {name: 'Log in to Your Account'})).toBeVisible();
-    }
-})
+    })
+}
+
+if (!teamsEnabled) {
+    test('acceptance test', async ({page}) => {
+        await page.goto('/');
+
+        // create some developers
+        await page.getByRole('link', {name: 'Developers'}).click();
+
+        await createDeveloper(page, 'dev-3');
+
+        // create some streams
+        await page.getByRole('link', {name: 'Streams'}).click();
+
+        await createStream(page, 'stream-c');
+
+        await page.getByRole('link', {name: 'pair-stairs'}).click();
+
+        // see that calculate form contains developers
+        await expect(page.getByLabel("Calculate")).toContainText('dev-0');
+        await expect(page.getByLabel("Calculate")).toContainText('dev-1');
+        await expect(page.getByLabel("Calculate")).toContainText('dev-2');
+        await expect(page.getByLabel("Calculate")).toContainText('dev-3');
+        // see that calculate form contains streams
+        await expect(page.getByLabel("Calculate")).toContainText('stream-a');
+        await expect(page.getByLabel("Calculate")).toContainText('stream-b');
+        await expect(page.getByLabel("Calculate")).toContainText('stream-c');
+
+        // check that combination appeared in combination history
+        const combinationHistoryCard = page.locator(".MuiCard-root", {
+            has: page.getByRole("heading", {level: 2, name: /^Combination History$/})
+        });
+
+        const existingCombinationDate = "2025-09-05"
+        const existingCombination = combinationHistoryCard.locator(".MuiCard-root", {
+            has: page.getByRole("heading", {level: 3, name: existingCombinationDate})
+        })
+        await expect(existingCombination).toBeVisible();
+
+        const existingPairStreams = existingCombination.getByRole("row")
+        await expect(existingPairStreams.nth(1)).toContainText(["stream-a", "dev-0", "dev-1"].join(""))
+        await expect(existingPairStreams.nth(2)).toContainText(["stream-b", "dev-2"].join(""))
+
+        // calculate a combination
+        await page.getByRole('tab', {name: 'Calculate'}).click();
+
+        // untick dev-2 and stream-b
+        await page.getByLabel('Calculate').getByText('dev-2').click();
+        await page.getByLabel('Calculate').getByText('stream-b').click();
+
+        await page.getByRole('button', {name: 'See combinations'}).click();
+
+        await page.getByRole('button', {name: 'Choose'}).first().click();
+        await page.getByRole('button', {name: 'Save'}).click();
+
+        // check that combination appeared in combination history
+        const todayISO = format(new Date(), 'yyyy-MM-dd');
+        const todayCombination = combinationHistoryCard.locator(".MuiCard-root", {
+            has: page.getByRole("heading", {level: 3, name: todayISO})
+        })
+        await expect(todayCombination).toBeVisible();
+
+        const todayPairStreams = todayCombination.getByRole("row")
+        await expect(todayPairStreams.nth(1)).toContainText(["stream-a", "dev-0", "dev-1"].join(""))
+        await expect(todayPairStreams.nth(2)).toContainText(["stream-c", "dev-3"].join(""))
+
+        // delete today's combination
+        await page.locator('div').filter({hasText: /^Today$/}).getByRole('button').click();
+        await page.getByRole('button', {name: 'Delete'}).click();
+
+        // ensure it disappears
+        await expect(todayCombination).not.toBeVisible();
+    })
+}
 
 async function login(page: Page) {
     await expect(page.getByRole('heading', {name: 'Log in to Your Account'})).toBeVisible();
@@ -141,8 +210,12 @@ async function createStream(page: Page, name: string) {
 
 async function chooseYesterdayDate(page: Page) {
     const yesterdayDate = subDays(new Date(), 1)
-    const yesterdayDateFormat = format(yesterdayDate, "yyyyMMdd")
+
+    await chooseDate(page, yesterdayDate)
+}
+async function chooseDate(page: Page, date: Date) {
+    const formattedDate = format(date, "yyyyMMdd")
 
     await page.getByRole('group', {name: 'Date of combination'}).click();
-    await page.keyboard.type(yesterdayDateFormat)
+    await page.keyboard.type(formattedDate)
 }

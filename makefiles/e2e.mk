@@ -6,7 +6,12 @@ MYSQL_DOCKER_COMPOSE_ROOT=docker/mysql
 H2_DOCKER_COMPOSE_ROOT=docker/h2
 TEAMS_DISABLED_DOCKER_COMPOSE_ROOT=docker/teams-disabled
 
-.PHONY: run-e2e-suite run-e2e-tests start-ci-e2e-pair-stairs stop-ci-e2e-pair-stairs run-all-e2e-suites run-e2e-suite-h2 run-e2e-suite-mysql run-e2e-suite-teams-disabled teardown-e2e-suites teardown-e2e-suite-mysql teardown-e2e-suite-h2 teardown-e2e-suite-teams-disabled restart-dev-e2e-pair-stairs
+.PHONY: run-e2e-suite run-e2e-tests start-ci-e2e-pair-stairs stop-ci-e2e-pair-stairs run-all-e2e-suites run-e2e-suite-h2 run-e2e-suite-mysql run-e2e-suite-teams-disabled teardown-e2e-suites teardown-e2e-suite-mysql teardown-e2e-suite-h2 teardown-e2e-suite-teams-disabled restart-dev-e2e-pair-stairs create-rw-old-schema-files
+
+create-rw-old-schema-files:
+	rm -rf $(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT)/old-schemas/build
+	mkdir $(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT)/old-schemas/build
+	cp $(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT)/old-schemas/h2_v1_database.mv.db $(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT)/old-schemas/build
 
 run-e2e-suite-mysql:
 	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(MYSQL_DOCKER_COMPOSE_ROOT)
@@ -14,7 +19,7 @@ run-e2e-suite-mysql:
 run-e2e-suite-h2:
 	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(H2_DOCKER_COMPOSE_ROOT)
 
-run-e2e-suite-teams-disabled:
+run-e2e-suite-teams-disabled: create-rw-old-schema-files
 	@$(MAKE) run-e2e-suite COMPOSE_PATH=$(TEAMS_DISABLED_DOCKER_COMPOSE_ROOT) E2E_FEATURE_FLAGS_TEAMS_ENABLED=false
 
 run-all-e2e-suites: run-e2e-suite-h2 run-e2e-suite-mysql run-e2e-suite-teams-disabled
