@@ -16,18 +16,37 @@ There are some example stacks to use here.
 
 ## Primary containers
 
-- pair-stairs-web
+- pair_stairs_web
   - This container runs the backend server for pair-stairs
     - Handling API requests from the frontend and persisting data to the database
     - Serving frontend as static content 
   - It is built from [/backend/Dockerfile](/backend/Dockerfile) using `dockerfile-maven-plugin` in the [/backend/pom.xml](/backend/pom.xml)
 - pair_stairs_oauth
   - This acts as a local IDP (Identity Provider) for supporting a single-sign-on login flow during testing
-  - In production, this could be removed in favour of configuring `pair-stairs-web` to use a third-party IDP like Azure
+  - In production, this could be removed in favour of configuring `pair_stairs_web` to use a third-party IDP like Azure
 
 ## Running the containers
 
 Please see the relevant README.md ([h2](./h2/README.md), [mysql](./mysql/README.md)) for instructions and more detail.
+
+## Oauth configuration
+
+You might want to configure `pair_stairs_web` to use a non-local identity provider (e.g. Azure, Google, GitHub).
+
+To do this, you should:
+
+1. Remove `pair_stairs_oauth` from docker compose file
+2. Remove `depends_on: pair_stairs_oauth` from web container's `depends_on`
+3. Define the following environment variables on `pair_stairs_web`
+   ```
+   OAUTH_CLIENT_ID: "${your_client_id}$"  
+   OAUTH_CLIENT_SECRET: "${your_client_secret}"  
+   SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OAUTH_ISSUER_URI: "https://login.microsoftonline.com/${your_tenant_id}$/v2.0"  
+   SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_OAUTH_AUTHORIZATION_URI: "https://login.microsoftonline.com/${your_tenant_id}$/oauth2/v2.0/authorize"  
+   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: "https://login.microsoftonline.com/${your_tenant_id}$/v2.0"
+   ```
+4. Ensure you have configured a reasonable redirectUri for the instance of the application you are deploying
+   - e.g. if you are expecting users to reach your frontend via `http://localhost:8080`, ensure that `http://localhost:8080/login/oauth2/code/oauth` is specified as a redirectUri in Microsoft Entra admin center
 
 ## Data migration
 
