@@ -26,6 +26,12 @@ docker compose --env-file environment/prod.env down
 You can mount your own [application.properties](/backend/src/main/resources/application.properties)
 file to `/opt/application.properties` to override the defaults.
 
+> [!WARNING]
+> Please use the [application.properties](./application.properties) in this directory as a starting point for your properties,
+> not the one in the backend source directory.
+> 
+> It specifically disables teams support and removes all properties related to login. 
+
 If you don't need to override all the properties, consider using spring-boot's environment 
 variable binding functionality ([link](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config.typesafe-configuration-properties.relaxed-binding.environment-variables)).
 

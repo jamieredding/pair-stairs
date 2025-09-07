@@ -1,6 +1,6 @@
 # Docker
 
-There are two example stacks to use here, the main difference being how the backend data is stored.
+There are some example stacks to use here.
 
 - [h2](./h2/README.md)
   - The backend data is stored in a file that is managed in-memory by the web container
@@ -8,9 +8,11 @@ There are two example stacks to use here, the main difference being how the back
 - [mysql](./mysql/README.md)
   - The backend data is stored in a mysql database running in its own container
   - This will offer a more scalable solution but required more considered maintenance
-
-There is now a third [teams-disabled](./teams-disabled/README.md), which is used for backwards compatibility
-whilst teams support is under development.
+- [teams-disabled](./teams-disabled/README.md)
+  - This disables the teams/login functionality
+  - It allows you to use the application like it was before 1.8.0
+    - Primarily this is for backwards compatibility and is used for testing purposes
+    - It is only using h2 as the database, but it can be configured otherwise if you look at the [mysql](./mysql/README.md) configuration 
 
 ## Primary containers
 
