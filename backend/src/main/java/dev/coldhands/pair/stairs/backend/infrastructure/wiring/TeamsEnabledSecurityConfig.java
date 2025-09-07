@@ -18,21 +18,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Configuration
-public class SecurityConfig {
+@ConditionalOnBooleanProperty("app.feature.flag.teams.enabled")
+public class TeamsEnabledSecurityConfig {
 
     @Bean
-    @ConditionalOnBooleanProperty(value = "app.feature.flag.teams.enabled", havingValue = false)
-    SecurityFilterChain noSecurityFilterChain(HttpSecurity http) throws Exception {
-        return http.authorizeHttpRequests(a ->
-                        a.anyRequest().permitAll()
-                )
-                .csrf(c -> c.ignoringRequestMatchers("/api/**"))
-                .build();
-    }
-
-
-    @Bean
-    @ConditionalOnBooleanProperty("app.feature.flag.teams.enabled")
     SecurityFilterChain oauthSecurityFilterChain(HttpSecurity http) throws Exception {
         RequestMatcher apiMatcher = PathPatternRequestMatcher.withDefaults().matcher("/api/**");
 
