@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository;
+import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,5 +67,10 @@ public class TeamsEnabledSecurityConfig {
         ;
 
         return http.build();
+    }
+
+    @Bean
+    UserDetailsService userDetailsService(UserRepository userRepository) {
+        return new UserDetailsService(userRepository);
     }
 }
