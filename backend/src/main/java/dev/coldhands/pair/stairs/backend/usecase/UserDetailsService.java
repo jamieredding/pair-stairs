@@ -27,7 +27,7 @@ public class UserDetailsService {
                 })
                 .orElseGet(() -> new UserEntity(oidcSub, displayName));
 
-        final UserEntity userEntity = userRepository.save(toPersist);
+        final UserEntity userEntity = userRepository.saveAndFlush(toPersist);
 
         return new User(
                 userEntity.getId(),

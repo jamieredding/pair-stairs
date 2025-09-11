@@ -61,6 +61,9 @@ class UserDetailsServiceTest {
                 null,
                 "Jamie Redding"
         ));
+        final UserEntity initialEntity = testEntityManager.find(UserEntity.class, user.id());
+        final Instant initialCreatedAt = initialEntity.getCreatedAt();
+        final Instant initialUpdatedAt = initialEntity.getUpdatedAt();
 
         underTest.createOrUpdate(oidcSub, new UserName(
                 "Jay",
@@ -74,7 +77,7 @@ class UserDetailsServiceTest {
         assertThat(userEntity.getId()).isEqualTo(user.id());
         assertThat(userEntity.getOidcSub()).isEqualTo(oidcSub);
         assertThat(userEntity.getDisplayName()).isEqualTo("Jay");
-        assertThat(userEntity.getCreatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
-        assertThat(userEntity.getUpdatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
+        assertThat(userEntity.getCreatedAt()).isEqualTo(initialCreatedAt);
+        assertThat(userEntity.getUpdatedAt()).isAfter(initialUpdatedAt);
     }
 }
