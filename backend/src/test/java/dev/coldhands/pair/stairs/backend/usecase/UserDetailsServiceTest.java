@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.domain.User;
 import dev.coldhands.pair.stairs.backend.domain.UserName;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -31,53 +32,74 @@ class UserDetailsServiceTest {
     @Autowired
     private TestEntityManager testEntityManager;
 
-    @Test
-    void createUserDetailsWhenUserDoesNotExist() {
-        var userName = new UserName(
-                null,
-                null,
-                "Jamie Redding"
-        );
-        var oidcSub = UUID.randomUUID().toString();
+    @Nested
+    class CreateOrUpdate {
+        @Test
+        void createUserDetailsWhenUserDoesNotExist() {
+            var userName = new UserName(
+                    null,
+                    null,
+                    "Jamie Redding"
+            );
+            var oidcSub = UUID.randomUUID().toString();
 
-        final User user = underTest.createOrUpdate(oidcSub, userName);
+            final User user = underTest.createOrUpdate(oidcSub, userName);
 
-        final UserEntity userEntity = testEntityManager.find(UserEntity.class, user.id());
+            final UserEntity userEntity = testEntityManager.find(UserEntity.class, user.id());
 
-        assertThat(userEntity).isNotNull();
-        assertThat(userEntity.getId()).isEqualTo(user.id());
-        assertThat(userEntity.getOidcSub()).isEqualTo(oidcSub);
-        assertThat(userEntity.getDisplayName()).isEqualTo("Jamie");
-        assertThat(userEntity.getCreatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
-        assertThat(userEntity.getUpdatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
+            assertThat(userEntity).isNotNull();
+            assertThat(userEntity.getId()).isEqualTo(user.id());
+            assertThat(userEntity.getOidcSub()).isEqualTo(oidcSub);
+            assertThat(userEntity.getDisplayName()).isEqualTo("Jamie");
+            assertThat(userEntity.getCreatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
+            assertThat(userEntity.getUpdatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
+        }
+
+        @Test
+        void updateUserDetailsWhenUserDoesExist() {
+            var oidcSub = UUID.randomUUID().toString();
+
+            final User user = underTest.createOrUpdate(oidcSub, new UserName(
+                    null,
+                    null,
+                    "Jamie Redding"
+            ));
+            final UserEntity initialEntity = testEntityManager.find(UserEntity.class, user.id());
+            final Instant initialCreatedAt = initialEntity.getCreatedAt();
+            final Instant initialUpdatedAt = initialEntity.getUpdatedAt();
+
+            underTest.createOrUpdate(oidcSub, new UserName(
+                    "Jay",
+                    null,
+                    "Jamie Redding"
+            ));
+
+            final UserEntity userEntity = testEntityManager.find(UserEntity.class, user.id());
+
+            assertThat(userEntity).isNotNull();
+            assertThat(userEntity.getId()).isEqualTo(user.id());
+            assertThat(userEntity.getOidcSub()).isEqualTo(oidcSub);
+            assertThat(userEntity.getDisplayName()).isEqualTo("Jay");
+            assertThat(userEntity.getCreatedAt()).isEqualTo(initialCreatedAt);
+            assertThat(userEntity.getUpdatedAt()).isAfter(initialUpdatedAt);
+        }
     }
 
-    @Test
-    void updateUserDetailsWhenUserDoesExist() {
-        var oidcSub = UUID.randomUUID().toString();
+    @Nested
+    class GetUserByOidcSub {
 
-        final User user = underTest.createOrUpdate(oidcSub, new UserName(
-                null,
-                null,
-                "Jamie Redding"
-        ));
-        final UserEntity initialEntity = testEntityManager.find(UserEntity.class, user.id());
-        final Instant initialCreatedAt = initialEntity.getCreatedAt();
-        final Instant initialUpdatedAt = initialEntity.getUpdatedAt();
+        @Test
+        void getUserByOidcSubWhenUserDoesNotExist() {
+            assertThat(underTest.getUserByOidcSub(UUID.randomUUID().toString())).isNull();
+        }
 
-        underTest.createOrUpdate(oidcSub, new UserName(
-                "Jay",
-                null,
-                "Jamie Redding"
-        ));
+        @Test
+        void getUserByOidcSubWhenUserExists() {
+            final var oidcSub = UUID.randomUUID().toString();
 
-        final UserEntity userEntity = testEntityManager.find(UserEntity.class, user.id());
+            final var createdUser = underTest.createOrUpdate(oidcSub, new UserName(null, null, "User"));
 
-        assertThat(userEntity).isNotNull();
-        assertThat(userEntity.getId()).isEqualTo(user.id());
-        assertThat(userEntity.getOidcSub()).isEqualTo(oidcSub);
-        assertThat(userEntity.getDisplayName()).isEqualTo("Jay");
-        assertThat(userEntity.getCreatedAt()).isEqualTo(initialCreatedAt);
-        assertThat(userEntity.getUpdatedAt()).isAfter(initialUpdatedAt);
+            assertThat(underTest.getUserByOidcSub(oidcSub)).isEqualTo(createdUser);
+        }
     }
 }

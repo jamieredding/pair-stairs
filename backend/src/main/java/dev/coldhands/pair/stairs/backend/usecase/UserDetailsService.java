@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.backend.usecase;
 
 import dev.coldhands.pair.stairs.backend.domain.User;
 import dev.coldhands.pair.stairs.backend.domain.UserName;
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.UserMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository;
 
@@ -17,7 +18,7 @@ public class UserDetailsService {
     }
 
     public User createOrUpdate(String oidcSub,
-                        UserName userName) {
+                               UserName userName) {
         final String displayName = userDisplayNameService.getDisplayNameFor(userName);
 
         final UserEntity toPersist = ofNullable(userRepository.findByOidcSub(oidcSub))
@@ -27,12 +28,12 @@ public class UserDetailsService {
                 })
                 .orElseGet(() -> new UserEntity(oidcSub, displayName));
 
-        final UserEntity userEntity = userRepository.saveAndFlush(toPersist);
+        return UserMapper.entityToDomain(userRepository.saveAndFlush(toPersist));
+    }
 
-        return new User(
-                userEntity.getId(),
-                userEntity.getOidcSub(),
-                userEntity.getDisplayName()
-        );
+    public User getUserByOidcSub(String oidcSub) {
+        return ofNullable(userRepository.findByOidcSub(oidcSub))
+                .map(UserMapper::entityToDomain)
+                .orElse(null);
     }
 }

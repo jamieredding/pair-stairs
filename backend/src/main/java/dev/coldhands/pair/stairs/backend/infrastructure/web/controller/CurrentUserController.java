@@ -1,8 +1,9 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
-import dev.coldhands.pair.stairs.backend.domain.UserName;
+import dev.coldhands.pair.stairs.backend.domain.User;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CurrentUserDto;
-import dev.coldhands.pair.stairs.backend.usecase.UserDisplayNameService;
+import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -13,19 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 @ConditionalOnBooleanProperty("app.feature.flag.teams.enabled")
 public class CurrentUserController {
 
-    private final UserDisplayNameService userDisplayNameService = new UserDisplayNameService();
+    private final UserDetailsService userDetailsService;
 
-    // TODO update me to use user details service
+    public CurrentUserController(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     @GetMapping("/api/v1/me")
-    public CurrentUserDto getCurrentUser(@AuthenticationPrincipal OidcUser user) {
-        final var userInfo = user.getUserInfo();
+    public CurrentUserDto getCurrentUser(@AuthenticationPrincipal OidcUser oidcUser) {
+        final var userInfo = oidcUser.getUserInfo();
 
-        final UserName userName = new UserName(
-                userInfo.getNickName(),
-                userInfo.getGivenName(),
-                userInfo.getFullName()
-        );
+        final var user = userDetailsService.getUserByOidcSub(userInfo.getSubject());
 
-        return new CurrentUserDto(userInfo.getFullName(), userDisplayNameService.getDisplayNameFor(userName));
+        return new CurrentUserDto(userInfo.getFullName(), user.displayName());
     }
 }

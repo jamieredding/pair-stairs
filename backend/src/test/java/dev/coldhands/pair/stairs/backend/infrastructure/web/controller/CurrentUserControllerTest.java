@@ -1,5 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
+import dev.coldhands.pair.stairs.backend.domain.UserName;
+import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.net.URI;
+import java.util.UUID;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
@@ -30,6 +33,9 @@ public class CurrentUserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
 
     @ParameterizedTest
     @MethodSource
@@ -50,8 +56,14 @@ public class CurrentUserControllerTest {
 
         @Test
         void returnADisplayNameForALoggedInUser() throws Exception {
+            final var oidcSub = UUID.randomUUID().toString();
+            userDetailsService.createOrUpdate(oidcSub, new UserName(null, null, "Full Name"));
+
             mockMvc.perform(get("/api/v1/me")
-                            .with(oidcLogin().userInfoToken(builder -> builder.name("Full Name")))
+                            .with(oidcLogin().userInfoToken(builder ->
+                                    builder.name("Full Name")
+                                            .subject(oidcSub))
+                            )
                     )
                     .andExpect(status().isOk())
                     .andExpect(content().json("""
