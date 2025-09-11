@@ -5,6 +5,8 @@ import dev.coldhands.pair.stairs.backend.domain.UserName;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository;
 
+import static java.util.Optional.ofNullable;
+
 public class UserDetailsService {
 
     private final UserRepository userRepository;
@@ -17,7 +19,15 @@ public class UserDetailsService {
     User createOrUpdate(String oidcSub,
                         UserName userName) {
         final String displayName = userDisplayNameService.getDisplayNameFor(userName);
-        final UserEntity userEntity = userRepository.save(new UserEntity(oidcSub, displayName));
+
+        final UserEntity toPersist = ofNullable(userRepository.findByOidcSub(oidcSub))
+                .map(existing -> {
+                    existing.setDisplayName(displayName);
+                    return existing;
+                })
+                .orElseGet(() -> new UserEntity(oidcSub, displayName));
+
+        final UserEntity userEntity = userRepository.save(toPersist);
 
         return new User(
                 userEntity.getId(),

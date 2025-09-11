@@ -51,4 +51,30 @@ class UserDetailsServiceTest {
         assertThat(userEntity.getCreatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
         assertThat(userEntity.getUpdatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
     }
+
+    @Test
+    void updateUserDetailsWhenUserDoesExist() {
+        var oidcSub = UUID.randomUUID().toString();
+
+        final User user = underTest.createOrUpdate(oidcSub, new UserName(
+                null,
+                null,
+                "Jamie Redding"
+        ));
+
+        underTest.createOrUpdate(oidcSub, new UserName(
+                "Jay",
+                null,
+                "Jamie Redding"
+        ));
+
+        final UserEntity userEntity = testEntityManager.find(UserEntity.class, user.id());
+
+        assertThat(userEntity).isNotNull();
+        assertThat(userEntity.getId()).isEqualTo(user.id());
+        assertThat(userEntity.getOidcSub()).isEqualTo(oidcSub);
+        assertThat(userEntity.getDisplayName()).isEqualTo("Jay");
+        assertThat(userEntity.getCreatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
+        assertThat(userEntity.getUpdatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
+    }
 }

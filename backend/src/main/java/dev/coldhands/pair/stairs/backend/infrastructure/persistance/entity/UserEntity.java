@@ -48,6 +48,10 @@ public class UserEntity {
         return displayName;
     }
 
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
