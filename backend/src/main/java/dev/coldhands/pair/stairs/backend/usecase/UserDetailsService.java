@@ -16,7 +16,7 @@ public class UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    User createOrUpdate(String oidcSub,
+    public User createOrUpdate(String oidcSub,
                         UserName userName) {
         final String displayName = userDisplayNameService.getDisplayNameFor(userName);
 

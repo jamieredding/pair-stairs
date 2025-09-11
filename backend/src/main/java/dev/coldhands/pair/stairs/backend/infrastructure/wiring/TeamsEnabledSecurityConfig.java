@@ -1,11 +1,15 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.web.security.AuthenticationEvents;
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -67,6 +71,16 @@ public class TeamsEnabledSecurityConfig {
         ;
 
         return http.build();
+    }
+
+    @Bean
+    AuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
+    }
+
+    @Bean
+    AuthenticationEvents authenticationEvents(UserDetailsService userDetailsService) {
+        return new AuthenticationEvents(userDetailsService);
     }
 
     @Bean
