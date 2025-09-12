@@ -1,7 +1,5 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
-import dev.coldhands.pair.stairs.backend.domain.User;
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CurrentUserDto;
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;
