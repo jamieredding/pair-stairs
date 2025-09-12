@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager;
@@ -23,6 +25,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -95,6 +98,96 @@ public class TeamControllerTest {
             assertThat(savedTeam.getUpdatedAt()).isCloseTo(Instant.now(), within(Duration.of(1, SECONDS)));
         }
 
+        @Nested
+        class BadRequest {
+
+            @Test
+            void whenBodyIsEmpty() throws Exception {
+                mockMvc.perform(post("/api/v1/teams")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}")
+                        )
+                        .andExpect(status().isBadRequest());
+            }
+
+            @ParameterizedTest
+            @NullAndEmptySource
+            void whenNameIs(String name) throws Exception {
+                mockMvc.perform(post("/api/v1/teams")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "name": %s,
+                                          "slug": "team-0"
+                                        }""".formatted(asJsonString(name)))
+                        )
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.errorCode").value("INVALID_NAME"));
+            }
+
+            @ParameterizedTest
+            @NullAndEmptySource
+            void whenSlugIs(String slug) throws Exception {
+                mockMvc.perform(post("/api/v1/teams")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "name": "Team 0",
+                                          "slug": %s
+                                        }""".formatted(asJsonString(slug)))
+                        )
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.errorCode").value("INVALID_SLUG"));
+            }
+
+            @Test
+            void whenSlugAlreadyExists() throws Exception {
+                mockMvc.perform(post("/api/v1/teams")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "name": "Team 0",
+                                          "slug": "team-0"
+                                        }""")
+                        )
+                        .andExpect(status().isCreated());
+
+                mockMvc.perform(post("/api/v1/teams")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "name": "Team 1",
+                                          "slug": "team-0"
+                                        }""")
+                        )
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.errorCode").value("DUPLICATE_SLUG"));
+            }
+
+            @ParameterizedTest
+            @ValueSource(strings = {
+                    "A",
+                    "abc#",
+                    "abc "
+            })
+            void whenSlugIsInvalidFormat(String slug) throws Exception {
+                mockMvc.perform(post("/api/v1/teams")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("""
+                                        {
+                                          "name": "Team 0",
+                                          "slug": %s
+                                        }""".formatted(asJsonString(slug)))
+                        )
+                        .andExpect(status().isBadRequest())
+                        .andExpect(jsonPath("$.errorCode").value("INVALID_SLUG"));
+            }
+        }
+
+    }
+
+    private static String asJsonString(String s) {
+        return Optional.ofNullable(s).map(_ -> "\"" + s + "\"").orElse(null);
     }
 
 }
