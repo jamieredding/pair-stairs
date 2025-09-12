@@ -34,6 +34,14 @@ public class TeamFeatureFlagTest {
     }
 
     @Test
+    void teamsApiIsDisabled() throws Exception {
+        mockMvc.perform(get("/api/v1/teams")
+                        .with(anonymous()))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/index.html"));
+    }
+
+    @Test
     void apiEndpointsAreNotProtected() throws Exception {
         mockMvc.perform(get("/api/v1/streams")
                         .with(anonymous()))
