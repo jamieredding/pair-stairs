@@ -1,0 +1,67 @@
+{
+  "mappings": [
+    {
+      "scenarioName": "Teams",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/teams/team-0"
+      },
+      "response": {
+        "status": 404
+      }
+    },
+    {
+      "scenarioName": "Teams",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "NEW_TEAM_ADDED",
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/teams",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.name",
+              "equalTo": "Team 0"
+            }
+          },
+          {
+            "matchesJsonPath": {
+              "expression": "$.slug",
+              "equalTo": "team-0"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 201,
+        "jsonBody": {
+          "id": 1,
+          "name": "Team 0",
+          "slug": "team-0"
+        }
+      }
+    },
+    {
+      "scenarioName": "Teams",
+      "requiredScenarioState": "NEW_TEAM_ADDED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/teams/team-0"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "id": 1,
+          "name": "Team 0",
+          "slug": "team-0"
+        }
+      }
+    }
+  ]
+}

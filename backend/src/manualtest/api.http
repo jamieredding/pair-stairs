@@ -67,6 +67,24 @@ GET {{baseUrl}}/api/v1/combinations/event?page=0
 
 DELETE {{baseUrl}}/api/v1/combinations/event/1
 
+
+### Teams
+@slug = team-0
+@name = Team 0
+
+### Get team
+GET {{baseUrl}}/api/v1/teams/{{slug}}
+
+### New team
+POST {{baseUrl}}/api/v1/teams
+Content-Type: application/json
+
+{
+  "name": "{{name}}",
+  "slug": "{{slug}}"
+}
+
+
 ### Actuator
 
 ### health
