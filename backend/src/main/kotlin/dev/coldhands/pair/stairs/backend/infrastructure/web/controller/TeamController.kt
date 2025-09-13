@@ -8,12 +8,8 @@ import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import jakarta.validation.Valid
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
 import org.springframework.http.ResponseEntity
-import org.springframework.http.ResponseEntity.badRequest
-import org.springframework.http.ResponseEntity.status
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity.*
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/teams")
@@ -32,4 +28,9 @@ class TeamController(private val teamRepository: TeamRepository) {
         return status(201)
             .body(teamEntity.toDto())
     }
+
+    @GetMapping("/{slug}")
+    fun getTeam(@PathVariable slug: String): ResponseEntity<*> =
+        teamRepository.findBySlug(slug)?.let { ok(it.toDto()) }
+            ?: notFound().build<String>()
 }

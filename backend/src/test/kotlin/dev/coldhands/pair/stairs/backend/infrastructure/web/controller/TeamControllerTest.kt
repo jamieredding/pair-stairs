@@ -25,8 +25,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.net.URI
@@ -56,7 +55,40 @@ open class TeamControllerTest @Autowired constructor(
     }
 
     @Nested
-    internal inner class Write {
+    inner class ReadTeam {
+
+        @Test
+        fun whenTeamDoesNotExistReturnNotFound() {
+            mockMvc.perform(
+                get("/api/v1/teams/team-0")
+                    .accept(APPLICATION_JSON)
+            )
+                .andExpect(status().isNotFound())
+        }
+
+        @Test
+        fun whenTeamDoesExistReturnTeamData() {
+            val createdTeam = testEntityManager.persist(
+                TeamEntity(
+                    name = "Team 0",
+                    slug = "team-0"
+                )
+            )
+
+            mockMvc.perform(
+                get("/api/v1/teams/team-0")
+                    .accept(APPLICATION_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(createdTeam.id))
+                .andExpect(jsonPath("$.name").value(createdTeam.name))
+                .andExpect(jsonPath("$.slug").value(createdTeam.slug))
+
+        }
+    }
+
+    @Nested
+    inner class Write {
 
         @Test
         fun saveATeam() {
@@ -95,7 +127,7 @@ open class TeamControllerTest @Autowired constructor(
         }
 
         @Nested
-        internal inner class BadRequest {
+        inner class BadRequest {
             @Test
             fun whenBodyIsEmpty() {
                 mockMvc.perform(
@@ -204,10 +236,10 @@ open class TeamControllerTest @Autowired constructor(
         @JvmStatic
         fun whenAnonymousUserThenReturnUnauthorized(): Stream<Arguments> {
             return Stream.of(
-                //                Arguments.of(HttpMethod.GET, "/api/v1/teams"),
+                Arguments.of(HttpMethod.GET, "/api/v1/teams/team-0"),
                 //                Arguments.of(HttpMethod.GET, "/api/v1/developers/info"),
-                Arguments.of(HttpMethod.POST, "/api/v1/teams",
-                ) //                Arguments.of(HttpMethod.GET, "/api/v1/developers/1/stats")
+                Arguments.of(HttpMethod.POST, "/api/v1/teams"),
+                //                Arguments.of(HttpMethod.GET, "/api/v1/developers/1/stats")
             )
         }
 
