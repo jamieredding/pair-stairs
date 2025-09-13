@@ -201,6 +201,7 @@
                         <args>
                             <arg>-Xannotation-default-target=param-property</arg>
                             <arg>-jvm-target=21</arg>
+                            <arg>-Xjsr305=strict</arg>
                         </args>
                     </configuration>
                     <extensions>true</extensions> <!-- You can set this option to automatically take information about lifecycles -->
