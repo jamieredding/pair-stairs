@@ -35,6 +35,7 @@
         <appassembler-maven-plugin.version>2.1.0</appassembler-maven-plugin.version>
 
         <junit-jupiter-api.version>5.13.4</junit-jupiter-api.version>
+        <kotest.version>6.0.3</kotest.version>
         <assertj-core.version>3.27.4</assertj-core.version>
         <picnic.version>0.7.0</picnic.version>
         <guava.version>33.4.8-jre</guava.version>
@@ -113,6 +114,18 @@
                 <version>2.11.5</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>io.kotest</groupId>
+                <artifactId>kotest-runner-junit5-jvm</artifactId>
+                <version>${kotest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.kotest</groupId>
+                <artifactId>kotest-assertions-core-jvm</artifactId>
+                <version>${kotest.version}</version>
+                <scope>test</scope>
+            </dependency>
 
             <dependency>
                 <groupId>ch.qos.logback</groupId>
@@ -184,6 +197,12 @@
                     <artifactId>kotlin-maven-plugin</artifactId>
                     <groupId>org.jetbrains.kotlin</groupId>
                     <version>${kotlin.version}</version>
+                    <configuration>
+                        <args>
+                            <arg>-Xannotation-default-target=param-property</arg>
+                            <arg>-jvm-target=21</arg>
+                        </args>
+                    </configuration>
                     <extensions>true</extensions> <!-- You can set this option to automatically take information about lifecycles -->
                     <executions>
                         <execution>

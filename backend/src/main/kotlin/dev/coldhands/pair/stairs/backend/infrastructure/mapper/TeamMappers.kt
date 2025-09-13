@@ -4,7 +4,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamE
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
 
 fun TeamEntity.toDto(): TeamDto = TeamDto(
-    id = id!!,
+    id = id ?: throw IllegalArgumentException("Cannot create TeamDto when id is null. Likely, the TeamEntity hasn't been persisted yet."),
     name = name,
     slug = slug
 )

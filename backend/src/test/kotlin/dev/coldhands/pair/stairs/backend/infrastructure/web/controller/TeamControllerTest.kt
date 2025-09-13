@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
+import io.kotest.matchers.date.shouldBeCloseTo
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -32,7 +33,6 @@ import java.net.URI
 import java.time.Instant
 import java.util.stream.Stream
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.toJavaDuration
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -83,13 +83,15 @@ open class TeamControllerTest @Autowired constructor(
 
             val savedTeam = testEntityManager.find(TeamEntity::class.java, actualId)
 
-            assertThat(savedTeam.id).isEqualTo(actualId)
-            assertThat(savedTeam.name).isEqualTo("Team 0")
-            assertThat(savedTeam.slug).isEqualTo("team-0")
-            assertThat(savedTeam.createdAt)
-                .isCloseTo(Instant.now(), within(1.seconds.toJavaDuration()))
-            assertThat(savedTeam.updatedAt)
-                .isCloseTo(Instant.now(), within(1.seconds.toJavaDuration()))
+            savedTeam.id shouldBe actualId
+            savedTeam.name shouldBe "Team 0"
+            savedTeam.slug shouldBe "team-0"
+            savedTeam.createdAt.shouldNotBeNull {
+                shouldBeCloseTo(Instant.now(), 1.seconds)
+            }
+            savedTeam.updatedAt.shouldNotBeNull {
+                shouldBeCloseTo(Instant.now(), 1.seconds)
+            }
         }
 
         @Nested
