@@ -2,11 +2,12 @@ import {Card, CardContent, FormControl, Stack, TextField, Typography} from "@mui
 import {useState} from "react";
 import ButtonRow from "../../ButtonRow.tsx";
 import SaveButton from "../../SaveButton.tsx";
+import {generateAutomaticSlug} from "../../../utils/slugUtils.ts";
 
 export function NewTeamPage() {
     const [name, setName] = useState<string>("")
     const [slug, setSlug] = useState<string>("")
-    const slugOrPlaceholder = formatSafeForSlug(slug || name || "tbc")
+    const slugOrPlaceholder = generateAutomaticSlug(slug || name || "tbc")
     const baseUrl = buildBaseUrl()
 
     return (
@@ -21,7 +22,7 @@ export function NewTeamPage() {
                                        onChange={(e) => {
                                            const value = e.target.value;
                                            setName(value);
-                                           setSlug(formatSafeForSlug(value))
+                                           setSlug(generateAutomaticSlug(value))
                                        }}/>
                         </div>
                         <Stack direction="row" gap={1}>
@@ -29,7 +30,7 @@ export function NewTeamPage() {
                                 <TextField label="Slug" variant="outlined"
                                            helperText="This will be part of the url"
                                            value={slug} onChange={(e) => {
-                                    setSlug(formatSafeForSlug(e.target.value));
+                                    setSlug(generateAutomaticSlug(e.target.value));
                                 }}/>
                             </FormControl>
                         </Stack>
@@ -50,10 +51,4 @@ export function NewTeamPage() {
 
 function buildBaseUrl() {
     return window.location.protocol + "//" + window.location.host
-}
-
-function formatSafeForSlug(potentialSlug: string): string {
-    return potentialSlug.toLowerCase()
-        .replaceAll(/[^a-z0-9-]/g, "-")
-    // todo what about multiple bad characters input, it shouldn't show multiple hyphens when generating (but maybe user is allowed?)
 }
