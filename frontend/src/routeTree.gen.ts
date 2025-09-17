@@ -13,6 +13,7 @@ import { Route as StreamsRouteImport } from './routes/streams'
 import { Route as DevelopersRouteImport } from './routes/developers'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TeamTeamNameRouteImport } from './routes/team.$teamName'
+import { Route as NewTeamRouteImport } from './routes/new.team'
 
 const StreamsRoute = StreamsRouteImport.update({
   id: '/streams',
@@ -34,17 +35,24 @@ const TeamTeamNameRoute = TeamTeamNameRouteImport.update({
   path: '/team/$teamName',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewTeamRoute = NewTeamRouteImport.update({
+  id: '/new/team',
+  path: '/new/team',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/developers': typeof DevelopersRoute
   '/streams': typeof StreamsRoute
+  '/new/team': typeof NewTeamRoute
   '/team/$teamName': typeof TeamTeamNameRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/developers': typeof DevelopersRoute
   '/streams': typeof StreamsRoute
+  '/new/team': typeof NewTeamRoute
   '/team/$teamName': typeof TeamTeamNameRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/developers': typeof DevelopersRoute
   '/streams': typeof StreamsRoute
+  '/new/team': typeof NewTeamRoute
   '/team/$teamName': typeof TeamTeamNameRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/developers' | '/streams' | '/team/$teamName'
+  fullPaths: '/' | '/developers' | '/streams' | '/new/team' | '/team/$teamName'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/developers' | '/streams' | '/team/$teamName'
-  id: '__root__' | '/' | '/developers' | '/streams' | '/team/$teamName'
+  to: '/' | '/developers' | '/streams' | '/new/team' | '/team/$teamName'
+  id:
+    | '__root__'
+    | '/'
+    | '/developers'
+    | '/streams'
+    | '/new/team'
+    | '/team/$teamName'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DevelopersRoute: typeof DevelopersRoute
   StreamsRoute: typeof StreamsRoute
+  NewTeamRoute: typeof NewTeamRoute
   TeamTeamNameRoute: typeof TeamTeamNameRoute
 }
 
@@ -99,6 +115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeamTeamNameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/new/team': {
+      id: '/new/team'
+      path: '/new/team'
+      fullPath: '/new/team'
+      preLoaderRoute: typeof NewTeamRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -106,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DevelopersRoute: DevelopersRoute,
   StreamsRoute: StreamsRoute,
+  NewTeamRoute: NewTeamRoute,
   TeamTeamNameRoute: TeamTeamNameRoute,
 }
 export const routeTree = rootRouteImport
