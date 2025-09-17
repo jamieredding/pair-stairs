@@ -38,7 +38,7 @@
         <kotest.version>6.0.3</kotest.version>
         <assertj-core.version>3.27.4</assertj-core.version>
         <picnic.version>0.7.0</picnic.version>
-        <guava.version>33.4.8-jre</guava.version>
+        <guava.version>33.5.0-jre</guava.version>
         <picocli.version>4.7.7</picocli.version>
         <jansi.version>2.4.2</jansi.version>
         <wiremock.version>3.0.1</wiremock.version>
