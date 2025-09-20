@@ -27,11 +27,11 @@ export function NewTeamPage() {
         validators: {
             onChange: z.object({
                 name: z.string()
-                // .trim()
-                // .nonempty("Name must not be empty")
+                    .trim()
+                    .nonempty("Name must not be empty")
                 ,
                 slug: z.string()
-                // .regex(/^[a-z0-9-]+$/, "Slug must be lowercase a-z, 0-9, or -")
+                    .regex(/^[a-z0-9-]+$/, "Slug must be lowercase a-z, 0-9, or -")
             })
         },
         onSubmit: ({value}) => {
@@ -56,7 +56,12 @@ export function NewTeamPage() {
                                     name="name"
                                     children={(field) =>
                                         <field.TextField label="Name" variant="outlined" value={field.state.value}
-                                                         helperText="This is how your team name will appear in the UI"
+                                                         error={!field.state.meta.isValid}
+                                                         helperText={
+                                                             field.state.meta.isValid
+                                                                 ? "This is how your team name will appear in the UI"
+                                                                 : field.state.meta.errors.map(e => e?.message).join(", ")
+                                                         }
                                                          onChange={(e) => {
                                                              const value = e.target.value;
                                                              field.handleChange(value)
@@ -70,10 +75,15 @@ export function NewTeamPage() {
                                     name="slug"
                                     children={(field) =>
                                         <field.TextField label="Slug" variant="outlined" value={field.state.value}
-                                                         helperText="This will be part of the url"
+                                                         error={!field.state.meta.isValid}
+                                                         helperText={
+                                                             field.state.meta.isValid
+                                                                 ? "This will be part of the url"
+                                                                 : field.state.meta.errors.map(e => e?.message).join(", ")
+                                                         }
                                                          onChange={(e) => {
                                                              const value = e.target.value;
-                                                             field.handleChange(generateAutomaticSlug(value))
+                                                             field.handleChange(value)
                                                          }}
                                         />}
                                 />
@@ -91,7 +101,14 @@ export function NewTeamPage() {
                                 />
                             </Stack>
                             <ButtonRow>
-                                <SaveButton onClick={form.handleSubmit}/>
+                                <form.Subscribe
+                                    selector={(state) => [state.canSubmit, state.isSubmitting]}
+                                    children={([canSubmit, isSubmitting]) => (
+                                        <SaveButton onClick={form.handleSubmit} disabled={!canSubmit}
+                                                    text={isSubmitting ? "..." : undefined}/>
+                                    )}
+                                />
+
                             </ButtonRow>
                         </Stack>
                     </form>

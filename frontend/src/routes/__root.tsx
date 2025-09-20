@@ -4,6 +4,8 @@ import RootContext from "../components/RootContext.tsx";
 import {CssBaseline} from "@mui/material";
 import Navbar from "../components/Navbar.tsx";
 import Toolbar from "@mui/material/Toolbar";
+import {TanStackDevtools} from "@tanstack/react-devtools";
+import {FormDevtoolsPlugin} from "@tanstack/react-form-devtools";
 
 export const Route = createRootRoute({
     head: () => ({
@@ -33,6 +35,7 @@ export const Route = createRootRoute({
                 <Toolbar sx={{mb: 1}}/>
                 <Outlet/>
                 <TanStackRouterDevtools/>
+                <TanStackDevtools plugins={[FormDevtoolsPlugin()]} />
             </RootContext>
         </>
     ),
