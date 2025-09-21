@@ -1,4 +1,4 @@
-import {Alert, AlertTitle, Card, CardContent, Snackbar, Stack, TextField, Typography} from "@mui/material";
+import {AlertTitle, Card, CardContent, Stack, TextField, Typography} from "@mui/material";
 import ButtonRow from "../../ButtonRow.tsx";
 import SaveButton from "../../SaveButton.tsx";
 import {generateAutomaticSlug} from "../../../utils/slugUtils.ts";
@@ -6,10 +6,9 @@ import {createFormHook, createFormHookContexts} from "@tanstack/react-form";
 import {z} from "zod";
 import useAddTeam from "../../../hooks/teams/useAddTeam.ts";
 import {useNavigate} from "@tanstack/react-router";
-import {useEffect, useRef, useState} from "react";
-import type {ApiError} from "../../../domain/ApiError.ts";
-import Error from "../../Error.tsx";
 import type TeamDto from "../../../domain/TeamDto.ts";
+import ErrorSnackbar from "../../ErrorSnackbar.tsx";
+import type {ReactElement} from "react";
 
 const {fieldContext, formContext} = createFormHookContexts()
 
@@ -52,18 +51,6 @@ export function NewTeamPage() {
     })
 
     const baseUrl = buildBaseUrl()
-
-    const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false)
-    const prevErrorRef = useRef<ApiError | null>(null);
-
-    // Open snackbar when a *new* error appears
-    useEffect(() => {
-        const prev = prevErrorRef.current;
-        if (isError && isError !== prev) {
-            setErrorSnackbarOpen(true);
-        }
-        prevErrorRef.current = (isError as ApiError | null) ?? null;
-    }, [isError]);
 
     return (
         <main>
@@ -136,22 +123,7 @@ export function NewTeamPage() {
                             </ButtonRow>
                         </Stack>
                     </form>
-                    {isError &&
-                        <>
-                            <Error/>
-                            <Snackbar
-                                open={errorSnackbarOpen}
-                                onClose={() => setErrorSnackbarOpen(false)}
-                                anchorOrigin={{vertical: "bottom", horizontal: "center"}}
-                            >
-                                <div>
-                                    <CustomAlert errorCode={isError?.errorCode ?? "UNKNOWN"}
-                                                 onClose={() => setErrorSnackbarOpen(false)}/>
-                                </div>
-                            </Snackbar>
-                        </>
-
-                    }
+                    <ErrorSnackbar error={isError} alertContent={alertContent}/>
                 </CardContent>
             </Card>
 
@@ -159,18 +131,13 @@ export function NewTeamPage() {
     )
 }
 
-interface CustomAlertProps {
-    errorCode: string;
-    onClose: () => void;
-}
-
-function CustomAlert({errorCode, onClose}: CustomAlertProps) {
+function alertContent(errorCode: string): ReactElement {
     switch (errorCode) {
         default:
-            return <Alert severity="error" onClose={onClose}>
+            return <>
                 <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
                 Try again or refresh the page.
-            </Alert>
+            </>
     }
 }
 
