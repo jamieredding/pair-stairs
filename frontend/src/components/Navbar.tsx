@@ -2,11 +2,13 @@ import Toolbar from "@mui/material/Toolbar";
 import AppBar from "@mui/material/AppBar";
 import {Fragment} from "react";
 import {CustomLink} from "./CustomLink.tsx";
-import {Divider, Stack, Typography} from "@mui/material";
+import {Button, Divider, Stack, Typography} from "@mui/material";
 import {logout} from "../infrastructure/LogoutClient.ts";
 import useCurrentUser from "../hooks/currentUser/useCurrentUser.ts";
 import {greet} from "../utils/greetingUtils.ts";
 import useFeatureFlags from "../hooks/featureFlags/useFeatureFlags.ts";
+import {Add} from "@mui/icons-material";
+import {useNavigate} from "@tanstack/react-router";
 
 interface NavItem {
     displayText: string;
@@ -21,6 +23,7 @@ const navItems: NavItem[] = [
 export default function Navbar() {
     const {featureFlags} = useFeatureFlags()
     const {currentUser} = useCurrentUser();
+    const navigate = useNavigate()
     const handleLogout = () => {
         logout()
     }
@@ -43,6 +46,10 @@ export default function Navbar() {
                             </CustomLink>
                         </Fragment>
                     ))}
+                    <Button variant="contained" onClick={() => navigate({to: "/new/team"})}>
+                        <Add sx={({marginRight: (theme) => theme.spacing(1)})} />
+                        New team
+                    </Button>
                 </Stack>
                 {featureFlags && featureFlags.teamsEnabled &&
                     <>
