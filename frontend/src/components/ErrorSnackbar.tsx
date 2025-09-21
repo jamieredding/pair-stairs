@@ -32,6 +32,13 @@ export default function ErrorSnackbar({error, alertContent}: ErrorSnackbarProps)
                 open={errorSnackbarOpen}
                 onClose={() => setErrorSnackbarOpen(false)}
                 anchorOrigin={{vertical: "bottom", horizontal: "center"}}
+                slotProps={{
+                    clickAwayListener: () => ({
+                        onClickAway: (event: {defaultMuiPrevented: boolean}) => {
+                            event.defaultMuiPrevented = true;
+                        },
+                    }),
+                }}
             >
                 <div>
                     <Alert severity="error" onClose={() => setErrorSnackbarOpen(false)}>
