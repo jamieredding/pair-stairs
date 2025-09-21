@@ -2,14 +2,8 @@ import type CalculateInputDto from "../domain/CalculateInputDto";
 import type {SaveCombinationEventDto} from "../domain/SaveCombinationEventDto.ts";
 import type ScoredCombinationDto from "../domain/ScoredCombinationDto.ts";
 import type CombinationEventDto from "../domain/CombinationEventDto.ts";
-
-interface ErrorDto {
-    errorCode: string;
-}
-
-export interface ApiError {
-    errorCode: string
-}
+import type {ErrorDto} from "../domain/ErrorDto.ts";
+import type {ApiError} from "../domain/ApiError.ts";
 
 export async function calculateCombinations(url: string, {arg}: {
     arg: CalculateInputDto

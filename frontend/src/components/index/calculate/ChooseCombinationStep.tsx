@@ -14,7 +14,8 @@ import Error from "../../Error.tsx";
 import ButtonRow from "../../ButtonRow.tsx";
 import MoreButton from "../../MoreButton.tsx";
 import SaveButton from "../../SaveButton.tsx";
-import type {ApiError} from "../../../infrastructure/CombinationClient.ts";
+
+import type {ApiError} from "../../../domain/ApiError.ts";
 
 
 interface ChooseCombinationStepProps {

@@ -1,4 +1,4 @@
-import {Card, CardContent, Stack, TextField, Typography} from "@mui/material";
+import {Alert, AlertTitle, Card, CardContent, Snackbar, Stack, TextField, Typography} from "@mui/material";
 import ButtonRow from "../../ButtonRow.tsx";
 import SaveButton from "../../SaveButton.tsx";
 import {generateAutomaticSlug} from "../../../utils/slugUtils.ts";
@@ -6,6 +6,10 @@ import {createFormHook, createFormHookContexts} from "@tanstack/react-form";
 import {z} from "zod";
 import useAddTeam from "../../../hooks/teams/useAddTeam.ts";
 import {useNavigate} from "@tanstack/react-router";
+import {useEffect, useRef, useState} from "react";
+import type {ApiError} from "../../../domain/ApiError.ts";
+import Error from "../../Error.tsx";
+import type TeamDto from "../../../domain/TeamDto.ts";
 
 const {fieldContext, formContext} = createFormHookContexts()
 
@@ -21,7 +25,7 @@ const {useAppForm} = createFormHook({
 })
 
 export function NewTeamPage() {
-    const {trigger} = useAddTeam()
+    const {trigger, isError} = useAddTeam()
     const navigate = useNavigate()
 
     const form = useAppForm({
@@ -40,12 +44,26 @@ export function NewTeamPage() {
             })
         },
         onSubmit: async ({value}) => {
-            await trigger(value)
-            await navigate({to: "/team/$teamName", params: {teamName: value.slug}})
+            const response: TeamDto = await trigger(value);
+            if (response.slug) {
+                await navigate({to: "/team/$teamName", params: {teamName: response.slug}})
+            }
         }
     })
 
     const baseUrl = buildBaseUrl()
+
+    const [errorSnackbarOpen, setErrorSnackbarOpen] = useState(false)
+    const prevErrorRef = useRef<ApiError | null>(null);
+
+    // Open snackbar when a *new* error appears
+    useEffect(() => {
+        const prev = prevErrorRef.current;
+        if (isError && isError !== prev) {
+            setErrorSnackbarOpen(true);
+        }
+        prevErrorRef.current = (isError as ApiError | null) ?? null;
+    }, [isError]);
 
     return (
         <main>
@@ -118,11 +136,42 @@ export function NewTeamPage() {
                             </ButtonRow>
                         </Stack>
                     </form>
+                    {isError &&
+                        <>
+                            <Error/>
+                            <Snackbar
+                                open={errorSnackbarOpen}
+                                onClose={() => setErrorSnackbarOpen(false)}
+                                anchorOrigin={{vertical: "bottom", horizontal: "center"}}
+                            >
+                                <div>
+                                    <CustomAlert errorCode={isError?.errorCode ?? "UNKNOWN"}
+                                                 onClose={() => setErrorSnackbarOpen(false)}/>
+                                </div>
+                            </Snackbar>
+                        </>
+
+                    }
                 </CardContent>
             </Card>
 
         </main>
     )
+}
+
+interface CustomAlertProps {
+    errorCode: string;
+    onClose: () => void;
+}
+
+function CustomAlert({errorCode, onClose}: CustomAlertProps) {
+    switch (errorCode) {
+        default:
+            return <Alert severity="error" onClose={onClose}>
+                <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                Try again or refresh the page.
+            </Alert>
+    }
 }
 
 function buildBaseUrl() {

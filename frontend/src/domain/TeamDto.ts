@@ -1,4 +1,5 @@
 export default interface TeamDto {
-    name: string,
-    slug: string,
+    id?: number;
+    name: string;
+    slug: string;
 }

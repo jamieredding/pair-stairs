@@ -62,6 +62,81 @@
           "slug": "team-0"
         }
       }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/teams",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.slug",
+              "equalTo": "bn"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "jsonBody": {
+          "errorCode": "INVALID_NAME"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/teams",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.slug",
+              "equalTo": "dup"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 400,
+        "jsonBody": {
+          "errorCode": "DUPLICATE_SLUG"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "/api/v1/teams",
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.slug",
+              "equalTo": "e"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 500,
+        "jsonBody": {
+          "errorCode": "UNKNOWN"
+        }
+      }
     }
   ]
 }
