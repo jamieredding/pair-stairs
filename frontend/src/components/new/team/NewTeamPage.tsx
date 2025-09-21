@@ -133,6 +133,21 @@ export function NewTeamPage() {
 
 function alertContent(errorCode: string): ReactElement {
     switch (errorCode) {
+        case "INVALID_NAME":
+            return <>
+                <AlertTitle>Invalid name</AlertTitle>
+                Name is not valid, please change it and try again.
+            </>
+        case "INVALID_SLUG":
+            return <>
+                <AlertTitle>Invalid slug</AlertTitle>
+                Slug is not valid, please change it and try again.
+            </>
+        case "DUPLICATE_SLUG":
+            return <>
+                <AlertTitle>Slug already exists</AlertTitle>
+                You cannot create a team with this slug as it already exists.
+            </>
         default:
             return <>
                 <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
