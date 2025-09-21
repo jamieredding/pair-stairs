@@ -4,6 +4,8 @@ import SaveButton from "../../SaveButton.tsx";
 import {generateAutomaticSlug} from "../../../utils/slugUtils.ts";
 import {createFormHook, createFormHookContexts} from "@tanstack/react-form";
 import {z} from "zod";
+import useAddTeam from "../../../hooks/teams/useAddTeam.ts";
+import {useNavigate} from "@tanstack/react-router";
 
 const {fieldContext, formContext} = createFormHookContexts()
 
@@ -19,6 +21,9 @@ const {useAppForm} = createFormHook({
 })
 
 export function NewTeamPage() {
+    const {trigger} = useAddTeam()
+    const navigate = useNavigate()
+
     const form = useAppForm({
         defaultValues: {
             name: "",
@@ -34,8 +39,9 @@ export function NewTeamPage() {
                     .regex(/^[a-z0-9-]+$/, "Slug must be lowercase a-z, 0-9, or -")
             })
         },
-        onSubmit: ({value}) => {
-            console.log(JSON.stringify(value, null, 2))
+        onSubmit: async ({value}) => {
+            await trigger(value)
+            await navigate({to: "/team/$teamName", params: {teamName: value.slug}})
         }
     })
 
