@@ -1,6 +1,5 @@
 import type TeamDto from "../domain/TeamDto.ts";
-import type {ErrorDto} from "../domain/ErrorDto.ts";
-import type {ApiError} from "../domain/ApiError.ts";
+import {handleErrors} from "./handleErrors.ts";
 
 export async function addTeam(url: string, {arg}: { arg: TeamDto }): Promise<TeamDto> {
     const response = await fetch(url, {
@@ -11,21 +10,20 @@ export async function addTeam(url: string, {arg}: { arg: TeamDto }): Promise<Tea
         body: JSON.stringify(arg)
     });
 
-    if (response.status === 400) {
-        let returnedErrorCode: string = "UNKNOWN";
-        try {
-            const {errorCode} = (await response.json()) as ErrorDto;
-            returnedErrorCode = errorCode;
-        } catch {
-            /* ignored */
-        }
-
-        throw {errorCode: returnedErrorCode} as ApiError;
-    }
-
-    if (!response.ok) {
-        throw {errorCode: "UNKNOWN"} as ApiError;
-    }
+    await handleErrors(response)
 
     return response.json();
+}
+
+export async function getTeamBySlug(slug: string): Promise<TeamDto | undefined> {
+    const response = await fetch(`/api/v1/teams/${slug}`, {headers: {"Accept": "application/json"}})
+
+    switch (response.status) {
+        case 200:
+            return response.json()
+        case 404:
+            return undefined
+        // default: TODO how to handle errors? should the return type encompass them?
+        //     await handleErrors(response)
+    }
 }
