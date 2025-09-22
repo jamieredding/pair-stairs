@@ -36,7 +36,7 @@
 
         <junit-jupiter-api.version>5.13.4</junit-jupiter-api.version>
         <kotest.version>6.0.3</kotest.version>
-        <assertj-core.version>3.27.5</assertj-core.version>
+        <assertj-core.version>3.27.6</assertj-core.version>
         <picnic.version>0.7.0</picnic.version>
         <guava.version>33.5.0-jre</guava.version>
         <picocli.version>4.7.7</picocli.version>
