@@ -9,6 +9,9 @@ import {useNavigate} from "@tanstack/react-router";
 import type TeamDto from "../../../domain/TeamDto.ts";
 import ErrorSnackbar from "../../ErrorSnackbar.tsx";
 import type {ReactElement} from "react";
+import useFeatureFlags from "../../../hooks/featureFlags/useFeatureFlags.ts";
+import Loading from "../../Loading.tsx";
+import Error from "../../Error.tsx";
 
 const {fieldContext, formContext} = createFormHookContexts()
 
@@ -24,6 +27,18 @@ const {useAppForm} = createFormHook({
 })
 
 export function NewTeamPage() {
+    const {featureFlags, isLoading, isError} = useFeatureFlags()
+    return <>
+        {isLoading && <Loading/>}
+        {isError && <Error/>}
+        {featureFlags && featureFlags.teamsEnabled
+            ? <EnabledNewTeamPage/>
+            : <Typography variant="h4" color="error">Teams support is disabled.</Typography>
+        }
+    </>
+}
+
+function EnabledNewTeamPage() {
     const {trigger, isError} = useAddTeam()
     const navigate = useNavigate()
 
