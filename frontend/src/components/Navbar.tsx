@@ -46,10 +46,12 @@ export default function Navbar() {
                             </CustomLink>
                         </Fragment>
                     ))}
-                    <Button variant="contained" onClick={() => navigate({to: "/new/team"})}>
-                        <Add sx={({marginRight: (theme) => theme.spacing(1)})} />
-                        New team
-                    </Button>
+                    {featureFlags && featureFlags.teamsEnabled &&
+                        <Button variant="contained" onClick={() => navigate({to: "/new/team"})}>
+                            <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
+                            New team
+                        </Button>
+                    }
                 </Stack>
                 {featureFlags && featureFlags.teamsEnabled &&
                     <>
