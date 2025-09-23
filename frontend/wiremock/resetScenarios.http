@@ -20,3 +20,21 @@ Content-Type: application/json
 
 ### Get scenarios
 GET {{baseUrl}}/__admin/scenarios
+
+### Remove manual stubbing
+POST {{baseUrl}}/__admin/mappings/reset
+
+### Manual stubbing
+POST {{baseUrl}}/__admin/mappings
+Content-Type: application/json
+
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "url": "/api/v1/teams/team-0"
+  },
+  "response": {
+    "status": 500
+  }
+}

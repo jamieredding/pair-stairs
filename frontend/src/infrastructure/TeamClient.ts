@@ -15,15 +15,15 @@ export async function addTeam(url: string, {arg}: { arg: TeamDto }): Promise<Tea
     return response.json();
 }
 
-export async function getTeamBySlug(slug: string): Promise<TeamDto | undefined> {
-    const response = await fetch(`/api/v1/teams/${slug}`, {headers: {"Accept": "application/json"}})
+export async function getTeamBySlug(url: string): Promise<TeamDto | undefined> {
+    const response = await fetch(url, {headers: {"Accept": "application/json"}})
 
     switch (response.status) {
         case 200:
             return response.json()
         case 404:
             return undefined
-        // default: TODO how to handle errors? should the return type encompass them?
-        //     await handleErrors(response)
+        default:
+            await handleErrors(response)
     }
 }
