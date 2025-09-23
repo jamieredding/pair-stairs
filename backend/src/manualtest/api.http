@@ -85,6 +85,10 @@ Content-Type: application/json
 }
 
 
+
+### Feature flags
+GET {{baseUrl}}/api/v1/feature-flags
+
 ### Actuator
 
 ### health

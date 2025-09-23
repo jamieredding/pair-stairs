@@ -9,3 +9,14 @@ PUT {{baseUrl}}/__admin/scenarios/Streams/state
 
 ### Reset teams scenario
 PUT {{baseUrl}}/__admin/scenarios/Teams/state
+
+### Disable teams
+PUT {{baseUrl}}/__admin/scenarios/Teams/state
+Content-Type: application/json
+
+{
+  "state": "DISABLED"
+}
+
+### Get scenarios
+GET {{baseUrl}}/__admin/scenarios

@@ -137,6 +137,34 @@
           "errorCode": "UNKNOWN"
         }
       }
+    },
+
+    {
+      "priority": 1,
+      "scenarioName": "Teams",
+      "requiredScenarioState": "DISABLED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/feature-flags"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "teamsEnabled": false
+        }
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "Teams",
+      "requiredScenarioState": "DISABLED",
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/api/v1/teams.*"
+      },
+      "response": {
+        "status": 404
+      }
     }
   ]
 }
