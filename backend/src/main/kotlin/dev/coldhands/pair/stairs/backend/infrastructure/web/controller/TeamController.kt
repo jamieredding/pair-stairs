@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamE
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
 import jakarta.validation.Valid
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
 import org.springframework.http.ResponseEntity
@@ -33,4 +34,7 @@ class TeamController(private val teamRepository: TeamRepository) {
     fun getTeam(@PathVariable slug: String): ResponseEntity<*> =
         teamRepository.findBySlug(slug)?.let { ok(it.toDto()) }
             ?: notFound().build<String>()
+
+    @GetMapping
+    fun getTeams(): List<TeamDto> = teamRepository.findAll().map { it.toDto() }
 }

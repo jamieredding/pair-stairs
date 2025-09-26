@@ -26,8 +26,7 @@ import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.net.URI
 import java.time.Instant
 import java.util.stream.Stream
@@ -86,6 +85,62 @@ open class TeamControllerTest @Autowired constructor(
 
         }
     }
+
+    @Nested
+    inner class ReadTeams {
+
+        @Test
+        fun whenNoTeamsExistReturnEmptyArray() {
+            mockMvc.perform(
+                get("/api/v1/teams")
+                    .accept(APPLICATION_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"))
+        }
+
+        @Test
+        fun whenMultipleTeamsExistThenReturnThem() {
+            val team0 = testEntityManager.persist(
+                TeamEntity(
+                    name = "Team 0",
+                    slug = "team-0"
+                )
+            )
+            val team1 = testEntityManager.persist(
+                TeamEntity(
+                    name = "Team 1",
+                    slug = "team-1"
+                )
+            )
+
+
+            mockMvc.perform(
+                get("/api/v1/teams")
+                    .accept(APPLICATION_JSON)
+            )
+                .andExpect(status().isOk())
+                .andExpect(
+                    content().json(
+                        """
+                    [
+                      {
+                        "id": ${team0.id},
+                        "name": ${team0.name.asJsonString()},
+                        "slug": ${team0.slug.asJsonString()}
+                      },
+                      {
+                        "id": ${team1.id},
+                        "name": ${team1.name.asJsonString()},
+                        "slug": ${team1.slug.asJsonString()}
+                      }
+                    ]
+                """.trimIndent()
+                    )
+                )
+        }
+    }
+
 
     @Nested
     inner class Write {
@@ -237,9 +292,8 @@ open class TeamControllerTest @Autowired constructor(
         fun whenAnonymousUserThenReturnUnauthorized(): Stream<Arguments> {
             return Stream.of(
                 Arguments.of(HttpMethod.GET, "/api/v1/teams/team-0"),
-                //                Arguments.of(HttpMethod.GET, "/api/v1/developers/info"),
+                Arguments.of(HttpMethod.GET, "/api/v1/teams"),
                 Arguments.of(HttpMethod.POST, "/api/v1/teams"),
-                //                Arguments.of(HttpMethod.GET, "/api/v1/developers/1/stats")
             )
         }
 
