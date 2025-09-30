@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
@@ -29,6 +30,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.net.URI
 import java.time.LocalDate
 import java.util.stream.Stream
+import kotlin.random.Random
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -153,6 +155,60 @@ open class DeveloperControllerTest @Autowired constructor(
 
             savedDeveloper.id shouldBe actualId
             savedDeveloper.name shouldBe "dev-0"
+        }
+    }
+
+    @Nested
+    internal inner class Patch {
+
+        @ParameterizedTest
+        @ValueSource(booleans = [true, false])
+        fun archived(newArchivedValue: Boolean) {
+            val developer = testEntityManager.persist(DeveloperEntity("dev-0"))
+
+            developer.isArchived shouldBe false
+
+            val result = mockMvc.perform(
+                patch("/api/v1/developers/${developer.id}")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                                    {
+                                      "archived": $newArchivedValue
+                                    }
+                                    """.trimIndent()
+                    )
+            )
+                .andExpect(status().isOk())
+                .andReturn()
+
+            val updatedDeveloper =
+                objectMapper.readValue(result.response.contentAsString, Developer::class.java)
+
+            updatedDeveloper.archived shouldBe newArchivedValue
+
+            val savedDeveloper = testEntityManager.find(DeveloperEntity::class.java, developer.id)
+
+            savedDeveloper.id shouldBe developer.id
+            savedDeveloper.name shouldBe "dev-0"
+            savedDeveloper.isArchived shouldBe newArchivedValue
+        }
+
+        @Test
+        fun whenDeveloperDoesNotExistWithIdThenReturnNotFound() {
+            mockMvc.perform(
+                patch("/api/v1/developers/${Random.nextInt()}")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                                    {
+                                      "archived": true
+                                    }
+                                    """.trimIndent()
+                    )
+            )
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(""))
         }
     }
 
@@ -485,7 +541,8 @@ open class DeveloperControllerTest @Autowired constructor(
                 Arguments.of(HttpMethod.GET, "/api/v1/developers"),
                 Arguments.of(HttpMethod.GET, "/api/v1/developers/info"),
                 Arguments.of(HttpMethod.POST, "/api/v1/developers"),
-                Arguments.of(HttpMethod.GET, "/api/v1/developers/1/stats")
+                Arguments.of(HttpMethod.GET, "/api/v1/developers/1/stats"),
+                Arguments.of(HttpMethod.PATCH, "/api/v1/developers/1"),
             )
         }
 

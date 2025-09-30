@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.domain.DeveloperStats;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.PatchDeveloperDto;
 import dev.coldhands.pair.stairs.backend.usecase.StatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,6 +49,17 @@ public class DeveloperController {
 
         return ResponseEntity.status(201)
                 .body(savedDeveloper);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<DeveloperEntity> updateDeveloper(@RequestBody PatchDeveloperDto dto, @PathVariable("id") long id) {
+        return repository.findById(id)
+                .map(developer -> {
+                    developer.setArchived(dto.archived());
+                    return repository.save(developer);
+                })
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/stats")
