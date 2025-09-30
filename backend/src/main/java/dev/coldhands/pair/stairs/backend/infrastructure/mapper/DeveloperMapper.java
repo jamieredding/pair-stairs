@@ -13,7 +13,7 @@ public final class DeveloperMapper {
     }
 
     public static DeveloperInfo entityToInfo(DeveloperEntity entity) {
-        return new DeveloperInfo(entity.getId(), entity.getName());
+        return new DeveloperInfo(entity.getId(), entity.getName(), entity.isArchived());
     }
 
     public static String entityToCore(DeveloperEntity entity) {

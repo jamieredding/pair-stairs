@@ -21,11 +21,11 @@ class CombinationMapperTest {
     void canMapEntityToCore() {
         CombinationEntity combinationEntity = new CombinationEntity(List.of(
                 new PairStreamEntity(
-                        List.of(new DeveloperEntity(0L, ""), new DeveloperEntity(1L, "")),
+                        List.of(new DeveloperEntity(0L, "", false), new DeveloperEntity(1L, "", false)),
                         new StreamEntity(10L, "")
                 ),
                 new PairStreamEntity(
-                        List.of(new DeveloperEntity(2L, "")),
+                        List.of(new DeveloperEntity(2L, "", false)),
                         new StreamEntity(20L, "")
                 )
 
@@ -43,11 +43,11 @@ class CombinationMapperTest {
     void canMapEntityToDomainAndSortDependenciesAlphabetically() {
         CombinationEntity entity = new CombinationEntity(List.of(
                 new PairStreamEntity(
-                        List.of(new DeveloperEntity(0L, "b"), new DeveloperEntity(1L, "a")),
+                        List.of(new DeveloperEntity(0L, "b", false), new DeveloperEntity(1L, "a", false)),
                         new StreamEntity(10L, "z")
                 ),
                 new PairStreamEntity(
-                        List.of(new DeveloperEntity(2L, "c")),
+                        List.of(new DeveloperEntity(2L, "c", false)),
                         new StreamEntity(20L, "y")
                 )
 
@@ -56,11 +56,11 @@ class CombinationMapperTest {
         assertThat(CombinationMapper.entityToDomain(entity)).isEqualTo(
                 List.of(
                         new dev.coldhands.pair.stairs.backend.domain.PairStream(
-                                List.of(new DeveloperInfo(2L, "c")),
+                                List.of(new DeveloperInfo(2L, "c", false)),
                                 new StreamInfo(20L, "y")
                         ),
                         new dev.coldhands.pair.stairs.backend.domain.PairStream(
-                                List.of(new DeveloperInfo(1L, "a"), new DeveloperInfo(0L, "b")),
+                                List.of(new DeveloperInfo(1L, "a", false), new DeveloperInfo(0L, "b", false)),
                                 new StreamInfo(10L, "z")
                         )
                 )

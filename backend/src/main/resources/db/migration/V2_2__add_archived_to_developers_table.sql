@@ -1,0 +1,3 @@
+ALTER TABLE developers
+    ADD COLUMN
+        archived BOOLEAN NOT NULL DEFAULT 0

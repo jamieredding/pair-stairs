@@ -22,7 +22,7 @@ class PairStreamMapperTest {
 
         @Test
         void canMapFromCoreToDomain() {
-            LookupById<DeveloperEntity> developerLookup = _ -> new DeveloperEntity(0L, "dev-0");
+            LookupById<DeveloperEntity> developerLookup = _ -> new DeveloperEntity(0L, "dev-0", false);
             LookupById<StreamEntity> streamLookup = _ -> new StreamEntity(0L, "stream-a");
 
             final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.coreToDomain(new PairStream(Set.of("0"), "0"),
@@ -30,7 +30,7 @@ class PairStreamMapperTest {
 
             assertThat(actual).isEqualTo(new dev.coldhands.pair.stairs.backend.domain.PairStream(
                     List.of(
-                            new DeveloperInfo(0, "dev-0")
+                            new DeveloperInfo(0, "dev-0", false)
                     ),
                     new StreamInfo(0, "stream-a")
             ));
@@ -40,9 +40,9 @@ class PairStreamMapperTest {
         void willSortDevelopersByDisplayNameAlphabetically() {
             LookupById<DeveloperEntity> developerLookup = id ->
                     Map.of(
-                            0L, new DeveloperEntity(0L, "a"),
-                            1L, new DeveloperEntity(1L, "b"),
-                            2L, new DeveloperEntity(2L, "c")
+                            0L, new DeveloperEntity(0L, "a", false),
+                            1L, new DeveloperEntity(1L, "b", false),
+                            2L, new DeveloperEntity(2L, "c", false)
                     ).get(id);
             LookupById<StreamEntity> streamLookup = id ->
                     Map.of(
@@ -53,9 +53,9 @@ class PairStreamMapperTest {
                     developerLookup, streamLookup);
 
             assertThat(actual.developers()).isEqualTo(List.of(
-                    new DeveloperInfo(0, "a"),
-                    new DeveloperInfo(1, "b"),
-                    new DeveloperInfo(2, "c")
+                    new DeveloperInfo(0, "a", false),
+                    new DeveloperInfo(1, "b", false),
+                    new DeveloperInfo(2, "c", false)
             ));
         }
     }
@@ -67,14 +67,14 @@ class PairStreamMapperTest {
         void canMapFromEntityToInfo() {
             final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.entityToInfo(
                     new PairStreamEntity(
-                            List.of(new DeveloperEntity(0L, "dev-0"), new DeveloperEntity(1L, "dev-1")),
+                            List.of(new DeveloperEntity(0L, "dev-0", false), new DeveloperEntity(1L, "dev-1", false)),
                             new StreamEntity(10L, "stream-a")
                     ));
 
             assertThat(actual).isEqualTo(new dev.coldhands.pair.stairs.backend.domain.PairStream(
                     List.of(
-                            new DeveloperInfo(0, "dev-0"),
-                            new DeveloperInfo(1, "dev-1")
+                            new DeveloperInfo(0, "dev-0", false),
+                            new DeveloperInfo(1, "dev-1", false)
                     ),
                     new StreamInfo(10, "stream-a")
             ));
@@ -84,14 +84,14 @@ class PairStreamMapperTest {
         void willSortDevelopersByDisplayNameAlphabetically() {
             final dev.coldhands.pair.stairs.backend.domain.PairStream actual = PairStreamMapper.entityToInfo(
                     new PairStreamEntity(
-                            List.of(new DeveloperEntity(0L, "b"), new DeveloperEntity(1L, "a")),
+                            List.of(new DeveloperEntity(0L, "b", false), new DeveloperEntity(1L, "a", false)),
                             new StreamEntity(10L, "")
                     ));
 
             assertThat(actual).isEqualTo(new dev.coldhands.pair.stairs.backend.domain.PairStream(
                     List.of(
-                            new DeveloperInfo(1, "a"),
-                            new DeveloperInfo(0, "b")
+                            new DeveloperInfo(1, "a", false),
+                            new DeveloperInfo(0, "b", false)
                     ),
                     new StreamInfo(10, "")
             ));
@@ -105,7 +105,7 @@ class PairStreamMapperTest {
         void canMapFromEntityToCore() {
             assertThat(PairStreamMapper.entityToCore(
                     new PairStreamEntity(
-                            List.of(new DeveloperEntity(0L, ""), new DeveloperEntity(1L, "")),
+                            List.of(new DeveloperEntity(0L, "", false), new DeveloperEntity(1L, "", false)),
                             new StreamEntity(10L, "")
                     )
             )).isEqualTo(new PairStream(Set.of("0", "1"), "10"));

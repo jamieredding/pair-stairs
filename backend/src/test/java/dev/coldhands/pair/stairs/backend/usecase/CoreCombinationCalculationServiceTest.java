@@ -46,9 +46,9 @@ class CoreCombinationCalculationServiceTest {
     void runCoreEntryPointUsingInput() {
         when(developerRepository.findAllById(List.of(0L, 1L, 2L)))
                 .thenReturn(List.of(
-                        new DeveloperEntity(0L, "dev-0"),
-                        new DeveloperEntity(1L, "dev-1"),
-                        new DeveloperEntity(2L, "dev-2")
+                        new DeveloperEntity(0L, "dev-0", false),
+                        new DeveloperEntity(1L, "dev-1", false),
+                        new DeveloperEntity(2L, "dev-2", false)
                 ));
         when(streamRepository.findAllById(List.of(0L, 1L)))
                 .thenReturn(List.of(
@@ -80,14 +80,14 @@ class CoreCombinationCalculationServiceTest {
                 new ScoredCombination(10,
                         List.of(new PairStream(
                                         List.of(
-                                                new DeveloperInfo(0, "dev-0"),
-                                                new DeveloperInfo(1, "dev-1")
+                                                new DeveloperInfo(0, "dev-0", false),
+                                                new DeveloperInfo(1, "dev-1", false)
                                         ),
                                         new StreamInfo(0, "stream-a")
                                 ),
                                 new PairStream(
                                         List.of(
-                                                new DeveloperInfo(2, "dev-2")
+                                                new DeveloperInfo(2, "dev-2", false)
                                         ),
                                         new StreamInfo(1, "stream-b")
                                 ))
@@ -95,14 +95,14 @@ class CoreCombinationCalculationServiceTest {
                 new ScoredCombination(20,
                         List.of(new PairStream(
                                         List.of(
-                                                new DeveloperInfo(0, "dev-0"),
-                                                new DeveloperInfo(2, "dev-2")
+                                                new DeveloperInfo(0, "dev-0", false),
+                                                new DeveloperInfo(2, "dev-2", false)
                                         ),
                                         new StreamInfo(0, "stream-a")
                                 ),
                                 new PairStream(
                                         List.of(
-                                                new DeveloperInfo(1, "dev-1")
+                                                new DeveloperInfo(1, "dev-1", false)
                                         ),
                                         new StreamInfo(1, "stream-b")
                                 ))
@@ -116,7 +116,7 @@ class CoreCombinationCalculationServiceTest {
         void onlyReturnFirstPageOfScoredCombinationsIfMoreThanPageSizeAreReturned() {
             when(developerRepository.findAllById(List.of(0L)))
                     .thenReturn(List.of(
-                            new DeveloperEntity(0L, "dev-0")
+                            new DeveloperEntity(0L, "dev-0", false)
                     ));
             when(streamRepository.findAllById(List.of(0L)))
                     .thenReturn(List.of(
@@ -146,7 +146,7 @@ class CoreCombinationCalculationServiceTest {
         void returnSecondPageOfScoredCombinationsWhenRequested() {
             when(developerRepository.findAllById(List.of(0L)))
                     .thenReturn(List.of(
-                            new DeveloperEntity(0L, "dev-0")
+                            new DeveloperEntity(0L, "dev-0", false)
                     ));
             when(streamRepository.findAllById(List.of(0L)))
                     .thenReturn(List.of(

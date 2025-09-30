@@ -21,8 +21,8 @@ class ScoredCombinationMapperTest {
     void canMapFromCoreToDomain() {
         LookupById<DeveloperEntity> developerLookup = id ->
                 Map.of(
-                        0L, new DeveloperEntity(0L, "dev-0"),
-                        1L, new DeveloperEntity(1L, "dev-1")
+                        0L, new DeveloperEntity(0L, "dev-0", false),
+                        1L, new DeveloperEntity(1L, "dev-1", false)
                 ).get(id);
         LookupById<StreamEntity> streamLookup = id ->
                 Map.of(
@@ -41,13 +41,13 @@ class ScoredCombinationMapperTest {
         assertThat(actual).isEqualTo(new ScoredCombination(10,
                 List.of(new dev.coldhands.pair.stairs.backend.domain.PairStream(
                                 List.of(
-                                        new DeveloperInfo(0, "dev-0")
+                                        new DeveloperInfo(0, "dev-0", false)
                                 ),
                                 new StreamInfo(0, "stream-a")
                         ),
                         new dev.coldhands.pair.stairs.backend.domain.PairStream(
                                 List.of(
-                                        new DeveloperInfo(1, "dev-1")
+                                        new DeveloperInfo(1, "dev-1", false)
                                 ),
                                 new StreamInfo(1, "stream-b")
                         ))
@@ -59,7 +59,7 @@ class ScoredCombinationMapperTest {
     void willSortPairStreamsByStreamDisplayName() {
         LookupById<DeveloperEntity> developerLookup = id ->
                 Map.of(
-                        0L, new DeveloperEntity(0L, "")
+                        0L, new DeveloperEntity(0L, "", false)
                 ).get(id);
         LookupById<StreamEntity> streamLookup = id ->
                 Map.of(

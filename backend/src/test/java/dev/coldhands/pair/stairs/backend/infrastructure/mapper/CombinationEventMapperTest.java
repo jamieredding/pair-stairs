@@ -23,11 +23,11 @@ class CombinationEventMapperTest {
             CombinationEventEntity entity = new CombinationEventEntity(LocalDate.of(2024, 5, 6),
                     new CombinationEntity(List.of(
                             new PairStreamEntity(
-                                    List.of(new DeveloperEntity(0L, "b"), new DeveloperEntity(1L, "a")),
+                                    List.of(new DeveloperEntity(0L, "b", false), new DeveloperEntity(1L, "a", false)),
                                     new StreamEntity(10L, "z")
                             ),
                             new PairStreamEntity(
-                                    List.of(new DeveloperEntity(2L, "c")),
+                                    List.of(new DeveloperEntity(2L, "c", false)),
                                     new StreamEntity(20L, "y")
                             )
 
@@ -39,11 +39,11 @@ class CombinationEventMapperTest {
                             LocalDate.of(2024, 5, 6),
                             List.of(
                                     new PairStream(
-                                            List.of(new DeveloperInfo(2L, "c")),
+                                            List.of(new DeveloperInfo(2L, "c", false)),
                                             new StreamInfo(20L, "y")
                                     ),
                                     new PairStream(
-                                            List.of(new DeveloperInfo(1L, "a"), new DeveloperInfo(0L, "b")),
+                                            List.of(new DeveloperInfo(1L, "a", false), new DeveloperInfo(0L, "b", false)),
                                             new StreamInfo(10L, "z")
                                     )
                             ))

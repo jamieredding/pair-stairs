@@ -8,8 +8,8 @@ class DeveloperInfoTest {
 
     @Test
     void comparable() {
-        DeveloperInfo a = new DeveloperInfo(1, "a");
-        DeveloperInfo b = new DeveloperInfo(1, "b");
+        DeveloperInfo a = new DeveloperInfo(1, "a", false);
+        DeveloperInfo b = new DeveloperInfo(1, "b", false);
 
         assertThat(a.compareTo(b)).isLessThan(0);
         assertThat(b.compareTo(a)).isGreaterThan(0);

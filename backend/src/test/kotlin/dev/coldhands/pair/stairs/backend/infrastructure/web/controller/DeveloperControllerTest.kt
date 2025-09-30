@@ -73,11 +73,13 @@ open class DeveloperControllerTest @Autowired constructor(
                             [
                                 {
                                     "id": ${dev0Id},
-                                    "name": "dev-0"
+                                    "name": "dev-0",
+                                    "archived": false
                                 },
                                 {
                                     "id": ${dev1Id},
-                                    "name": "dev-1"
+                                    "name": "dev-1",
+                                    "archived": false
                                 }
                             ]
                             """.trimIndent()
@@ -108,11 +110,13 @@ open class DeveloperControllerTest @Autowired constructor(
                             [
                                 {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                 },
                                 {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                 }
                             ]
                             """.trimIndent()
@@ -176,7 +180,8 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -227,28 +232,32 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                   },
                                   "count": 2
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev2Id},
-                                    "displayName": "dev-2"
+                                    "displayName": "dev-2",
+                                    "archived": false
                                   },
                                   "count": 1
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev3Id},
-                                    "displayName": "dev-3"
+                                    "displayName": "dev-3",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -296,28 +305,32 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev2Id},
-                                    "displayName": "dev-2"
+                                    "displayName": "dev-2",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev3Id},
-                                    "displayName": "dev-3"
+                                    "displayName": "dev-3",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -400,28 +413,32 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                   },
                                   "count": 1
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev2Id},
-                                    "displayName": "dev-2"
+                                    "displayName": "dev-2",
+                                    "archived": false
                                   },
                                   "count": 1
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev3Id},
-                                    "displayName": "dev-3"
+                                    "displayName": "dev-3",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
