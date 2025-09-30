@@ -52,8 +52,8 @@ class CoreCombinationCalculationServiceTest {
                 ));
         when(streamRepository.findAllById(List.of(0L, 1L)))
                 .thenReturn(List.of(
-                        new StreamEntity(0L, "stream-a"),
-                        new StreamEntity(1L, "stream-b")
+                        new StreamEntity(0L, "stream-a", false),
+                        new StreamEntity(1L, "stream-b", false)
                 ));
         when(entryPointFactory.create(List.of("0", "1", "2"), List.of("0", "1"))).thenReturn(entryPoint);
 
@@ -83,13 +83,13 @@ class CoreCombinationCalculationServiceTest {
                                                 new DeveloperInfo(0, "dev-0", false),
                                                 new DeveloperInfo(1, "dev-1", false)
                                         ),
-                                        new StreamInfo(0, "stream-a")
+                                        new StreamInfo(0, "stream-a", false)
                                 ),
                                 new PairStream(
                                         List.of(
                                                 new DeveloperInfo(2, "dev-2", false)
                                         ),
-                                        new StreamInfo(1, "stream-b")
+                                        new StreamInfo(1, "stream-b", false)
                                 ))
                 ),
                 new ScoredCombination(20,
@@ -98,13 +98,13 @@ class CoreCombinationCalculationServiceTest {
                                                 new DeveloperInfo(0, "dev-0", false),
                                                 new DeveloperInfo(2, "dev-2", false)
                                         ),
-                                        new StreamInfo(0, "stream-a")
+                                        new StreamInfo(0, "stream-a", false)
                                 ),
                                 new PairStream(
                                         List.of(
                                                 new DeveloperInfo(1, "dev-1", false)
                                         ),
-                                        new StreamInfo(1, "stream-b")
+                                        new StreamInfo(1, "stream-b", false)
                                 ))
                 ));
     }
@@ -120,7 +120,7 @@ class CoreCombinationCalculationServiceTest {
                     ));
             when(streamRepository.findAllById(List.of(0L)))
                     .thenReturn(List.of(
-                            new StreamEntity(0L, "stream-a")
+                            new StreamEntity(0L, "stream-a", false)
                     ));
             when(entryPointFactory.create(List.of("0"), List.of("0"))).thenReturn(entryPoint);
 
@@ -150,7 +150,7 @@ class CoreCombinationCalculationServiceTest {
                     ));
             when(streamRepository.findAllById(List.of(0L)))
                     .thenReturn(List.of(
-                            new StreamEntity(0L, "stream-a")
+                            new StreamEntity(0L, "stream-a", false)
                     ));
             when(entryPointFactory.create(List.of("0"), List.of("0"))).thenReturn(entryPoint);
 

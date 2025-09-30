@@ -10,8 +10,8 @@ class PairStreamTest {
 
     @Test
     void comparable() {
-        PairStream a = new PairStream(List.of(), new StreamInfo(1, "a"));
-        PairStream b = new PairStream(List.of(), new StreamInfo(1, "b"));
+        PairStream a = new PairStream(List.of(), new StreamInfo(1, "a", false));
+        PairStream b = new PairStream(List.of(), new StreamInfo(1, "b", false));
 
         assertThat(a.compareTo(b)).isLessThan(0);
         assertThat(b.compareTo(a)).isGreaterThan(0);

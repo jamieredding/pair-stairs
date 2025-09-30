@@ -72,11 +72,13 @@ open class StreamControllerTest @Autowired constructor(
                             [
                                 {
                                     "id": ${stream0Id},
-                                    "name": "stream-0"
+                                    "name": "stream-0",
+                                    "archived": false
                                 },
                                 {
                                     "id": ${stream1Id},
-                                    "name": "stream-1"
+                                    "name": "stream-1",
+                                    "archived": false
                                 }
                             ]
                             """.trimIndent()
@@ -107,11 +109,13 @@ open class StreamControllerTest @Autowired constructor(
                             [
                                 {
                                     "id": ${stream0Id},
-                                    "displayName": "stream-0"
+                                    "displayName": "stream-0",
+                                    "archived": false
                                 },
                                 {
                                     "id": ${stream1Id},
-                                    "displayName": "stream-1"
+                                    "displayName": "stream-1",
+                                    "archived": false
                                 }
                             ]
                             """.trimIndent()
@@ -176,7 +180,8 @@ open class StreamControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -226,28 +231,32 @@ open class StreamControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 3
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                   },
                                   "count": 2
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev2Id},
-                                    "displayName": "dev-2"
+                                    "displayName": "dev-2",
+                                    "archived": false
                                   },
                                   "count": 1
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev3Id},
-                                    "displayName": "dev-3"
+                                    "displayName": "dev-3",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -277,28 +286,32 @@ open class StreamControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev2Id},
-                                    "displayName": "dev-2"
+                                    "displayName": "dev-2",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev3Id},
-                                    "displayName": "dev-3"
+                                    "displayName": "dev-3",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -358,28 +371,32 @@ open class StreamControllerTest @Autowired constructor(
                                 {
                                   "developer": {
                                     "id": ${dev0Id},
-                                    "displayName": "dev-0"
+                                    "displayName": "dev-0",
+                                    "archived": false
                                   },
                                   "count": 2
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev1Id},
-                                    "displayName": "dev-1"
+                                    "displayName": "dev-1",
+                                    "archived": false
                                   },
                                   "count": 1
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev2Id},
-                                    "displayName": "dev-2"
+                                    "displayName": "dev-2",
+                                    "archived": false
                                   },
                                   "count": 1
                                 },
                                 {
                                   "developer": {
                                     "id": ${dev3Id},
-                                    "displayName": "dev-3"
+                                    "displayName": "dev-3",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }

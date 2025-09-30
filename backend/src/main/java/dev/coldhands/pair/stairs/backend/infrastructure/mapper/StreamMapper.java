@@ -13,7 +13,7 @@ public final class StreamMapper {
     }
 
     public static StreamInfo entityToInfo(StreamEntity entity) {
-        return new StreamInfo(entity.getId(), entity.getName());
+        return new StreamInfo(entity.getId(), entity.getName(),  entity.isArchived());
     }
 
     public static String entityToCore(StreamEntity entity) {

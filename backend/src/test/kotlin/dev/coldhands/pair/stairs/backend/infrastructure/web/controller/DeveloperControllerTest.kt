@@ -322,14 +322,16 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "stream": {
                                     "id": ${streamAId},
-                                    "displayName": "stream-a"
+                                    "displayName": "stream-a",
+                                    "archived": false
                                   },
                                   "count": 3
                                 },
                                 {
                                   "stream": {
                                     "id": ${streamBId},
-                                    "displayName": "stream-b"
+                                    "displayName": "stream-b",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -395,21 +397,24 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "stream": {
                                     "id": ${streamAId},
-                                    "displayName": "stream-a"
+                                    "displayName": "stream-a",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "stream": {
                                     "id": ${streamBId},
-                                    "displayName": "stream-b"
+                                    "displayName": "stream-b",
+                                    "archived": false
                                   },
                                   "count": 0
                                 },
                                 {
                                   "stream": {
                                     "id": ${streamCId},
-                                    "displayName": "stream-c"
+                                    "displayName": "stream-c",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }
@@ -503,14 +508,16 @@ open class DeveloperControllerTest @Autowired constructor(
                                 {
                                   "stream": {
                                     "id": ${streamAId},
-                                    "displayName": "stream-a"
+                                    "displayName": "stream-a",
+                                    "archived": false
                                   },
                                   "count": 2
                                 },
                                 {
                                   "stream": {
                                     "id": ${streamBId},
-                                    "displayName": "stream-b"
+                                    "displayName": "stream-b",
+                                    "archived": false
                                   },
                                   "count": 0
                                 }

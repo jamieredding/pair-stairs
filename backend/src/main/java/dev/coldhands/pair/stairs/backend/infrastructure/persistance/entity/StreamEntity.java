@@ -12,13 +12,17 @@ public class StreamEntity {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "archived")
+    private boolean archived;
+
     public StreamEntity(String name) {
         this.name = name;
     }
 
-    public StreamEntity(long id, String name) {
+    public StreamEntity(long id, String name, boolean archived) {
         this.id = id;
         this.name = name;
+        this.archived = archived;
     }
 
     protected StreamEntity() {
@@ -38,5 +42,13 @@ public class StreamEntity {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 }

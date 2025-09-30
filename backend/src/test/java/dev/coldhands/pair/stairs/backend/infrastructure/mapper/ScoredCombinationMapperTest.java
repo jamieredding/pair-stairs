@@ -26,8 +26,8 @@ class ScoredCombinationMapperTest {
                 ).get(id);
         LookupById<StreamEntity> streamLookup = id ->
                 Map.of(
-                        0L, new StreamEntity(0L, "stream-a"),
-                        1L, new StreamEntity(1L, "stream-b")
+                        0L, new StreamEntity(0L, "stream-a", false),
+                        1L, new StreamEntity(1L, "stream-b", false)
                 ).get(id);
 
         final ScoredCombination actual = ScoredCombinationMapper.coreToDomain(new dev.coldhands.pair.stairs.core.domain.ScoredCombination<>(
@@ -43,13 +43,13 @@ class ScoredCombinationMapperTest {
                                 List.of(
                                         new DeveloperInfo(0, "dev-0", false)
                                 ),
-                                new StreamInfo(0, "stream-a")
+                                new StreamInfo(0, "stream-a", false)
                         ),
                         new dev.coldhands.pair.stairs.backend.domain.PairStream(
                                 List.of(
                                         new DeveloperInfo(1, "dev-1", false)
                                 ),
-                                new StreamInfo(1, "stream-b")
+                                new StreamInfo(1, "stream-b", false)
                         ))
         ));
 
@@ -63,9 +63,9 @@ class ScoredCombinationMapperTest {
                 ).get(id);
         LookupById<StreamEntity> streamLookup = id ->
                 Map.of(
-                        0L, new StreamEntity(0L, "a"),
-                        1L, new StreamEntity(1L, "b"),
-                        2L, new StreamEntity(2L, "c")
+                        0L, new StreamEntity(0L, "a", false),
+                        1L, new StreamEntity(1L, "b", false),
+                        2L, new StreamEntity(2L, "c", false)
                 ).get(id);
 
         final ScoredCombination actual = ScoredCombinationMapper.coreToDomain(new dev.coldhands.pair.stairs.core.domain.ScoredCombination<>(

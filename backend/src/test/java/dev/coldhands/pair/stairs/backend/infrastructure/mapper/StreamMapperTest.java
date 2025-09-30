@@ -10,18 +10,18 @@ class StreamMapperTest {
 
     @Test
     void canMapCoreStreamIdToAStreamInfoType() {
-        LookupById<StreamEntity> lookupById = _ -> new StreamEntity(0L, "stream-a");
+        LookupById<StreamEntity> lookupById = _ -> new StreamEntity(0L, "stream-a", false);
 
-        assertThat(StreamMapper.coreToInfo("0", lookupById)).isEqualTo(new StreamInfo(0L, "stream-a"));
+        assertThat(StreamMapper.coreToInfo("0", lookupById)).isEqualTo(new StreamInfo(0L, "stream-a", false));
     }
 
     @Test
     void canMapEntityToAStreamInfoType() {
-        assertThat(StreamMapper.entityToInfo(new StreamEntity(0L, "stream-a"))).isEqualTo(new StreamInfo(0L, "stream-a"));
+        assertThat(StreamMapper.entityToInfo(new StreamEntity(0L, "stream-a", false))).isEqualTo(new StreamInfo(0L, "stream-a", false));
     }
 
     @Test
     void useEntityIdAsCoreStreamName() {
-        assertThat(StreamMapper.entityToCore(new StreamEntity(0L, "stream-a"))).isEqualTo("0");
+        assertThat(StreamMapper.entityToCore(new StreamEntity(0L, "stream-a", false))).isEqualTo("0");
     }
 }

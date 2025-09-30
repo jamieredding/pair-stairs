@@ -24,11 +24,11 @@ class CombinationEventMapperTest {
                     new CombinationEntity(List.of(
                             new PairStreamEntity(
                                     List.of(new DeveloperEntity(0L, "b", false), new DeveloperEntity(1L, "a", false)),
-                                    new StreamEntity(10L, "z")
+                                    new StreamEntity(10L, "z", false)
                             ),
                             new PairStreamEntity(
                                     List.of(new DeveloperEntity(2L, "c", false)),
-                                    new StreamEntity(20L, "y")
+                                    new StreamEntity(20L, "y", false)
                             )
 
                     )));
@@ -40,11 +40,11 @@ class CombinationEventMapperTest {
                             List.of(
                                     new PairStream(
                                             List.of(new DeveloperInfo(2L, "c", false)),
-                                            new StreamInfo(20L, "y")
+                                            new StreamInfo(20L, "y", false)
                                     ),
                                     new PairStream(
                                             List.of(new DeveloperInfo(1L, "a", false), new DeveloperInfo(0L, "b", false)),
-                                            new StreamInfo(10L, "z")
+                                            new StreamInfo(10L, "z", false)
                                     )
                             ))
             );
