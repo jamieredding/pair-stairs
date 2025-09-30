@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.domain.StreamStats;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.StreamMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.PatchStreamDto;
 import dev.coldhands.pair.stairs.backend.usecase.StatsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,17 @@ public class StreamController {
 
         return ResponseEntity.status(201)
                 .body(savedStream);
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<StreamEntity> updateStream(@RequestBody PatchStreamDto dto, @PathVariable("id") long id) {
+        return repository.findById(id)
+                .map(stream -> {
+                    stream.setArchived(dto.archived());
+                    return repository.save(stream);
+                })
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/stats")

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
@@ -21,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder
@@ -28,6 +30,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.net.URI
 import java.time.LocalDate
+import kotlin.random.Random
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -152,6 +155,60 @@ open class StreamControllerTest @Autowired constructor(
 
             savedStream.id shouldBe actualId
             savedStream.name shouldBe "stream-0"
+        }
+    }
+
+    @Nested
+    internal inner class Patch {
+
+        @ParameterizedTest
+        @ValueSource(booleans = [true, false])
+        fun archived(newArchivedValue: Boolean) {
+            val stream = testEntityManager.persist(StreamEntity("stream-0"))
+
+            stream.isArchived shouldBe false
+
+            val result = mockMvc.perform(
+                patch("/api/v1/streams/${stream.id}")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                                    {
+                                      "archived": $newArchivedValue
+                                    }
+                                    """.trimIndent()
+                    )
+            )
+                .andExpect(status().isOk())
+                .andReturn()
+
+            val updatedStream =
+                objectMapper.readValue(result.response.contentAsString, Stream::class.java)
+
+            updatedStream.archived shouldBe newArchivedValue
+
+            val savedStream = testEntityManager.find(StreamEntity::class.java, stream.id)
+
+            savedStream.id shouldBe stream.id
+            savedStream.name shouldBe "stream-0"
+            savedStream.isArchived shouldBe newArchivedValue
+        }
+
+        @Test
+        fun whenStreamDoesNotExistWithIdThenReturnNotFound() {
+            mockMvc.perform(
+                patch("/api/v1/streams/${Random.nextInt()}")
+                    .contentType(APPLICATION_JSON)
+                    .content(
+                        """
+                                    {
+                                      "archived": true
+                                    }
+                                    """.trimIndent()
+                    )
+            )
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(""))
         }
     }
 
@@ -426,7 +483,8 @@ open class StreamControllerTest @Autowired constructor(
                 Arguments.of(HttpMethod.GET, "/api/v1/streams"),
                 Arguments.of(HttpMethod.GET, "/api/v1/streams/info"),
                 Arguments.of(HttpMethod.POST, "/api/v1/streams"),
-                Arguments.of(HttpMethod.GET, "/api/v1/streams/1/stats")
+                Arguments.of(HttpMethod.GET, "/api/v1/streams/1/stats"),
+                Arguments.of(HttpMethod.PATCH, "/api/v1/streams/1"),
             )
         }
 
