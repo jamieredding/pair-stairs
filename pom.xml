@@ -34,7 +34,7 @@
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
         <appassembler-maven-plugin.version>2.1.0</appassembler-maven-plugin.version>
 
-        <junit-jupiter-api.version>5.13.4</junit-jupiter-api.version>
+        <junit-jupiter-api.version>5.14.0</junit-jupiter-api.version>
         <kotest.version>6.0.3</kotest.version>
         <assertj-core.version>3.27.6</assertj-core.version>
         <picnic.version>0.7.0</picnic.version>
