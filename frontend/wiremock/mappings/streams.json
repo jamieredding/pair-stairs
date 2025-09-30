@@ -12,15 +12,18 @@
         "jsonBody": [
           {
             "id": 1,
-            "displayName": "stream-a"
+            "displayName": "stream-a",
+            "archived": false
           },
           {
             "id": 2,
-            "displayName": "stream-b"
+            "displayName": "stream-b",
+            "archived": false
           },
           {
             "id": 3,
-            "displayName": "stream-c"
+            "displayName": "stream-c",
+            "archived": false
           }
         ]
       }
@@ -59,21 +62,40 @@
         "jsonBody": [
           {
             "id": 1,
-            "displayName": "stream-a"
+            "displayName": "stream-a",
+            "archived": false
           },
           {
             "id": 2,
-            "displayName": "stream-b"
+            "displayName": "stream-b",
+            "archived": false
           },
           {
             "id": 3,
-            "displayName": "stream-c"
+            "displayName": "stream-c",
+            "archived": false
           },
           {
             "id": 4,
-            "displayName": "new stream"
+            "displayName": "new stream",
+            "archived": false
           }
         ]
+      }
+    },
+    {
+      "request": {
+        "method": "PATCH",
+        "urlPathTemplate": "/api/v1/streams/{id}",
+        "pathParameters": {
+          "id": {
+            "matches": "[0-9]+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {}
       }
     }
   ]

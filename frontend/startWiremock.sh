@@ -5,7 +5,7 @@ function devMode() {
     -p 18082:8080 \
     --name wiremock \
     -v "$PWD/wiremock":/home/wiremock \
-    wiremock/wiremock:3.5.2 --verbose
+    wiremock/wiremock:3.13.1 --verbose
 }
 
 function integrationMode() {
@@ -13,7 +13,7 @@ function integrationMode() {
     --name wiremock \
     -v "$PWD/wiremock":/home/wiremock \
     --network manual-pair-stairs \
-    wiremock/wiremock:3.5.2 --verbose --port 8081
+    wiremock/wiremock:3.13.1 --verbose --port 8081
 }
 
 function main() {

@@ -12,19 +12,23 @@
         "jsonBody": [
           {
             "id": 1,
-            "displayName": "dev-1"
+            "displayName": "dev-1",
+            "archived": false
           },
           {
             "id": 2,
-            "displayName": "dev-2"
+            "displayName": "dev-2",
+            "archived": false
           },
           {
             "id": 3,
-            "displayName": "dev-3"
+            "displayName": "dev-3",
+            "archived": false
           },
           {
             "id": 4,
-            "displayName": "dev-4"
+            "displayName": "dev-4",
+            "archived": false
           }
         ]
       }
@@ -63,25 +67,45 @@
         "jsonBody": [
           {
             "id": 1,
-            "displayName": "dev-1"
+            "displayName": "dev-1",
+            "archived": false
           },
           {
             "id": 2,
-            "displayName": "dev-2"
+            "displayName": "dev-2",
+            "archived": false
           },
           {
             "id": 3,
-            "displayName": "dev-3"
+            "displayName": "dev-3",
+            "archived": false
           },
           {
             "id": 4,
-            "displayName": "dev-4"
+            "displayName": "dev-4",
+            "archived": false
           },
           {
             "id": 5,
-            "displayName": "new developer"
+            "displayName": "new developer",
+            "archived": false
           }
         ]
+      }
+    },
+    {
+      "request": {
+        "method": "PATCH",
+        "urlPathTemplate": "/api/v1/developers/{id}",
+        "pathParameters": {
+          "id": {
+            "matches": "[0-9]+"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {}
       }
     }
   ]
