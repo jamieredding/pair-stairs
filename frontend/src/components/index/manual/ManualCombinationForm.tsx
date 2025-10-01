@@ -1,5 +1,5 @@
 import {Button, Divider, Stack, Typography} from "@mui/material";
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {Add} from "@mui/icons-material";
 import {format} from "date-fns";
 import useDeveloperInfos from "../../../hooks/developers/useDeveloperInfos";
@@ -22,6 +22,11 @@ const dateFormat = "yyyy-MM-dd"
 
 export default function ManualCombinationForm() {
     const {allDevelopers, isLoading: loadingDevelopers, isError: erroringDevelopers} = useDeveloperInfos();
+    const activeDevelopers = useMemo(
+        () => allDevelopers?.filter(d => !d.archived),
+        [allDevelopers]
+    )
+
     const {allStreams, isLoading: loadingStreams, isError: erroringStreams} = useStreamInfos()
 
     const today = format(new Date(), dateFormat)
@@ -29,10 +34,10 @@ export default function ManualCombinationForm() {
 
     const [remainingDevelopers, setRemainingDevelopers] = useState<DeveloperInfoDto[]>();
     useEffect(() => {
-        if (allDevelopers) {
-            setRemainingDevelopers(allDevelopers)
+        if (activeDevelopers) {
+            setRemainingDevelopers(activeDevelopers)
         }
-    }, [allDevelopers]);
+    }, [activeDevelopers]);
 
     const [remainingStreams, setRemainingStreams] = useState<StreamInfoDto[]>();
     useEffect(() => {
@@ -49,7 +54,7 @@ export default function ManualCombinationForm() {
     const {trigger} = useAddCombinationEvent()
     const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents();
 
-    const dataLoaded = allDevelopers && allStreams;
+    const dataLoaded = activeDevelopers && allStreams;
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
     const somePairsInCombination: boolean = combination.length > 0
     const validForm: boolean = somePairsInCombination && date !== null
@@ -58,7 +63,7 @@ export default function ManualCombinationForm() {
     function addToCombination() {
         setCombination(prevState => {
             const newPairStream: PairStreamDto = {
-                developers: (allDevelopers as DeveloperInfoDto[]).filter(dev => selectedDeveloperIds.includes(dev.id)),
+                developers: (activeDevelopers as DeveloperInfoDto[]).filter(dev => selectedDeveloperIds.includes(dev.id)),
 
                 stream: (allStreams as StreamInfoDto[]).filter(stream => stream.id === selectedStreamIds[0])[0],
             }
@@ -87,7 +92,7 @@ export default function ManualCombinationForm() {
         setCombination([])
         setSelectedDeveloperIds([])
         setSelectedStreamIds([])
-        setRemainingDevelopers(allDevelopers)
+        setRemainingDevelopers(activeDevelopers)
         setRemainingStreams(allStreams)
         setDate(today)
     }

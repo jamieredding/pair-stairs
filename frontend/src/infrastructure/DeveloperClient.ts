@@ -1,11 +1,16 @@
 import type DeveloperInfoDto from "../domain/DeveloperInfoDto.ts";
 import type DeveloperDto from "../domain/DeveloperDto.ts";
+import {handleErrors} from "./handleErrors.ts";
+import type PatchDeveloperDto from "../domain/PatchDeveloperDto.ts";
 
 export const DEVELOPER_INFO_PATH = "/api/v1/developers/info"
 
 export async function getDeveloperInfos(url: string): Promise<DeveloperInfoDto[]> {
-    const res = await fetch(url);
-    return await res.json();
+    const response = await fetch(url);
+
+    await handleErrors(response)
+
+    return await response.json();
 }
 
 export function addDeveloper(url: string, {arg}: { arg: DeveloperDto }) {
@@ -17,4 +22,18 @@ export function addDeveloper(url: string, {arg}: { arg: DeveloperDto }) {
         body: JSON.stringify(arg)
     })
     // todo response handling
+}
+
+export async function patchDeveloper(url: string, {arg}: { arg: {data: PatchDeveloperDto, id: number} }) {
+    const response = await fetch(`${url}/${arg.id}`, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(arg.data)
+    })
+
+    await handleErrors(response)
+
+    return response.json()
 }

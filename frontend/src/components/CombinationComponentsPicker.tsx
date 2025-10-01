@@ -1,4 +1,4 @@
-import {type Dispatch, type SetStateAction, useEffect} from "react";
+import {type Dispatch, type SetStateAction, useEffect, useMemo} from "react";
 import useDeveloperInfos from "../hooks/developers/useDeveloperInfos";
 import {Divider, Stack, Typography} from "@mui/material";
 import Loading from "./Loading";
@@ -21,9 +21,9 @@ export default function CombinationComponentsPicker(
     }: CombinationComponentsPickerProps
 ) {
     return <Stack gap={4} direction="row" justifyContent="flex-start">
-            <DeveloperPicker savedDeveloperIds={savedDeveloperIds} setSavedDeveloperIds={setSavedDeveloperIds}/>
+        <DeveloperPicker savedDeveloperIds={savedDeveloperIds} setSavedDeveloperIds={setSavedDeveloperIds}/>
         <Divider orientation="vertical" flexItem/>
-            <StreamPicker savedStreamIds={savedStreamIds} setSavedStreamIds={setSavedStreamIds}/>
+        <StreamPicker savedStreamIds={savedStreamIds} setSavedStreamIds={setSavedStreamIds}/>
     </Stack>
 }
 
@@ -37,22 +37,26 @@ function DeveloperPicker({
                              setSavedDeveloperIds,
                          }: DeveloperPickerProps) {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
+    const activeDevelopers = useMemo(
+        () => allDevelopers?.filter(d => !d.archived),
+        [allDevelopers]
+    )
 
     useEffect(() => {
-        if (allDevelopers) {
-            setSavedDeveloperIds(() => allDevelopers.map(dev => dev.id))
+        if (activeDevelopers) {
+            setSavedDeveloperIds(() => activeDevelopers.map(dev => dev.id))
         }
-    }, [allDevelopers, setSavedDeveloperIds]);
+    }, [activeDevelopers, setSavedDeveloperIds]);
 
     return (
         <Stack gap={1}>
             <Typography variant="h6">Developers</Typography>
             {isLoading && <Loading/>}
             {isError && <Error/>}
-            {allDevelopers && allDevelopers.length > 0
-                ? <IdCheckboxGroup allItems={allDevelopers}
-                                 selectedIds={savedDeveloperIds}
-                                 setSelectedIds={setSavedDeveloperIds}/>
+            {activeDevelopers && activeDevelopers.length > 0
+                ? <IdCheckboxGroup allItems={activeDevelopers}
+                                   selectedIds={savedDeveloperIds}
+                                   setSelectedIds={setSavedDeveloperIds}/>
                 : <Typography variant="body1">No developers left to pick</Typography>
             }
         </Stack>
@@ -65,9 +69,9 @@ interface StreamPickerProps {
 }
 
 function StreamPicker({
-                             savedStreamIds,
-                             setSavedStreamIds,
-                         }: StreamPickerProps) {
+                          savedStreamIds,
+                          setSavedStreamIds,
+                      }: StreamPickerProps) {
     const {allStreams, isError, isLoading} = useStreamInfos();
 
     useEffect(() => {
@@ -83,8 +87,8 @@ function StreamPicker({
             {isError && <Error/>}
             {allStreams && allStreams.length > 0
                 ? <IdCheckboxGroup allItems={allStreams}
-                                 selectedIds={savedStreamIds}
-                                 setSelectedIds={setSavedStreamIds}/>
+                                   selectedIds={savedStreamIds}
+                                   setSelectedIds={setSavedStreamIds}/>
                 : <Typography variant="body1">No streams left to pick</Typography>
             }
         </Stack>

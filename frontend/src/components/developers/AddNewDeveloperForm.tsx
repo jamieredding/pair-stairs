@@ -18,7 +18,7 @@ export default function AddNewDeveloperForm({onSubmit}: AddNewDeveloperFormProps
         const newName = name as string;
         trigger({name: newName})
             .then(async () => {
-                await refresh({id: -1, displayName: newName})
+                await refresh({id: -1, displayName: newName, archived: false})
                 onSubmit();
             })
     }
