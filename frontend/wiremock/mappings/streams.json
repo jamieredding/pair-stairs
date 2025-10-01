@@ -84,6 +84,7 @@
       }
     },
     {
+      "priority": 10,
       "request": {
         "method": "PATCH",
         "urlPathTemplate": "/api/v1/streams/{id}",
@@ -92,6 +93,113 @@
             "matches": "[0-9]+"
           }
         }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {}
+      }
+    },
+
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_STREAMS",
+      "requiredScenarioState": "ENABLED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/streams/info"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 1,
+            "displayName": "stream-a",
+            "archived": false
+          },
+          {
+            "id": 2,
+            "displayName": "stream-b",
+            "archived": false
+          },
+          {
+            "id": 3,
+            "displayName": "stream-c",
+            "archived": false
+          }
+        ]
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_STREAMS",
+      "requiredScenarioState": "ENABLED",
+      "newScenarioState": "ARCHIVED",
+      "request": {
+        "method": "PATCH",
+        "urlPathTemplate": "/api/v1/streams/{id}",
+        "pathParameters": {
+          "id": {
+            "matches": "[0-9]+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "contains": "true"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {}
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_STREAMS",
+      "requiredScenarioState": "ARCHIVED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/streams/info"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 1,
+            "displayName": "stream-a",
+            "archived": false
+          },
+          {
+            "id": 2,
+            "displayName": "stream-b",
+            "archived": false
+          },
+          {
+            "id": 3,
+            "displayName": "stream-c",
+            "archived": false
+          }
+        ]
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_STREAMS",
+      "requiredScenarioState": "ARCHIVED",
+      "newScenarioState": "ENABLED",
+      "request": {
+        "method": "PATCH",
+        "urlPathTemplate": "/api/v1/streams/{id}",
+        "pathParameters": {
+          "id": {
+            "matches": "[0-9]+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "contains": "false"
+          }
+        ]
       },
       "response": {
         "status": 200,

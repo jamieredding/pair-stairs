@@ -18,6 +18,22 @@ Content-Type: application/json
   "state": "DISABLED"
 }
 
+### Enable developer archive flow
+PUT {{baseUrl}}/__admin/scenarios/ARCHIVE_DEVELOPERS/state
+Content-Type: application/json
+
+{
+  "state": "ENABLED"
+}
+
+### Enable stream archive flow
+PUT {{baseUrl}}/__admin/scenarios/ARCHIVE_STREAMS/state
+Content-Type: application/json
+
+{
+  "state": "ENABLED"
+}
+
 ### Get scenarios
 GET {{baseUrl}}/__admin/scenarios
 

@@ -94,6 +94,7 @@
       }
     },
     {
+      "priority": 10,
       "request": {
         "method": "PATCH",
         "urlPathTemplate": "/api/v1/developers/{id}",
@@ -102,6 +103,124 @@
             "matches": "[0-9]+"
           }
         }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {}
+      }
+    },
+
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_DEVELOPERS",
+      "requiredScenarioState": "ENABLED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/developers/info"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 1,
+            "displayName": "dev-1",
+            "archived": false
+          },
+          {
+            "id": 2,
+            "displayName": "dev-2",
+            "archived": false
+          },
+          {
+            "id": 3,
+            "displayName": "dev-3",
+            "archived": false
+          },
+          {
+            "id": 4,
+            "displayName": "dev-4",
+            "archived": false
+          }
+        ]
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_DEVELOPERS",
+      "requiredScenarioState": "ENABLED",
+      "newScenarioState": "ARCHIVED",
+      "request": {
+        "method": "PATCH",
+        "urlPathTemplate": "/api/v1/developers/{id}",
+        "pathParameters": {
+          "id": {
+            "matches": "[0-9]+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "contains": "true"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {}
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_DEVELOPERS",
+      "requiredScenarioState": "ARCHIVED",
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/developers/info"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 1,
+            "displayName": "dev-1",
+            "archived": false
+          },
+          {
+            "id": 2,
+            "displayName": "dev-2",
+            "archived": false
+          },
+          {
+            "id": 3,
+            "displayName": "dev-3",
+            "archived": false
+          },
+          {
+            "id": 4,
+            "displayName": "dev-4",
+            "archived": true
+          }
+        ]
+      }
+    },
+    {
+      "priority": 1,
+      "scenarioName": "ARCHIVE_DEVELOPERS",
+      "requiredScenarioState": "ARCHIVED",
+      "newScenarioState": "ENABLED",
+      "request": {
+        "method": "PATCH",
+        "urlPathTemplate": "/api/v1/developers/{id}",
+        "pathParameters": {
+          "id": {
+            "matches": "[0-9]+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "contains": "false"
+          }
+        ]
+
       },
       "response": {
         "status": 200,

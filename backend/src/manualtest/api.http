@@ -15,6 +15,14 @@ Content-Type: application/json
   "name": "new developer"
 }
 
+### Patch developer
+PATCH {{baseUrl}}/api/v1/developers/1
+Content-Type: application/json
+
+{
+  "archived": true
+}
+
 ### Get streams
 
 GET {{baseUrl}}/api/v1/streams
@@ -22,6 +30,15 @@ GET {{baseUrl}}/api/v1/streams
 ### Get stream info
 
 GET {{baseUrl}}/api/v1/streams/info
+
+### Patch stream
+
+PATCH {{baseUrl}}/api/v1/streams/1
+Content-Type: application/json
+
+{
+  "archived": true
+}
 
 ### Calculate combinations
 
