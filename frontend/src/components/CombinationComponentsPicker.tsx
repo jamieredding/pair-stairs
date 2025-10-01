@@ -73,20 +73,24 @@ function StreamPicker({
                           setSavedStreamIds,
                       }: StreamPickerProps) {
     const {allStreams, isError, isLoading} = useStreamInfos();
+    const activeStreams = useMemo(
+        () => allStreams?.filter(s => !s.archived),
+        [allStreams]
+    )
 
     useEffect(() => {
-        if (allStreams) {
-            setSavedStreamIds(() => allStreams.map(dev => dev.id))
+        if (activeStreams) {
+            setSavedStreamIds(() => activeStreams.map(dev => dev.id))
         }
-    }, [allStreams, setSavedStreamIds]);
+    }, [activeStreams, setSavedStreamIds]);
 
     return (
         <Stack gap={1}>
             <Typography variant="h6">Streams</Typography>
             {isLoading && <Loading/>}
             {isError && <Error/>}
-            {allStreams && allStreams.length > 0
-                ? <IdCheckboxGroup allItems={allStreams}
+            {activeStreams && activeStreams.length > 0
+                ? <IdCheckboxGroup allItems={activeStreams}
                                    selectedIds={savedStreamIds}
                                    setSelectedIds={setSavedStreamIds}/>
                 : <Typography variant="body1">No streams left to pick</Typography>

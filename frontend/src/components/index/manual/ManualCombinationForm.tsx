@@ -28,6 +28,10 @@ export default function ManualCombinationForm() {
     )
 
     const {allStreams, isLoading: loadingStreams, isError: erroringStreams} = useStreamInfos()
+    const activeStreams = useMemo(
+        () => allStreams?.filter(s => !s.archived),
+        [allStreams]
+    )
 
     const today = format(new Date(), dateFormat)
     const [date, setDate] = useState<string | null>(today)
@@ -41,10 +45,10 @@ export default function ManualCombinationForm() {
 
     const [remainingStreams, setRemainingStreams] = useState<StreamInfoDto[]>();
     useEffect(() => {
-        if (allStreams) {
-            setRemainingStreams(allStreams)
+        if (activeStreams) {
+            setRemainingStreams(activeStreams)
         }
-    }, [allStreams]);
+    }, [activeStreams]);
 
     const [selectedDeveloperIds, setSelectedDeveloperIds] = useState<number[]>([])
     const [selectedStreamIds, setSelectedStreamIds] = useState<number[]>([])
@@ -54,7 +58,7 @@ export default function ManualCombinationForm() {
     const {trigger} = useAddCombinationEvent()
     const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents();
 
-    const dataLoaded = activeDevelopers && allStreams;
+    const dataLoaded = activeDevelopers && activeStreams;
     const validPairStreamSelected: boolean = selectedDeveloperIds.length >= 1 && selectedStreamIds.length === 1
     const somePairsInCombination: boolean = combination.length > 0
     const validForm: boolean = somePairsInCombination && date !== null
@@ -65,7 +69,7 @@ export default function ManualCombinationForm() {
             const newPairStream: PairStreamDto = {
                 developers: (activeDevelopers as DeveloperInfoDto[]).filter(dev => selectedDeveloperIds.includes(dev.id)),
 
-                stream: (allStreams as StreamInfoDto[]).filter(stream => stream.id === selectedStreamIds[0])[0],
+                stream: (activeStreams as StreamInfoDto[]).filter(stream => stream.id === selectedStreamIds[0])[0],
             }
 
             return [...prevState, newPairStream];
@@ -93,7 +97,7 @@ export default function ManualCombinationForm() {
         setSelectedDeveloperIds([])
         setSelectedStreamIds([])
         setRemainingDevelopers(activeDevelopers)
-        setRemainingStreams(allStreams)
+        setRemainingStreams(activeStreams)
         setDate(today)
     }
 

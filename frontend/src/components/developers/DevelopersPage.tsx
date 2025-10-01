@@ -83,7 +83,6 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
                 )}
             </>
         }
-
     </>
 }
 

@@ -177,7 +177,7 @@
           {
             "id": 3,
             "displayName": "stream-c",
-            "archived": false
+            "archived": true
           }
         ]
       }
