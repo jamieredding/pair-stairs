@@ -1,4 +1,5 @@
 import {
+    AlertTitle,
     Button,
     Collapse,
     Dialog,
@@ -11,7 +12,7 @@ import {
     Typography
 } from "@mui/material";
 import {PersonAdd} from "@mui/icons-material";
-import {useMemo, useState} from "react";
+import {type ReactElement, useMemo, useState} from "react";
 
 import ButtonRow from "../ButtonRow.tsx";
 import useDeveloperInfos from "../../hooks/developers/useDeveloperInfos.ts";
@@ -24,6 +25,7 @@ import usePatchDeveloper from "../../hooks/developers/usePatchDeveloper.ts";
 import useRefreshDeveloperInfos from "../../hooks/developers/useRefreshDeveloperInfos.ts";
 import ArchiveButton from "../ArchiveButton.tsx";
 import UnarchiveButton from "../UnarchiveButton.tsx";
+import ErrorSnackbar from "../ErrorSnackbar.tsx";
 
 export default function DevelopersPage() {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
@@ -57,7 +59,7 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
     const [archiveOpen, setArchiveOpen] = useState(false);
     const activeDevelopers = useMemo(() => allDevelopers.filter(d => !d.archived), [allDevelopers])
     const archivedDevelopers = useMemo(() => allDevelopers.filter(d => d.archived), [allDevelopers])
-    const {trigger} = usePatchDeveloper();
+    const {trigger, isError} = usePatchDeveloper();
     const {refresh} = useRefreshDeveloperInfos()
 
     function handlePatchDeveloper(existingDeveloper: DeveloperInfoDto, archived: boolean) {
@@ -101,7 +103,18 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
                 </Collapse>
             </Stack>
         </Collapse>
+        <ErrorSnackbar error={isError} alertContent={alertContent} />
     </>
+}
+
+function alertContent(errorCode: string): ReactElement {
+    switch (errorCode) {
+        default:
+            return <>
+                <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                Unable to update developer.
+            </>
+    }
 }
 
 interface AddNewDeveloperDialogProps {

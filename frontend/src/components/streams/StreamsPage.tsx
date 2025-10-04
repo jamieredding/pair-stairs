@@ -1,4 +1,5 @@
 import {
+    AlertTitle,
     Button,
     Collapse,
     Dialog,
@@ -11,7 +12,7 @@ import {
     Typography
 } from "@mui/material";
 import {PostAdd} from "@mui/icons-material";
-import {useMemo, useState} from "react";
+import {type ReactElement, useMemo, useState} from "react";
 import useStreamInfos from "../../hooks/streams/useStreamInfos.ts";
 import ButtonRow from "../ButtonRow.tsx";
 import Loading from "../Loading.tsx";
@@ -23,6 +24,7 @@ import useRefreshStreamInfos from "../../hooks/streams/useRefreshStreamInfos.ts"
 import type StreamInfoDto from "../../domain/StreamInfoDto.ts";
 import ArchiveButton from "../ArchiveButton.tsx";
 import UnarchiveButton from "../UnarchiveButton.tsx";
+import ErrorSnackbar from "../ErrorSnackbar.tsx";
 
 export default function StreamsPage() {
     const {allStreams, isError, isLoading} = useStreamInfos();
@@ -54,7 +56,7 @@ function StreamsList({allStreams}: StreamsListProps) {
     const [archiveOpen, setArchiveOpen] = useState(false);
     const activeStreams = useMemo(() => allStreams.filter(d => !d.archived), [allStreams])
     const archivedStreams = useMemo(() => allStreams.filter(d => d.archived), [allStreams])
-    const {trigger} = usePatchStream();
+    const {trigger, isError} = usePatchStream();
     const {refresh} = useRefreshStreamInfos()
 
     function handlePatchStream(existingStream: StreamInfoDto, archived: boolean) {
@@ -97,8 +99,21 @@ function StreamsList({allStreams}: StreamsListProps) {
                     )}
                 </Collapse>
             </Stack>
-        </Collapse>    </>
+        </Collapse>
+        <ErrorSnackbar error={isError} alertContent={alertContent} />
+    </>
 }
+
+function alertContent(errorCode: string): ReactElement {
+    switch (errorCode) {
+        default:
+            return <>
+                <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                Unable to update stream.
+            </>
+    }
+}
+
 
 interface AddNewDialogProps {
     open: boolean,
