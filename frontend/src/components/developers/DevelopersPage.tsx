@@ -5,7 +5,6 @@ import {
     DialogTitle,
     List,
     ListItem,
-    ListItemButton,
     ListItemText,
     Stack,
     Typography
@@ -22,6 +21,8 @@ import {sorted} from "../../utils/displayUtils.ts";
 import type DeveloperInfoDto from "../../domain/DeveloperInfoDto.ts";
 import usePatchDeveloper from "../../hooks/developers/usePatchDeveloper.ts";
 import useRefreshDeveloperInfos from "../../hooks/developers/useRefreshDeveloperInfos.ts";
+import ArchiveButton from "../ArchiveButton.tsx";
+import UnarchiveButton from "../UnarchiveButton.tsx";
 
 export default function DevelopersPage() {
     const {allDevelopers, isError, isLoading} = useDeveloperInfos();
@@ -66,19 +67,22 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
         <List>
             {activeDevelopers.map(developer =>
                 <ListItem key={developer.id}>
-                    <ListItemText primary={developer.displayName}/>
-                    <ListItemButton onClick={() => handlePatchDeveloper(developer, true)}>archive</ListItemButton>
+                    <Stack direction="row" gap={4}>
+                        <ListItemText primary={developer.displayName}/>
+                        <ArchiveButton onClick={() => handlePatchDeveloper(developer, true)}/>
+                    </Stack>
                 </ListItem>
             )}
         </List>
         {archivedDevelopers.length > 0 &&
             <>
-                <Typography variant="h4">Archived</Typography>
+                <Typography variant="h5">Archived</Typography>
                 {archivedDevelopers.map(developer =>
                     <ListItem key={developer.id}>
-                        <ListItemText primary={developer.displayName}/>
-                        <ListItemButton
-                            onClick={() => handlePatchDeveloper(developer, false)}>unarchive</ListItemButton>
+                        <Stack direction="row" gap={4}>
+                            <ListItemText primary={developer.displayName}/>
+                            <UnarchiveButton onClick={() => handlePatchDeveloper(developer, false)}/>
+                        </Stack>
                     </ListItem>
                 )}
             </>

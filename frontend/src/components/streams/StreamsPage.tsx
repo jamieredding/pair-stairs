@@ -5,7 +5,6 @@ import {
     DialogTitle,
     List,
     ListItem,
-    ListItemButton,
     ListItemText,
     Stack,
     Typography
@@ -21,6 +20,8 @@ import {sorted} from "../../utils/displayUtils.ts";
 import usePatchStream from "../../hooks/streams/usePatchStream.ts";
 import useRefreshStreamInfos from "../../hooks/streams/useRefreshStreamInfos.ts";
 import type StreamInfoDto from "../../domain/StreamInfoDto.ts";
+import ArchiveButton from "../ArchiveButton.tsx";
+import UnarchiveButton from "../UnarchiveButton.tsx";
 
 export default function StreamsPage() {
     const {allStreams, isError, isLoading} = useStreamInfos();
@@ -38,7 +39,7 @@ export default function StreamsPage() {
             </ButtonRow>
             {isLoading && <Loading/>}
             {isError && <Error/>}
-            {allStreamsSorted && <StreamsList allStreams={allStreamsSorted} /> }
+            {allStreamsSorted && <StreamsList allStreams={allStreamsSorted}/>}
             <AddNewStreamDialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}/>
         </Stack>
     )
@@ -63,8 +64,10 @@ function StreamsList({allStreams}: StreamsListProps) {
         <List>
             {activeStreams.map(stream =>
                 <ListItem key={stream.id}>
-                    <ListItemText primary={stream.displayName}/>
-                    <ListItemButton onClick={() => handlePatchStream(stream, true)}>archive</ListItemButton>
+                    <Stack direction="row" gap={4}>
+                        <ListItemText primary={stream.displayName}/>
+                        <ArchiveButton onClick={() => handlePatchStream(stream, true)}/>
+                    </Stack>
                 </ListItem>
             )}
         </List>
@@ -73,9 +76,10 @@ function StreamsList({allStreams}: StreamsListProps) {
                 <Typography variant="h4">Archived</Typography>
                 {archivedStreams.map(stream =>
                     <ListItem key={stream.id}>
-                        <ListItemText primary={stream.displayName}/>
-                        <ListItemButton
-                            onClick={() => handlePatchStream(stream, false)}>unarchive</ListItemButton>
+                        <Stack direction="row" gap={4}>
+                            <ListItemText primary={stream.displayName}/>
+                            <UnarchiveButton onClick={() => handlePatchStream(stream, false)}/>
+                        </Stack>
                     </ListItem>
                 )}
             </>
