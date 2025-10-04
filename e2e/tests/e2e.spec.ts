@@ -1,5 +1,5 @@
 import {expect, Page, test} from '@playwright/test';
-import {endOfYear, format, subDays} from "date-fns";
+import {format, subDays} from "date-fns";
 
 const USERNAME = 'admin@example.com';
 const PASSWORD = 'password';
@@ -25,19 +25,39 @@ if (teamsEnabled) {
         await createDeveloper(page, 'dev-0');
         await createDeveloper(page, 'dev-1');
         await createDeveloper(page, 'dev-2');
+        await toggleArchived(page, 'dev-2')
 
         // create some streams
         await page.getByRole('link', {name: 'Streams'}).click();
 
         await createStream(page, 'stream-a');
         await createStream(page, 'stream-b');
+        await toggleArchived(page, 'stream-b');
 
         await page.getByRole('link', {name: 'pair-stairs'}).click();
 
-        // see that calculate form contains developers
+        // see that calculate form contains developers and streams
         await expect(page.getByLabel("Calculate")).toContainText('dev-0');
         await expect(page.getByLabel("Calculate")).toContainText('dev-1');
+        await expect(page.getByLabel("Calculate")).not.toContainText('dev-2');
+
+        await expect(page.getByLabel("Calculate")).toContainText('stream-a');
+        await expect(page.getByLabel("Calculate")).not.toContainText('stream-b');
+
+        // unarchive dev
+        await page.getByRole('link', {name: 'Developers'}).click();
+        await page.getByRole('button', { name: 'Show' }).click();
+        await toggleArchived(page, 'dev-2');
+
+        // unarchive stream
+        await page.getByRole('link', {name: 'Streams'}).click();
+        await page.getByRole('button', { name: 'Show' }).click();
+        await toggleArchived(page, 'stream-b');
+
+        // confirm unarchived
+        await page.getByRole('link', {name: 'pair-stairs'}).click();
         await expect(page.getByLabel("Calculate")).toContainText('dev-2');
+        await expect(page.getByLabel("Calculate")).toContainText('stream-b');
 
         await page.getByRole('tab', {name: 'Manual'}).click();
 
@@ -197,6 +217,11 @@ async function createDeveloper(page: Page, name: string) {
     await page.getByLabel('Name').fill(name);
     await page.getByRole('button', {name: 'Save'}).click();
     await expect(page.getByRole('listitem').filter({hasText: name})).toBeVisible();
+}
+
+async function toggleArchived(page: Page, name: string) {
+    await page.locator('li').filter({ hasText: name })
+        .getByRole("button").click();
 }
 
 async function createStream(page: Page, name: string) {
