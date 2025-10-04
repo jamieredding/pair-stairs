@@ -1,5 +1,6 @@
 import {
     Button,
+    Collapse,
     Dialog,
     DialogContent,
     DialogTitle,
@@ -10,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import {PostAdd} from "@mui/icons-material";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import useStreamInfos from "../../hooks/streams/useStreamInfos.ts";
 import ButtonRow from "../ButtonRow.tsx";
 import Loading from "../Loading.tsx";
@@ -50,14 +51,20 @@ interface StreamsListProps {
 }
 
 function StreamsList({allStreams}: StreamsListProps) {
-    const activeStreams = allStreams.filter(s => !s.archived)
-    const archivedStreams = allStreams.filter(s => s.archived)
+    const [archiveOpen, setArchiveOpen] = useState(false);
+    const activeStreams = useMemo(() => allStreams.filter(d => !d.archived), [allStreams])
+    const archivedStreams = useMemo(() => allStreams.filter(d => d.archived), [allStreams])
     const {trigger} = usePatchStream();
     const {refresh} = useRefreshStreamInfos()
 
     function handlePatchStream(existingStream: StreamInfoDto, archived: boolean) {
         trigger({id: existingStream.id, data: {archived: archived}})
             .then(() => refresh({...existingStream, archived: archived}))
+            .then(() => {
+                if (archived) {
+                    setArchiveOpen(true)
+                }
+            })
     }
 
     return <>
@@ -71,20 +78,26 @@ function StreamsList({allStreams}: StreamsListProps) {
                 </ListItem>
             )}
         </List>
-        {archivedStreams.length > 0 &&
-            <>
-                <Typography variant="h4">Archived</Typography>
-                {archivedStreams.map(stream =>
-                    <ListItem key={stream.id}>
-                        <Stack direction="row" gap={4}>
-                            <ListItemText primary={stream.displayName}/>
-                            <UnarchiveButton onClick={() => handlePatchStream(stream, false)}/>
-                        </Stack>
-                    </ListItem>
-                )}
-            </>
-        }
-    </>
+        <Collapse in={archivedStreams.length > 0}>
+            <Stack>
+                <Stack direction="row">
+                    <Typography variant="h5" sx={{marginRight: "auto"}}>Archived streams</Typography>
+                    {archiveOpen
+                        ? <Button onClick={() => setArchiveOpen(false)}>Hide</Button>
+                        : <Button onClick={() => setArchiveOpen(true)}>Show</Button>}
+                </Stack>
+                <Collapse in={archiveOpen}>
+                    {archivedStreams.map(stream =>
+                        <ListItem key={stream.id}>
+                            <Stack direction="row" gap={4}>
+                                <ListItemText primary={stream.displayName}/>
+                                <UnarchiveButton onClick={() => handlePatchStream(stream, false)}/>
+                            </Stack>
+                        </ListItem>
+                    )}
+                </Collapse>
+            </Stack>
+        </Collapse>    </>
 }
 
 interface AddNewDialogProps {

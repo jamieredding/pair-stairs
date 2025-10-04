@@ -1,5 +1,6 @@
 import {
     Button,
+    Collapse,
     Dialog,
     DialogContent,
     DialogTitle,
@@ -10,7 +11,7 @@ import {
     Typography
 } from "@mui/material";
 import {PersonAdd} from "@mui/icons-material";
-import {useState} from "react";
+import {useMemo, useState} from "react";
 
 import ButtonRow from "../ButtonRow.tsx";
 import useDeveloperInfos from "../../hooks/developers/useDeveloperInfos.ts";
@@ -53,14 +54,20 @@ interface DevelopersListProps {
 }
 
 function DevelopersList({allDevelopers}: DevelopersListProps) {
-    const activeDevelopers = allDevelopers.filter(d => !d.archived)
-    const archivedDevelopers = allDevelopers.filter(d => d.archived)
+    const [archiveOpen, setArchiveOpen] = useState(false);
+    const activeDevelopers = useMemo(() => allDevelopers.filter(d => !d.archived), [allDevelopers])
+    const archivedDevelopers = useMemo(() => allDevelopers.filter(d => d.archived), [allDevelopers])
     const {trigger} = usePatchDeveloper();
     const {refresh} = useRefreshDeveloperInfos()
 
     function handlePatchDeveloper(existingDeveloper: DeveloperInfoDto, archived: boolean) {
         trigger({id: existingDeveloper.id, data: {archived: archived}})
             .then(() => refresh({...existingDeveloper, archived: archived}))
+            .then(() => {
+                if (archived) {
+                    setArchiveOpen(true)
+                }
+            })
     }
 
     return <>
@@ -74,19 +81,26 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
                 </ListItem>
             )}
         </List>
-        {archivedDevelopers.length > 0 &&
-            <>
-                <Typography variant="h5">Archived</Typography>
-                {archivedDevelopers.map(developer =>
-                    <ListItem key={developer.id}>
-                        <Stack direction="row" gap={4}>
-                            <ListItemText primary={developer.displayName}/>
-                            <UnarchiveButton onClick={() => handlePatchDeveloper(developer, false)}/>
-                        </Stack>
-                    </ListItem>
-                )}
-            </>
-        }
+        <Collapse in={archivedDevelopers.length > 0}>
+            <Stack>
+                <Stack direction="row">
+                    <Typography variant="h5" sx={{marginRight: "auto"}}>Archived developers</Typography>
+                    {archiveOpen
+                        ? <Button onClick={() => setArchiveOpen(false)}>Hide</Button>
+                        : <Button onClick={() => setArchiveOpen(true)}>Show</Button>}
+                </Stack>
+                <Collapse in={archiveOpen}>
+                    {archivedDevelopers.map(developer =>
+                        <ListItem key={developer.id}>
+                            <Stack direction="row" gap={4}>
+                                <ListItemText primary={developer.displayName}/>
+                                <UnarchiveButton onClick={() => handlePatchDeveloper(developer, false)}/>
+                            </Stack>
+                        </ListItem>
+                    )}
+                </Collapse>
+            </Stack>
+        </Collapse>
     </>
 }
 
