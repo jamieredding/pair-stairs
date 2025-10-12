@@ -59,11 +59,14 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
     const [archiveOpen, setArchiveOpen] = useState(false);
     const activeDevelopers = useMemo(() => allDevelopers.filter(d => !d.archived), [allDevelopers])
     const archivedDevelopers = useMemo(() => allDevelopers.filter(d => d.archived), [allDevelopers])
-    const {trigger, isError} = usePatchDeveloper();
+    const [idBeingUpdated, setIdBeingUpdated] = useState<number>()
+    const {trigger, isError, isLoading} = usePatchDeveloper();
     const {refresh} = useRefreshDeveloperInfos()
 
     function handlePatchDeveloper(existingDeveloper: DeveloperInfoDto, archived: boolean) {
+        setIdBeingUpdated(existingDeveloper.id)
         trigger({id: existingDeveloper.id, data: {archived: archived}})
+            .then(() => setIdBeingUpdated(undefined))
             .then(() => refresh({...existingDeveloper, archived: archived}))
             .then(() => {
                 if (archived) {
@@ -78,7 +81,7 @@ function DevelopersList({allDevelopers}: DevelopersListProps) {
                 <ListItem key={developer.id}>
                     <Stack direction="row" gap={4}>
                         <ListItemText primary={developer.displayName}/>
-                        <ArchiveButton onClick={() => handlePatchDeveloper(developer, true)}/>
+                        <ArchiveButton disabled={isLoading} loading={idBeingUpdated === developer.id && isLoading} onClick={() => handlePatchDeveloper(developer, true)}/>
                     </Stack>
                 </ListItem>
             )}
