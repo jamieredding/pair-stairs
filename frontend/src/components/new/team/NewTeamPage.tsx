@@ -39,6 +39,7 @@ export function NewTeamPage() {
 }
 
 function EnabledNewTeamPage() {
+    // `isLoading` is not read here as we're using `isSubmitting` from the form
     const {trigger, isError} = useAddTeam()
     const navigate = useNavigate()
 
@@ -131,7 +132,8 @@ function EnabledNewTeamPage() {
                                     selector={(state) => [state.canSubmit, state.isSubmitting]}
                                     children={([canSubmit, isSubmitting]) => (
                                         <SaveButton onClick={form.handleSubmit} disabled={!canSubmit}
-                                                    text={isSubmitting ? "..." : undefined}/>
+                                                    loading={isSubmitting}
+                                        />
                                     )}
                                 />
 
