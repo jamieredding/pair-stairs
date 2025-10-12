@@ -36,7 +36,7 @@ export default function ChooseCombinationStep({
                                               }: ChooseCombinationStepProps) {
     const {
         combinationsPages,
-        isError,
+        isError: calculateError,
         isLoading,
         setSize
     } = useCalculateCombinations({developerIds, streamIds});
@@ -50,7 +50,7 @@ export default function ChooseCombinationStep({
 
     const [selectedCombinationIndex, setSelectedCombinationIndex] = useState<CombinationIndex>()
 
-    const {trigger: addCombinationEvent} = useAddCombinationEvent()
+    const {trigger: addCombinationEvent, isLoading: loadingAdd, isError: addError} = useAddCombinationEvent()
     const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents()
 
     const nothingSelected = selectedCombinationIndex === undefined;
@@ -110,7 +110,8 @@ export default function ChooseCombinationStep({
                 )
             }
             {isLoading && <Loading/>}
-            <ErrorSnackbar error={isError} alertContent={alertContent} />
+            <ErrorSnackbar error={calculateError} alertContent={alertContent} />
+            <ErrorSnackbar error={addError} alertContent={alertContent} />
             <Divider/>
             <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
@@ -118,7 +119,7 @@ export default function ChooseCombinationStep({
                     Back
                 </Button>
                 <MoreButton onClick={getMoreCombinations} disabled={!dataLoaded}/>
-                <SaveButton disabled={!dataLoaded || nothingSelected} onClick={saveCombination}/>
+                <SaveButton disabled={!dataLoaded || nothingSelected} loading={loadingAdd} onClick={saveCombination}/>
             </ButtonRow>
         </Stack>
     );

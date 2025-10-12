@@ -5,6 +5,7 @@ import {DEVELOPER_INFO_PATH, getDeveloperInfos} from "../../infrastructure/Devel
 export default function useRefreshDeveloperInfos() {
     const {mutate} = useSWRConfig()
 
+    // todo error handling?
     const configuredMutation = (potentialNewDeveloperInfo: DeveloperInfoDto) =>
         mutate(DEVELOPER_INFO_PATH, () => getDeveloperInfos(DEVELOPER_INFO_PATH), {
             optimisticData: (existingDeveloperInfos) => [...existingDeveloperInfos, potentialNewDeveloperInfo],

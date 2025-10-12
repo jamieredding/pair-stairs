@@ -2,15 +2,13 @@ import type TeamDto from "../domain/TeamDto.ts";
 import {handleErrors} from "./handleErrors.ts";
 
 export async function addTeam(url: string, {arg}: { arg: TeamDto }): Promise<TeamDto> {
-    const response = await fetch(url, {
+    const response = await handleErrors(await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(arg)
-    });
-
-    await handleErrors(response)
+    }));
 
     return response.json();
 }

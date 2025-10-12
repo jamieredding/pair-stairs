@@ -17,4 +17,6 @@ export async function handleErrors(response: Response) {
     if (!response.ok) {
         throw {errorCode: "UNKNOWN"} as ApiError;
     }
+
+    return response
 }

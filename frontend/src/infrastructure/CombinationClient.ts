@@ -2,58 +2,40 @@ import type CalculateInputDto from "../domain/CalculateInputDto";
 import type {SaveCombinationEventDto} from "../domain/SaveCombinationEventDto.ts";
 import type ScoredCombinationDto from "../domain/ScoredCombinationDto.ts";
 import type CombinationEventDto from "../domain/CombinationEventDto.ts";
-import type {ErrorDto} from "../domain/ErrorDto.ts";
-import type {ApiError} from "../domain/ApiError.ts";
+import {handleErrors} from "./handleErrors.ts";
 
 export async function calculateCombinations(url: string, {arg}: {
     arg: CalculateInputDto
 }): Promise<ScoredCombinationDto[]> {
-    const res = await fetch(url, {
+    const res = await handleErrors(await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(arg)
-    });
-
-    if (res.status === 400) {
-        let returnedErrorCode: string = "UNKNOWN";
-        try {
-            const {errorCode} = (await res.json()) as ErrorDto;
-            returnedErrorCode = errorCode;
-        } catch {
-            /* ignored */
-        }
-
-        throw {errorCode: returnedErrorCode} as ApiError;
-    }
-
-    if (!res.ok) {
-        throw {errorCode: "UNKNOWN"} as ApiError;
-    }
+    }));
 
     return res.json();
 }
 
-export function saveCombinationEvent(url: string, {arg}: { arg: SaveCombinationEventDto }) {
-    return fetch(url, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(arg)
-    })
-    // todo response handling
+export async function saveCombinationEvent(url: string, {arg}: { arg: SaveCombinationEventDto }) {
+    return await handleErrors(await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(arg)
+        })
+    )
 }
 
 export async function getCombinationEvents(url: string): Promise<CombinationEventDto[]> {
-    const res = await fetch(url);
+    const res = await handleErrors(await fetch(url));
     return await res.json();
 }
 
-export function deleteCombinationEvent(url: string, {arg: id}: { arg: number }) {
-    return fetch(`${url}/${id}`, {
+export async function deleteCombinationEvent(url: string, {arg: id}: { arg: number }) {
+    return await handleErrors(await fetch(`${url}/${id}`, {
         method: "DELETE"
-    })
-    // todo response handling
+    }))
 }

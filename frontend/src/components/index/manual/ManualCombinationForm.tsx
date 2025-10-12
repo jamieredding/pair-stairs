@@ -1,5 +1,5 @@
-import {Button, Divider, Stack, Typography} from "@mui/material";
-import {useEffect, useMemo, useState} from "react";
+import {AlertTitle, Button, Divider, Stack, Typography} from "@mui/material";
+import {type ReactElement, useEffect, useMemo, useState} from "react";
 import {Add} from "@mui/icons-material";
 import {format} from "date-fns";
 import useDeveloperInfos from "../../../hooks/developers/useDeveloperInfos";
@@ -17,6 +17,7 @@ import IdCheckboxGroup from "../../IdCheckboxGroup.tsx";
 import ButtonRow from "../../ButtonRow.tsx";
 import SaveButton from "../../SaveButton.tsx";
 import CombinationTable from "../../CombinationTable.tsx";
+import ErrorSnackbar from "../../ErrorSnackbar.tsx";
 
 const dateFormat = "yyyy-MM-dd"
 
@@ -55,7 +56,7 @@ export default function ManualCombinationForm() {
 
     const [combination, setCombination] = useState<PairStreamDto[]>([])
 
-    const {trigger} = useAddCombinationEvent()
+    const {trigger, isLoading: loadingAdd, isError: addError} = useAddCombinationEvent()
     const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents();
 
     const dataLoaded = activeDevelopers && activeStreams;
@@ -156,12 +157,23 @@ export default function ManualCombinationForm() {
                     <Add sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Add
                 </Button>
-                <SaveButton disabled={saveButtonDisabled} onClick={saveCombination}/>
+                <SaveButton disabled={saveButtonDisabled} loading={loadingAdd} onClick={saveCombination}/>
                 {!saveButtonDisabled &&
                     <Typography variant="h6">Save when you have chosen your combination</Typography>}
             </ButtonRow>
             <CombinationTable combination={combination}
                               removeFromCombination={removeFromCombination}/>
+            <ErrorSnackbar error={addError} alertContent={alertContent} />
         </Stack>
     )
+}
+
+function alertContent(errorCode: string): ReactElement {
+    switch (errorCode) {
+        default:
+            return <>
+                <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                Click back to try again or refresh the page.
+            </>
+    }
 }

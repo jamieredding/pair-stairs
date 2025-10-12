@@ -1,8 +1,10 @@
 import {
+    AlertTitle,
     Box,
     Button,
     Card,
     CardContent,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -30,6 +32,7 @@ import Error from "../Error.tsx";
 import MoreButton from "../MoreButton.tsx";
 import {useNavigate, useSearch} from "@tanstack/react-router";
 import {CustomLink} from "../CustomLink.tsx";
+import ErrorSnackbar from "../ErrorSnackbar.tsx";
 
 interface TabPanelProps {
     children: ReactNode,
@@ -135,7 +138,7 @@ interface ConfirmDeleteDialogProps {
 }
 
 function ConfirmDeleteDialog({combinationEvent, onClose}: ConfirmDeleteDialogProps) {
-    const {trigger: deleteCombinationEvent} = useDeleteCombinationEvent();
+    const {trigger: deleteCombinationEvent, isLoading: loadingDelete, isError: deleteError} = useDeleteCombinationEvent();
     const {refresh: refreshCombinationEvents} = useRefreshCombinationEvents();
 
     function handleDeleteCombinationEvent() {
@@ -157,8 +160,19 @@ function ConfirmDeleteDialog({combinationEvent, onClose}: ConfirmDeleteDialogPro
                 </p>
                 <DialogActions>
                     <Button onClick={onClose}>Cancel</Button>
-                    <Button onClick={handleDeleteCombinationEvent}>Delete</Button>
+                    <Button disabled={loadingDelete} onClick={handleDeleteCombinationEvent}>
+                        Delete
+                        {loadingDelete &&
+                            <CircularProgress size={20} sx={({marginLeft: (theme) => theme.spacing(1)})} />
+                        }
+                    </Button>
                 </DialogActions>
+                <ErrorSnackbar error={deleteError} alertContent={(errorCode: string) =>
+                    <>
+                        <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                        Error while trying to delete, try again.
+                    </>
+                } />
             </DialogContent>
         </Dialog>
     )

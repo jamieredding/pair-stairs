@@ -13,6 +13,8 @@ import {
 import {Fragment} from "react";
 import type ScoredCombinationDto from "../../../domain/ScoredCombinationDto";
 import useCombinationEvents from "../../../hooks/combinations/useCombinationEvents.ts";
+import Loading from "../../Loading.tsx";
+import Error from "../../Error.tsx";
 
 
 interface ScoredCombinationsTableProps {
@@ -28,7 +30,7 @@ export default function ScoredCombinationsTable({
                                                     setSelectedIndex
                                                 }: ScoredCombinationsTableProps) {
     const numberOfPairs = dtos[0].combination.length
-    const {combinationEvents} = useCombinationEvents()
+    const {combinationEvents, isLoading, isError} = useCombinationEvents()
     const mostRecentCombinationEvent = combinationEvents && combinationEvents.length > 0
         ? combinationEvents[0][0]
         : null
@@ -48,6 +50,8 @@ export default function ScoredCombinationsTable({
 
     return (
         <TableContainer>
+            {isLoading && <Loading/>}
+            {isError && <Error />}
             <Table>
                 <caption>* new to stream</caption>
                 <TableHead>

@@ -3,8 +3,8 @@ import {addDeveloper} from "../../infrastructure/DeveloperClient.ts";
 import useSWRMutation, {type SWRMutationResponse} from "swr/mutation";
 
 export default function useAddDeveloper() {
-    const {trigger}: SWRMutationResponse<Response, never, "/api/v1/developers", DeveloperDto> =
+    const {trigger, isMutating, error}: SWRMutationResponse<Response, never, "/api/v1/developers", DeveloperDto> =
         useSWRMutation("/api/v1/developers", addDeveloper);
 
-    return {trigger}
+    return {trigger, isError: error, isLoading: isMutating}
 }

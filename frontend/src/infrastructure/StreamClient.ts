@@ -6,34 +6,29 @@ import type PatchStreamDto from "../domain/PatchStreamDto.ts";
 export const STREAM_INFO_PATH = "/api/v1/streams/info"
 
 export async function getStreamInfos(url: string): Promise<StreamInfoDto[]> {
-    const response = await fetch(url);
-
-    await handleErrors(response);
+    const response = await handleErrors(await fetch(url));
 
     return await response.json();
 }
 
-export function addStream(url: string, {arg}: { arg: StreamDto }) {
-    return fetch(url, {
+export async function addStream(url: string, {arg}: { arg: StreamDto }) {
+    return await handleErrors(await fetch(url, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(arg)
-    })
-    // todo response handling
+    }))
 }
 
-export async function patchStream(url: string, {arg}: { arg: {data: PatchStreamDto, id: number} }) {
-    const response = await fetch(`${url}/${arg.id}`, {
+export async function patchStream(url: string, {arg}: { arg: { data: PatchStreamDto, id: number } }) {
+    const response = await handleErrors(await fetch(`${url}/${arg.id}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(arg.data)
-    })
-
-    await handleErrors(response)
+    }))
 
     return response.json()
 }
