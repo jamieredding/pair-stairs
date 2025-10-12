@@ -1,9 +1,10 @@
-import {Stack, TextField} from "@mui/material";
+import {AlertTitle, Stack, TextField} from "@mui/material";
 import {useState} from "react";
 import ButtonRow from "../ButtonRow.tsx";
 import SaveButton from "../SaveButton.tsx";
 import useAddStream from "../../hooks/streams/useAddStream.ts";
 import useRefreshStreamInfos from "../../hooks/streams/useRefreshStreamInfos.ts";
+import ErrorSnackbar from "../ErrorSnackbar.tsx";
 
 interface AddNewStreamFormProps {
     onSubmit: () => void
@@ -11,7 +12,7 @@ interface AddNewStreamFormProps {
 
 export default function AddNewStreamForm({onSubmit}: AddNewStreamFormProps) {
     const [name, setName] = useState<string>("");
-    const {trigger} = useAddStream()
+    const {trigger, isLoading: loadingAdd, isError: addError} = useAddStream()
     const {refresh} = useRefreshStreamInfos()
 
     function handleSubmit() {
@@ -28,8 +29,14 @@ export default function AddNewStreamForm({onSubmit}: AddNewStreamFormProps) {
             <TextField label="Name" variant="outlined" value={name}
                        onChange={(e) => setName(e.target.value)}/>
             <ButtonRow>
-                <SaveButton disabled={name.length === 0} onClick={handleSubmit}/>
+                <SaveButton disabled={name.length === 0} loading={loadingAdd} onClick={handleSubmit}/>
             </ButtonRow>
+            <ErrorSnackbar error={addError} alertContent={(errorCode: string) =>
+                <>
+                    <AlertTitle>Unexpected error: {errorCode}</AlertTitle>
+                    Error while trying to add, try again.
+                </>
+            } />
         </Stack>
     )
 }

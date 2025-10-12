@@ -56,11 +56,14 @@ function StreamsList({allStreams}: StreamsListProps) {
     const [archiveOpen, setArchiveOpen] = useState(false);
     const activeStreams = useMemo(() => allStreams.filter(d => !d.archived), [allStreams])
     const archivedStreams = useMemo(() => allStreams.filter(d => d.archived), [allStreams])
-    const {trigger, isError} = usePatchStream();
+    const [idBeingUpdated, setIdBeingUpdated] = useState<number>()
+    const {trigger, isError, isLoading} = usePatchStream();
     const {refresh} = useRefreshStreamInfos()
 
     function handlePatchStream(existingStream: StreamInfoDto, archived: boolean) {
+        setIdBeingUpdated(existingStream.id)
         trigger({id: existingStream.id, data: {archived: archived}})
+            .then(() => setIdBeingUpdated(undefined))
             .then(() => refresh({...existingStream, archived: archived}))
             .then(() => {
                 if (archived) {
@@ -75,7 +78,7 @@ function StreamsList({allStreams}: StreamsListProps) {
                 <ListItem key={stream.id}>
                     <Stack direction="row" gap={4}>
                         <ListItemText primary={stream.displayName}/>
-                        <ArchiveButton onClick={() => handlePatchStream(stream, true)}/>
+                        <ArchiveButton disabled={isLoading} loading={idBeingUpdated === stream.id && isLoading} onClick={() => handlePatchStream(stream, true)}/>
                     </Stack>
                 </ListItem>
             )}
