@@ -25,6 +25,7 @@ public class PairStreamStatisticsService {
         this.recentPairOccurrences = initialiseOccurrencesPerPair(developers);
         this.developerToDaysInStream = initialiseDeveloperToDaysInStream(developers, streams);
         this.numberOfPreviousCombinationsToConsider = numberOfPreviousCombinationsToConsider;
+        updateStatistics();
     }
 
     public void updateStatistics() {

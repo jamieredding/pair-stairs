@@ -128,9 +128,10 @@ class PairStreamEntryPointTest {
                     List.of("1-stream", "2-stream", "3-stream")
             );
 
-            final var sortedCombinations = getSortedCombinations(underTest);
+            final var sortedCombinations = getScoredCombinations(underTest);
 
-            assertThat(sortedCombinations.getFirst())
+            final var first = sortedCombinations.getFirst();
+            assertThat(first.combination())
                     .isEqualTo(
                             new Combination<>(Set.of(
                                     new PairStream(Set.of("a-dev", "c-dev"), "1-stream"),
@@ -138,6 +139,10 @@ class PairStreamEntryPointTest {
                                     new PairStream(Set.of("b-dev", "e-dev"), "3-stream")
                             ))
                     );
+
+            final var numberOfCombinationsSharingBestScore = sortedCombinations.stream().filter(sc -> sc.totalScore() == first.totalScore()).count();
+            assertThat(numberOfCombinationsSharingBestScore)
+                    .isEqualTo(1);
         }
 
         @Test
@@ -251,7 +256,6 @@ class PairStreamEntryPointTest {
 
     private PairStreamEntryPoint initialiseUnderTest(List<String> developers, List<String> streams) {
         final var statisticsService = new PairStreamStatisticsService(combinationHistoryRepository, developers, streams, 5);
-        statisticsService.updateStatistics();
 
         return new PairStreamEntryPoint(
                 developers,
@@ -269,6 +273,10 @@ class PairStreamEntryPointTest {
                 .stream()
                 .map(ScoredCombination::combination)
                 .toList();
+    }
+
+    private static List<ScoredCombination<PairStream>> getScoredCombinations(PairStreamEntryPoint underTest) {
+        return underTest.computeScoredCombinations();
     }
 
     private void saveARealisticFiveDayHistory() {
