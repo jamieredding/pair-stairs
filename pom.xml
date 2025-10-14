@@ -4,7 +4,7 @@
 
     <groupId>dev.coldhands.pair.stairs</groupId>
     <artifactId>pair-stairs</artifactId>
-    <version>1.9.2-SNAPSHOT</version>
+    <version>1.9.2</version>
     <packaging>pom</packaging>
     <name>pair-stairs</name>
 
@@ -372,6 +372,6 @@
         <url>https://github.com/jamieredding/pair-stairs</url>
         <connection>scm:git:git://github.com/jamieredding/pair-stairs.git</connection>
         <developerConnection>scm:git:git@github.com:jamieredding/pair-stairs.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>1.9.2</tag>
     </scm>
 </project>
