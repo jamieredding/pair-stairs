@@ -1,20 +1,22 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
 import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo
+import dev.coldhands.pair.stairs.backend.domain.PairStream
+import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
 import dev.coldhands.pair.stairs.backend.domain.StreamInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
 import dev.coldhands.pair.stairs.core.domain.Combination
-import dev.coldhands.pair.stairs.core.domain.ScoredCombination
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamEntryPoint
 import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import dev.coldhands.pair.stairs.core.domain.ScoredCombination as CoreScoredCombination
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream as CorePairStream
 
 class CoreCombinationCalculationServiceTest {
     private val entryPointFactory: EntryPointFactory = mockk()
@@ -43,21 +45,21 @@ class CoreCombinationCalculationServiceTest {
         } returns entryPoint
 
         every { entryPoint.computeScoredCombinations() } returns listOf(
-            ScoredCombination(
+            CoreScoredCombination(
                 Combination(
                     setOf(
-                        PairStream(setOf("0", "1"), "0"),
-                        PairStream(setOf("2"), "1")
+                        CorePairStream(setOf("0", "1"), "0"),
+                        CorePairStream(setOf("2"), "1")
                     )
                 ),
                 10,
                 listOf()
             ),
-            ScoredCombination(
+            CoreScoredCombination(
                 Combination(
                     setOf(
-                        PairStream(setOf("0", "2"), "0"),
-                        PairStream(setOf("1"), "1")
+                        CorePairStream(setOf("0", "2"), "0"),
+                        CorePairStream(setOf("1"), "1")
                     )
                 ),
                 20,
@@ -67,17 +69,17 @@ class CoreCombinationCalculationServiceTest {
 
 
         underTest.calculate(listOf(0L, 1L, 2L), listOf(0L, 1L), 0, 10) shouldContainExactly listOf(
-            dev.coldhands.pair.stairs.backend.domain.ScoredCombination(
+            ScoredCombination(
                 10,
                 listOf(
-                    dev.coldhands.pair.stairs.backend.domain.PairStream(
+                    PairStream(
                         listOf(
                             DeveloperInfo(0, "dev-0", false),
                             DeveloperInfo(1, "dev-1", false)
                         ),
                         StreamInfo(0, "stream-a", false)
                     ),
-                    dev.coldhands.pair.stairs.backend.domain.PairStream(
+                    PairStream(
                         listOf(
                             DeveloperInfo(2, "dev-2", false)
                         ),
@@ -85,17 +87,17 @@ class CoreCombinationCalculationServiceTest {
                     )
                 )
             ),
-            dev.coldhands.pair.stairs.backend.domain.ScoredCombination(
+            ScoredCombination(
                 20,
                 listOf(
-                    dev.coldhands.pair.stairs.backend.domain.PairStream(
+                    PairStream(
                         listOf(
                             DeveloperInfo(0, "dev-0", false),
                             DeveloperInfo(2, "dev-2", false)
                         ),
                         StreamInfo(0, "stream-a", false)
                     ),
-                    dev.coldhands.pair.stairs.backend.domain.PairStream(
+                    PairStream(
                         listOf(
                             DeveloperInfo(1, "dev-1", false)
                         ),
@@ -135,11 +137,8 @@ class CoreCombinationCalculationServiceTest {
 
             val scoredCombinations =
                 underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize)
-            val scores = scoredCombinations.stream()
-                .map(dev.coldhands.pair.stairs.backend.domain.ScoredCombination::score)
-                .toList()
 
-            scores shouldContainExactly listOf(10, 20)
+            scoredCombinations.map { it.score } shouldContainExactly listOf(10, 20)
         }
 
         @Test
@@ -169,21 +168,18 @@ class CoreCombinationCalculationServiceTest {
 
             val scoredCombinations =
                 underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize)
-            val scores = scoredCombinations.stream()
-                .map(dev.coldhands.pair.stairs.backend.domain.ScoredCombination::score)
-                .toList()
 
-            scores shouldContainExactly listOf(30)
+            scoredCombinations.map { it.score } shouldContainExactly listOf(30)
         }
 
     }
 
     companion object {
-        private fun coreScoredCombinationWithScore(totalScore: Int): ScoredCombination<PairStream> {
-            return ScoredCombination(
+        private fun coreScoredCombinationWithScore(totalScore: Int): CoreScoredCombination<CorePairStream> {
+            return CoreScoredCombination(
                 Combination(
                     setOf(
-                        PairStream(setOf("0"), "0")
+                        CorePairStream(setOf("0"), "0")
                     )
                 ),
                 totalScore,
