@@ -4,7 +4,9 @@ import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Nested
@@ -126,6 +128,80 @@ open class CombinationCalculationControllerTest @Autowired constructor(
             val parsed: DocumentContext = JsonPath.parse(contentAsString)
             parsed.read<List<Any>>("$").shouldHaveSize(0)
         }
+    }
+
+    @Nested
+    inner class CalculateReturningPage {
+
+        @Test
+        fun calculateCombinationsHasADefaultPageSize() {
+            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+
+            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+
+            val contentAsString = mockMvc.perform(
+                post("/api/v1/combinations/calculate")
+                    .with(oidcLogin())
+                    .queryParam("projection", "page")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+            {
+              "developerIds": [$dev0Id, $dev1Id, $dev2Id],
+              "streamIds": [$stream0Id, $stream1Id]
+            }
+            """.trimIndent()
+                    )
+            )
+                .andExpect(status().isOk)
+                .andReturn()
+                .response
+                .contentAsString
+
+            val parsed: DocumentContext = JsonPath.parse(contentAsString)
+            parsed.read<Int>("$.metadata.nextPageNumber") shouldBe 1
+            parsed.read<List<Any>>("$.data").shouldHaveSize(2)
+        }
+
+        @Test
+        fun calculateCombinationsRequestingPageWithNoResults() {
+            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+
+            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+
+            val contentAsString = mockMvc.perform(
+                post("/api/v1/combinations/calculate")
+                    .queryParam("projection", "page")
+                    .queryParam("page", "10")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+            {
+              "developerIds": [$dev0Id, $dev1Id, $dev2Id],
+              "streamIds": [$stream0Id, $stream1Id]
+            }
+            """.trimIndent()
+                    )
+            )
+                .andExpect(status().isOk)
+                .andReturn()
+                .response
+                .contentAsString
+
+            val parsed: DocumentContext = JsonPath.parse(contentAsString)
+            parsed.read<Any>("$.metadata.nextPageNumber").shouldBeNull()
+            parsed.read<List<Any>>("$.data").shouldBeEmpty()
+        }
+    }
+
+    @Nested
+    inner class BadRequest {
 
         @Test
         fun returnBadRequestWhenThereAreNotEnoughDevelopersToBeAbleToPair() {
