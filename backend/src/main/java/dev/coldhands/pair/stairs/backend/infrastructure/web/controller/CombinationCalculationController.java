@@ -37,7 +37,7 @@ public class CombinationCalculationController {
         final List<Long> developerIds = request.developerIds();
         final List<Long> streamIds = request.streamIds();
 
-        return service.calculate(developerIds, streamIds, requestedPage, pageSize);
+        return service.calculate(developerIds, streamIds, requestedPage, pageSize).getData();
     }
 
     @ExceptionHandler(NotEnoughDevelopersException.class)

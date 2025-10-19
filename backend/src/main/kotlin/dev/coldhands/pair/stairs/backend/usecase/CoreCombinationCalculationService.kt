@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService
+import dev.coldhands.pair.stairs.backend.domain.Page
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.ScoredCombinationMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository
@@ -16,7 +17,7 @@ class CoreCombinationCalculationService(
         streamIds: List<Long>,
         page: Int,
         pageSize: Int
-    ): List<ScoredCombination> {
+    ): Page<ScoredCombination> {
         // todo validate that ids are real?
 
         val entryPoint = entryPointFactory.create(
@@ -29,9 +30,21 @@ class CoreCombinationCalculationService(
         val developerLookup = developerRepository.findAllById(developerIds).associateBy { it.id }
         val streamLookup = streamRepository.findAllById(streamIds).associateBy { it.id }
 
-        return scoredCombinations.drop(page * pageSize)
-            .take(pageSize)
-            .map { sc -> ScoredCombinationMapper.coreToDomain(sc, developerLookup::get, streamLookup::get) }
+        val pages = scoredCombinations.windowed(size = pageSize, step = pageSize, partialWindows = true)
+
+        if (page < 0 || page >= pages.size) {
+            return Page.empty()
+        }
+
+        return Page(
+            metadata = Page.Metadata(
+                nextPageNumber = (page + 1).takeIf { it < pages.size },
+            ),
+            data = pages
+                .drop(page)
+                .first()
+                .map { sc -> ScoredCombinationMapper.coreToDomain(sc, developerLookup::get, streamLookup::get) }
+        )
     }
 
     companion object {

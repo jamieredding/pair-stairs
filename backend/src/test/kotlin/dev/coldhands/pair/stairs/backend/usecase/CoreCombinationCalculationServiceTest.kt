@@ -10,7 +10,11 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.D
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
 import dev.coldhands.pair.stairs.core.domain.Combination
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamEntryPoint
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Nested
@@ -68,7 +72,7 @@ class CoreCombinationCalculationServiceTest {
         )
 
 
-        underTest.calculate(listOf(0L, 1L, 2L), listOf(0L, 1L), 0, 10) shouldContainExactly listOf(
+        underTest.calculate(listOf(0L, 1L, 2L), listOf(0L, 1L), 0, 10).data shouldContainExactly listOf(
             ScoredCombination(
                 10,
                 listOf(
@@ -110,6 +114,7 @@ class CoreCombinationCalculationServiceTest {
 
     @Nested
     internal inner class Pagination {
+
         @Test
         fun onlyReturnFirstPageOfScoredCombinationsIfMoreThanPageSizeAreReturned() {
             every { developerRepository.findAllById(listOf(0L)) } returns listOf(
@@ -135,10 +140,14 @@ class CoreCombinationCalculationServiceTest {
             val requestedPage = 0
             val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
 
-            val scoredCombinations =
-                underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize)
-
-            scoredCombinations.map { it.score } shouldContainExactly listOf(10, 20)
+            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+                page.metadata should { metadata ->
+                    metadata.nextPageNumber shouldBe 1
+                }
+                page.data should { scoredCombinations ->
+                    scoredCombinations.map { it.score } shouldContainExactly listOf(10, 20)
+                }
+            }
         }
 
         @Test
@@ -166,12 +175,79 @@ class CoreCombinationCalculationServiceTest {
             val requestedPage = 1
             val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
 
-            val scoredCombinations =
-                underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize)
-
-            scoredCombinations.map { it.score } shouldContainExactly listOf(30)
+            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+                page.metadata should { metadata ->
+                    metadata.nextPageNumber.shouldBeNull()
+                }
+                page.data should { scoredCombinations ->
+                    scoredCombinations.map { it.score } shouldContainExactly listOf(30)
+                }
+            }
         }
 
+        @Test
+        fun returnEmptyPageIfTooEarlyOfAPageRequested() {
+            every { developerRepository.findAllById(listOf(0L)) } returns listOf(
+                DeveloperEntity(0L, "dev-0", false),
+            )
+            every { streamRepository.findAllById(listOf(0L)) } returns listOf(
+                StreamEntity(0L, "stream-a", false),
+            )
+            every {
+                entryPointFactory.create(
+                    listOf("0"),
+                    listOf("0")
+                )
+            } returns entryPoint
+
+            every { entryPoint.computeScoredCombinations() } returns listOf(
+                coreScoredCombinationWithScore(10),
+                coreScoredCombinationWithScore(20),
+            )
+
+            val pageSize = 1
+            val requestedPage = -1
+            val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+
+            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+                page.metadata should { metadata ->
+                    metadata.nextPageNumber.shouldBeNull()
+                }
+                page.data.shouldBeEmpty()
+            }
+        }
+
+        @Test
+        fun returnEmptyPageIfTooLateOfAPageRequested() {
+            every { developerRepository.findAllById(listOf(0L)) } returns listOf(
+                DeveloperEntity(0L, "dev-0", false),
+            )
+            every { streamRepository.findAllById(listOf(0L)) } returns listOf(
+                StreamEntity(0L, "stream-a", false),
+            )
+            every {
+                entryPointFactory.create(
+                    listOf("0"),
+                    listOf("0")
+                )
+            } returns entryPoint
+
+            every { entryPoint.computeScoredCombinations() } returns listOf(
+                coreScoredCombinationWithScore(10),
+                coreScoredCombinationWithScore(20),
+            )
+
+            val pageSize = 1
+            val requestedPage = 2
+            val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+
+            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+                page.metadata should { metadata ->
+                    metadata.nextPageNumber.shouldBeNull()
+                }
+                page.data.shouldBeEmpty()
+            }
+        }
     }
 
     companion object {
