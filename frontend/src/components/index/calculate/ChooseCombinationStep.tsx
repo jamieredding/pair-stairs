@@ -1,6 +1,6 @@
 import {AlertTitle, Button, Divider, Stack, Typography} from "@mui/material";
 import {ArrowBack} from "@mui/icons-material";
-import {type ReactElement, useEffect, useState} from "react";
+import {type ReactElement, useEffect, useMemo, useState} from "react";
 import {formatISO} from "date-fns";
 import useCalculateCombinations from "../../../hooks/combinations/useCalculateCombinations";
 import useAddCombinationEvent from "../../../hooks/combinations/useAddCombinationEvent.ts";
@@ -14,6 +14,7 @@ import ButtonRow from "../../ButtonRow.tsx";
 import MoreButton from "../../MoreButton.tsx";
 import SaveButton from "../../SaveButton.tsx";
 import ErrorSnackbar from "../../ErrorSnackbar.tsx";
+import type PageDto from "../../../domain/PageDto.ts";
 
 
 interface ChooseCombinationStepProps {
@@ -41,6 +42,14 @@ export default function ChooseCombinationStep({
         setSize
     } = useCalculateCombinations({developerIds, streamIds});
     const dataLoaded = combinationsPages !== undefined;
+    const endOfPages: boolean = useMemo(
+        () => {
+            return combinationsPages
+                ? combinationsPages
+                .filter(page => page.metadata.nextPageNumber == null).length != 0
+                : false;
+        },
+        [combinationsPages])
 
     // Reset the size of the list of combinations when the developer or stream ids change
     // This is necessary because the list of combinations is paginated and otherwise the list would start with too many options
@@ -74,8 +83,8 @@ export default function ChooseCombinationStep({
 
     function saveCombination() {
         const index = selectedCombinationIndex as CombinationIndex;
-        const pages = combinationsPages as ScoredCombinationDto[][]
-        const scoredCombination: ScoredCombinationDto = pages[index.row][index.column]
+        const pages = combinationsPages as PageDto<ScoredCombinationDto>[]
+        const scoredCombination: ScoredCombinationDto = pages[index.row].data[index.column]
         const pairStreamsByIds: PairStreamByIds[] = scoredCombination.combination.map(c => ({
             streamId: c.stream.id,
             developerIds: c.developers.map(d => d.id)
@@ -100,7 +109,7 @@ export default function ChooseCombinationStep({
                 combinationsPages &&
                 combinationsPages.map((combinations, rowIndex) =>
                     <ScoredCombinationsTable key={rowIndex}
-                                             dtos={combinations}
+                                             dtos={combinations.data}
                                              selectedIndex={getSelectedIndexForRow(rowIndex)}
                                              setSelectedIndex={(columnIndex: number) => setSelectedCombinationIndex({
                                                  column: columnIndex,
@@ -110,15 +119,15 @@ export default function ChooseCombinationStep({
                 )
             }
             {isLoading && <Loading/>}
-            <ErrorSnackbar error={calculateError} alertContent={alertContent} />
-            <ErrorSnackbar error={addError} alertContent={alertContent} />
+            <ErrorSnackbar error={calculateError} alertContent={alertContent}/>
+            <ErrorSnackbar error={addError} alertContent={alertContent}/>
             <Divider/>
             <ButtonRow>
                 <Button variant="outlined" onClick={() => progressForm(-1)}>
                     <ArrowBack sx={({marginRight: (theme) => theme.spacing(1)})}/>
                     Back
                 </Button>
-                <MoreButton onClick={getMoreCombinations} disabled={!dataLoaded}/>
+                <MoreButton onClick={getMoreCombinations} disabled={!dataLoaded || endOfPages}/>
                 <SaveButton disabled={!dataLoaded || nothingSelected} loading={loadingAdd} onClick={saveCombination}/>
             </ButtonRow>
         </Stack>

@@ -68,7 +68,10 @@
         "urlPath": "/api/v1/combinations/calculate",
         "queryParameters": {
           "page": {
-            "matches": "\\d+"
+            "matches": "0"
+          },
+          "projection": {
+            "equalTo": "page"
           }
         },
         "headers": {
@@ -87,74 +90,150 @@
       },
       "response": {
         "status": 200,
-        "jsonBody": [
-          {
-            "score": 10,
-            "combination": [
-              {
-                "developers": [
-                  {
-                    "id": 0,
-                    "displayName": "dev-0"
-                  },
-                  {
+        "jsonBody": {
+          "metadata": {
+            "nextPageNumber": 1
+          },
+          "data": [
+            {
+              "score": 10,
+              "combination": [
+                {
+                  "developers": [
+                    {
+                      "id": 0,
+                      "displayName": "dev-0"
+                    },
+                    {
+                      "id": 1,
+                      "displayName": "dev-1"
+                    }
+                  ],
+                  "stream": {
                     "id": 1,
-                    "displayName": "dev-1"
+                    "displayName": "stream-a"
                   }
-                ],
-                "stream": {
-                  "id": 1,
-                  "displayName": "stream-a"
-                }
-              },
-              {
-                "developers": [
-                  {
+                },
+                {
+                  "developers": [
+                    {
+                      "id": 2,
+                      "displayName": "dev-2"
+                    }
+                  ],
+                  "stream": {
                     "id": 2,
-                    "displayName": "dev-2"
+                    "displayName": "stream-b"
                   }
-                ],
-                "stream": {
-                  "id": 2,
-                  "displayName": "stream-b"
                 }
-              }
-            ]
+              ]
+            },
+            {
+              "score": 20,
+              "combination": [
+                {
+                  "developers": [
+                    {
+                      "id": 0,
+                      "displayName": "dev-0"
+                    },
+                    {
+                      "id": 2,
+                      "displayName": "dev-2"
+                    }
+                  ],
+                  "stream": {
+                    "id": 1,
+                    "displayName": "stream-a"
+                  }
+                },
+                {
+                  "developers": [
+                    {
+                      "id": 1,
+                      "displayName": "dev-1"
+                    }
+                  ],
+                  "stream": {
+                    "id": 2,
+                    "displayName": "stream-b"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "priority": 10,
+      "request": {
+        "method": "POST",
+        "urlPath": "/api/v1/combinations/calculate",
+        "queryParameters": {
+          "page": {
+            "matches": "1"
+          },
+          "projection": {
+            "equalTo": "page"
+          }
+        },
+        "headers": {
+          "Content-Type": {
+            "equalTo": "application/json"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$[?(@.developerIds.length() > 0)]"
           },
           {
-            "score": 20,
-            "combination": [
-              {
-                "developers": [
-                  {
-                    "id": 0,
-                    "displayName": "dev-0"
-                  },
-                  {
-                    "id": 2,
-                    "displayName": "dev-2"
-                  }
-                ],
-                "stream": {
-                  "id": 1,
-                  "displayName": "stream-a"
-                }
-              },
-              {
-                "developers": [
-                  {
-                    "id": 1,
-                    "displayName": "dev-1"
-                  }
-                ],
-                "stream": {
-                  "id": 2,
-                  "displayName": "stream-b"
-                }
-              }
-            ]
+            "matchesJsonPath": "$[?(@.streamIds.length() > 0)]"
           }
         ]
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "metadata": {
+            "nextPageNumber": null
+          },
+          "data": [
+            {
+              "score": 30,
+              "combination": [
+                {
+                  "developers": [
+                    {
+                      "id": 1,
+                      "displayName": "dev-1"
+                    },
+                    {
+                      "id": 2,
+                      "displayName": "dev-2"
+                    }
+                  ],
+                  "stream": {
+                    "id": 1,
+                    "displayName": "stream-a"
+                  }
+                },
+                {
+                  "developers": [
+                    {
+                      "id": 0,
+                      "displayName": "dev-0"
+                    }
+                  ],
+                  "stream": {
+                    "id": 2,
+                    "displayName": "stream-b"
+                  }
+                }
+              ]
+            }
+          ]
+        }
       }
     },
     {

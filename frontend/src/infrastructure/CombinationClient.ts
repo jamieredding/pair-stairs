@@ -3,10 +3,11 @@ import type {SaveCombinationEventDto} from "../domain/SaveCombinationEventDto.ts
 import type ScoredCombinationDto from "../domain/ScoredCombinationDto.ts";
 import type CombinationEventDto from "../domain/CombinationEventDto.ts";
 import {handleErrors} from "./handleErrors.ts";
+import type PageDto from "../domain/PageDto.ts";
 
 export async function calculateCombinations(url: string, {arg}: {
     arg: CalculateInputDto
-}): Promise<ScoredCombinationDto[]> {
+}): Promise<PageDto<ScoredCombinationDto>> {
     const res = await handleErrors(await fetch(url, {
         method: "POST",
         headers: {
