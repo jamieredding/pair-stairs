@@ -35,6 +35,7 @@
 
         <junit-jupiter-api.version>5.14.0</junit-jupiter-api.version>
         <kotest.version>6.0.4</kotest.version>
+        <mockk.version>1.14.6</mockk.version>
         <assertj-core.version>3.27.6</assertj-core.version>
         <picnic.version>0.7.0</picnic.version>
         <guava.version>33.5.0-jre</guava.version>
@@ -123,6 +124,12 @@
                 <groupId>io.kotest</groupId>
                 <artifactId>kotest-assertions-core-jvm</artifactId>
                 <version>${kotest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.mockk</groupId>
+                <artifactId>mockk-jvm</artifactId>
+                <version>${mockk.version}</version>
                 <scope>test</scope>
             </dependency>
 
