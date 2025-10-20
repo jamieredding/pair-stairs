@@ -1,23 +1,22 @@
 import HomePage from "../index/HomePage.tsx";
-import useFeatureFlags from "../../hooks/featureFlags/useFeatureFlags.ts";
 import Loading from "../Loading.tsx";
-import Error from "../Error.tsx";
 import {AlertTitle, Typography} from "@mui/material";
 import {getRouteApi} from "@tanstack/react-router";
 import useGetTeamBySlug from "../../hooks/teams/useGetTeamBySlug.ts";
 import ErrorSnackbar from "../ErrorSnackbar.tsx";
 import type {ReactElement} from "react";
+import FeatureFlag from "../FeatureFlag.tsx";
+import {teamsEnabled} from "../../utils/featureFlags.ts";
 
 export default function TeamHomePage() {
-    const {featureFlags, isLoading, isError} = useFeatureFlags()
-    return <>
-        {isLoading && <Loading/>}
-        {isError && <Error/>}
-        {featureFlags && featureFlags.teamsEnabled
-            ? <EnabledTeamHomePage/>
-            : <Typography variant="h4" color="error">Teams support is disabled.</Typography>
-        }
-    </>
+    return (
+        <FeatureFlag on={teamsEnabled}
+                     showFeatureFlagFetching={true}
+                     textWhenDisabled="Teams support is disabled."
+        >
+            <EnabledTeamHomePage/>
+        </FeatureFlag>
+    )
 }
 
 function EnabledTeamHomePage() {

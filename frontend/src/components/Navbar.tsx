@@ -1,17 +1,17 @@
 import Toolbar from "@mui/material/Toolbar";
 import AppBar from "@mui/material/AppBar";
 import * as React from "react";
-import {Fragment, type ReactNode, useState} from "react";
+import {Fragment, useState} from "react";
 import {CustomLink} from "./CustomLink.tsx";
 import {AlertTitle, Divider, Link, Menu, MenuItem, Stack, Typography} from "@mui/material";
 import {logout} from "../infrastructure/LogoutClient.ts";
 import useCurrentUser from "../hooks/currentUser/useCurrentUser.ts";
 import {greet} from "../utils/greetingUtils.ts";
-import useFeatureFlags from "../hooks/featureFlags/useFeatureFlags.ts";
 import useTeams from "../hooks/teams/useTeams.ts";
 import ErrorSnackbar from "./ErrorSnackbar.tsx";
 import Loading from "./Loading.tsx";
-import type FeatureFlagsDto from "../domain/FeatureFlagsDto.ts";
+import FeatureFlag from "./FeatureFlag.tsx";
+import {teamsEnabled} from "../utils/featureFlags.ts";
 
 interface NavItem {
     displayText: string;
@@ -51,27 +51,6 @@ export default function Navbar() {
                 </FeatureFlag>
             </Toolbar>
         </AppBar>
-    )
-}
-
-interface FeatureFlagProps {
-    on: (flags: FeatureFlagsDto) => boolean;
-    children: ReactNode
-}
-
-function teamsEnabled(flags: FeatureFlagsDto) {
-    return flags.teamsEnabled
-}
-
-function FeatureFlag({on, children}: FeatureFlagProps) {
-    const {featureFlags} = useFeatureFlags()
-    return (
-        <>
-            {featureFlags &&
-                on(featureFlags) &&
-                children
-            }
-        </>
     )
 }
 
