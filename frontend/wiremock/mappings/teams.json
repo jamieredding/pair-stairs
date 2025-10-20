@@ -138,7 +138,27 @@
         }
       }
     },
-
+    {
+      "request": {
+        "method": "GET",
+        "url": "/api/v1/teams"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": [
+          {
+            "id": 1,
+            "name": "Team 0",
+            "slug": "team-0"
+          },
+          {
+            "id": 2,
+            "name": "Team 1",
+            "slug": "team-1"
+          }
+        ]
+      }
+    },
     {
       "priority": 1,
       "scenarioName": "Teams",

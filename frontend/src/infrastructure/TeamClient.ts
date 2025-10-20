@@ -25,3 +25,10 @@ export async function getTeamBySlug(url: string): Promise<TeamDto | undefined> {
             await handleErrors(response)
     }
 }
+
+export async function getTeams(url: string): Promise<TeamDto[]> {
+    const response = await handleErrors(await fetch(url));
+
+    return await response.json();
+}
+
