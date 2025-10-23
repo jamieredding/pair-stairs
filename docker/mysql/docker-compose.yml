@@ -44,7 +44,7 @@ services:
       start_period: 1m
 
   pair_stairs_db:
-    image: mysql:9.4.0
+    image: mysql:9.5.0
     hostname: db
     restart: unless-stopped
     env_file: application.env
