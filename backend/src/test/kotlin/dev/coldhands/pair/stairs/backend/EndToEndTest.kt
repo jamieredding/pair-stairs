@@ -31,6 +31,7 @@ class EndToEndTest {
     fun `all endpoints are mounted correctly`() {
         client(Request(GET, "http://localhost:${server.port()}/ping")) shouldHaveStatus OK
         client(Request(GET, "http://localhost:${server.port()}/add?value=1&value=2")) answerShouldBe 3
+        client(Request(GET, "http://localhost:${server.port()}/multiply?value=1&value=2")) answerShouldBe 2
     }
 }
 

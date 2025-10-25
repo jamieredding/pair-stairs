@@ -21,10 +21,16 @@ fun MyMathServer(port: Int): Http4kServer =
 fun MyMathApp(): RoutingHttpHandler = CatchLensFailure.then(
     routes(
         "/ping" bind GET to { _: Request -> Response(OK) },
-        "/add" bind GET to { request: Request ->
-            val valuesToAdd = Query.int().multi.defaulted("value", listOf())(request)
-
-            Response(OK).body(valuesToAdd.sum().toString())
-        },
+        "/add" bind GET to calculate { it.sum() },
+        "/multiply" bind GET to calculate { it.fold(1) {acc, value -> acc * value} },
     )
 )
+
+private fun calculate(fn: (List<Int>) -> Int): (Request) -> Response {
+    val valuesLens = Query.int().multi.defaulted("value", listOf())
+    return { request: Request ->
+        val values = valuesLens(request)
+        val answer = if (values.isEmpty()) 0 else fn(values)
+        Response(OK).body(answer.toString())
+    }
+}
