@@ -47,10 +47,10 @@ Content-Type: application/json
 {
   "priority": 1,
   "request": {
-    "method": "GET",
-    "url": "/api/v1/teams/team-0"
+    "method": "POST",
+    "url": "/123"
   },
   "response": {
-    "status": 500
+    "status": 200
   }
 }
