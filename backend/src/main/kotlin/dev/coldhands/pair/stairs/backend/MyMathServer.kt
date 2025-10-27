@@ -9,12 +9,18 @@ import org.http4k.filter.ClientFilters.SetHostFrom
 import org.http4k.filter.ServerFilters.CatchLensFailure
 import org.http4k.lens.Query
 import org.http4k.lens.int
+import org.http4k.routing.ResourceLoader.Companion.Classpath
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
+import org.http4k.routing.singlePageApp
 import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
+
+fun main() {
+    MyMathServer(8080, Uri.of("http://localhost:18082")).start()
+}
 
 fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer =
     MyMathApp(recorderHttp = SetHostFrom(recorderUri).then(OkHttp()))
@@ -28,6 +34,7 @@ fun MyMathApp(recorderHttp: HttpHandler): RoutingHttpHandler {
             "/ping" bind GET to { _: Request -> Response(OK) },
             "/add" bind GET to calculate(recorder) { it.sum() },
             "/multiply" bind GET to calculate(recorder) { it.fold(1) { acc, value -> acc * value } },
+            singlePageApp(Classpath("mathApp"))
         )
     )
 }
