@@ -6,6 +6,7 @@ import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Status.Companion.OK
 import org.http4k.filter.ClientFilters.SetHostFrom
+import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.ServerFilters.CatchLensFailure
 import org.http4k.lens.Query
 import org.http4k.lens.int
@@ -14,6 +15,9 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.routing.singlePageApp
+import org.http4k.security.InsecureCookieBasedOAuthPersistence
+import org.http4k.security.OAuthProvider
+import org.http4k.security.OAuthProviderConfig
 import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
@@ -22,9 +26,36 @@ fun main() {
     MyMathServer(8080, Uri.of("http://localhost:18082")).start()
 }
 
-fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer =
-    MyMathApp(recorderHttp = SetHostFrom(recorderUri).then(OkHttp()))
+fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
+    val app = MyMathApp(recorderHttp = SetHostFrom(recorderUri).then(OkHttp()))
+    val callbackUri = Uri.of("http://localhost:8080/login/oauth2/code/oauth")
+
+    val oauthProvider = OAuthProvider(
+        providerConfig = OAuthProviderConfig(
+            authBase = Uri.of("http://localhost:5556"),
+            authPath = "/dex/auth",
+            tokenPath = "/dex/token",
+            credentials = Credentials("pair-stairs", "ZXhhbXBsZS1hcHAtc2VjcmV0"),
+        ),
+        client = OkHttp(),
+        callbackUri = callbackUri,
+        scopes = listOf("openid", "profile", "email"), // unsure about these
+        oAuthPersistence = InsecureCookieBasedOAuthPersistence("pair-stairs"), // this needs to be implemented as in https://www.http4k.org/howto/use_a_custom_oauth_provider/
+    )
+
+    val secureApp: HttpHandler =
+        DebuggingFilters.PrintRequestAndResponse()
+            .then(
+                routes(
+                    callbackUri.path bind GET to oauthProvider.callback,
+                    oauthProvider.authFilter.then(app)
+                )
+            )
+
+
+    return secureApp
         .asServer(Jetty(port))
+}
 
 fun MyMathApp(recorderHttp: HttpHandler): RoutingHttpHandler {
     val recorder = Recorder(recorderHttp)
