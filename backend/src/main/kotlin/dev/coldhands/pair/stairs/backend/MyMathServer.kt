@@ -47,7 +47,7 @@ fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
         DebuggingFilters.PrintRequestAndResponse()
             .then(
                 routes(
-                    callbackUri.path bind GET to oauthProvider.callback,
+                    oauthProvider.callbackEndpoint,
                     oauthProvider.authFilter.then(app)
                 )
             )
