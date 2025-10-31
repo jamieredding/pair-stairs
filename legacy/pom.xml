@@ -15,7 +15,7 @@
         <dockerImageName>ghcr.io/jamieredding/pair-stairs</dockerImageName>
 
         <jackson-databind.version>2.20.1</jackson-databind.version>
-        <jackson-datatype-jsr310.version>2.20.0</jackson-datatype-jsr310.version>
+        <jackson-datatype-jsr310.version>2.20.1</jackson-datatype-jsr310.version>
     </properties>
 
     <dependencies>
