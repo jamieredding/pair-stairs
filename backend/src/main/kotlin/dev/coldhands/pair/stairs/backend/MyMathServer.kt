@@ -11,6 +11,7 @@ import org.http4k.core.cookie.invalidateCookie
 import org.http4k.filter.ClientFilters.SetHostFrom
 import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.ServerFilters.CatchLensFailure
+import org.http4k.lens.Header.LOCATION
 import org.http4k.lens.Query
 import org.http4k.lens.int
 import org.http4k.routing.ResourceLoader.Companion.Classpath
@@ -53,6 +54,7 @@ fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
         DebuggingFilters.PrintRequestAndResponse()
             .then(
                 routes(
+                    "/logout" bind { request -> oAuthPersistence.logout(request) },
                     oauthProvider.callbackEndpoint,
                     oauthProvider.authFilter.then(app)
                 )
@@ -112,7 +114,8 @@ class InMemoryOAuthPersistence(
         csrf: CrossSiteRequestForgeryToken
     ): Response = redirect.cookie(expiring(csrfName, csrf.value))
 
-    override fun retrieveCsrf(request: Request): CrossSiteRequestForgeryToken? = request.cookie(csrfName)?.value?.let(::CrossSiteRequestForgeryToken)
+    override fun retrieveCsrf(request: Request): CrossSiteRequestForgeryToken? =
+        request.cookie(csrfName)?.value?.let(::CrossSiteRequestForgeryToken)
 
     override fun assignNonce(
         redirect: Response,
@@ -159,9 +162,10 @@ class InMemoryOAuthPersistence(
             true
         }
 
-    private fun tryCookieToken(request: Request) = request.cookie(clientAuthCookie)?.value?.let { cookieSwappableTokens[it]}
+    private fun tryCookieToken(request: Request) =
+        request.cookie(clientAuthCookie)?.value?.let { cookieSwappableTokens[it] }
 
-    private fun expiring(name: String, value:String) = Cookie(
+    private fun expiring(name: String, value: String) = Cookie(
         name = name,
         value = value,
         expires = clock.instant().plus(cookieValidity),
@@ -169,5 +173,15 @@ class InMemoryOAuthPersistence(
 //        secure = TODO(),
 //        httpOnly = TODO(),
     )
+
+    fun logout(request: Request): Response {
+        request.cookie(clientAuthCookie)?.value?.let {
+            cookieSwappableTokens.remove(it)
+        }
+        return Response(Status.TEMPORARY_REDIRECT).with(LOCATION of Uri.of("/"))
+            .invalidateCookie(clientAuthCookie)
+            .invalidateCookie(csrfName)
+            .invalidateCookie(originalUriName)
+    }
 
 }
