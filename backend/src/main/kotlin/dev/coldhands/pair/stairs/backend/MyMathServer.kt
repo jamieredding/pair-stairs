@@ -24,11 +24,8 @@ import org.http4k.core.cookie.invalidateCookie
 import org.http4k.filter.ClientFilters.SetHostFrom
 import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.ServerFilters.CatchLensFailure
+import org.http4k.lens.*
 import org.http4k.lens.Header.LOCATION
-import org.http4k.lens.Query
-import org.http4k.lens.RequestKey
-import org.http4k.lens.RequestLens
-import org.http4k.lens.int
 import org.http4k.routing.ResourceLoader.Companion.Classpath
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
@@ -249,7 +246,7 @@ class InMemoryOAuthPersistence(
             .invalidateCookie(originalUriName)
     }
 
-    override fun retrieveToken(request: Request): AccessToken? = (/* tryBearerToken ?: */ tryCookieToken(request))
+    override fun retrieveToken(request: Request): AccessToken? = getAccessToken(request)
         ?.takeIf {
             when (resultFromCatching<JWTVerificationException, Any> { verifier.verify(it.value) }) {
                 is Success<*> -> true
@@ -257,7 +254,10 @@ class InMemoryOAuthPersistence(
             }
         }
 
-    private fun tryCookieToken(request: Request) =
+    private fun tryBearerToken(request: Request): AccessToken? =
+        request.bearerToken()?.let { AccessToken(it) }
+
+    private fun tryCookieToken(request: Request): AccessToken? =
         request.cookie(clientAuthCookie)?.value?.let { cookieSwappableTokens[it] }
 
     private fun expiring(name: String, value: String) = Cookie(
@@ -279,7 +279,6 @@ class InMemoryOAuthPersistence(
             .invalidateCookie(originalUriName)
     }
 
-    fun getAccessToken(request: Request): AccessToken? =
-        request.cookie(clientAuthCookie)?.value?.let { cookieSwappableTokens[it] }
+    fun getAccessToken(request: Request): AccessToken? = tryBearerToken(request) ?: tryCookieToken(request)
 
 }
