@@ -1,8 +1,13 @@
 package dev.coldhands.pair.stairs.backend
 
+import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
+import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
+import com.auth0.jwt.interfaces.RSAKeyProvider
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
 import dev.forkhandles.result4k.map
@@ -34,9 +39,12 @@ import org.http4k.security.openid.IdToken
 import org.http4k.server.Http4kServer
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
+import java.net.URI
+import java.security.interfaces.RSAPublicKey
 import java.time.Clock
 import java.time.Duration
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 fun main() {
     MyMathServer(8080, Uri.of("http://localhost:18082")).start()
@@ -56,11 +64,21 @@ val oidcUserLens = RequestKey.required<OidcUser>("oidcUser")
 fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
     val app = MyMathApp(recorderHttp = SetHostFrom(recorderUri).then(OkHttp()))
     val callbackUri = Uri.of("http://localhost:8080/login/oauth2/code/oauth")
+    val dexIdpBase = Uri.of("http://localhost:5556")
 
-    val oAuthPersistence = InMemoryOAuthPersistence("pair-stairs")
+    val verifier = jWTVerifier(
+        jwkUri = dexIdpBase.appendToPath("/dex/keys"),
+        issuer = dexIdpBase.appendToPath("/dex").toString(),
+        audience = "pair-stairs",
+    )
+
+    val oAuthPersistence = InMemoryOAuthPersistence(
+        cookieNamePrefix = "pair-stairs",
+        verifier = verifier,
+    )
     val oauthProvider = OAuthProvider(
         providerConfig = OAuthProviderConfig(
-            authBase = Uri.of("http://localhost:5556"),
+            authBase = dexIdpBase,
             authPath = "/dex/auth",
             tokenPath = "/dex/token",
             credentials = Credentials("pair-stairs", "ZXhhbXBsZS1hcHAtc2VjcmV0"),
@@ -75,7 +93,7 @@ fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
         { request ->
             oAuthPersistence.getAccessToken(request)
                 ?.value
-                ?.let { decodeFromToken(it) }
+                ?.let { token -> decodeFromToken(token) }
                 ?.let { oidcUser ->
                     next(request.with(key of oidcUser))
                 }
@@ -100,8 +118,29 @@ fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
         .asServer(Jetty(port))
 }
 
+private fun jWTVerifier(jwkUri: Uri, issuer: String, audience: String): JWTVerifier {
+    val jwkProvider = JwkProviderBuilder(URI.create(jwkUri.toString()).toURL())
+        .cached(10, 24, TimeUnit.HOURS)
+        .rateLimited(10, 1, TimeUnit.MINUTES)
+        .build()
+
+    val rsaKeyProvider = object : RSAKeyProvider {
+        override fun getPublicKeyById(keyId: String) = jwkProvider.get(keyId).publicKey as RSAPublicKey
+
+        override fun getPrivateKey() = null
+
+        override fun getPrivateKeyId() = null
+    }
+
+    return JWT.require(Algorithm.RSA256(rsaKeyProvider))
+        .withIssuer(issuer)
+        .withAudience(audience)
+        .build()
+}
+
 fun decodeFromToken(token: String): OidcUser? {
-    val result = resultFromCatching<JWTDecodeException, DecodedJWT> { JWT.decode(token) } // todo actually verify not just decode
+    // decode only here as verification happens elsewhere
+    val result = resultFromCatching<JWTDecodeException, DecodedJWT> { JWT.decode(token) }
         .map {
             OidcUser(
                 userInfo = OidcUser.UserInfo(
@@ -150,8 +189,9 @@ class Recorder(private val client: HttpHandler) {
 
 class InMemoryOAuthPersistence(
     cookieNamePrefix: String,
-    private val cookieValidity: Duration = Duration.ofDays(1),
-    private val clock: Clock = Clock.systemUTC()
+    private val cookieValidity: Duration = Duration.ofDays(1), // todo should this actually come from the jwt?
+    private val clock: Clock = Clock.systemUTC(),
+    private val verifier: JWTVerifier
 ) : OAuthPersistence {
     private val csrfName = "${cookieNamePrefix}Csrf"
     private val nonceName = "${cookieNamePrefix}Nonce"
@@ -211,8 +251,10 @@ class InMemoryOAuthPersistence(
 
     override fun retrieveToken(request: Request): AccessToken? = (/* tryBearerToken ?: */ tryCookieToken(request))
         ?.takeIf {
-            // todo verify token (not expired, is for me, all sorts of other things, see video
-            true
+            when (resultFromCatching<JWTVerificationException, Any> { verifier.verify(it.value) }) {
+                is Success<*> -> true
+                is Failure<*> -> false // todo ignoring the failure reason
+            }
         }
 
     private fun tryCookieToken(request: Request) =
