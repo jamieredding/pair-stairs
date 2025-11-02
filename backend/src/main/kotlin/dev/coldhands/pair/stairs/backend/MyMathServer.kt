@@ -1,10 +1,18 @@
 package dev.coldhands.pair.stairs.backend
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.interfaces.DecodedJWT
+import dev.forkhandles.result4k.Failure
+import dev.forkhandles.result4k.Success
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.resultFromCatching
 import org.http4k.client.OkHttp
 import org.http4k.core.*
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Status.Companion.OK
+import org.http4k.core.Status.Companion.UNAUTHORIZED
 import org.http4k.core.cookie.Cookie
 import org.http4k.core.cookie.cookie
 import org.http4k.core.cookie.invalidateCookie
@@ -13,6 +21,8 @@ import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.ServerFilters.CatchLensFailure
 import org.http4k.lens.Header.LOCATION
 import org.http4k.lens.Query
+import org.http4k.lens.RequestKey
+import org.http4k.lens.RequestLens
 import org.http4k.lens.int
 import org.http4k.routing.ResourceLoader.Companion.Classpath
 import org.http4k.routing.RoutingHttpHandler
@@ -32,6 +42,17 @@ fun main() {
     MyMathServer(8080, Uri.of("http://localhost:18082")).start()
 }
 
+data class OidcUser(val userInfo: UserInfo) {
+    data class UserInfo(
+        val subject: String,
+        val nickName: String?,
+        val givenName: String?,
+        val fullName: String?,
+    )
+}
+
+val oidcUserLens = RequestKey.required<OidcUser>("oidcUser")
+
 fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
     val app = MyMathApp(recorderHttp = SetHostFrom(recorderUri).then(OkHttp()))
     val callbackUri = Uri.of("http://localhost:8080/login/oauth2/code/oauth")
@@ -50,19 +71,51 @@ fun MyMathServer(port: Int, recorderUri: Uri): Http4kServer {
         oAuthPersistence = oAuthPersistence, // this needs to be implemented as in https://www.http4k.org/howto/use_a_custom_oauth_provider/
     )
 
+    fun assignUserPrincipal(key: RequestLens<OidcUser>) = Filter { next ->
+        { request ->
+            oAuthPersistence.getAccessToken(request)
+                ?.value
+                ?.let { decodeFromToken(it) }
+                ?.let { oidcUser ->
+                    next(request.with(key of oidcUser))
+                }
+                ?: Response(UNAUTHORIZED)
+        }
+    }
+
     val secureApp: HttpHandler =
         DebuggingFilters.PrintRequestAndResponse()
             .then(
                 routes(
                     "/logout" bind { request -> oAuthPersistence.logout(request) },
                     oauthProvider.callbackEndpoint,
-                    oauthProvider.authFilter.then(app)
+                    oauthProvider.authFilter
+                        .then(assignUserPrincipal(oidcUserLens))
+                        .then(app)
                 )
             )
 
 
     return secureApp
         .asServer(Jetty(port))
+}
+
+fun decodeFromToken(token: String): OidcUser? {
+    val result = resultFromCatching<JWTDecodeException, DecodedJWT> { JWT.decode(token) } // todo actually verify not just decode
+        .map {
+            OidcUser(
+                userInfo = OidcUser.UserInfo(
+                    subject = it.subject,
+                    nickName = it.claims["nickname"]?.asString(),
+                    givenName = it.claims["given_name"]?.asString(),
+                    fullName = it.claims["name"]?.asString(),
+                )
+            )
+        }
+    return when (result) {
+        is Success<OidcUser> -> result.value
+        is Failure<*> -> null // todo failure is ignored and not logged
+    }
 }
 
 fun MyMathApp(recorderHttp: HttpHandler): RoutingHttpHandler {
@@ -183,5 +236,8 @@ class InMemoryOAuthPersistence(
             .invalidateCookie(csrfName)
             .invalidateCookie(originalUriName)
     }
+
+    fun getAccessToken(request: Request): AccessToken? =
+        request.cookie(clientAuthCookie)?.value?.let { cookieSwappableTokens[it] }
 
 }
