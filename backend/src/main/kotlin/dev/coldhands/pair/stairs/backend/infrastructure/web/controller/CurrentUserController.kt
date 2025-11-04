@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
+import dev.coldhands.pair.stairs.backend.domain.OidcSub
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CurrentUserDto
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
@@ -16,7 +17,7 @@ class CurrentUserController(private val userDetailsService: UserDetailsService) 
     fun getCurrentUser(@AuthenticationPrincipal oidcUser: OidcUser): ResponseEntity<CurrentUserDto> {
         val userInfo = oidcUser.userInfo
 
-        return userDetailsService.getUserByOidcSub(userInfo.subject)
+        return userDetailsService.getUserByOidcSub(OidcSub(userInfo.subject))
             ?.let { ResponseEntity.ok(CurrentUserDto(userInfo.fullName, it.displayName)) }
             ?: ResponseEntity.notFound().build()
     }

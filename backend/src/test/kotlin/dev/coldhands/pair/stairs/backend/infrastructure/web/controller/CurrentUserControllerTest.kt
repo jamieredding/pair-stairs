@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
+import dev.coldhands.pair.stairs.backend.anOidcSub
 import dev.coldhands.pair.stairs.backend.domain.UserName
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService
 import jakarta.transaction.Transactional
@@ -55,7 +56,7 @@ open class CurrentUserControllerTest @Autowired constructor(
 
         @Test
         fun returnADisplayNameForALoggedInUser() {
-            val oidcSub = UUID.randomUUID().toString()
+            val oidcSub = anOidcSub()
             userDetailsService.createOrUpdate(oidcSub, UserName(null, null, "Full Name"))
 
             mockMvc.perform(
@@ -63,7 +64,7 @@ open class CurrentUserControllerTest @Autowired constructor(
                     .with(
                         oidcLogin().userInfoToken { builder ->
                             builder.name("Full Name")
-                                .subject(oidcSub)
+                                .subject(oidcSub.value)
                         }
                     )
             )

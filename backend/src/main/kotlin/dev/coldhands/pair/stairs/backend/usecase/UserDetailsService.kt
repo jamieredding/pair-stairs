@@ -1,30 +1,27 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.User
-import dev.coldhands.pair.stairs.backend.domain.UserName
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.UserMapper
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
+import dev.coldhands.pair.stairs.backend.domain.*
+import dev.forkhandles.result4k.Result
 
 class UserDetailsService(
-    private val userRepository: UserRepository,
+    private val userDao: UserDao,
 ) {
     private val userDisplayNameService: UserDisplayNameService = UserDisplayNameService()
 
     fun createOrUpdate(
-        oidcSub: String,
+        oidcSub: OidcSub,
         userName: UserName,
-    ): User {
+    ): Result<User, Any> { // todo http4k-vertical-slice the any here isn't ideal
         val displayName = userDisplayNameService.getDisplayNameFor(userName)
 
-        val toPersist = userRepository.findByOidcSub(oidcSub)
-            ?.apply { this.displayName = displayName }
-            ?: UserEntity(oidcSub = oidcSub, displayName = displayName)
+        val persistedUser = userDao.findByOidcSub(oidcSub)
+            ?.copy(displayName = displayName)
+            ?.let { userDao.update(it) }
+            ?: userDao.create(UserDetails(oidcSub = oidcSub, displayName = displayName))
 
-        return UserMapper.entityToDomain(userRepository.saveAndFlush(toPersist))
+        return persistedUser
     }
 
-    fun getUserByOidcSub(oidcSub: String): User? =
-        userRepository.findByOidcSub(oidcSub)
-            ?.let(UserMapper::entityToDomain)
+    fun getUserByOidcSub(oidcSub: OidcSub): User? =
+        userDao.findByOidcSub(oidcSub)
 }

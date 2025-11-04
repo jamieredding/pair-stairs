@@ -31,6 +31,15 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
         </dependency>
+        <dependency>
+            <groupId>dev.forkhandles</groupId>
+            <artifactId>result4k</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.forkhandles</groupId>
+            <artifactId>result4k-kotest</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

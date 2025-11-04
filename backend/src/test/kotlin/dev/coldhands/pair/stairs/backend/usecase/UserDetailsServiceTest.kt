@@ -1,7 +1,9 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
+import dev.coldhands.pair.stairs.backend.anOidcSub
 import dev.coldhands.pair.stairs.backend.domain.UserName
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.date.plusOrMinus
 import io.kotest.matchers.nulls.shouldBeNull
@@ -16,7 +18,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEnti
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.Instant
-import java.util.*
 import kotlin.time.Duration.Companion.seconds
 import dev.coldhands.pair.stairs.backend.domain.User as DomainUser
 
@@ -39,15 +40,15 @@ open class UserDetailsServiceTest @Autowired constructor(
                 givenName = null,
                 fullName = "Jamie Redding",
             )
-            val inputOidcSub = UUID.randomUUID().toString()
+            val inputOidcSub = anOidcSub()
 
-            val user: DomainUser = underTest.createOrUpdate(inputOidcSub, userName)
+            val user: DomainUser = underTest.createOrUpdate(inputOidcSub, userName).shouldBeSuccess()
 
-            val userEntity = testEntityManager.find(UserEntity::class.java, user.id)
+            val userEntity = testEntityManager.find(UserEntity::class.java, user.id.value)
 
             userEntity.shouldNotBeNull {
-                id shouldBe user.id
-                oidcSub shouldBe inputOidcSub
+                id shouldBe user.id.value
+                oidcSub shouldBe inputOidcSub.value
                 displayName shouldBe "Jamie"
                 createdAt.shouldBe(Instant.now() plusOrMinus 1.seconds)
                 updatedAt.shouldBe(Instant.now() plusOrMinus 1.seconds)
@@ -56,13 +57,13 @@ open class UserDetailsServiceTest @Autowired constructor(
 
         @Test
         fun `update user details when user does exist`() {
-            val inputOidcSub = UUID.randomUUID().toString()
+            val inputOidcSub = anOidcSub()
 
             val user = underTest.createOrUpdate(
                 inputOidcSub,
                 UserName(nickName = null, givenName = null, fullName = "Jamie Redding")
-            )
-            val initial = testEntityManager.find(UserEntity::class.java, user.id)
+            ).shouldBeSuccess()
+            val initial = testEntityManager.find(UserEntity::class.java, user.id.value)
             val initialCreatedAt = initial.createdAt
             val initialUpdatedAt = initial.updatedAt!!
 
@@ -75,11 +76,11 @@ open class UserDetailsServiceTest @Autowired constructor(
                 )
             )
 
-            val userEntity = testEntityManager.find(UserEntity::class.java, user.id)
+            val userEntity = testEntityManager.find(UserEntity::class.java, user.id.value)
 
             userEntity.shouldNotBeNull {
-                id shouldBe user.id
-                oidcSub shouldBe inputOidcSub
+                id shouldBe user.id.value
+                oidcSub shouldBe inputOidcSub.value
                 displayName shouldBe "Jay"
                 createdAt shouldBe initialCreatedAt
                 updatedAt.shouldNotBeNull() shouldBeGreaterThan initialUpdatedAt
@@ -92,14 +93,15 @@ open class UserDetailsServiceTest @Autowired constructor(
 
         @Test
         fun `get user by oidcSub when user does not exist`() {
-            underTest.getUserByOidcSub(UUID.randomUUID().toString()).shouldBeNull()
+            underTest.getUserByOidcSub(anOidcSub()).shouldBeNull()
         }
 
         @Test
         fun `get user by oidcSub when user exists`() {
-            val oidcSub = UUID.randomUUID().toString()
+            val oidcSub = anOidcSub()
 
             val createdUser = underTest.createOrUpdate(oidcSub, UserName(null, null, "User"))
+                .shouldBeSuccess()
 
             underTest.getUserByOidcSub(oidcSub) shouldBe createdUser
         }
