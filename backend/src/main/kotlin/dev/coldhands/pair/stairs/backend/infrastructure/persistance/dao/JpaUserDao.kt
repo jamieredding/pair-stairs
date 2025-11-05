@@ -5,9 +5,14 @@ import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDomain
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
 import dev.forkhandles.result4k.*
+import java.time.temporal.TemporalUnit
 import kotlin.jvm.optionals.getOrNull
 
-class JpaUserDao(private val userRepository: UserRepository) : UserDao {
+class JpaUserDao(
+    private val userRepository: UserRepository,
+    private val dateProvider: DateProvider,
+    private val precision: TemporalUnit
+) : UserDao {
 
     override fun findById(userId: UserId): User? =
         userRepository.findById(userId.value)
@@ -27,19 +32,23 @@ class JpaUserDao(private val userRepository: UserRepository) : UserDao {
                 if (it.length > 255) return UserCreateError.DisplayNameTooLong(it).asFailure()
             }
 
-            userRepository.save( // todo http4k-vertical-slice should this be save and flush?
+            userRepository.save(
                 UserEntity(
                     oidcSub = userDetails.oidcSub.value,
-                    displayName = userDetails.displayName
+                    displayName = userDetails.displayName,
+                    createdAt = dateProvider.instant().truncatedTo(precision),
+                    updatedAt = dateProvider.instant().truncatedTo(precision)
                 )
             ).toDomain()
-        }.mapFailure { _ -> UserCreateError.DuplicateOidcSub(userDetails.oidcSub!!) }
+        }.mapFailure { _ -> UserCreateError.DuplicateOidcSub(userDetails.oidcSub) }
 
     override fun update(user: User): Result<User, UserUpdateError> {
         val existingUser = userRepository.findById(user.id.value).getOrNull()
             ?: return UserUpdateError.UserNotFound(user.id).asFailure()
 
         if (existingUser.oidcSub != user.oidcSub.value) return UserUpdateError.CannotChangeOidcSub.asFailure()
+        if (existingUser.createdAt != user.createdAt.truncatedTo(precision)) return UserUpdateError.CannotChangeCreatedAt.asFailure()
+        if (existingUser.updatedAt != user.updatedAt.truncatedTo(precision)) return UserUpdateError.CannotChangeUpdatedAt.asFailure()
 
         user.displayName.also {
             if (it.length > 255) return UserUpdateError.DisplayNameTooLong(it).asFailure()
@@ -47,10 +56,9 @@ class JpaUserDao(private val userRepository: UserRepository) : UserDao {
 
         val entityToUpdate = existingUser.apply {
             this.displayName = user.displayName
+            this.updatedAt = dateProvider.instant().truncatedTo(precision)
         }
-        // todo http4k-vertical-slice saveAndFlush is required for UserDetailsServiceTest to pass, but not JpaUserDao
-        //  this means either I should be exposing createdAt and updatedAt in domain User
-        //  or remove them entirely
-        return userRepository.saveAndFlush(entityToUpdate).toDomain().asSuccess()
+
+        return userRepository.save(entityToUpdate).toDomain().asSuccess()
     }
 }

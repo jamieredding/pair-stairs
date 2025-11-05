@@ -1,8 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity
 
 import jakarta.persistence.*
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
 
 @Entity
@@ -20,10 +18,8 @@ class UserEntity(
     var displayName: String,
 
     @Column(name = "created_at")
-    @CreationTimestamp
-    val createdAt: Instant? = null,
+    val createdAt: Instant,
 
     @Column(name = "updated_at")
-    @UpdateTimestamp
-    val updatedAt: Instant? = null
+    var updatedAt: Instant
 )

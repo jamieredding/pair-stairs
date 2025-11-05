@@ -71,6 +71,8 @@ open class TeamMembershipControllerTest @Autowired constructor(
                 UserEntity(
                     oidcSub = "some-oidc-sub",
                     displayName = "some-display-name",
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
                 )
             )
 

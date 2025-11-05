@@ -9,10 +9,14 @@ fun User.toEntity(): UserEntity  = UserEntity(
     id = id.value,
     oidcSub = oidcSub.value,
     displayName = displayName,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
 )
 
 fun UserEntity.toDomain(): User = User(
-    id = UserId(id!!), // todo http4k-vertical-slice this should be exposed as a result return type
+    id = UserId(id!!), // todo http4k-vertical-slice this nullpointer should be exposed as a result return type
     oidcSub = OidcSub(oidcSub),
-    displayName = displayName
+    displayName = displayName,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
 )

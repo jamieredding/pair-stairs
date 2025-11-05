@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.backend.domain
 
+import dev.coldhands.pair.stairs.backend.FakeDateProvider
 import dev.coldhands.pair.stairs.backend.aUserId
 import dev.coldhands.pair.stairs.backend.anOidcSub
 import dev.forkhandles.result4k.kotest.shouldBeFailure
@@ -11,10 +12,17 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalUnit
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.toJavaDuration
 
 @Suppress("unused")
 abstract class UserDaoCdc {
 
+    val dateProvider = FakeDateProvider()
+    val precision: TemporalUnit = ChronoUnit.MILLIS
     abstract val underTest: UserDao
 
     @Nested
@@ -63,11 +71,15 @@ abstract class UserDaoCdc {
         @Test
         fun `should create user with specified details and generate id`() {
             val userDetails = someUserDetails()
+            val now = Instant.now()
+            dateProvider.now = now
             val user = underTest.create(userDetails).shouldBeSuccess()
 
             user.id.shouldNotBeNull()
             user.oidcSub shouldBe userDetails.oidcSub
             user.displayName shouldBe userDetails.displayName
+            user.createdAt shouldBe now.truncatedTo(precision)
+            user.updatedAt shouldBe now.truncatedTo(precision)
 
             assertUserExists(user)
         }
@@ -79,6 +91,22 @@ abstract class UserDaoCdc {
 
             user1.id shouldNotBe user2.id
             user2.id.value shouldBeGreaterThan user1.id.value
+        }
+
+        @Test
+        fun `allow max length fields`() {
+            val oidcSub = OidcSub("A".repeat(255))
+            val displayName = "B".repeat(255)
+
+            val user = underTest.create(
+                someUserDetails().copy(
+                    oidcSub = oidcSub,
+                    displayName = displayName,
+                )
+            ).shouldBeSuccess()
+
+            user.oidcSub shouldBe oidcSub
+            user.displayName shouldBe displayName
         }
 
         @Nested
@@ -118,6 +146,8 @@ abstract class UserDaoCdc {
 
         @Test
         fun `can update display name on existing user`() {
+            val now = Instant.now()
+            dateProvider.now = now
             val user = givenUserExistsWith(
                 displayName = "some-display-name"
             )
@@ -126,11 +156,28 @@ abstract class UserDaoCdc {
                 displayName = "another-display-name"
             )
 
+            dateProvider.now = now.plus(5.minutes.toJavaDuration())
             val actualUser = underTest.update(updatedUserBeforePersist).shouldBeSuccess()
 
             actualUser.id shouldBe user.id
             actualUser.oidcSub shouldBe user.oidcSub
             actualUser.displayName shouldBe updatedUserBeforePersist.displayName
+            actualUser.createdAt shouldBe now.truncatedTo(precision)
+            actualUser.updatedAt shouldBe now.plus(5.minutes.toJavaDuration()).truncatedTo(precision)
+
+            assertUserExists(actualUser)
+        }
+
+        @Test
+        fun `will update updatedAt even if nothing changed on user`() {
+            val now = Instant.now()
+            dateProvider.now = now
+            val user = givenUserExistsWith(displayName = "some-display-name")
+
+            dateProvider.now = now.plus(5.minutes.toJavaDuration())
+            val actualUser = underTest.update(user).shouldBeSuccess()
+
+            actualUser.updatedAt shouldBe now.plus(5.minutes.toJavaDuration()).truncatedTo(precision)
 
             assertUserExists(actualUser)
         }
@@ -143,7 +190,7 @@ abstract class UserDaoCdc {
                 val madeUpUserId = aUserId()
                 assertNoUserExistsById(madeUpUserId)
 
-                val madeUpUser = User(id = madeUpUserId, oidcSub = anOidcSub(), displayName = "some-display-name")
+                val madeUpUser = someUser().copy(id = madeUpUserId)
 
                 underTest.update(madeUpUser)
                     .shouldBeFailure(UserUpdateError.UserNotFound(madeUpUserId))
@@ -157,6 +204,26 @@ abstract class UserDaoCdc {
 
                 underTest.update(user)
                     .shouldBeFailure(UserUpdateError.CannotChangeOidcSub)
+            }
+
+            @Test
+            fun `do not allow updating of created at as there is no requirement for this yet`() {
+                val user = givenUserExistsWith().copy(
+                    createdAt = Instant.now()
+                )
+
+                underTest.update(user)
+                    .shouldBeFailure(UserUpdateError.CannotChangeCreatedAt)
+            }
+
+            @Test
+            fun `do not allow updating of updated at as there is no requirement for this yet`() {
+                val user = givenUserExistsWith().copy(
+                    updatedAt = Instant.now()
+                )
+
+                underTest.update(user)
+                    .shouldBeFailure(UserUpdateError.CannotChangeUpdatedAt)
             }
 
             @Test
@@ -195,6 +262,14 @@ abstract class UserDaoCdc {
         fun someUserDetails() = UserDetails(
             oidcSub = anOidcSub(),
             displayName = "some-display-name"
+        )
+
+        fun someUser() = User(
+            id = aUserId(),
+            oidcSub = anOidcSub(),
+            displayName = "some-display-name",
+            createdAt = Instant.now(),
+            updatedAt = Instant.now(),
         )
 
     }

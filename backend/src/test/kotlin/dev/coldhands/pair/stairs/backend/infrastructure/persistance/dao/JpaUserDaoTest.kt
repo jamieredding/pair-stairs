@@ -5,18 +5,13 @@ import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDomain
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.date.shouldBeAfter
-import io.kotest.matchers.date.shouldBeCloseTo
 import io.kotest.matchers.nulls.shouldBeNull
-import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.transaction.support.TransactionTemplate
-import java.time.Instant
-import kotlin.time.Duration.Companion.seconds
 
 @DataJpaTest
 open class JpaUserDaoTest @Autowired constructor(
@@ -25,7 +20,7 @@ open class JpaUserDaoTest @Autowired constructor(
     val transactionTemplate: TransactionTemplate,
 ) : UserDaoCdc() {
 
-    override val underTest: UserDao = JpaUserDao(userRepository)
+    override val underTest: UserDao = JpaUserDao(userRepository, dateProvider, precision)
 
     override fun assertNoUserExistsById(userId: UserId) {
         transactionTemplate.executeWithoutResult {
@@ -50,13 +45,8 @@ open class JpaUserDaoTest @Autowired constructor(
                 userEntity.id shouldBe user.id.value
                 userEntity.oidcSub shouldBe user.oidcSub.value
                 userEntity.displayName shouldBe user.displayName
-                userEntity.createdAt.shouldNotBeNull {
-                    shouldBeCloseTo(Instant.now(), 1.seconds)
-                }
-                userEntity.updatedAt.shouldNotBeNull {
-                    shouldBeAfter(userEntity.createdAt)
-                    shouldBeCloseTo(Instant.now(), 1.seconds)
-                }
+                userEntity.createdAt shouldBe user.createdAt.truncatedTo(precision)
+                userEntity.updatedAt shouldBe user.updatedAt.truncatedTo(precision)
             }
         }
     }
@@ -65,8 +55,10 @@ open class JpaUserDaoTest @Autowired constructor(
         return transactionTemplate.execute {
             val userEntity = testEntityManager.persistFlushFind(
                 UserEntity(
-                    oidcSub = userDetails.oidcSub!!.value,
-                    displayName = userDetails.displayName!!
+                    oidcSub = userDetails.oidcSub.value,
+                    displayName = userDetails.displayName,
+                    createdAt = dateProvider.instant(),
+                    updatedAt = dateProvider.instant()
                 )
             )
             testEntityManager.detach(userEntity)

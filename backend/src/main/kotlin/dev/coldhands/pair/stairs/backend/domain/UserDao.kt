@@ -19,5 +19,7 @@ sealed class UserCreateError {
 sealed class UserUpdateError {
     data class UserNotFound(val userId: UserId) : UserUpdateError()
     object CannotChangeOidcSub : UserUpdateError()
+    object CannotChangeCreatedAt : UserUpdateError()
+    object CannotChangeUpdatedAt : UserUpdateError()
     data class DisplayNameTooLong(val displayName: String) : UserUpdateError()
 }

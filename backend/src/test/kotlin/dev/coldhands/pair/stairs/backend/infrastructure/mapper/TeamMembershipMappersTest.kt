@@ -7,6 +7,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamMembershipDt
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import java.time.Instant
 
 class TeamMembershipMappersTest : FunSpec({
 
@@ -17,7 +18,9 @@ class TeamMembershipMappersTest : FunSpec({
             user = UserEntity(
                 id = 2L,
                 oidcSub = "unused",
-                displayName = "unused"
+                displayName = "unused",
+                createdAt = Instant.now(),
+                updatedAt = Instant.now()
             ),
             team = TeamEntity(
                 name = "unused",
@@ -34,7 +37,9 @@ class TeamMembershipMappersTest : FunSpec({
                 user = UserEntity(
                     id = 2L,
                     oidcSub = "unused",
-                    displayName = "unused"
+                    displayName = "unused",
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
                 ),
                 team = TeamEntity(
                     name = "unused",
@@ -52,7 +57,9 @@ class TeamMembershipMappersTest : FunSpec({
                 user = UserEntity(
                     id = null,
                     oidcSub = "unused",
-                    displayName = "unused"
+                    displayName = "unused",
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
                 ),
                 team = TeamEntity(
                     name = "unused",
