@@ -20,17 +20,17 @@ class JpaUserDao(private val userRepository: UserRepository) : UserDao {
 
     override fun create(userDetails: UserDetails): Result<User, UserCreateError> =
         resultFromCatching<Exception, User> {
-            userDetails.oidcSub?.also {
+            userDetails.oidcSub.also {
                 if (it.value.length > 255) return UserCreateError.OidcSubTooLong(it).asFailure()
             }
-            userDetails.displayName?.also {
+            userDetails.displayName.also {
                 if (it.length > 255) return UserCreateError.DisplayNameTooLong(it).asFailure()
             }
 
             userRepository.save( // todo http4k-vertical-slice should this be save and flush?
                 UserEntity(
-                    oidcSub = userDetails.oidcSub!!.value, // todo http4k-vertical-slice resolve nullability
-                    displayName = userDetails.displayName!! // todo http4k-vertical-slice resolve nullability
+                    oidcSub = userDetails.oidcSub.value,
+                    displayName = userDetails.displayName
                 )
             ).toDomain()
         }.mapFailure { _ -> UserCreateError.DuplicateOidcSub(userDetails.oidcSub!!) }
