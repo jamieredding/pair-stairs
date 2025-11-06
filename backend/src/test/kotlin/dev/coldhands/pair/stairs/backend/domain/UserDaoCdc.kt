@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.aUserId
 import dev.coldhands.pair.stairs.backend.anOidcSub
 import dev.forkhandles.result4k.kotest.shouldBeFailure
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
+import io.kotest.matchers.collections.shouldBeUnique
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -15,6 +16,8 @@ import org.junit.jupiter.api.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalUnit
+import java.util.concurrent.ConcurrentLinkedDeque
+import kotlin.concurrent.thread
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
@@ -107,6 +110,25 @@ abstract class UserDaoCdc {
 
             user.oidcSub shouldBe oidcSub
             user.displayName shouldBe displayName
+        }
+
+        @Test
+        fun `can create users concurrently`() {
+            val ids = ConcurrentLinkedDeque<UserId>()
+
+            (1..10).map {
+                thread(name = "many-threads-$it") {
+                    repeat(10) {
+                        underTest.create(someUserDetails()).shouldBeSuccess {
+                            ids.add(it.id)
+                        }
+                    }
+                }
+            }.map { it.join() }
+
+            ids.size shouldBe 100
+            ids.shouldBeUnique()
+            ids.forEach { underTest.findById(it).shouldNotBeNull() }
         }
 
         @Nested
