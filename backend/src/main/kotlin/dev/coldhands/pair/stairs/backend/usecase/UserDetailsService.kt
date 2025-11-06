@@ -11,7 +11,7 @@ class UserDetailsService(
     fun createOrUpdate(
         oidcSub: OidcSub,
         userName: UserName,
-    ): Result<User, Any> { // todo http4k-vertical-slice the any here isn't ideal
+    ): Result<User, Any> {
         val displayName = userDisplayNameService.getDisplayNameFor(userName)
 
         val persistedUser = userDao.findByOidcSub(oidcSub)

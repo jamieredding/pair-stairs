@@ -23,7 +23,7 @@ class AuthenticationEvents(private val userDetailsService: UserDetailsService) {
                 userDetailsService.createOrUpdate(
                     oidcSub = OidcSub(userInfo.subject),
                     userName = userName
-                ).orThrow { failure -> error(failure.toString()) } // todo http4k-vertical-slice is this really the best we can do here?
+                ).orThrow { failure -> error(failure.toString()) }
             }
         }
     }
