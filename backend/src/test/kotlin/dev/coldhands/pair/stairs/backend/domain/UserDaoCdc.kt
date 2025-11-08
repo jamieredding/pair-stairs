@@ -22,11 +22,11 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaDuration
 
 @Suppress("unused")
-abstract class UserDaoCdc {
+abstract class UserDaoCdc<T : UserDao> {
 
     val dateProvider = FakeDateProvider()
     val precision: TemporalUnit = ChronoUnit.MILLIS
-    abstract val underTest: UserDao
+    abstract val underTest: T
 
     @Nested
     inner class FindById {
@@ -116,8 +116,8 @@ abstract class UserDaoCdc {
         fun `can create users concurrently`() {
             val ids = ConcurrentLinkedDeque<UserId>()
 
-            (1..10).map {
-                thread(name = "many-threads-$it") {
+            (1..10).map { i ->
+                thread(name = "many-threads-$i") {
                     repeat(10) {
                         underTest.create(someUserDetails()).shouldBeSuccess {
                             ids.add(it.id)
@@ -146,7 +146,7 @@ abstract class UserDaoCdc {
             }
 
             @Test
-            fun `oidc sub must be less than 255 characters`() {
+            fun `oidc sub must be 255 characters or less`() {
                 val oidcSub = OidcSub("A".repeat(256))
 
                 underTest.create(someUserDetails().copy(oidcSub = oidcSub))
@@ -154,7 +154,7 @@ abstract class UserDaoCdc {
             }
 
             @Test
-            fun `display name must be less than 255 characters`() {
+            fun `display name must be 255 characters or less`() {
                 val displayName = "A".repeat(256)
 
                 underTest.create(someUserDetails().copy(displayName = displayName))
@@ -188,6 +188,16 @@ abstract class UserDaoCdc {
             actualUser.updatedAt shouldBe now.plus(5.minutes.toJavaDuration()).truncatedTo(precision)
 
             assertUserExists(actualUser)
+        }
+
+        @Test
+        fun `allow max length fields`() {
+            val displayName = "B".repeat(255)
+
+            val user = underTest.create(someUserDetails()).shouldBeSuccess()
+            val actualUser = underTest.update(user.copy(displayName = displayName)).shouldBeSuccess()
+
+            actualUser.displayName shouldBe displayName
         }
 
         @Test
@@ -231,7 +241,7 @@ abstract class UserDaoCdc {
             @Test
             fun `do not allow updating of created at as there is no requirement for this yet`() {
                 val user = givenUserExistsWith().copy(
-                    createdAt = Instant.now()
+                    createdAt = Instant.now().plusSeconds(10)
                 )
 
                 underTest.update(user)
@@ -241,7 +251,7 @@ abstract class UserDaoCdc {
             @Test
             fun `do not allow updating of updated at as there is no requirement for this yet`() {
                 val user = givenUserExistsWith().copy(
-                    updatedAt = Instant.now()
+                    updatedAt = Instant.now().plusSeconds(10)
                 )
 
                 underTest.update(user)
@@ -249,7 +259,7 @@ abstract class UserDaoCdc {
             }
 
             @Test
-            fun `display name must be less than 255 characters`() {
+            fun `display name must be 255 characters or less`() {
                 val displayName = "A".repeat(256)
                 val user = givenUserExistsWith().copy(displayName = displayName)
 

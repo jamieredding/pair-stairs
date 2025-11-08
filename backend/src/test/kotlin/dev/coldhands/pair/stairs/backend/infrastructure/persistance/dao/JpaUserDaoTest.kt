@@ -18,9 +18,9 @@ open class JpaUserDaoTest @Autowired constructor(
     userRepository: UserRepository,
     val testEntityManager: TestEntityManager,
     val transactionTemplate: TransactionTemplate,
-) : UserDaoCdc() {
+) : UserDaoCdc<JpaUserDao>() {
 
-    override val underTest: UserDao = JpaUserDao(userRepository, dateProvider, precision)
+    override val underTest: JpaUserDao = JpaUserDao(userRepository, dateProvider, precision)
 
     override fun assertNoUserExistsById(userId: UserId) {
         transactionTemplate.executeWithoutResult {
