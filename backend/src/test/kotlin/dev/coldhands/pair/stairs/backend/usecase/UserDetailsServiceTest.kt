@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.temporal.ChronoUnit
 
-open class UserDetailsServiceTest {
+class UserDetailsServiceTest {
 
     private val userDao = FakeUserDao(RealDateProvider(), ChronoUnit.MILLIS)
     private val underTest: UserDetailsService = UserDetailsService(userDao)

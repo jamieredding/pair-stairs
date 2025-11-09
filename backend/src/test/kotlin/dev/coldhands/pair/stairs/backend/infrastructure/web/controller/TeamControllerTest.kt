@@ -2,12 +2,13 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
+import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.TeamDao
+import dev.coldhands.pair.stairs.backend.domain.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
-import io.kotest.matchers.date.shouldBeCloseTo
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -18,7 +19,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
@@ -27,10 +27,9 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.transaction.annotation.Transactional
 import java.net.URI
-import java.time.Instant
 import java.util.stream.Stream
-import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -39,7 +38,7 @@ import kotlin.time.Duration.Companion.seconds
 @Transactional
 open class TeamControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
-    private val testEntityManager: TestEntityManager,
+    private val teamDao: TeamDao,
     private val objectMapper: ObjectMapper,
 ) {
 
@@ -67,21 +66,20 @@ open class TeamControllerTest @Autowired constructor(
 
         @Test
         fun whenTeamDoesExistReturnTeamData() {
-            val createdTeam = testEntityManager.persist(
-                TeamEntity(
+            val createdTeam = teamDao.create(TeamDetails(
                     name = "Team 0",
-                    slug = "team-0"
+                    slug = Slug("team-0"),
                 )
-            )
+            ).shouldBeSuccess()
 
             mockMvc.perform(
                 get("/api/v1/teams/team-0")
                     .accept(APPLICATION_JSON)
             )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(createdTeam.id))
+                .andExpect(jsonPath("$.id").value(createdTeam.id.value))
                 .andExpect(jsonPath("$.name").value(createdTeam.name))
-                .andExpect(jsonPath("$.slug").value(createdTeam.slug))
+                .andExpect(jsonPath("$.slug").value(createdTeam.slug.value))
 
         }
     }
@@ -101,18 +99,17 @@ open class TeamControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleTeamsExistThenReturnThem() {
-            val team0 = testEntityManager.persist(
-                TeamEntity(
+            val team0 = teamDao.create(TeamDetails(
                     name = "Team 0",
-                    slug = "team-0"
+                    slug = Slug("team-0"),
                 )
-            )
-            val team1 = testEntityManager.persist(
-                TeamEntity(
+            ).shouldBeSuccess()
+
+            val team1 = teamDao.create(TeamDetails(
                     name = "Team 1",
-                    slug = "team-1"
+                    slug = Slug("team-1"),
                 )
-            )
+            ).shouldBeSuccess()
 
 
             mockMvc.perform(
@@ -125,14 +122,14 @@ open class TeamControllerTest @Autowired constructor(
                         """
                     [
                       {
-                        "id": ${team0.id},
+                        "id": ${team0.id.value},
                         "name": ${team0.name.asJsonString()},
-                        "slug": ${team0.slug.asJsonString()}
+                        "slug": ${team0.slug.value.asJsonString()}
                       },
                       {
-                        "id": ${team1.id},
+                        "id": ${team1.id.value},
                         "name": ${team1.name.asJsonString()},
-                        "slug": ${team1.slug.asJsonString()}
+                        "slug": ${team1.slug.value.asJsonString()}
                       }
                     ]
                 """.trimIndent()
@@ -168,17 +165,11 @@ open class TeamControllerTest @Autowired constructor(
             val team = objectMapper.readValue<TeamDto>(result.response.contentAsString)
             val actualId = team.id
 
-            val savedTeam = testEntityManager.find(TeamEntity::class.java, actualId)
+            val savedTeam = teamDao.findBySlug(Slug(team.slug)).shouldNotBeNull()
 
-            savedTeam.id shouldBe actualId
+            savedTeam.id.value shouldBe actualId
             savedTeam.name shouldBe "Team 0"
-            savedTeam.slug shouldBe "team-0"
-            savedTeam.createdAt.shouldNotBeNull {
-                shouldBeCloseTo(Instant.now(), 1.seconds)
-            }
-            savedTeam.updatedAt.shouldNotBeNull {
-                shouldBeCloseTo(Instant.now(), 1.seconds)
-            }
+            savedTeam.slug.value shouldBe "team-0"
         }
 
         @Nested

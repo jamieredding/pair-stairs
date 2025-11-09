@@ -6,6 +6,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserE
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
@@ -63,6 +64,6 @@ open class JpaUserDaoTest @Autowired constructor(
             )
             testEntityManager.detach(userEntity)
             userEntity.toDomain()
-        }!!
+        }.shouldNotBeNull()
     }
 }

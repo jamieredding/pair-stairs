@@ -1,10 +1,29 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.mapper
 
+import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.Team
+import dev.coldhands.pair.stairs.backend.domain.TeamId
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
 
-fun TeamEntity.toDto(): TeamDto = TeamDto(
-    id = id ?: throw IllegalArgumentException("Cannot create TeamDto when id is null. Likely, the TeamEntity hasn't been persisted yet."),
+fun Team.toDto(): TeamDto = TeamDto(
+    id = id.value,
     name = name,
-    slug = slug
+    slug = slug.value
+)
+
+fun TeamEntity.toDomain(): Team = Team(
+    id = TeamId(id ?: error("TeamEntity has no id, likely it hasn't been persisted yet")),
+    name = name,
+    slug = Slug(slug),
+    createdAt = createdAt,
+    updatedAt = updatedAt
+)
+
+fun Team.toEntity(): TeamEntity = TeamEntity(
+    id = id.value,
+    name = name,
+    slug = slug.value,
+    createdAt = createdAt,
+    updatedAt = updatedAt
 )

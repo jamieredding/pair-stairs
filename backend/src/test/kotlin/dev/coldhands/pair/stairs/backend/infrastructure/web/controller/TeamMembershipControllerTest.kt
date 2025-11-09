@@ -2,10 +2,10 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
+import dev.coldhands.pair.stairs.backend.domain.*
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamMembershipEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamMembershipDto
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.date.shouldBeCloseTo
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
@@ -44,6 +44,8 @@ open class TeamMembershipControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
     private val testEntityManager: TestEntityManager,
     private val objectMapper: ObjectMapper,
+    private val teamDao: TeamDao,
+    private val userDao: UserDao,
 ) {
 
     @ParameterizedTest
@@ -61,35 +63,33 @@ open class TeamMembershipControllerTest @Autowired constructor(
 
         @Test
         fun saveATeamMembership() {
-            val createdTeam = testEntityManager.persist(
-                TeamEntity(
+            val createdTeam = teamDao.create(
+                TeamDetails(
                     name = "Team 0",
-                    slug = "team-0"
+                    slug = Slug("team-0"),
                 )
-            )
-            val createdUser = testEntityManager.persist(
-                UserEntity(
-                    oidcSub = "some-oidc-sub",
+            ).shouldBeSuccess()
+            val createdUser = userDao.create(
+                UserDetails(
+                    oidcSub = OidcSub("some-oidc-sub"),
                     displayName = "some-display-name",
-                    createdAt = Instant.now(),
-                    updatedAt = Instant.now()
                 )
-            )
+            ).shouldBeSuccess()
 
             val result = mockMvc.perform(
-                post("/api/v1/teams/${createdTeam.slug}/memberships")
+                post("/api/v1/teams/${createdTeam.slug.value}/memberships")
                     .contentType(APPLICATION_JSON)
                     .content(
                         """
                                     {
-                                      "userId": ${createdUser.id}
+                                      "userId": ${createdUser.id.value}
                                     }
                                     """.trimIndent()
                     )
             )
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.userId").value(createdUser.id))
+                .andExpect(jsonPath("$.userId").value(createdUser.id.value))
                 .andExpect(jsonPath("$.displayName").value("some-display-name"))
                 .andReturn()
 
@@ -101,14 +101,14 @@ open class TeamMembershipControllerTest @Autowired constructor(
             savedTeamMembership.id shouldBe actualId
             savedTeamMembership.displayName shouldBe "some-display-name"
             savedTeamMembership.user should {
-                it.id == createdUser.id
+                it.id shouldBe createdUser.id.value
                 it.displayName shouldBe createdUser.displayName
-                it.oidcSub shouldBe createdUser.oidcSub
+                it.oidcSub shouldBe createdUser.oidcSub.value
             }
             savedTeamMembership.team should {
-                it.id == createdTeam.id
+                it.id shouldBe createdTeam.id.value
                 it.name shouldBe createdTeam.name
-                it.slug shouldBe createdTeam.slug
+                it.slug shouldBe createdTeam.slug.value
             }
 
             savedTeamMembership.createdAt.shouldNotBeNull {
@@ -119,12 +119,12 @@ open class TeamMembershipControllerTest @Autowired constructor(
             }
         }
 
-/*
-todo
-    - team doesn't exist with slug
-    - userid doesn't exist
-    - membership already exists (200) but don't create new
- */
+        /*
+        todo
+            - team doesn't exist with slug
+            - userid doesn't exist
+            - membership already exists (200) but don't create new
+         */
     }
 
     companion object {

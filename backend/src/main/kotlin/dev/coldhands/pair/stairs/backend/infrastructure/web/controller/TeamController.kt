@@ -1,11 +1,13 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
+import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.TeamDao
+import dev.coldhands.pair.stairs.backend.domain.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDto
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
+import dev.forkhandles.result4k.Success
 import jakarta.validation.Valid
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
 import org.springframework.http.ResponseEntity
@@ -15,26 +17,28 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/teams")
 @ConditionalOnBooleanProperty("app.feature.flag.teams.enabled")
-class TeamController(private val teamRepository: TeamRepository) {
+class TeamController(private val teamDao: TeamDao) {
 
     @PostMapping
     fun saveTeam(@Valid @RequestBody createTeamDto: CreateTeamDto): ResponseEntity<*> {
-        teamRepository.findBySlug(createTeamDto.slug)?.also {
+        val slug = Slug(createTeamDto.slug)
+        teamDao.findBySlug(slug)?.also {
             return badRequest()
                 .body(ErrorDto(errorCode = "DUPLICATE_SLUG"))
         }
 
-        val teamEntity = teamRepository.save(TeamEntity(name = createTeamDto.name, slug = createTeamDto.slug))
+        // todo http4k-vertical-slice should properly handle errors from this
+        val team = (teamDao.create(TeamDetails(name = createTeamDto.name, slug = slug)) as Success).value
 
         return status(201)
-            .body(teamEntity.toDto())
+            .body(team.toDto())
     }
 
     @GetMapping("/{slug}")
-    fun getTeam(@PathVariable slug: String): ResponseEntity<*> =
-        teamRepository.findBySlug(slug)?.let { ok(it.toDto()) }
+    fun getTeam(@PathVariable slug: Slug): ResponseEntity<*> =
+        teamDao.findBySlug(slug)?.let { ok(it.toDto()) }
             ?: notFound().build<String>()
 
     @GetMapping
-    fun getTeams(): List<TeamDto> = teamRepository.findAll().map { it.toDto() }
+    fun getTeams(): List<TeamDto> = teamDao.findAll().map { it.toDto() }
 }
