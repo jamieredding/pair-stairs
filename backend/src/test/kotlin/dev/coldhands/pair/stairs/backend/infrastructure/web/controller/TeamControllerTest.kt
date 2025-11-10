@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.EmptySource
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
@@ -186,8 +185,8 @@ open class TeamControllerTest @Autowired constructor(
             }
 
             @ParameterizedTest
-            @EmptySource
-            fun whenNameIs(name: String) {
+            @MethodSource("dev.coldhands.pair.stairs.backend.infrastructure.web.controller.TeamControllerTest#whenNameIs")
+            fun whenNameIs(name: String, errorCode: String) {
                 mockMvc.perform(
                     post("/api/v1/teams")
                         .contentType(APPLICATION_JSON)
@@ -201,12 +200,12 @@ open class TeamControllerTest @Autowired constructor(
                         )
                 )
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.errorCode").value("INVALID_NAME"))
+                    .andExpect(jsonPath("$.errorCode").value(errorCode))
             }
 
             @ParameterizedTest
-            @EmptySource
-            fun whenSlugIs(slug: String) {
+            @MethodSource("dev.coldhands.pair.stairs.backend.infrastructure.web.controller.TeamControllerTest#whenSlugIs")
+            fun whenSlugIs(slug: String, errorCode: String) {
                 mockMvc.perform(
                     post("/api/v1/teams")
                         .contentType(APPLICATION_JSON)
@@ -220,7 +219,7 @@ open class TeamControllerTest @Autowired constructor(
                         )
                 )
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.errorCode").value("INVALID_SLUG"))
+                    .andExpect(jsonPath("$.errorCode").value(errorCode))
             }
 
             @Test
@@ -285,6 +284,22 @@ open class TeamControllerTest @Autowired constructor(
                 Arguments.of(HttpMethod.GET, "/api/v1/teams/team-0"),
                 Arguments.of(HttpMethod.GET, "/api/v1/teams"),
                 Arguments.of(HttpMethod.POST, "/api/v1/teams"),
+            )
+        }
+
+        @JvmStatic
+        fun whenNameIs(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of("", "INVALID_NAME"),
+                Arguments.of("a".repeat(256), "NAME_TOO_LONG"),
+            )
+        }
+
+        @JvmStatic
+        fun whenSlugIs(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of("", "INVALID_SLUG"),
+                Arguments.of("a".repeat(256), "SLUG_TOO_LONG"),
             )
         }
 
