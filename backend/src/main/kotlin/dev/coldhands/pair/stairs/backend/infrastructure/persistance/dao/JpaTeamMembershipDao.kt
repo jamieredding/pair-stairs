@@ -2,15 +2,16 @@ package dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao
 
 import dev.coldhands.pair.stairs.backend.domain.DateProvider
 import dev.coldhands.pair.stairs.backend.domain.TeamMembershipId
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembership
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipCreateError
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDetails
+import dev.coldhands.pair.stairs.backend.domain.user.UserDao
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDomain
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamMembershipEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamMembershipRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.asFailure
 import dev.forkhandles.result4k.asSuccess
@@ -19,8 +20,8 @@ import kotlin.jvm.optionals.getOrNull
 
 class JpaTeamMembershipDao(
     private val teamMembershipRepository: TeamMembershipRepository,
-    private val teamRepository: TeamRepository, // todo stop using other repositories
-    private val userRepository: UserRepository, // todo stop using other repositories
+    private val teamDao: TeamDao,
+    private val userDao: UserDao,
     private val dateProvider: DateProvider,
     private val precision: TemporalUnit
 ) : TeamMembershipDao {
@@ -35,11 +36,13 @@ class JpaTeamMembershipDao(
         }
 
         val userEntity = teamMembershipDetails.userId.let { userId ->
-            userRepository.findById(userId.value).getOrNull()
+            userDao.findById(userId)
+                ?.toEntity()
                 ?: return TeamMembershipCreateError.UserNotFoundError(userId).asFailure()
         }
         val teamEntity = teamMembershipDetails.teamId.let { teamId ->
-            teamRepository.findById(teamMembershipDetails.teamId.value).getOrNull()
+            teamDao.findById(teamMembershipDetails.teamId)
+                ?.toEntity()
                 ?: return TeamMembershipCreateError.TeamNotFoundError(teamId).asFailure()
         }
 

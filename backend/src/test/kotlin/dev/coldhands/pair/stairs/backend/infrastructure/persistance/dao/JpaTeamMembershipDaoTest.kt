@@ -40,8 +40,10 @@ open class JpaTeamMembershipDaoTest @Autowired constructor(
     val testEntityManager: TestEntityManager,
     val transactionTemplate: TransactionTemplate
 ) : TeamMembershipDaoCdc<JpaTeamMembershipDao>() {
+    private val userDao = JpaUserDao(userRepository, dateProvider, precision)
+    private val teamDao = JpaTeamDao(teamRepository, dateProvider, precision)
     override val underTest: JpaTeamMembershipDao =
-        JpaTeamMembershipDao(teamMembershipRepository, teamRepository, userRepository, dateProvider, precision)
+        JpaTeamMembershipDao(teamMembershipRepository, teamDao, userDao, dateProvider, precision)
 
     override fun assertNoTeamExistsWithId(teamId: TeamId) {
         transactionTemplate.executeWithoutResult {

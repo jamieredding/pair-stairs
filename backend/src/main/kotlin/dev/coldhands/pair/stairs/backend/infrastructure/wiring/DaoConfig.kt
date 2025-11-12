@@ -27,8 +27,10 @@ open class DaoConfig {
 
     @Bean
     open fun teamMembershipDao(
-        teamMembershipRepository: TeamMembershipRepository, teamRepository: TeamRepository,
-        userRepository: UserRepository, dateProvider: DateProvider
+        teamMembershipRepository: TeamMembershipRepository,
+        teamDao: TeamDao,
+        userDao: UserDao,
+        dateProvider: DateProvider,
     ): TeamMembershipDao =
-        JpaTeamMembershipDao(teamMembershipRepository, teamRepository, userRepository, dateProvider, ChronoUnit.MILLIS)
+        JpaTeamMembershipDao(teamMembershipRepository, teamDao, userDao, dateProvider, ChronoUnit.MILLIS)
 }
