@@ -31,6 +31,26 @@ abstract class TeamDaoCdc<T : TeamDao> {
     abstract val underTest: T
 
     @Nested
+    inner class FindById {
+
+        @Test
+        fun `should return null when no team exists with that id`() {
+            val teamId = aTeamId()
+            assertNoTeamExistsWithId(teamId)
+
+            underTest.findById(teamId).shouldBeNull()
+        }
+
+        @Test
+        fun `should find team by slug when team exists`() {
+            val teamDetails = someTeamDetails()
+            val team = createTeam(teamDetails)
+
+            underTest.findById(team.id) shouldBe team
+        }
+    }
+
+    @Nested
     inner class FindBySlug {
 
         @Test
@@ -165,6 +185,7 @@ abstract class TeamDaoCdc<T : TeamDao> {
         }
     }
 
+    abstract fun assertNoTeamExistsWithId(teamId: TeamId)
     abstract fun assertTeamExistsWithId(teamId: TeamId)
     abstract fun ensureNoTeamsExist()
     abstract fun assertNoTeamExistsWithSlug(slug: Slug)

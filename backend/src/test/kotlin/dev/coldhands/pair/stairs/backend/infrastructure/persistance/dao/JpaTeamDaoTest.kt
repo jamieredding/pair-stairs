@@ -9,6 +9,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDomain
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamRepository
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
@@ -30,6 +31,12 @@ open class JpaTeamDaoTest @Autowired constructor(
     val transactionTemplate: TransactionTemplate
 ) : TeamDaoCdc<JpaTeamDao>() {
     override val underTest: JpaTeamDao = JpaTeamDao(teamRepository, dateProvider, precision)
+
+    override fun assertNoTeamExistsWithId(teamId: TeamId) {
+        transactionTemplate.executeWithoutResult {
+            testEntityManager.find(TeamEntity::class.java, teamId.value).shouldBeNull()
+        }
+    }
 
     override fun assertTeamExistsWithId(teamId: TeamId) {
         transactionTemplate.executeWithoutResult {

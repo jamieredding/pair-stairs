@@ -19,8 +19,8 @@ import kotlin.jvm.optionals.getOrNull
 
 class JpaTeamMembershipDao(
     private val teamMembershipRepository: TeamMembershipRepository,
-    private val teamRepository: TeamRepository,
-    private val userRepository: UserRepository,
+    private val teamRepository: TeamRepository, // todo stop using other repositories
+    private val userRepository: UserRepository, // todo stop using other repositories
     private val dateProvider: DateProvider,
     private val precision: TemporalUnit
 ) : TeamMembershipDao {

@@ -21,6 +21,8 @@ class FakeTeamDao(private val dateProvider: DateProvider,
     val teamsView: Map<TeamId, Team> = unmodifiableMap(teams)
     private var nextId = AtomicLong(0L);
 
+    override fun findById(teamId: TeamId): Team? = teams[teamId]
+
     override fun findBySlug(slug: Slug): Team? = teams.values.find { it.slug == slug }
 
     override fun findAll(): List<Team> = teams.values.toList()

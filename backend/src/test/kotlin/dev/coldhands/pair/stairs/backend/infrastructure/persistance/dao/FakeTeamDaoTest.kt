@@ -8,11 +8,16 @@ import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldBeEmpty
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 
 class FakeTeamDaoTest : TeamDaoCdc<FakeTeamDao>(){
     override val underTest: FakeTeamDao = FakeTeamDao(dateProvider, precision)
+
+    override fun assertNoTeamExistsWithId(teamId: TeamId) {
+        underTest.teamsView[teamId].shouldBeNull()
+    }
 
     override fun assertTeamExistsWithId(teamId: TeamId) {
         underTest.teamsView[teamId].shouldNotBeNull()
