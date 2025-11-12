@@ -4,6 +4,8 @@ package dev.coldhands.pair.stairs.backend.domain
 value class UserId(val value: Long)
 @JvmInline
 value class TeamId(val value: Long)
+@JvmInline
+value class TeamMembershipId(val value: Long)
 
 @JvmInline
 value class OidcSub(val value: String)

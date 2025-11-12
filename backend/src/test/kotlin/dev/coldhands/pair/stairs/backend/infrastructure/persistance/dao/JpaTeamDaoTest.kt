@@ -11,9 +11,15 @@ import io.kotest.matchers.shouldBe
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.support.TransactionTemplate
 
 @DataJpaTest
+@TestPropertySource(
+    properties = [
+        "spring.datasource.url=jdbc:h2:mem:JpaTeamDaoTest;DB_CLOSE_DELAY=-1"
+    ]
+)
 open class JpaTeamDaoTest @Autowired constructor(
     teamRepository: TeamRepository,
     val testEntityManager: TestEntityManager,

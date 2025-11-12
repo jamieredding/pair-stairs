@@ -3,11 +3,14 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 import dev.coldhands.pair.stairs.backend.domain.Slug
 import dev.coldhands.pair.stairs.backend.domain.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.UserDao
+import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipCreateError
+import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
+import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDto
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamMembershipEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamMembershipRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamMembershipDto
+import dev.forkhandles.result4k.get
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.mapFailure
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.status
@@ -19,7 +22,7 @@ import org.springframework.web.bind.annotation.*
 class TeamMembershipController(
     private val teamDao: TeamDao,
     private val userDao: UserDao,
-    private val teamMembershipRepository: TeamMembershipRepository,
+    private val teamMembershipDao: TeamMembershipDao,
 ) {
 
     @PostMapping
@@ -30,16 +33,29 @@ class TeamMembershipController(
         val team = teamDao.findBySlug(slug)!! // todo handle missing
         val user = userDao.findById(body.userId)!! // todo handle missing
 
-        val teamMembershipEntity = teamMembershipRepository.saveAndFlush(
-            TeamMembershipEntity(
+        return teamMembershipDao.create(
+            TeamMembershipDetails(
                 displayName = user.displayName,
-                user = user.toEntity(),
-                team = team.toEntity()
+                userId = body.userId,
+                teamId = team.id
             )
         )
-
-        return status(201)
-            .body(teamMembershipEntity.toDto())
+            .map {
+                status(201)
+                    .body(it.toDto())
+            }
+            .mapFailure {
+                when (it) {
+                    is TeamMembershipCreateError.DisplayNameTooLongError -> TODO()
+                    is TeamMembershipCreateError.TeamNotFoundError -> TODO()
+                    is TeamMembershipCreateError.UserNotFoundError -> TODO()
+                }
+            }
+            .mapFailure {
+                status(400)
+                    .body(TODO())
+            }
+            .get()
     }
 
 }

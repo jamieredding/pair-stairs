@@ -1,8 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity
 
 import jakarta.persistence.*
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
 
 @Entity
@@ -21,12 +19,10 @@ class TeamMembershipEntity(
     @Suppress("unused")
     @OneToOne
     val team: TeamEntity,
-) {
+
     @Column(name = "created_at")
-    @CreationTimestamp
-    var createdAt: Instant? = null
+    val createdAt: Instant,
 
     @Column(name = "updated_at")
-    @UpdateTimestamp
-    var updatedAt: Instant? = null
-}
+    val updatedAt: Instant
+)

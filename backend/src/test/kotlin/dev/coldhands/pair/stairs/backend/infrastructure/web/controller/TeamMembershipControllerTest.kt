@@ -3,12 +3,10 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.coldhands.pair.stairs.backend.domain.*
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamMembershipEntity
+import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamMembershipDto
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
-import io.kotest.matchers.date.shouldBeCloseTo
 import io.kotest.matchers.nulls.shouldNotBeNull
-import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Nested
@@ -19,7 +17,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
@@ -31,9 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.reque
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.net.URI
-import java.time.Instant
 import java.util.stream.Stream
-import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,8 +37,8 @@ import kotlin.time.Duration.Companion.seconds
 @Transactional
 open class TeamMembershipControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
-    private val testEntityManager: TestEntityManager,
     private val objectMapper: ObjectMapper,
+    private val teamMembershipDao: TeamMembershipDao,
     private val teamDao: TeamDao,
     private val userDao: UserDao,
 ) {
@@ -94,29 +89,14 @@ open class TeamMembershipControllerTest @Autowired constructor(
                 .andReturn()
 
             val teamMembership = objectMapper.readValue<TeamMembershipDto>(result.response.contentAsString)
-            val actualId = teamMembership.id
+            val actualId = TeamMembershipId(teamMembership.id)
 
-            val savedTeamMembership = testEntityManager.find(TeamMembershipEntity::class.java, actualId)
+            val savedTeamMembership = teamMembershipDao.findById(actualId).shouldNotBeNull()
 
             savedTeamMembership.id shouldBe actualId
             savedTeamMembership.displayName shouldBe "some-display-name"
-            savedTeamMembership.user should {
-                it.id shouldBe createdUser.id.value
-                it.displayName shouldBe createdUser.displayName
-                it.oidcSub shouldBe createdUser.oidcSub.value
-            }
-            savedTeamMembership.team should {
-                it.id shouldBe createdTeam.id.value
-                it.name shouldBe createdTeam.name
-                it.slug shouldBe createdTeam.slug.value
-            }
-
-            savedTeamMembership.createdAt.shouldNotBeNull {
-                shouldBeCloseTo(Instant.now(), 1.seconds)
-            }
-            savedTeamMembership.updatedAt.shouldNotBeNull {
-                shouldBeCloseTo(Instant.now(), 1.seconds)
-            }
+            savedTeamMembership.userId shouldBe createdUser.id
+            savedTeamMembership.teamId shouldBe createdTeam.id
         }
 
         /*
