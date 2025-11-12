@@ -2,8 +2,8 @@ package dev.coldhands.pair.stairs.backend.usecase
 
 import dev.coldhands.pair.stairs.backend.anOidcSub
 import dev.coldhands.pair.stairs.backend.domain.RealDateProvider
-import dev.coldhands.pair.stairs.backend.domain.User
-import dev.coldhands.pair.stairs.backend.domain.UserName
+import dev.coldhands.pair.stairs.backend.domain.user.User
+import dev.coldhands.pair.stairs.backend.domain.user.UserName
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeUserDao
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.nulls.shouldNotBeNull

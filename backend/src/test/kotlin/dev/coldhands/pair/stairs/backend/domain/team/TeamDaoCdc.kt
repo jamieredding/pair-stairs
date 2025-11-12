@@ -1,8 +1,10 @@
-package dev.coldhands.pair.stairs.backend.domain
+package dev.coldhands.pair.stairs.backend.domain.team
 
 import dev.coldhands.pair.stairs.backend.FakeDateProvider
 import dev.coldhands.pair.stairs.backend.aSlug
 import dev.coldhands.pair.stairs.backend.aTeamId
+import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.TeamId
 import dev.forkhandles.result4k.kotest.shouldBeFailure
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldBeEmpty

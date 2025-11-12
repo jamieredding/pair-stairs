@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
-import dev.coldhands.pair.stairs.backend.domain.UserDao;
+import dev.coldhands.pair.stairs.backend.domain.user.UserDao;
 import dev.coldhands.pair.stairs.backend.infrastructure.web.security.AuthenticationEvents;
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBooleanProperty;

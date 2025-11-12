@@ -1,9 +1,9 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring
 
 import dev.coldhands.pair.stairs.backend.domain.DateProvider
-import dev.coldhands.pair.stairs.backend.domain.TeamDao
-import dev.coldhands.pair.stairs.backend.domain.UserDao
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
+import dev.coldhands.pair.stairs.backend.domain.user.UserDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaTeamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaTeamMembershipDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaUserDao

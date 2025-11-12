@@ -1,6 +1,10 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao
 
-import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.TeamId
+import dev.coldhands.pair.stairs.backend.domain.team.Team
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDaoCdc
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.maps.shouldBeEmpty

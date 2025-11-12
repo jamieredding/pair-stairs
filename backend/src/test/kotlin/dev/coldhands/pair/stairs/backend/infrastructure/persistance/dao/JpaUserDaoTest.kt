@@ -1,6 +1,10 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao
 
-import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.OidcSub
+import dev.coldhands.pair.stairs.backend.domain.UserId
+import dev.coldhands.pair.stairs.backend.domain.user.User
+import dev.coldhands.pair.stairs.backend.domain.user.UserDaoCdc
+import dev.coldhands.pair.stairs.backend.domain.user.UserDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDomain
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.UserEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository

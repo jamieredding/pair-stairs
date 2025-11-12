@@ -1,6 +1,10 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.OidcSub
+import dev.coldhands.pair.stairs.backend.domain.user.User
+import dev.coldhands.pair.stairs.backend.domain.user.UserDao
+import dev.coldhands.pair.stairs.backend.domain.user.UserDetails
+import dev.coldhands.pair.stairs.backend.domain.user.UserName
 import dev.forkhandles.result4k.Result
 
 class UserDetailsService(

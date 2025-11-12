@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import dev.coldhands.pair.stairs.backend.anOidcSub
-import dev.coldhands.pair.stairs.backend.domain.UserName
+import dev.coldhands.pair.stairs.backend.domain.user.UserName
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Nested

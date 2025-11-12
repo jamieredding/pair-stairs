@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
 import dev.coldhands.pair.stairs.backend.domain.OidcSub
-import dev.coldhands.pair.stairs.backend.domain.UserName
+import dev.coldhands.pair.stairs.backend.domain.user.UserName
 import dev.coldhands.pair.stairs.backend.usecase.UserDetailsService
 import dev.forkhandles.result4k.orThrow
 import org.springframework.context.event.EventListener

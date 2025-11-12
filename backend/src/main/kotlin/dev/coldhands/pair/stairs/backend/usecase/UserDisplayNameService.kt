@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.UserName
+import dev.coldhands.pair.stairs.backend.domain.user.UserName
 
 class UserDisplayNameService {
 

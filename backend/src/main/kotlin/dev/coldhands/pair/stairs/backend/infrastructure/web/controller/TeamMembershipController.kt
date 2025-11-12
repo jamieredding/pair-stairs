@@ -1,11 +1,11 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import dev.coldhands.pair.stairs.backend.domain.Slug
-import dev.coldhands.pair.stairs.backend.domain.TeamDao
-import dev.coldhands.pair.stairs.backend.domain.UserDao
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipCreateError
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDetails
+import dev.coldhands.pair.stairs.backend.domain.user.UserDao
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamMembershipDto
 import dev.forkhandles.result4k.get

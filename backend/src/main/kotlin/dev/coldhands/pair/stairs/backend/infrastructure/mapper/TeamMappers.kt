@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.mapper
 
 import dev.coldhands.pair.stairs.backend.domain.Slug
-import dev.coldhands.pair.stairs.backend.domain.Team
 import dev.coldhands.pair.stairs.backend.domain.TeamId
+import dev.coldhands.pair.stairs.backend.domain.team.Team
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.TeamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
 

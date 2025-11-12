@@ -1,5 +1,7 @@
-package dev.coldhands.pair.stairs.backend.domain
+package dev.coldhands.pair.stairs.backend.domain.user
 
+import dev.coldhands.pair.stairs.backend.domain.OidcSub
+import dev.coldhands.pair.stairs.backend.domain.UserId
 import dev.forkhandles.result4k.Result
 
 interface UserDao {

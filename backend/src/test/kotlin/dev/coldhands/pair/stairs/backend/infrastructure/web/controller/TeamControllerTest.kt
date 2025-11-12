@@ -3,8 +3,8 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.coldhands.pair.stairs.backend.domain.Slug
-import dev.coldhands.pair.stairs.backend.domain.TeamDao
-import dev.coldhands.pair.stairs.backend.domain.TeamDetails
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.nulls.shouldNotBeNull

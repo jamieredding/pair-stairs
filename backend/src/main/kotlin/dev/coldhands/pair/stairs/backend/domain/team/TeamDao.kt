@@ -1,5 +1,6 @@
-package dev.coldhands.pair.stairs.backend.domain
+package dev.coldhands.pair.stairs.backend.domain.team
 
+import dev.coldhands.pair.stairs.backend.domain.Slug
 import dev.forkhandles.result4k.Result
 
 interface TeamDao {
