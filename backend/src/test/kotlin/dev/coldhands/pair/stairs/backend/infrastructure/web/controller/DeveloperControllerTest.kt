@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.coldhands.pair.stairs.backend.domain.Developer
+import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
@@ -151,9 +151,9 @@ open class DeveloperControllerTest @Autowired constructor(
                 objectMapper.readValue(result.response.contentAsString, Developer::class.java)
             val actualId = developer.id
 
-            val savedDeveloper = testEntityManager.find(DeveloperEntity::class.java, actualId)
+            val savedDeveloper = testEntityManager.find(DeveloperEntity::class.java, actualId.value)
 
-            savedDeveloper.id shouldBe actualId
+            savedDeveloper.id shouldBe actualId.value
             savedDeveloper.name shouldBe "dev-0"
         }
     }
