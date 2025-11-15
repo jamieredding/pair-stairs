@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.mapper;
 import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity;
 
+// todo make kotlin
 public final class DeveloperMapper {
 
     private DeveloperMapper() {
@@ -13,7 +14,7 @@ public final class DeveloperMapper {
     }
 
     public static DeveloperInfo entityToInfo(DeveloperEntity entity) {
-        return new DeveloperInfo(entity.getId(), entity.getName(), entity.isArchived());
+        return new DeveloperInfo(entity.getId(), entity.getName(), entity.getArchived());
     }
 
     public static String entityToCore(DeveloperEntity entity) {

@@ -166,7 +166,7 @@ open class DeveloperControllerTest @Autowired constructor(
         fun archived(newArchivedValue: Boolean) {
             val developer = testEntityManager.persist(DeveloperEntity("dev-0"))
 
-            developer.isArchived shouldBe false
+            developer.archived shouldBe false
 
             val result = mockMvc.perform(
                 patch("/api/v1/developers/${developer.id}")
@@ -191,7 +191,7 @@ open class DeveloperControllerTest @Autowired constructor(
 
             savedDeveloper.id shouldBe developer.id
             savedDeveloper.name shouldBe "dev-0"
-            savedDeveloper.isArchived shouldBe newArchivedValue
+            savedDeveloper.archived shouldBe newArchivedValue
         }
 
         @Test
