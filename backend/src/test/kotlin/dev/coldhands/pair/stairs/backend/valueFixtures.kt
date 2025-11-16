@@ -11,5 +11,6 @@ fun anOidcSub() = OidcSub(UUID.randomUUID().toString())
 fun aUserId() = UserId(Random.nextLong())
 fun aTeamId() = TeamId(Random.nextLong())
 fun aTeamMembershipId() = TeamMembershipId(Random.nextLong())
+fun aDeveloperId() = DeveloperId(Random.nextLong())
 
 fun aSlug() = Slug((1..15).map { alphanumeric.random() }.joinToString(""))

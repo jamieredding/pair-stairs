@@ -9,5 +9,14 @@ interface DeveloperDao {
     fun findAllById(developerIds: List<DeveloperId>): List<Developer>
     fun findAll(): List<Developer>
 
-    fun create(developerDetails: DeveloperDetails): Result<Developer, Any>
+    fun create(developerDetails: DeveloperDetails): Result<Developer, DeveloperCreateError>
+    fun update(developerId: DeveloperId, archived: Boolean): Result<Developer, DeveloperUpdateError>
+}
+
+sealed class DeveloperCreateError {
+    data class NameTooLong(val name: String) : DeveloperCreateError()
+}
+
+sealed class DeveloperUpdateError {
+    data class DeveloperNotFound(val developerId: DeveloperId) : DeveloperUpdateError()
 }

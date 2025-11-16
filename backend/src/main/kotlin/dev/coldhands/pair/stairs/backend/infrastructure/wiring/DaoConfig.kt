@@ -1,12 +1,15 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring
 
 import dev.coldhands.pair.stairs.backend.domain.DateProvider
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
 import dev.coldhands.pair.stairs.backend.domain.user.UserDao
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaDeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaTeamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaTeamMembershipDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaUserDao
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamMembershipRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
@@ -33,4 +36,8 @@ open class DaoConfig {
         dateProvider: DateProvider,
     ): TeamMembershipDao =
         JpaTeamMembershipDao(teamMembershipRepository, teamDao, userDao, dateProvider, ChronoUnit.MILLIS)
+
+    @Bean
+    open fun developerDao(developerRepository: DeveloperRepository): DeveloperDao =
+        JpaDeveloperDao(developerRepository = developerRepository)
 }
