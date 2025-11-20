@@ -9,7 +9,7 @@
 
     <artifactId>backend</artifactId>
     <properties>
-        <spring-boot.version>3.5.7</spring-boot.version>
+        <spring-boot.version>3.5.8</spring-boot.version>
         <dockerImageName>ghcr.io/jamieredding/pair-stairs-web</dockerImageName>
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
     </properties>
