@@ -12,6 +12,13 @@ fun DeveloperEntity.toDomain(): Developer =
         archived = archived
     )
 
+fun Developer.toEntity(): DeveloperEntity =
+    DeveloperEntity(
+        id = id.value,
+        name = name,
+        archived = archived
+    )
+
 fun Developer.toInfo(): DeveloperInfo = DeveloperInfo(
     id.value,
     name,

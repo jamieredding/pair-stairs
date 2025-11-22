@@ -12,7 +12,7 @@ public class PairStreamEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(
             name = "developer_pair_member",
             joinColumns = @JoinColumn(name = "pair_id", referencedColumnName = "id"),

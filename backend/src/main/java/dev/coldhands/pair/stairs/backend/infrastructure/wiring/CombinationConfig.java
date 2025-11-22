@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
 import dev.coldhands.pair.stairs.backend.usecase.BackendCombinationHistoryRepository;
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
@@ -14,14 +15,16 @@ import org.springframework.context.annotation.Configuration;
 public class CombinationConfig {
 
     private final DeveloperRepository developerRepository;
+    private final DeveloperDao developerDao;
     private final StreamRepository streamRepository;
     private final PairStreamRepository pairStreamRepository;
     private final CombinationRepository combinationRepository;
     private final CombinationEventRepository combinationEventRepository;
 
     @Autowired
-    public CombinationConfig(DeveloperRepository developerRepository, StreamRepository streamRepository, PairStreamRepository pairStreamRepository, CombinationRepository combinationRepository, CombinationEventRepository combinationEventRepository) {
+    public CombinationConfig(DeveloperRepository developerRepository, DeveloperDao developerDao, StreamRepository streamRepository, PairStreamRepository pairStreamRepository, CombinationRepository combinationRepository, CombinationEventRepository combinationEventRepository) {
         this.developerRepository = developerRepository;
+        this.developerDao = developerDao;
         this.streamRepository = streamRepository;
         this.pairStreamRepository = pairStreamRepository;
         this.combinationRepository = combinationRepository;
@@ -37,7 +40,7 @@ public class CombinationConfig {
 
     @Bean
     public CombinationEventService combinationEventService() {
-        return new CombinationEventService(developerRepository, streamRepository, pairStreamRepository, combinationRepository, combinationEventRepository);
+        return new CombinationEventService(developerDao, streamRepository, pairStreamRepository, combinationRepository, combinationEventRepository);
     }
 
     @Bean
