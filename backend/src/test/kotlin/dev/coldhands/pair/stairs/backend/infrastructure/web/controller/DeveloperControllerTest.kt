@@ -1,12 +1,14 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
-import dev.coldhands.pair.stairs.backend.toDeveloperIds
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Nested
@@ -40,7 +42,8 @@ import kotlin.random.Random
 @Transactional
 open class DeveloperControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
-    private val testEntityManager: TestEntityManager, //todo stop using entity manager once migrated from jpa
+    private val testEntityManager: TestEntityManager, //todo stop using entity manager once streams are migrated from jpa
+    private val developerDao: DeveloperDao,
     private val objectMapper: ObjectMapper,
 ) {
 
@@ -65,8 +68,8 @@ open class DeveloperControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleDevelopersThenReturnThem() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
 
             mockMvc.perform(get("/api/v1/developers"))
                 .andExpect(status().isOk())
@@ -75,12 +78,12 @@ open class DeveloperControllerTest @Autowired constructor(
                         """
                             [
                                 {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "name": "dev-0",
                                     "archived": false
                                 },
                                 {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "name": "dev-1",
                                     "archived": false
                                 }
@@ -102,8 +105,8 @@ open class DeveloperControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleDevelopersThenReturnThem() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
 
             mockMvc.perform(get("/api/v1/developers/info"))
                 .andExpect(status().isOk())
@@ -112,12 +115,12 @@ open class DeveloperControllerTest @Autowired constructor(
                         """
                             [
                                 {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                 },
                                 {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                 }
@@ -150,12 +153,12 @@ open class DeveloperControllerTest @Autowired constructor(
 
             val developer =
                 objectMapper.readValue(result.response.contentAsString, Developer::class.java)
-            val actualId = developer.id
 
-            val savedDeveloper = testEntityManager.find(DeveloperEntity::class.java, actualId.value)
-
-            savedDeveloper.id shouldBe actualId.value
-            savedDeveloper.name shouldBe "dev-0"
+            developerDao.findById(developer.id).shouldNotBeNull {
+                id shouldBe developer.id
+                name shouldBe "dev-0"
+                archived shouldBe false
+            }
         }
     }
 
@@ -165,12 +168,12 @@ open class DeveloperControllerTest @Autowired constructor(
         @ParameterizedTest
         @ValueSource(booleans = [true, false])
         fun archived(newArchivedValue: Boolean) {
-            val developer = testEntityManager.persist(DeveloperEntity("dev-0"))
+            val developer = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess()
 
             developer.archived shouldBe false
 
             val result = mockMvc.perform(
-                patch("/api/v1/developers/${developer.id}")
+                patch("/api/v1/developers/${developer.id.value}")
                     .contentType(APPLICATION_JSON)
                     .content(
                         """
@@ -188,11 +191,11 @@ open class DeveloperControllerTest @Autowired constructor(
 
             updatedDeveloper.archived shouldBe newArchivedValue
 
-            val savedDeveloper = testEntityManager.find(DeveloperEntity::class.java, developer.id)
-
-            savedDeveloper.id shouldBe developer.id
-            savedDeveloper.name shouldBe "dev-0"
-            savedDeveloper.archived shouldBe newArchivedValue
+            developerDao.findById(developer.id).shouldNotBeNull {
+                id shouldBe developer.id
+                name shouldBe "dev-0"
+                archived shouldBe newArchivedValue
+            }
         }
 
         @Test
@@ -225,9 +228,9 @@ open class DeveloperControllerTest @Autowired constructor(
 
         @Test
         fun whenDeveloperExistsButNoPairsHaveHappenedThenReturnJustThemselves() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
 
-            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id))
+            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id.value))
                 .andExpect(status().isOk())
                 .andExpect(
                     content().json(
@@ -236,7 +239,7 @@ open class DeveloperControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -252,34 +255,42 @@ open class DeveloperControllerTest @Autowired constructor(
 
         @Test
         fun whenDeveloperExistsAndHasPairedThenReturnStatistics() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
+            val developers = listOf(
+                aDeveloperDetails("dev-0"),
+                aDeveloperDetails("dev-1"),
+                aDeveloperDetails("dev-2"),
+                aDeveloperDetails("dev-3")
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
+
+            val dev0Id = developerIds[0]
+            val dev1Id = developerIds[1]
+            val dev2Id = developerIds[2]
+            val dev3Id = developerIds[3]
 
             val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
             val streamBId = testEntityManager.persist(StreamEntity("stream-b")).id
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
+                    PairStreamByIds(listOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
 
-            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id))
+            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id.value))
                 .andExpect(status().isOk())
                 .andExpect(
                     content().json(
@@ -288,7 +299,7 @@ open class DeveloperControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                   },
@@ -296,7 +307,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev2Id},
+                                    "id": ${dev2Id.value},
                                     "displayName": "dev-2",
                                     "archived": false
                                   },
@@ -304,7 +315,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev3Id},
+                                    "id": ${dev3Id.value},
                                     "displayName": "dev-3",
                                     "archived": false
                                   },
@@ -312,7 +323,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -345,16 +356,24 @@ open class DeveloperControllerTest @Autowired constructor(
 
         @Test
         fun whenDeveloperExistsAndOtherDevelopersAndStreamsButNoEventsHaveHappenedThenSortAlphabetically() {
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val developers = listOf(
+                aDeveloperDetails("dev-3"),
+                aDeveloperDetails("dev-2"),
+                aDeveloperDetails("dev-1"),
+                aDeveloperDetails("dev-0"),
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
+
+            val dev3Id = developerIds[0]
+            val dev2Id = developerIds[1]
+            val dev1Id = developerIds[2]
+            val dev0Id = developerIds[3]
 
             val streamCId = testEntityManager.persist(StreamEntity("stream-c")).id
             val streamBId = testEntityManager.persist(StreamEntity("stream-b")).id
             val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
 
-            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id))
+            mockMvc.perform(get("/api/v1/developers/{id}/stats", dev0Id.value))
                 .andExpect(status().isOk())
                 .andExpect(
                     content().json(
@@ -363,7 +382,7 @@ open class DeveloperControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                   },
@@ -371,7 +390,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev2Id},
+                                    "id": ${dev2Id.value},
                                     "displayName": "dev-2",
                                     "archived": false
                                   },
@@ -379,7 +398,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev3Id},
+                                    "id": ${dev3Id.value},
                                     "displayName": "dev-3",
                                     "archived": false
                                   },
@@ -387,7 +406,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -428,41 +447,49 @@ open class DeveloperControllerTest @Autowired constructor(
 
         @Test
         fun allowsFilteringByDateRange() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
+            val developers = listOf(
+                aDeveloperDetails("dev-0"),
+                aDeveloperDetails("dev-1"),
+                aDeveloperDetails("dev-2"),
+                aDeveloperDetails("dev-3")
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
+
+            val dev0Id = developerIds[0]
+            val dev1Id = developerIds[1]
+            val dev2Id = developerIds[2]
+            val dev3Id = developerIds[3]
 
             val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
             val streamBId = testEntityManager.persist(StreamEntity("stream-b")).id
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
+                    PairStreamByIds(listOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 8), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
+                    PairStreamByIds(listOf(dev1Id), streamBId)
                 )
             )
 
             mockMvc.perform(
-                get("/api/v1/developers/{id}/stats", dev0Id)
+                get("/api/v1/developers/{id}/stats", dev0Id.value)
                     .queryParam("startDate", "2024-05-06")
                     .queryParam("endDate", "2024-05-07")
             )
@@ -474,7 +501,7 @@ open class DeveloperControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                   },
@@ -482,7 +509,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev2Id},
+                                    "id": ${dev2Id.value},
                                     "displayName": "dev-2",
                                     "archived": false
                                   },
@@ -490,7 +517,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev3Id},
+                                    "id": ${dev3Id.value},
                                     "displayName": "dev-3",
                                     "archived": false
                                   },
@@ -498,7 +525,7 @@ open class DeveloperControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -582,6 +609,5 @@ open class DeveloperControllerTest @Autowired constructor(
                     })
             )
         }
-
     }
 }

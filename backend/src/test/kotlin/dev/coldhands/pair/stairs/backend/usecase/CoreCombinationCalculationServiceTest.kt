@@ -1,12 +1,12 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
+import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.asString
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.PairStream
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
 import dev.coldhands.pair.stairs.backend.domain.StreamInfo
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
@@ -37,9 +37,9 @@ class CoreCombinationCalculationServiceTest {
     @Test
     fun runCoreEntryPointUsingInput() {
         val developers = listOf(
-            DeveloperDetails("dev-0", false),
-            DeveloperDetails("dev-1", false),
-            DeveloperDetails("dev-2", false)
+            aDeveloperDetails("dev-0"),
+            aDeveloperDetails("dev-1"),
+            aDeveloperDetails("dev-2")
         ).map { developerDao.create(it).shouldBeSuccess() }
         val developerIds = developers.map { it.id }
 
@@ -124,7 +124,7 @@ class CoreCombinationCalculationServiceTest {
         @Test
         fun onlyReturnFirstPageOfScoredCombinationsIfMoreThanPageSizeAreReturned() {
             val developers = listOf(
-                DeveloperDetails("dev-0", false)
+                aDeveloperDetails("dev-0")
             ).map { developerDao.create(it).shouldBeSuccess() }
             val developerIds = developers.map { it.id }
 
@@ -161,7 +161,7 @@ class CoreCombinationCalculationServiceTest {
         @Test
         fun returnSecondPageOfScoredCombinationsWhenRequested() {
             val developers = listOf(
-                DeveloperDetails("dev-0", false)
+                aDeveloperDetails("dev-0")
             ).map { developerDao.create(it).shouldBeSuccess() }
             val developerIds = developers.map { it.id }
 
@@ -198,7 +198,7 @@ class CoreCombinationCalculationServiceTest {
         @Test
         fun returnEmptyPageIfTooEarlyOfAPageRequested() {
             val developers = listOf(
-                DeveloperDetails("dev-0", false)
+                aDeveloperDetails("dev-0")
             ).map { developerDao.create(it).shouldBeSuccess() }
             val developerIds = developers.map { it.id }
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
@@ -231,7 +231,7 @@ class CoreCombinationCalculationServiceTest {
         @Test
         fun returnEmptyPageIfTooLateOfAPageRequested() {
             val developers = listOf(
-                DeveloperDetails("dev-0", false)
+                aDeveloperDetails("dev-0")
             ).map { developerDao.create(it).shouldBeSuccess() }
             val developerIds = developers.map { it.id }
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
