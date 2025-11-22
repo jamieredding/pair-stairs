@@ -47,23 +47,17 @@ class FakeUserDao(
         return user.asSuccess()
     }
 
-    override fun update(user: User): Result<User, UserUpdateError> {
-        users[user.id]?.let { existingUser ->
-            if (existingUser.oidcSub != user.oidcSub) return UserUpdateError.CannotChangeOidcSub.asFailure()
-            if (existingUser.createdAt != user.createdAt.truncatedTo(precision)) return UserUpdateError.CannotChangeCreatedAt.asFailure()
-            if (existingUser.updatedAt != user.updatedAt.truncatedTo(precision)) return UserUpdateError.CannotChangeUpdatedAt.asFailure()
+    override fun update(userId: UserId, displayName: String): Result<User, UserUpdateError> {
+        displayName.also {
+            if (it.length > 255) return UserUpdateError.DisplayNameTooLong(it).asFailure()
+        }
 
-            user.displayName.also {
-                if (it.length > 255) return UserUpdateError.DisplayNameTooLong(it).asFailure()
-            }
-        } ?: UserUpdateError.UserNotFound(user.id).asFailure()
-
-        return users.computeIfPresent(user.id) { _, existingUser ->
+        return users.computeIfPresent(userId) { _, existingUser ->
             val updatedUser = existingUser.copy(
-                displayName = user.displayName,
+                displayName = displayName,
                 updatedAt = dateProvider.instant().truncatedTo(precision)
             )
             updatedUser
-        }?.asSuccess() ?: UserUpdateError.UserNotFound(user.id).asFailure()
+        }?.asSuccess() ?: UserUpdateError.UserNotFound(userId).asFailure()
     }
 }

@@ -19,8 +19,7 @@ class UserDetailsService(
         val displayName = userDisplayNameService.getDisplayNameFor(userName)
 
         val persistedUser = userDao.findByOidcSub(oidcSub)
-            ?.copy(displayName = displayName)
-            ?.let { userDao.update(it) }
+            ?.let { userDao.update(it.id, displayName) }
             ?: userDao.create(UserDetails(oidcSub = oidcSub, displayName = displayName))
 
         return persistedUser

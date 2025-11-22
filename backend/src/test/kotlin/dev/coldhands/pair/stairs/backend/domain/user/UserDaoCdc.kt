@@ -176,16 +176,14 @@ abstract class UserDaoCdc<T : UserDao> {
                 displayName = "some-display-name"
             )
 
-            val updatedUserBeforePersist = user.copy(
-                displayName = "another-display-name"
-            )
+            val updatedDisplayName = "another-display-name"
 
             dateProvider.now = now.plus(5.minutes.toJavaDuration())
-            val actualUser = underTest.update(updatedUserBeforePersist).shouldBeSuccess()
+            val actualUser = underTest.update(user.id, updatedDisplayName).shouldBeSuccess()
 
             actualUser.id shouldBe user.id
             actualUser.oidcSub shouldBe user.oidcSub
-            actualUser.displayName shouldBe updatedUserBeforePersist.displayName
+            actualUser.displayName shouldBe updatedDisplayName
             actualUser.createdAt shouldBe now.truncatedTo(precision)
             actualUser.updatedAt shouldBe now.plus(5.minutes.toJavaDuration()).truncatedTo(precision)
 
@@ -197,7 +195,7 @@ abstract class UserDaoCdc<T : UserDao> {
             val displayName = "B".repeat(255)
 
             val user = underTest.create(someUserDetails()).shouldBeSuccess()
-            val actualUser = underTest.update(user.copy(displayName = displayName)).shouldBeSuccess()
+            val actualUser = underTest.update(user.id, displayName).shouldBeSuccess()
 
             actualUser.displayName shouldBe displayName
         }
@@ -209,7 +207,7 @@ abstract class UserDaoCdc<T : UserDao> {
             val user = givenUserExistsWith(displayName = "some-display-name")
 
             dateProvider.now = now.plus(5.minutes.toJavaDuration())
-            val actualUser = underTest.update(user).shouldBeSuccess()
+            val actualUser = underTest.update(user.id, user.displayName).shouldBeSuccess()
 
             actualUser.updatedAt shouldBe now.plus(5.minutes.toJavaDuration()).truncatedTo(precision)
 
@@ -224,48 +222,16 @@ abstract class UserDaoCdc<T : UserDao> {
                 val madeUpUserId = aUserId()
                 assertNoUserExistsById(madeUpUserId)
 
-                val madeUpUser = someUser().copy(id = madeUpUserId)
-
-                underTest.update(madeUpUser)
+                underTest.update(madeUpUserId, "irrelevant")
                     .shouldBeFailure(UserUpdateError.UserNotFound(madeUpUserId))
-            }
-
-            @Test
-            fun `do not allow updating of oidc sub as there is no requirement for this yet`() {
-                val user = givenUserExistsWith(oidcSub = anOidcSub()).copy(
-                    oidcSub = anOidcSub()
-                )
-
-                underTest.update(user)
-                    .shouldBeFailure(UserUpdateError.CannotChangeOidcSub)
-            }
-
-            @Test
-            fun `do not allow updating of created at as there is no requirement for this yet`() {
-                val user = givenUserExistsWith().copy(
-                    createdAt = Instant.now().plusSeconds(10)
-                )
-
-                underTest.update(user)
-                    .shouldBeFailure(UserUpdateError.CannotChangeCreatedAt)
-            }
-
-            @Test
-            fun `do not allow updating of updated at as there is no requirement for this yet`() {
-                val user = givenUserExistsWith().copy(
-                    updatedAt = Instant.now().plusSeconds(10)
-                )
-
-                underTest.update(user)
-                    .shouldBeFailure(UserUpdateError.CannotChangeUpdatedAt)
             }
 
             @Test
             fun `display name must be 255 characters or less`() {
                 val displayName = "A".repeat(256)
-                val user = givenUserExistsWith().copy(displayName = displayName)
+                val user = givenUserExistsWith()
 
-                underTest.update(user)
+                underTest.update(user.id, displayName)
                     .shouldBeFailure(UserUpdateError.DisplayNameTooLong(displayName))
             }
 

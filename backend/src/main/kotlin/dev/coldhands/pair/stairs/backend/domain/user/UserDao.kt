@@ -9,7 +9,7 @@ interface UserDao {
     fun findByOidcSub(oidcSub: OidcSub): User?
 
     fun create(userDetails: UserDetails): Result<User, UserCreateError>
-    fun update(user: User): Result<User, UserUpdateError>
+    fun update(userId: UserId, displayName: String): Result<User, UserUpdateError>
 }
 
 sealed class UserCreateError {
@@ -20,8 +20,5 @@ sealed class UserCreateError {
 
 sealed class UserUpdateError {
     data class UserNotFound(val userId: UserId) : UserUpdateError()
-    object CannotChangeOidcSub : UserUpdateError()
-    object CannotChangeCreatedAt : UserUpdateError()
-    object CannotChangeUpdatedAt : UserUpdateError()
     data class DisplayNameTooLong(val displayName: String) : UserUpdateError()
 }

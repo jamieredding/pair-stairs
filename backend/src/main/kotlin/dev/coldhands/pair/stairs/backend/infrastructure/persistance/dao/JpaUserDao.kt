@@ -49,21 +49,16 @@ class JpaUserDao(
         ).toDomain().asSuccess()
     }
 
-    // todo stop accepting user here and instead id and only allowed fields to update
-    override fun update(user: User): Result<User, UserUpdateError> {
-        val existingUser = userRepository.findById(user.id.value).getOrNull()
-            ?: return UserUpdateError.UserNotFound(user.id).asFailure()
-
-        if (existingUser.oidcSub != user.oidcSub.value) return UserUpdateError.CannotChangeOidcSub.asFailure()
-        if (existingUser.createdAt != user.createdAt.truncatedTo(precision)) return UserUpdateError.CannotChangeCreatedAt.asFailure()
-        if (existingUser.updatedAt != user.updatedAt.truncatedTo(precision)) return UserUpdateError.CannotChangeUpdatedAt.asFailure()
-
-        user.displayName.also {
+    override fun update(userId: UserId, displayName: String): Result<User, UserUpdateError> {
+        displayName.also {
             if (it.length > 255) return UserUpdateError.DisplayNameTooLong(it).asFailure()
         }
 
+        val existingUser = userRepository.findById(userId.value).getOrNull()
+            ?: return UserUpdateError.UserNotFound(userId).asFailure()
+
         val entityToUpdate = existingUser.apply {
-            this.displayName = user.displayName
+            this.displayName = displayName
             this.updatedAt = dateProvider.instant().truncatedTo(precision)
         }
 
