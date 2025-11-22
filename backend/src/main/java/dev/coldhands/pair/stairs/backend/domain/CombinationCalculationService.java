@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface CombinationCalculationService {
 
-    Page<ScoredCombination> calculate(List<Long> developerIds, List<Long> streamIds, int page, int pageSize);
+    Page<ScoredCombination> calculate(List<DeveloperId> developerIds, List<Long> streamIds, int page, int pageSize);
 }

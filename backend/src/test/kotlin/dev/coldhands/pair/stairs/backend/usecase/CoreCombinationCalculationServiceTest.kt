@@ -1,13 +1,11 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo
-import dev.coldhands.pair.stairs.backend.domain.PairStream
-import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
-import dev.coldhands.pair.stairs.backend.domain.StreamInfo
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
+import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.developer.Developer
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
+import dev.coldhands.pair.stairs.backend.toDeveloperIds
 import dev.coldhands.pair.stairs.core.domain.Combination
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamEntryPoint
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -25,17 +23,17 @@ import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream as CorePairSt
 class CoreCombinationCalculationServiceTest {
     private val entryPointFactory: EntryPointFactory = mockk()
     private val entryPoint: PairStreamEntryPoint = mockk()
-    private val developerRepository: DeveloperRepository = mockk()
+    private val developerDao: DeveloperDao = mockk() // todo use FakeDeveloperDao once it exists
     private val streamRepository: StreamRepository = mockk()
     private var underTest: CoreCombinationCalculationService =
-        CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+        CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
     @Test
     fun runCoreEntryPointUsingInput() {
-        every { developerRepository.findAllById(listOf(0L, 1L, 2L)) } returns listOf(
-            DeveloperEntity(0L, "dev-0", false),
-            DeveloperEntity(1L, "dev-1", false),
-            DeveloperEntity(2L, "dev-2", false)
+        every { developerDao.findAllById(listOf(0L, 1L, 2L).toDeveloperIds()) } returns listOf(
+            Developer(DeveloperId(0L), "dev-0", false),
+            Developer(DeveloperId(1L), "dev-1", false),
+            Developer(DeveloperId(2L), "dev-2", false)
         )
         every { streamRepository.findAllById(listOf(0L, 1L)) } returns listOf(
             StreamEntity(0L, "stream-a", false),
@@ -72,7 +70,7 @@ class CoreCombinationCalculationServiceTest {
         )
 
 
-        underTest.calculate(listOf(0L, 1L, 2L), listOf(0L, 1L), 0, 10).data shouldContainExactly listOf(
+        underTest.calculate(listOf(0L, 1L, 2L).toDeveloperIds(), listOf(0L, 1L), 0, 10).data shouldContainExactly listOf(
             ScoredCombination(
                 10,
                 listOf(
@@ -117,8 +115,8 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun onlyReturnFirstPageOfScoredCombinationsIfMoreThanPageSizeAreReturned() {
-            every { developerRepository.findAllById(listOf(0L)) } returns listOf(
-                DeveloperEntity(0L, "dev-0", false),
+            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
+                Developer(DeveloperId(0L), "dev-0", false),
             )
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
@@ -138,9 +136,9 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 2
             val requestedPage = 0
-            val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber shouldBe 1
                 }
@@ -152,8 +150,8 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun returnSecondPageOfScoredCombinationsWhenRequested() {
-            every { developerRepository.findAllById(listOf(0L)) } returns listOf(
-                DeveloperEntity(0L, "dev-0", false),
+            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
+                Developer(DeveloperId(0L), "dev-0", false),
             )
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
@@ -173,9 +171,9 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 2
             val requestedPage = 1
-            val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber.shouldBeNull()
                 }
@@ -187,8 +185,8 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun returnEmptyPageIfTooEarlyOfAPageRequested() {
-            every { developerRepository.findAllById(listOf(0L)) } returns listOf(
-                DeveloperEntity(0L, "dev-0", false),
+            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
+                Developer(DeveloperId(0L), "dev-0", false),
             )
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
@@ -207,9 +205,9 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 1
             val requestedPage = -1
-            val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber.shouldBeNull()
                 }
@@ -219,8 +217,8 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun returnEmptyPageIfTooLateOfAPageRequested() {
-            every { developerRepository.findAllById(listOf(0L)) } returns listOf(
-                DeveloperEntity(0L, "dev-0", false),
+            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
+                Developer(DeveloperId(0L), "dev-0", false),
             )
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
@@ -239,9 +237,9 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 1
             val requestedPage = 2
-            val underTest = CoreCombinationCalculationService(developerRepository, streamRepository, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber.shouldBeNull()
                 }

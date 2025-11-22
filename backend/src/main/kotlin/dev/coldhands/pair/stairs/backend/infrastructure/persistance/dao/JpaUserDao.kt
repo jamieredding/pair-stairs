@@ -49,6 +49,7 @@ class JpaUserDao(
         ).toDomain().asSuccess()
     }
 
+    // todo stop accepting user here and instead id and only allowed fields to update
     override fun update(user: User): Result<User, UserUpdateError> {
         val existingUser = userRepository.findById(user.id.value).getOrNull()
             ?: return UserUpdateError.UserNotFound(user.id).asFailure()

@@ -22,8 +22,10 @@ import java.util.stream.Stream;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 
+// todo make kotlin
 public class StatsService {
 
+    // todo use developerdao
     private final DeveloperRepository developerRepository;
     private final StreamRepository streamRepository;
     private final CombinationEventRepository combinationEventRepository;

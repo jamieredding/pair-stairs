@@ -2,7 +2,10 @@ package dev.coldhands.pair.stairs.backend.infrastructure.wiring;
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService;
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao;
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationEventRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.PairStreamRepository;
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;
 import dev.coldhands.pair.stairs.backend.usecase.BackendCombinationHistoryRepository;
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService;
 import dev.coldhands.pair.stairs.backend.usecase.CoreCombinationCalculationService;
@@ -14,7 +17,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CombinationConfig {
 
-    private final DeveloperRepository developerRepository;
     private final DeveloperDao developerDao;
     private final StreamRepository streamRepository;
     private final PairStreamRepository pairStreamRepository;
@@ -22,8 +24,7 @@ public class CombinationConfig {
     private final CombinationEventRepository combinationEventRepository;
 
     @Autowired
-    public CombinationConfig(DeveloperRepository developerRepository, DeveloperDao developerDao, StreamRepository streamRepository, PairStreamRepository pairStreamRepository, CombinationRepository combinationRepository, CombinationEventRepository combinationEventRepository) {
-        this.developerRepository = developerRepository;
+    public CombinationConfig(DeveloperDao developerDao, StreamRepository streamRepository, PairStreamRepository pairStreamRepository, CombinationRepository combinationRepository, CombinationEventRepository combinationEventRepository) {
         this.developerDao = developerDao;
         this.streamRepository = streamRepository;
         this.pairStreamRepository = pairStreamRepository;
@@ -33,7 +34,7 @@ public class CombinationConfig {
 
     @Bean
     public CombinationCalculationService combinationCalculationService() {
-        return new CoreCombinationCalculationService(developerRepository,
+        return new CoreCombinationCalculationService(developerDao,
                 streamRepository,
                 new EntryPointFactory(backendCombinationHistoryRepository()));
     }

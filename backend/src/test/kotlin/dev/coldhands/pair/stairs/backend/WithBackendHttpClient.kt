@@ -76,7 +76,7 @@ interface WithBackendHttpClient {
     }
 
     fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<Long>): List<ScoredCombination> {
-        val input = CalculateInputDto(developerIds.map { it.value }, streamIds)
+        val input = CalculateInputDto(developerIds, streamIds)
 
         val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
         val request = HttpEntity(OBJECT_MAPPER.writeValueAsString(input), headers)
@@ -93,7 +93,8 @@ interface WithBackendHttpClient {
         val combinationByIds: List<SaveCombinationEventDto.PairStreamByIds> =
             combination.map { ps ->
                 val developerIds = ps.developers().map(DeveloperInfo::id)
-                SaveCombinationEventDto.PairStreamByIds(developerIds, ps.stream().id())
+                // todo just use DeveloperId directly once DeveloperInfo is kotlin-ed
+                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, ps.stream().id())
             }
 
         val dto = SaveCombinationEventDto(date, combinationByIds)

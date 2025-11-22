@@ -40,7 +40,7 @@ import kotlin.random.Random
 @Transactional
 open class DeveloperControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
-    private val testEntityManager: TestEntityManager,
+    private val testEntityManager: TestEntityManager, //todo stop using entity manager once migrated from jpa
     private val objectMapper: ObjectMapper,
 ) {
 
