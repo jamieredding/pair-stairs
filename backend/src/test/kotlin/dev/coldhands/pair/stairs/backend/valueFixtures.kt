@@ -16,3 +16,4 @@ fun aDeveloperId() = DeveloperId(Random.nextLong())
 fun aSlug() = Slug((1..15).map { alphanumeric.random() }.joinToString(""))
 
 fun List<Long?>.toDeveloperIds(): List<DeveloperId> = filterNotNull().map { DeveloperId(it) }
+fun DeveloperId.asString(): String = value.toString()

@@ -1,13 +1,19 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.*
-import dev.coldhands.pair.stairs.backend.domain.developer.Developer
+import dev.coldhands.pair.stairs.backend.asString
+import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.PairStream
+import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
+import dev.coldhands.pair.stairs.backend.domain.StreamInfo
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDetails
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
-import dev.coldhands.pair.stairs.backend.toDeveloperIds
 import dev.coldhands.pair.stairs.core.domain.Combination
 import dev.coldhands.pair.stairs.core.usecases.pairstream.PairStreamEntryPoint
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -23,25 +29,27 @@ import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream as CorePairSt
 class CoreCombinationCalculationServiceTest {
     private val entryPointFactory: EntryPointFactory = mockk()
     private val entryPoint: PairStreamEntryPoint = mockk()
-    private val developerDao: DeveloperDao = mockk() // todo use FakeDeveloperDao once it exists
+    private val developerDao: DeveloperDao = FakeDeveloperDao()
     private val streamRepository: StreamRepository = mockk()
     private var underTest: CoreCombinationCalculationService =
         CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
     @Test
     fun runCoreEntryPointUsingInput() {
-        every { developerDao.findAllById(listOf(0L, 1L, 2L).toDeveloperIds()) } returns listOf(
-            Developer(DeveloperId(0L), "dev-0", false),
-            Developer(DeveloperId(1L), "dev-1", false),
-            Developer(DeveloperId(2L), "dev-2", false)
-        )
+        val developers = listOf(
+            DeveloperDetails("dev-0", false),
+            DeveloperDetails("dev-1", false),
+            DeveloperDetails("dev-2", false)
+        ).map { developerDao.create(it).shouldBeSuccess() }
+        val developerIds = developers.map { it.id }
+
         every { streamRepository.findAllById(listOf(0L, 1L)) } returns listOf(
             StreamEntity(0L, "stream-a", false),
             StreamEntity(1L, "stream-b", false)
         )
         every {
             entryPointFactory.create(
-                listOf("0", "1", "2"),
+                developerIds.map { it.asString() },
                 listOf("0", "1")
             )
         } returns entryPoint
@@ -50,8 +58,8 @@ class CoreCombinationCalculationServiceTest {
             CoreScoredCombination(
                 Combination(
                     setOf(
-                        CorePairStream(setOf("0", "1"), "0"),
-                        CorePairStream(setOf("2"), "1")
+                        CorePairStream(setOf(developerIds[0].asString(), developerIds[1].asString()), "0"),
+                        CorePairStream(setOf(developerIds[2].asString()), "1")
                     )
                 ),
                 10,
@@ -60,8 +68,8 @@ class CoreCombinationCalculationServiceTest {
             CoreScoredCombination(
                 Combination(
                     setOf(
-                        CorePairStream(setOf("0", "2"), "0"),
-                        CorePairStream(setOf("1"), "1")
+                        CorePairStream(setOf(developerIds[0].asString(), developerIds[2].asString()), "0"),
+                        CorePairStream(setOf(developerIds[1].asString()), "1")
                     )
                 ),
                 20,
@@ -70,20 +78,20 @@ class CoreCombinationCalculationServiceTest {
         )
 
 
-        underTest.calculate(listOf(0L, 1L, 2L).toDeveloperIds(), listOf(0L, 1L), 0, 10).data shouldContainExactly listOf(
+        underTest.calculate(developerIds, listOf(0L, 1L), 0, 10).data shouldContainExactly listOf(
             ScoredCombination(
                 10,
                 listOf(
                     PairStream(
                         listOf(
-                            DeveloperInfo(0, "dev-0", false),
-                            DeveloperInfo(1, "dev-1", false)
+                            developers[0].toInfo(),
+                            developers[1].toInfo(),
                         ),
                         StreamInfo(0, "stream-a", false)
                     ),
                     PairStream(
                         listOf(
-                            DeveloperInfo(2, "dev-2", false)
+                            developers[2].toInfo(),
                         ),
                         StreamInfo(1, "stream-b", false)
                     )
@@ -94,14 +102,14 @@ class CoreCombinationCalculationServiceTest {
                 listOf(
                     PairStream(
                         listOf(
-                            DeveloperInfo(0, "dev-0", false),
-                            DeveloperInfo(2, "dev-2", false)
+                            developers[0].toInfo(),
+                            developers[2].toInfo(),
                         ),
                         StreamInfo(0, "stream-a", false)
                     ),
                     PairStream(
                         listOf(
-                            DeveloperInfo(1, "dev-1", false)
+                            developers[1].toInfo(),
                         ),
                         StreamInfo(1, "stream-b", false)
                     )
@@ -115,30 +123,32 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun onlyReturnFirstPageOfScoredCombinationsIfMoreThanPageSizeAreReturned() {
-            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
-                Developer(DeveloperId(0L), "dev-0", false),
-            )
+            val developers = listOf(
+                DeveloperDetails("dev-0", false)
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
+
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
             )
             every {
                 entryPointFactory.create(
-                    listOf("0"),
+                    developerIds.map { it.asString() },
                     listOf("0")
                 )
             } returns entryPoint
 
             every { entryPoint.computeScoredCombinations() } returns listOf(
-                coreScoredCombinationWithScore(10),
-                coreScoredCombinationWithScore(20),
-                coreScoredCombinationWithScore(30)
+                coreScoredCombinationWithScore(10, developerIds[0]),
+                coreScoredCombinationWithScore(20, developerIds[0]),
+                coreScoredCombinationWithScore(30, developerIds[0])
             )
 
             val pageSize = 2
             val requestedPage = 0
             val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(developerIds, listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber shouldBe 1
                 }
@@ -150,30 +160,32 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun returnSecondPageOfScoredCombinationsWhenRequested() {
-            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
-                Developer(DeveloperId(0L), "dev-0", false),
-            )
+            val developers = listOf(
+                DeveloperDetails("dev-0", false)
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
+
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
             )
             every {
                 entryPointFactory.create(
-                    listOf("0"),
+                    developerIds.map { it.asString() },
                     listOf("0")
                 )
             } returns entryPoint
 
             every { entryPoint.computeScoredCombinations() } returns listOf(
-                coreScoredCombinationWithScore(10),
-                coreScoredCombinationWithScore(20),
-                coreScoredCombinationWithScore(30)
+                coreScoredCombinationWithScore(10, developerIds[0]),
+                coreScoredCombinationWithScore(20, developerIds[0]),
+                coreScoredCombinationWithScore(30, developerIds[0])
             )
 
             val pageSize = 2
             val requestedPage = 1
             val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(developerIds, listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber.shouldBeNull()
                 }
@@ -185,29 +197,30 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun returnEmptyPageIfTooEarlyOfAPageRequested() {
-            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
-                Developer(DeveloperId(0L), "dev-0", false),
-            )
+            val developers = listOf(
+                DeveloperDetails("dev-0", false)
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
             )
             every {
                 entryPointFactory.create(
-                    listOf("0"),
+                    developerIds.map { it.asString() },
                     listOf("0")
                 )
             } returns entryPoint
 
             every { entryPoint.computeScoredCombinations() } returns listOf(
-                coreScoredCombinationWithScore(10),
-                coreScoredCombinationWithScore(20),
+                coreScoredCombinationWithScore(10, developerIds[0]),
+                coreScoredCombinationWithScore(20, developerIds[0]),
             )
 
             val pageSize = 1
             val requestedPage = -1
             val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(developerIds, listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber.shouldBeNull()
                 }
@@ -217,29 +230,30 @@ class CoreCombinationCalculationServiceTest {
 
         @Test
         fun returnEmptyPageIfTooLateOfAPageRequested() {
-            every { developerDao.findAllById(listOf(0L).toDeveloperIds()) } returns listOf(
-                Developer(DeveloperId(0L), "dev-0", false),
-            )
+            val developers = listOf(
+                DeveloperDetails("dev-0", false)
+            ).map { developerDao.create(it).shouldBeSuccess() }
+            val developerIds = developers.map { it.id }
             every { streamRepository.findAllById(listOf(0L)) } returns listOf(
                 StreamEntity(0L, "stream-a", false),
             )
             every {
                 entryPointFactory.create(
-                    listOf("0"),
+                    developerIds.map { it.asString() },
                     listOf("0")
                 )
             } returns entryPoint
 
             every { entryPoint.computeScoredCombinations() } returns listOf(
-                coreScoredCombinationWithScore(10),
-                coreScoredCombinationWithScore(20),
+                coreScoredCombinationWithScore(10, developerIds[0]),
+                coreScoredCombinationWithScore(20, developerIds[0]),
             )
 
             val pageSize = 1
             val requestedPage = 2
             val underTest = CoreCombinationCalculationService(developerDao, streamRepository, entryPointFactory)
 
-            underTest.calculate(listOf(0L).toDeveloperIds(), listOf(0L), requestedPage, pageSize) should { page ->
+            underTest.calculate(developerIds, listOf(0L), requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
                     metadata.nextPageNumber.shouldBeNull()
                 }
@@ -249,11 +263,11 @@ class CoreCombinationCalculationServiceTest {
     }
 
     companion object {
-        private fun coreScoredCombinationWithScore(totalScore: Int): CoreScoredCombination<CorePairStream> {
+        private fun coreScoredCombinationWithScore(totalScore: Int, developerId: DeveloperId): CoreScoredCombination<CorePairStream> {
             return CoreScoredCombination(
                 Combination(
                     setOf(
-                        CorePairStream(setOf("0"), "0")
+                        CorePairStream(setOf(developerId.asString()), "0")
                     )
                 ),
                 totalScore,
