@@ -1,7 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller;
 
 import dev.coldhands.pair.stairs.backend.domain.StreamInfo;
-import dev.coldhands.pair.stairs.backend.domain.StreamStats;
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats;
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.StreamMapper;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity;
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository;

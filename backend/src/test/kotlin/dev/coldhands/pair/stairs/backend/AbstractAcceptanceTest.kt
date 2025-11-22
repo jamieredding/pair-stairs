@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import dev.coldhands.pair.stairs.backend.domain.*
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -90,11 +92,11 @@ abstract class AbstractAcceptanceTest(
         savedEvent.combination() shouldBe bestCombination.combination()
 
         val developerStats = getDeveloperStatsBetween(dev0Id, today, today)
-        developerStats.developerStats() shouldHaveSize 4
-        developerStats.streamStats() shouldHaveSize 2
+        developerStats.developerStats shouldHaveSize 4
+        developerStats.streamStats shouldHaveSize 2
 
         val streamStats = getStreamStatsBetween(streamAId, today, today)
-        streamStats.developerStats() shouldHaveSize 4
+        streamStats.developerStats shouldHaveSize 4
     }
 
     @Test

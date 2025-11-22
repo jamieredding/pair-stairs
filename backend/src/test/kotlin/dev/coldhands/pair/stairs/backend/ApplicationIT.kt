@@ -82,14 +82,14 @@ class ApplicationIT : WithBackendHttpClient {
         val combinationEventsAfterDelete: List<CombinationEvent> = getCombinationEvents()
         combinationEventsAfterDelete.shouldBeEmpty()
 
-        val developerStats: DeveloperStats = getDeveloperStatsBetween(dev0Id, today, today)
+        val developerStats = getDeveloperStatsBetween(dev0Id, today, today)
 
-        developerStats.developerStats() shouldHaveSize 4
-        developerStats.streamStats() shouldHaveSize 2
+        developerStats.developerStats shouldHaveSize 4
+        developerStats.streamStats shouldHaveSize 2
 
-        val streamStats: StreamStats = getStreamStatsBetween(streamAId, today, today)
+        val streamStats = getStreamStatsBetween(streamAId, today, today)
 
-        streamStats.developerStats() shouldHaveSize 4
+        streamStats.developerStats shouldHaveSize 4
     }
 
     @Nested

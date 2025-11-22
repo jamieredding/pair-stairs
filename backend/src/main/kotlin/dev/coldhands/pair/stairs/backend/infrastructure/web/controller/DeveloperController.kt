@@ -67,7 +67,7 @@ class DeveloperController(
 
         return developerDao.findById(id)
             ?.let { _ ->
-                if (requestedStartDate != null) {
+                if (requestedStartDate != null && requestedEndDate != null) {
                     statsService.getDeveloperStatsBetween(id.value, requestedStartDate, requestedEndDate)
                 } else {
                     statsService.getDeveloperStats(id.value)
