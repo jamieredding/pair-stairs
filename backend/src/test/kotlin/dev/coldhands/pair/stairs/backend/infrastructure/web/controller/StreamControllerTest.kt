@@ -1,12 +1,15 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import dev.coldhands.pair.stairs.backend.domain.Stream
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
+import dev.coldhands.pair.stairs.backend.aDeveloperDetails
+import dev.coldhands.pair.stairs.backend.aStreamDetails
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.stream.Stream
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
-import dev.coldhands.pair.stairs.backend.toDeveloperIds
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import jakarta.transaction.Transactional
 import org.junit.jupiter.api.Nested
@@ -18,7 +21,6 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
@@ -40,7 +42,8 @@ import kotlin.random.Random
 @Transactional
 open class StreamControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
-    private val testEntityManager: TestEntityManager,
+    private val streamDao: StreamDao,
+    private val developerDao: DeveloperDao,
     private val objectMapper: ObjectMapper,
 ) {
 
@@ -65,8 +68,8 @@ open class StreamControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleStreamsThenReturnThem() {
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-0")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-1")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-0")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-1")).shouldBeSuccess().id
 
             mockMvc.perform(get("/api/v1/streams"))
                 .andExpect(status().isOk())
@@ -75,12 +78,12 @@ open class StreamControllerTest @Autowired constructor(
                         """
                             [
                                 {
-                                    "id": ${stream0Id},
+                                    "id": ${stream0Id.value},
                                     "name": "stream-0",
                                     "archived": false
                                 },
                                 {
-                                    "id": ${stream1Id},
+                                    "id": ${stream1Id.value},
                                     "name": "stream-1",
                                     "archived": false
                                 }
@@ -102,8 +105,8 @@ open class StreamControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleStreamsThenReturnThem() {
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-0")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-1")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-0")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-1")).shouldBeSuccess().id
 
             mockMvc.perform(get("/api/v1/streams/info"))
                 .andExpect(status().isOk())
@@ -112,12 +115,12 @@ open class StreamControllerTest @Autowired constructor(
                         """
                             [
                                 {
-                                    "id": ${stream0Id},
+                                    "id": ${stream0Id.value},
                                     "displayName": "stream-0",
                                     "archived": false
                                 },
                                 {
-                                    "id": ${stream1Id},
+                                    "id": ${stream1Id.value},
                                     "displayName": "stream-1",
                                     "archived": false
                                 }
@@ -150,12 +153,12 @@ open class StreamControllerTest @Autowired constructor(
                 .andReturn()
 
             val stream = objectMapper.readValue(result.response.contentAsString, Stream::class.java)
-            val actualId = stream.id
 
-            val savedStream = testEntityManager.find(StreamEntity::class.java, actualId)
-
-            savedStream.id shouldBe actualId
-            savedStream.name shouldBe "stream-0"
+            streamDao.findById(stream.id).shouldNotBeNull {
+                id shouldBe stream.id
+                name shouldBe "stream-0"
+                archived shouldBe false
+            }
         }
     }
 
@@ -165,12 +168,12 @@ open class StreamControllerTest @Autowired constructor(
         @ParameterizedTest
         @ValueSource(booleans = [true, false])
         fun archived(newArchivedValue: Boolean) {
-            val stream = testEntityManager.persist(StreamEntity("stream-0"))
+            val stream = streamDao.create(aStreamDetails("stream-0")).shouldBeSuccess()
 
-            stream.isArchived shouldBe false
+            stream.archived shouldBe false
 
             val result = mockMvc.perform(
-                patch("/api/v1/streams/${stream.id}")
+                patch("/api/v1/streams/${stream.id.value}")
                     .contentType(APPLICATION_JSON)
                     .content(
                         """
@@ -188,11 +191,11 @@ open class StreamControllerTest @Autowired constructor(
 
             updatedStream.archived shouldBe newArchivedValue
 
-            val savedStream = testEntityManager.find(StreamEntity::class.java, stream.id)
-
-            savedStream.id shouldBe stream.id
-            savedStream.name shouldBe "stream-0"
-            savedStream.isArchived shouldBe newArchivedValue
+            streamDao.findById(stream.id).shouldNotBeNull {
+                id shouldBe stream.id
+                name shouldBe "stream-0"
+                archived shouldBe newArchivedValue
+            }
         }
 
         @Test
@@ -225,10 +228,10 @@ open class StreamControllerTest @Autowired constructor(
 
         @Test
         fun whenStreamExistsButNoPairsHaveHappenedThenReturnAllDevelopers() {
-            val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val streamAId = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
 
-            mockMvc.perform(get("/api/v1/streams/{id}/stats", streamAId))
+            mockMvc.perform(get("/api/v1/streams/{id}/stats", streamAId.value))
                 .andExpect(status().isOk())
                 .andExpect(
                     content().json(
@@ -237,7 +240,7 @@ open class StreamControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -252,34 +255,34 @@ open class StreamControllerTest @Autowired constructor(
 
         @Test
         fun whenStreamExistsAndHasBeenPairedOnThenReturnStatistics() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+            val dev3Id = developerDao.create(aDeveloperDetails("dev-3")).shouldBeSuccess().id
 
-            val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
-            val streamBId = testEntityManager.persist(StreamEntity("stream-b")).id
+            val streamAId = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val streamBId = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
+                    PairStreamByIds(listOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
 
-            mockMvc.perform(get("/api/v1/streams/{id}/stats", streamAId))
+            mockMvc.perform(get("/api/v1/streams/{id}/stats", streamAId.value))
                 .andExpect(status().isOk())
                 .andExpect(
                     content().json(
@@ -288,7 +291,7 @@ open class StreamControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -296,7 +299,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                   },
@@ -304,7 +307,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev2Id},
+                                    "id": ${dev2Id.value},
                                     "displayName": "dev-2",
                                     "archived": false
                                   },
@@ -312,7 +315,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev3Id},
+                                    "id": ${dev3Id.value},
                                     "displayName": "dev-3",
                                     "archived": false
                                   },
@@ -327,14 +330,14 @@ open class StreamControllerTest @Autowired constructor(
 
         @Test
         fun whenStreamExistsAndDevelopersButNoEventsHaveHappenedThenSortAlphabetically() {
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val dev3Id = developerDao.create(aDeveloperDetails("dev-3")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
 
-            val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
+            val streamAId = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
 
-            mockMvc.perform(get("/api/v1/streams/{id}/stats", streamAId))
+            mockMvc.perform(get("/api/v1/streams/{id}/stats", streamAId.value))
                 .andExpect(status().isOk())
                 .andExpect(
                     content().json(
@@ -343,7 +346,7 @@ open class StreamControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                   },
@@ -351,7 +354,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev2Id},
+                                    "id": ${dev2Id.value},
                                     "displayName": "dev-2",
                                     "archived": false
                                   },
@@ -359,7 +362,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev3Id},
+                                    "id": ${dev3Id.value},
                                     "displayName": "dev-3",
                                     "archived": false
                                   },
@@ -367,7 +370,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -382,41 +385,41 @@ open class StreamControllerTest @Autowired constructor(
 
         @Test
         fun allowsFilteringByDateRange() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+            val dev3Id = developerDao.create(aDeveloperDetails("dev-3")).shouldBeSuccess().id
 
-            val streamAId = testEntityManager.persist(StreamEntity("stream-a")).id
-            val streamBId = testEntityManager.persist(StreamEntity("stream-b")).id
+            val streamAId = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val streamBId = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
+                    PairStreamByIds(listOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
+                    PairStreamByIds(listOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 8), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), streamAId),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), streamBId)
+                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
+                    PairStreamByIds(listOf(dev1Id), streamBId)
                 )
             )
 
             mockMvc.perform(
-                get("/api/v1/streams/{id}/stats", streamAId)
+                get("/api/v1/streams/{id}/stats", streamAId.value)
                     .queryParam("startDate", "2024-05-06")
                     .queryParam("endDate", "2024-05-07")
             )
@@ -428,7 +431,7 @@ open class StreamControllerTest @Autowired constructor(
                               "developerStats": [
                                 {
                                   "developer": {
-                                    "id": ${dev0Id},
+                                    "id": ${dev0Id.value},
                                     "displayName": "dev-0",
                                     "archived": false
                                   },
@@ -436,7 +439,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev1Id},
+                                    "id": ${dev1Id.value},
                                     "displayName": "dev-1",
                                     "archived": false
                                   },
@@ -444,7 +447,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev2Id},
+                                    "id": ${dev2Id.value},
                                     "displayName": "dev-2",
                                     "archived": false
                                   },
@@ -452,7 +455,7 @@ open class StreamControllerTest @Autowired constructor(
                                 },
                                 {
                                   "developer": {
-                                    "id": ${dev3Id},
+                                    "id": ${dev3Id.value},
                                     "displayName": "dev-3",
                                     "archived": false
                                   },
@@ -471,7 +474,7 @@ open class StreamControllerTest @Autowired constructor(
             testName: String,
             builder: (MockHttpServletRequestBuilder) -> MockHttpServletRequestBuilder
         ) {
-            mockMvc.perform(builder.invoke(get("/api/v1/streams/1/stats"))!!)
+            mockMvc.perform(builder.invoke(get("/api/v1/streams/1/stats")))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(""))
         }

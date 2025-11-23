@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend
 import dev.coldhands.pair.stairs.backend.domain.CombinationEvent
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
+import dev.coldhands.pair.stairs.backend.domain.StreamId
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Disabled
@@ -38,7 +39,7 @@ class DatabaseSizeTestIT : WithBackendHttpClient {
             ),
         )
 
-        val streamsToIncludeInCombinations: List<Long> = getStreamIdsFor(
+        val streamsToIncludeInCombinations: List<StreamId> = getStreamIdsFor(
             listOf(
                 "stream-a",
                 "stream-b",

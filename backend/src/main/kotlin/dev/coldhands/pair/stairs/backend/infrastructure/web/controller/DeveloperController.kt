@@ -1,10 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
-import dev.coldhands.pair.stairs.backend.domain.developer.Developer
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDetails
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperUpdateError
+import dev.coldhands.pair.stairs.backend.domain.developer.*
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.PatchDeveloperDto
 import dev.coldhands.pair.stairs.backend.usecase.StatsService
@@ -42,7 +39,7 @@ class DeveloperController(
     fun updateDeveloper(
         @RequestBody dto: PatchDeveloperDto,
         @PathVariable("id") id: DeveloperId
-    ): ResponseEntity<*> =
+    ): ResponseEntity<out Developer> =
         developerDao.update(developerId = id, archived = dto.archived)
             .map { updatedDeveloper -> ResponseEntity.ok(updatedDeveloper) }
             .mapFailure {
@@ -57,7 +54,7 @@ class DeveloperController(
         @PathVariable("id") id: DeveloperId,
         @RequestParam("startDate") requestedStartDate: LocalDate?,
         @RequestParam("endDate") requestedEndDate: LocalDate?
-    ): ResponseEntity<*> {
+    ): ResponseEntity<out DeveloperStats> {
         if ((requestedStartDate != null && requestedEndDate == null) ||
             (requestedStartDate == null && requestedEndDate != null) ||
             (requestedStartDate != null && requestedStartDate.isAfter(requestedEndDate))

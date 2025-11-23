@@ -1,22 +1,19 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.CombinationCalculationService
-import dev.coldhands.pair.stairs.backend.domain.DeveloperId
-import dev.coldhands.pair.stairs.backend.domain.Page
-import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
+import dev.coldhands.pair.stairs.backend.domain.*
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.ScoredCombinationMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
 
 class CoreCombinationCalculationService(
     private val developerDao: DeveloperDao,
-    private val streamRepository: StreamRepository,
+    private val streamDao: StreamDao,
     private val entryPointFactory: EntryPointFactory
 ) : CombinationCalculationService {
     override fun calculate(
         developerIds: List<DeveloperId>,
-        streamIds: List<Long>,
+        streamIds: List<StreamId>,
         page: Int,
         pageSize: Int
     ): Page<ScoredCombination> {
@@ -24,13 +21,13 @@ class CoreCombinationCalculationService(
 
         val entryPoint = entryPointFactory.create(
             developerIds.map { it.value.toString() },
-            streamIds.map { it.toString() }
+            streamIds.map { it.value.toString() }
         )
 
         val scoredCombinations = entryPoint.computeScoredCombinations()
 
         val developerLookup = developerDao.findAllById(developerIds).associateBy { it.id }
-        val streamLookup = streamRepository.findAllById(streamIds).associateBy { it.id }
+        val streamLookup = streamDao.findAllById(streamIds).associateBy { it.id }
 
         val pages = scoredCombinations.windowed(size = pageSize, step = pageSize, partialWindows = true)
 
@@ -49,7 +46,7 @@ class CoreCombinationCalculationService(
                     ScoredCombinationMapper.coreToDomain(
                         sc,
                         { id -> developerLookup[DeveloperId(id)]?.toEntity() ?: error("Developer not found") },
-                        streamLookup::get
+                        {id -> streamLookup[StreamId(id)]?.toEntity() ?: error("Stream not found") },
                     )
                 }
         )

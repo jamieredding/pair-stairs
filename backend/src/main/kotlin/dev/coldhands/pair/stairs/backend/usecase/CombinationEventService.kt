@@ -2,15 +2,17 @@ package dev.coldhands.pair.stairs.backend.usecase
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationEvent
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.StreamId
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.stream.Stream
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationEventMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.*
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationEventRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.PairStreamRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.data.domain.PageRequest
@@ -19,7 +21,7 @@ import java.time.LocalDate
 
 class CombinationEventService(
     private val developerDao: DeveloperDao,
-    private val streamRepository: StreamRepository,
+    private val streamDao: StreamDao,
     private val pairStreamRepository: PairStreamRepository,
     private val combinationRepository: CombinationRepository,
     private val combinationEventRepository: CombinationEventRepository,
@@ -38,7 +40,7 @@ class CombinationEventService(
         val streamIds = combinationByIds.map { it.streamId }
 
         val developersById = developerDao.findAllById(developerIds).associateBy { it.id }
-        val streamsById = streamRepository.findAllById(streamIds).associateBy { it.id }
+        val streamsById = streamDao.findAllById(streamIds).associateBy { it.id }
 
         val pairStreamEntities = combinationByIds.map { findOrCreatePairStreamEntity(it, developersById, streamsById) }
         val combination = findOrCreateCombinationEntity(pairStreamEntities)
@@ -56,11 +58,11 @@ class CombinationEventService(
     private fun findOrCreatePairStreamEntity(
         ids: SaveCombinationEventDto.PairStreamByIds,
         developersById: Map<DeveloperId, Developer>,
-        streamsById: Map<Long, StreamEntity>
+        streamsById: Map<StreamId, Stream>
     ): PairStreamEntity {
         val developerEntities: List<DeveloperEntity> =
             ids.developerIds().map { developersById[it]?.toEntity() ?: error("Developer not found") }
-        val streamEntity: StreamEntity = streamsById[ids.streamId()] ?: error("Stream not found")
+        val streamEntity: StreamEntity = streamsById[ids.streamId()]?.toEntity() ?: error("Stream not found")
 
         return pairStreamRepository.findByDevelopersAndStream(
             ids.developerIds().map { it.value },

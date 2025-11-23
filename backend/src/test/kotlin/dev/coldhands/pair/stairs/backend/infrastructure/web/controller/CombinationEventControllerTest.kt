@@ -1,13 +1,15 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
+import dev.coldhands.pair.stairs.backend.aDeveloperDetails
+import dev.coldhands.pair.stairs.backend.aStreamDetails
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEventEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
-import dev.coldhands.pair.stairs.backend.toDeveloperIds
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
 import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -46,6 +48,8 @@ import java.time.LocalDate
 )
 open class CombinationEventControllerTest @Autowired constructor(
     private val mockMvc: MockMvc,
+    private val developerDao: DeveloperDao,
+    private val streamDao: StreamDao,
     private val testEntityManager: TestEntityManager,
     private val service: CombinationEventService,
 ) {
@@ -72,25 +76,25 @@ open class CombinationEventControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleEventsThenReturnThemInDescendingOrder() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), stream0Id),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), stream1Id),
+                    PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
+                    PairStreamByIds(listOf(dev2Id), stream1Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 6),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), stream0Id),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), stream1Id),
+                    PairStreamByIds(listOf(dev0Id, dev2Id), stream0Id),
+                    PairStreamByIds(listOf(dev1Id), stream1Id),
                 ),
             )
 
@@ -111,28 +115,28 @@ open class CombinationEventControllerTest @Autowired constructor(
                                 "developers": [
                                   {
                                     "displayName": "dev-0",
-                                    "id": $dev0Id
+                                    "id": ${dev0Id.value}
                                   },
                                   {
                                     "displayName": "dev-2",
-                                    "id": $dev2Id
+                                    "id": ${dev2Id.value}
                                   }
                                 ],
                                 "stream": {
                                   "displayName": "stream-a",
-                                  "id": $stream0Id
+                                  "id": ${stream0Id.value}
                                 }
                               },
                               {
                                 "developers": [
                                   {
                                     "displayName": "dev-1",
-                                    "id": $dev1Id
+                                    "id": ${dev1Id.value}
                                   }
                                 ],
                                 "stream": {
                                   "displayName": "stream-b",
-                                  "id": $stream1Id
+                                  "id": ${stream1Id.value}
                                 }
                               }
                             ]
@@ -145,28 +149,28 @@ open class CombinationEventControllerTest @Autowired constructor(
                                 "developers": [
                                   {
                                     "displayName": "dev-0",
-                                    "id": $dev0Id
+                                    "id": ${dev0Id.value}
                                   },
                                   {
                                     "displayName": "dev-1",
-                                    "id": $dev1Id
+                                    "id": ${dev1Id.value}
                                   }
                                 ],
                                 "stream": {
                                   "displayName": "stream-a",
-                                  "id": $stream0Id
+                                  "id": ${stream0Id.value}
                                 }
                               },
                               {
                                 "developers": [
                                   {
                                     "displayName": "dev-2",
-                                    "id": $dev2Id
+                                    "id": ${dev2Id.value}
                                   }
                                 ],
                                 "stream": {
                                   "displayName": "stream-b",
-                                  "id": $stream1Id
+                                  "id": ${stream1Id.value}
                                 }
                               }
                             ]
@@ -179,32 +183,32 @@ open class CombinationEventControllerTest @Autowired constructor(
 
         @Test
         fun whenMultipleEventsThenReturnPage1() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), stream0Id),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), stream1Id),
+                    PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
+                    PairStreamByIds(listOf(dev2Id), stream1Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 6),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id).toDeveloperIds(), stream0Id),
-                    PairStreamByIds(listOf(dev1Id).toDeveloperIds(), stream1Id),
+                    PairStreamByIds(listOf(dev0Id, dev2Id), stream0Id),
+                    PairStreamByIds(listOf(dev1Id), stream1Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 7),
                 listOf(
-                    PairStreamByIds(listOf(dev1Id, dev2Id).toDeveloperIds(), stream0Id),
-                    PairStreamByIds(listOf(dev0Id).toDeveloperIds(), stream1Id),
+                    PairStreamByIds(listOf(dev1Id, dev2Id), stream0Id),
+                    PairStreamByIds(listOf(dev0Id), stream1Id),
                 ),
             )
 
@@ -227,28 +231,28 @@ open class CombinationEventControllerTest @Autowired constructor(
                                 "developers": [
                                   {
                                     "displayName": "dev-0",
-                                    "id": $dev0Id
+                                    "id": ${dev0Id.value}
                                   },
                                   {
                                     "displayName": "dev-1",
-                                    "id": $dev1Id
+                                    "id": ${dev1Id.value}
                                   }
                                 ],
                                 "stream": {
                                   "displayName": "stream-a",
-                                  "id": $stream0Id
+                                  "id": ${stream0Id.value}
                                 }
                               },
                               {
                                 "developers": [
                                   {
                                     "displayName": "dev-2",
-                                    "id": $dev2Id
+                                    "id": ${dev2Id.value}
                                   }
                                 ],
                                 "stream": {
                                   "displayName": "stream-b",
-                                  "id": $stream1Id
+                                  "id": ${stream1Id.value}
                                 }
                               }
                             ]
@@ -265,12 +269,12 @@ open class CombinationEventControllerTest @Autowired constructor(
 
         @Test
         fun saveACombinationEvent() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             mockMvc.perform(
                 post("/api/v1/combinations/event")
@@ -281,12 +285,12 @@ open class CombinationEventControllerTest @Autowired constructor(
                           "date": "2024-04-27",
                           "combination": [
                             {
-                              "developerIds": [$dev0Id, $dev1Id],
-                              "streamId": $stream0Id
+                              "developerIds": [${dev0Id.value}, ${dev1Id.value}],
+                              "streamId": ${stream0Id.value}
                             },
                             {
-                              "developerIds": [$dev2Id],
-                              "streamId": $stream1Id
+                              "developerIds": [${dev2Id.value}],
+                              "streamId": ${stream1Id.value}
                             }
                           ]
                         }
@@ -317,13 +321,13 @@ open class CombinationEventControllerTest @Autowired constructor(
 
         @Test
         fun saveEventWithSoloMemberWhoWasNotSoloPreviously() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
-            val dev3Id = testEntityManager.persist(DeveloperEntity("dev-3")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+            val dev3Id = developerDao.create(aDeveloperDetails("dev-3")).shouldBeSuccess().id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             mockMvc.perform(
                 post("/api/v1/combinations/event")
@@ -334,12 +338,12 @@ open class CombinationEventControllerTest @Autowired constructor(
                           "date": "2024-04-27",
                           "combination": [
                             {
-                              "developerIds": [$dev0Id, $dev1Id],
-                              "streamId": $stream0Id
+                              "developerIds": [${dev0Id.value}, ${dev1Id.value}],
+                              "streamId": ${stream0Id.value}
                             },
                             {
-                              "developerIds": [$dev2Id, $dev3Id],
-                              "streamId": $stream1Id
+                              "developerIds": [${dev2Id.value}, ${dev3Id.value}],
+                              "streamId": ${stream1Id.value}
                             }
                           ]
                         }
@@ -357,12 +361,12 @@ open class CombinationEventControllerTest @Autowired constructor(
                           "date": "2024-04-28",
                           "combination": [
                             {
-                              "developerIds": [$dev0Id, $dev1Id],
-                              "streamId": $stream0Id
+                              "developerIds": [${dev0Id.value}, ${dev1Id.value}],
+                              "streamId": ${stream0Id.value}
                             },
                             {
-                              "developerIds": [$dev2Id],
-                              "streamId": $stream1Id
+                              "developerIds": [${dev2Id.value}],
+                              "streamId": ${stream1Id.value}
                             }
                           ]
                         }
@@ -397,18 +401,18 @@ open class CombinationEventControllerTest @Autowired constructor(
 
         @Test
         fun deleteACombinationEvent() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
 
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id).toDeveloperIds(), stream0Id),
-                    PairStreamByIds(listOf(dev2Id).toDeveloperIds(), stream1Id),
+                    PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
+                    PairStreamByIds(listOf(dev2Id), stream1Id),
                 ),
             )
 

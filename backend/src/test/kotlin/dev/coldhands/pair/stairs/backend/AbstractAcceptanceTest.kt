@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.coldhands.pair.stairs.backend.domain.*
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
+import dev.coldhands.pair.stairs.backend.domain.stream.Stream
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
@@ -170,7 +171,7 @@ abstract class AbstractAcceptanceTest(
             .map(Developer::id)
     }
 
-    private fun createStream(streamName: String): Long {
+    private fun createStream(streamName: String): StreamId {
         val result = mockMvc.perform(
             post("/api/v1/streams")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -187,10 +188,10 @@ abstract class AbstractAcceptanceTest(
 
         val responseBody = result.response.contentAsString
         val stream: Stream = objectMapper.readValue(responseBody)
-        return stream.id()
+        return stream.id
     }
 
-    private fun getStreamIdsFor(streamNames: List<String>): List<Long> {
+    private fun getStreamIdsFor(streamNames: List<String>): List<StreamId> {
         val responseBody = mockMvc.perform(get("/api/v1/streams"))
             .andExpect(status().isOk)
             .andReturn()
@@ -200,11 +201,11 @@ abstract class AbstractAcceptanceTest(
         val streams: List<Stream> = objectMapper.readValue(responseBody)
 
         return streams
-            .filter { it.name() in streamNames }
+            .filter { it.name in streamNames }
             .map(Stream::id)
     }
 
-    private fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<Long>): List<ScoredCombination> {
+    private fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<StreamId>): List<ScoredCombination> {
         val input = CalculateInputDto(developerIds, streamIds)
 
         val responseBody = mockMvc.perform(
@@ -225,7 +226,7 @@ abstract class AbstractAcceptanceTest(
             combination.map { ps ->
                 val developerIds = ps.developers().map(DeveloperInfo::id)
                 // todo just use DeveloperId directly once DeveloperInfo is kotlin-ed
-                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, ps.stream().id())
+                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, StreamId(ps.stream().id()))
             }
 
         val dto = SaveCombinationEventDto(date, combinationByIds)
@@ -272,12 +273,12 @@ abstract class AbstractAcceptanceTest(
     }
 
     private fun getStreamStatsBetween(
-        streamId: Long,
+        streamId: StreamId,
         startDate: LocalDate,
         endDate: LocalDate
     ): StreamStats {
         val responseBody = mockMvc.perform(
-            get("/api/v1/streams/{id}/stats", streamId)
+            get("/api/v1/streams/{id}/stats", streamId.value)
                 .queryParam("startDate", startDate.format(DateTimeFormatter.ISO_DATE))
                 .queryParam("endDate", endDate.format(DateTimeFormatter.ISO_DATE))
         )

@@ -8,6 +8,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import dev.coldhands.pair.stairs.backend.domain.*
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
+import dev.coldhands.pair.stairs.backend.domain.stream.Stream
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
@@ -49,7 +50,7 @@ interface WithBackendHttpClient {
             .map(Developer::id)
     }
 
-    fun createStream(streamName: String): Long {
+    fun createStream(streamName: String): StreamId {
         val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
         val payload = """
             {
@@ -65,7 +66,7 @@ interface WithBackendHttpClient {
         return response.body!!.id
     }
 
-    fun getStreamIdsFor(streamNames: List<String>): List<Long> {
+    fun getStreamIdsFor(streamNames: List<String>): List<StreamId> {
         val response: ResponseEntity<String> =
             REST_TEMPLATE.getForEntity("$BASE_URL/api/v1/streams", String::class.java)
 
@@ -73,11 +74,11 @@ interface WithBackendHttpClient {
 
         val streams: List<Stream> = OBJECT_MAPPER.readValue(response.body!!)
         return streams
-            .filter { it.name() in streamNames }
+            .filter { it.name in streamNames }
             .map(Stream::id)
     }
 
-    fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<Long>): List<ScoredCombination> {
+    fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<StreamId>): List<ScoredCombination> {
         val input = CalculateInputDto(developerIds, streamIds)
 
         val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
@@ -96,7 +97,7 @@ interface WithBackendHttpClient {
             combination.map { ps ->
                 val developerIds = ps.developers().map(DeveloperInfo::id)
                 // todo just use DeveloperId directly once DeveloperInfo is kotlin-ed
-                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, ps.stream().id())
+                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, StreamId(ps.stream().id()))
             }
 
         val dto = SaveCombinationEventDto(date, combinationByIds)
@@ -137,9 +138,9 @@ interface WithBackendHttpClient {
         return OBJECT_MAPPER.readValue(response.body!!)
     }
 
-    fun getStreamStatsBetween(streamId: Long, startDate: LocalDate, endDate: LocalDate): StreamStats {
+    fun getStreamStatsBetween(streamId: StreamId, startDate: LocalDate, endDate: LocalDate): StreamStats {
         val url =
-            "$BASE_URL/api/v1/streams/$streamId/stats?startDate=${startDate.format(ISO_DATE)}&endDate=${endDate.format(ISO_DATE)}"
+            "$BASE_URL/api/v1/streams/${streamId.value}/stats?startDate=${startDate.format(ISO_DATE)}&endDate=${endDate.format(ISO_DATE)}"
 
         val response: ResponseEntity<String> = REST_TEMPLATE.getForEntity(url, String::class.java)
 

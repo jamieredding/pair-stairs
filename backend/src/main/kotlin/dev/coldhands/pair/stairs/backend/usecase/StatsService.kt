@@ -6,6 +6,7 @@ import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
 import dev.coldhands.pair.stairs.backend.domain.developer.RelatedDeveloperStats
 import dev.coldhands.pair.stairs.backend.domain.stream.RelatedStreamStats
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.StreamMapper
@@ -14,12 +15,11 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.Combi
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationEventRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.StreamRepository
 import java.time.LocalDate
 
 class StatsService(
     private val developerDao: DeveloperDao,
-    private val streamRepository: StreamRepository,
+    private val streamDao: StreamDao,
     private val combinationEventRepository: CombinationEventRepository,
 ) {
 
@@ -108,8 +108,8 @@ class StatsService(
     private fun getRelatedStreamStats(
         pairStreamsWithDeveloper: List<PairStreamEntity>,
     ): List<RelatedStreamStats> {
-        val allStreams: List<StreamInfo> = streamRepository.findAll()
-            .map(StreamMapper::entityToInfo)
+        val allStreams: List<StreamInfo> = streamDao.findAll()
+            .map { it.toInfo() }
 
         val streamCounts: MutableMap<StreamInfo, Long> = pairStreamsWithDeveloper
             .map { it.stream }

@@ -2,17 +2,12 @@ package dev.coldhands.pair.stairs.backend.infrastructure.wiring
 
 import dev.coldhands.pair.stairs.backend.domain.DateProvider
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipDao
 import dev.coldhands.pair.stairs.backend.domain.user.UserDao
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaDeveloperDao
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaTeamDao
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaTeamMembershipDao
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.JpaUserDao
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.DeveloperRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamMembershipRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.TeamRepository
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.UserRepository
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.*
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import java.time.temporal.ChronoUnit
@@ -40,4 +35,8 @@ open class DaoConfig {
     @Bean
     open fun developerDao(developerRepository: DeveloperRepository): DeveloperDao =
         JpaDeveloperDao(developerRepository = developerRepository)
+
+    @Bean
+    open fun streamDao(streamRepository: StreamRepository): StreamDao =
+        JpaStreamDao(streamRepository = streamRepository)
 }
