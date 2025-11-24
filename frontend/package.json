@@ -20,7 +20,7 @@
     "@mui/x-date-pickers": "^8.9.2",
     "@tanstack/react-devtools": "^0.8.0",
     "@tanstack/react-form": "^1.23.0",
-    "@tanstack/react-form-devtools": "^0.1.0",
+    "@tanstack/react-form-devtools": "^0.2.0",
     "@tanstack/react-router": "^1.139.3",
     "@tanstack/react-router-devtools": "^1.139.3",
     "date-fns": "^4.1.0",
