@@ -20,7 +20,9 @@ class CombinationEventMapperTest {
 
         @Test
         void canMapAndSortDependenciesAlphabetically() {
-            CombinationEventEntity entity = new CombinationEventEntity(LocalDate.of(2024, 5, 6),
+            CombinationEventEntity entity = new CombinationEventEntity(
+                    1L,
+                    LocalDate.of(2024, 5, 6),
                     new CombinationEntity(List.of(
                             new PairStreamEntity(
                                     List.of(new DeveloperEntity(0L, "b", false), new DeveloperEntity(1L, "a", false)),
@@ -32,7 +34,6 @@ class CombinationEventMapperTest {
                             )
 
                     )));
-            entity.setId(1L);
 
             assertThat(CombinationEventMapper.entityToDomain(entity)).isEqualTo(
                     new CombinationEvent(1L,

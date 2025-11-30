@@ -42,7 +42,7 @@ abstract class TeamDaoCdc<T : TeamDao> {
         }
 
         @Test
-        fun `should find team by slug when team exists`() {
+        fun `should find team by id when team exists`() {
             val teamDetails = someTeamDetails()
             val team = createTeam(teamDetails)
 

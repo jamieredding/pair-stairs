@@ -10,6 +10,8 @@ value class TeamMembershipId(val value: Long)
 value class DeveloperId(val value: Long)
 @JvmInline
 value class StreamId(val value: Long)
+@JvmInline
+value class CombinationEventId(val value: Long)
 
 @JvmInline
 value class OidcSub(val value: String)

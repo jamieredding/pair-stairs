@@ -30,7 +30,7 @@ import org.springframework.transaction.support.TransactionTemplate
 @DataJpaTest
 @TestPropertySource(
     properties = [
-        "spring.datasource.url=jdbc:h2:mem:AJpaTeamMembershipDaoTest;DB_CLOSE_DELAY=-1"
+        "spring.datasource.url=jdbc:h2:mem:JpaTeamMembershipDaoTest;DB_CLOSE_DELAY=-1"
     ]
 )
 open class JpaTeamMembershipDaoTest @Autowired constructor(

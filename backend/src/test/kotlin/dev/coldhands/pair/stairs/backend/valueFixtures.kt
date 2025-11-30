@@ -15,6 +15,7 @@ fun aTeamId() = TeamId(Random.nextLong())
 fun aTeamMembershipId() = TeamMembershipId(Random.nextLong())
 fun aDeveloperId() = DeveloperId(Random.nextLong())
 fun aStreamId() = StreamId(Random.nextLong())
+fun aCombinationEventId() = CombinationEventId(Random.nextLong())
 
 fun aSlug() = Slug((1..15).map { alphanumeric.random() }.joinToString(""))
 

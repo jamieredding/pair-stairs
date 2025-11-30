@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+// todo introduce dao
 public interface PairStreamRepository extends JpaRepository<PairStreamEntity, Long> {
 
     @Query("SELECT p FROM PairStreamEntity p JOIN p.developers d WHERE p.stream = :stream AND d.id IN :developerIds GROUP BY p HAVING COUNT(d) = :count AND (SELECT COUNT(d2) FROM PairStreamEntity p2 JOIN p2.developers d2 WHERE p2 = p) = :count")

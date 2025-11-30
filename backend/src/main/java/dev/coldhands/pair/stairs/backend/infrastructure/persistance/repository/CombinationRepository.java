@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
+// todo introduce dao
 public interface CombinationRepository extends JpaRepository<CombinationEntity, Long> {
 
     @Query("SELECT c FROM CombinationEntity c WHERE :count = " +

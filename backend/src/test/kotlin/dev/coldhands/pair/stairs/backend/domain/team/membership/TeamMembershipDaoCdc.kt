@@ -10,6 +10,7 @@ import dev.coldhands.pair.stairs.backend.domain.UserId
 import dev.coldhands.pair.stairs.backend.domain.team.Team
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDaoCdc.TestFixtures.someTeamDetails
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
+import dev.coldhands.pair.stairs.backend.domain.team.membership.TeamMembershipCreateError.*
 import dev.coldhands.pair.stairs.backend.domain.user.User
 import dev.coldhands.pair.stairs.backend.domain.user.UserDaoCdc.TestFixtures.someUserDetails
 import dev.coldhands.pair.stairs.backend.domain.user.UserDetails
@@ -103,10 +104,12 @@ abstract class TeamMembershipDaoCdc<T : TeamMembershipDao> {
                     teamId = team.id,
                 )
             ).shouldBeSuccess()
-            val teamMembership2 = underTest.create(someTeamMembershipDetails(
-                userId = user2.id,
-                teamId = team.id,
-            )).shouldBeSuccess()
+            val teamMembership2 = underTest.create(
+                someTeamMembershipDetails(
+                    userId = user2.id,
+                    teamId = team.id,
+                )
+            ).shouldBeSuccess()
 
             teamMembership1.id shouldNotBe teamMembership2.id
             teamMembership2.id.value shouldBeGreaterThan teamMembership1.id.value
@@ -168,7 +171,8 @@ abstract class TeamMembershipDaoCdc<T : TeamMembershipDao> {
 
                 assertNoTeamExistsWithId(teamMembershipDetails.teamId)
 
-                underTest.create(teamMembershipDetails).shouldBeFailure()
+                underTest.create(teamMembershipDetails)
+                    .shouldBeFailure(TeamNotFoundError(teamMembershipDetails.teamId))
 
                 assertNoTeamMembershipExistsForUserId(teamMembershipDetails.userId)
             }
@@ -183,7 +187,8 @@ abstract class TeamMembershipDaoCdc<T : TeamMembershipDao> {
 
                 assertNoUserExistsWithId(teamMembershipDetails.userId)
 
-                underTest.create(teamMembershipDetails).shouldBeFailure()
+                underTest.create(teamMembershipDetails)
+                    .shouldBeFailure(UserNotFoundError(teamMembershipDetails.userId))
 
                 assertNoTeamMembershipExistsForTeamId(teamMembershipDetails.teamId)
             }
@@ -201,7 +206,7 @@ abstract class TeamMembershipDaoCdc<T : TeamMembershipDao> {
                 )
 
                 underTest.create(teamMembershipDetails)
-                    .shouldBeFailure()
+                    .shouldBeFailure(DisplayNameTooLongError(displayName))
 
                 assertNoTeamMembershipExistsForUserId(teamMembershipDetails.userId)
             }

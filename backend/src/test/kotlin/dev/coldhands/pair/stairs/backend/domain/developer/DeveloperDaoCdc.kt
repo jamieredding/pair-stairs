@@ -225,9 +225,12 @@ abstract class DeveloperDaoCdc<T : DeveloperDao> {
     abstract fun createDeveloper(developerDetails: DeveloperDetails): Developer
 
     companion object TestFixtures {
-        fun someDeveloperDetails() = DeveloperDetails(
-            name = "some-name",
-            archived = false,
+        fun someDeveloperDetails(
+            name: String = "some-name",
+            archived: Boolean = false
+        ) = DeveloperDetails(
+            name = name,
+            archived = archived,
         )
     }
 }

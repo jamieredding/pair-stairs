@@ -225,9 +225,12 @@ abstract class StreamDaoCdc<T : StreamDao> {
     abstract fun createStream(streamDetails: StreamDetails): Stream
 
     companion object TestFixtures {
-        fun someStreamDetails() = StreamDetails(
-            name = "some-name",
-            archived = false,
+        fun someStreamDetails(
+            name: String = "some-name",
+            archived: Boolean = false
+        ) = StreamDetails(
+            name = name,
+            archived = archived,
         )
     }
 }
