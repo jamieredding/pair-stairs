@@ -20,6 +20,7 @@ import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeUnique
+import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -177,15 +178,432 @@ abstract class CombinationEventDaoCdc<T : CombinationEventDao> {
         }
     }
 
-    /*
-    todo
-        - findByDeveloperId
-        - findByDeveloperIdBetween
-        - findByStreamId
-        - findByStreamIdBetween
-        - getMostRecentCombinationEvents
-     */
+    @Nested
+    inner class FindByDeveloperId {
 
+        @Test
+        fun `should return empty list when no combination events exist for developer id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+
+            val combinationEventDetails = CombinationEventDetails(
+                date = now,
+                combination = setOf(
+                    PairStream(
+                        developerIds = setOf(dev0.id),
+                        streamId = stream0.id
+                    ),
+                )
+            )
+            underTest.create(combinationEventDetails).shouldBeSuccess()
+
+            underTest.findByDeveloperId(dev1.id).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should return all combination events that contain developer id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val dev2 = createDeveloper(someDeveloperDetails(name = "dev-2"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val event0 = underTest.create(
+                CombinationEventDetails(
+                    date = now,
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id),
+                            streamId = stream0.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event1 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(1),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream0.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event2 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(2),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id, dev2.id),
+                            streamId = stream0.id
+                        ),
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+
+            underTest.findByDeveloperId(dev0.id).shouldContainExactly(
+                event0,
+                event2
+            )
+        }
+    }
+
+    @Nested
+    inner class FindByDeveloperIdBetween {
+
+        @Test
+        fun `should return empty list when no combination events exist for developer id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+
+            val combinationEventDetails = CombinationEventDetails(
+                date = now,
+                combination = setOf(
+                    PairStream(
+                        developerIds = setOf(dev0.id),
+                        streamId = stream0.id
+                    ),
+                )
+            )
+            underTest.create(combinationEventDetails).shouldBeSuccess()
+
+            underTest.findByDeveloperIdBetween(
+                developerId = dev1.id,
+                startDate = now,
+                endDate = now.plusDays(1)
+            ).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should return empty list when no combination events exist for developer id between date range`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+
+            val combinationEventDetails = CombinationEventDetails(
+                date = now.plusDays(2),
+                combination = setOf(
+                    PairStream(
+                        developerIds = setOf(dev0.id),
+                        streamId = stream0.id
+                    ),
+                )
+            )
+            underTest.create(combinationEventDetails).shouldBeSuccess()
+
+            underTest.findByDeveloperIdBetween(
+                developerId = dev0.id,
+                startDate = now,
+                endDate = now.plusDays(1)
+            ).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should return all combination events that contain developer id and occur between date range`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val dev2 = createDeveloper(someDeveloperDetails(name = "dev-2"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val event0 = underTest.create(
+                CombinationEventDetails(
+                    date = now,
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id),
+                            streamId = stream0.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event1 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(1),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream0.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event2 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(2),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id, dev2.id),
+                            streamId = stream0.id
+                        ),
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event3 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(3),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id, dev2.id),
+                            streamId = stream0.id
+                        ),
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+
+            underTest.findByDeveloperIdBetween(
+                developerId = dev0.id,
+                startDate = now,
+                endDate = now.plusDays(2)
+            ).shouldContainExactly(
+                event0,
+                event2
+            )
+        }
+    }
+
+    @Nested
+    inner class FindByStreamId {
+
+        @Test
+        fun `should return empty list when no combination events exist for stream id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val combinationEventDetails = CombinationEventDetails(
+                date = now,
+                combination = setOf(
+                    PairStream(
+                        developerIds = setOf(dev0.id),
+                        streamId = stream0.id
+                    ),
+                )
+            )
+            underTest.create(combinationEventDetails).shouldBeSuccess()
+
+            underTest.findByStreamId(stream1.id).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should return all combination events that contain stream id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val dev2 = createDeveloper(someDeveloperDetails(name = "dev-2"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val event0 = underTest.create(
+                CombinationEventDetails(
+                    date = now,
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id),
+                            streamId = stream0.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event1 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(1),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event2 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(2),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id, dev2.id),
+                            streamId = stream0.id
+                        ),
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+
+            underTest.findByStreamId(stream0.id).shouldContainExactly(
+                event0,
+                event2
+            )
+        }
+    }
+
+    @Nested
+    inner class FindByStreamIdBetween {
+
+        @Test
+        fun `should return empty list when no combination events exist for stream id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val combinationEventDetails = CombinationEventDetails(
+                date = now,
+                combination = setOf(
+                    PairStream(
+                        developerIds = setOf(dev0.id),
+                        streamId = stream0.id
+                    ),
+                )
+            )
+            underTest.create(combinationEventDetails).shouldBeSuccess()
+
+            underTest.findByStreamIdBetween(
+                streamId = stream1.id,
+                startDate = now,
+                endDate = now.plusDays(1)
+            ).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should return empty list when no combination events exist for stream id between date range`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+
+            val combinationEventDetails = CombinationEventDetails(
+                date = now.plusDays(2),
+                combination = setOf(
+                    PairStream(
+                        developerIds = setOf(dev0.id),
+                        streamId = stream0.id
+                    ),
+                )
+            )
+            underTest.create(combinationEventDetails).shouldBeSuccess()
+
+            underTest.findByStreamIdBetween(
+                streamId = stream0.id,
+                startDate = now,
+                endDate = now.plusDays(1)
+            ).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should return all combination events that contain stream id`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val dev2 = createDeveloper(someDeveloperDetails(name = "dev-2"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val event0 = underTest.create(
+                CombinationEventDetails(
+                    date = now,
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id),
+                            streamId = stream0.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event1 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(1),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event2 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(2),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id, dev2.id),
+                            streamId = stream0.id
+                        ),
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+            val event3 = underTest.create(
+                CombinationEventDetails(
+                    date = now.plusDays(3),
+                    combination = setOf(
+                        PairStream(
+                            developerIds = setOf(dev0.id, dev2.id),
+                            streamId = stream0.id
+                        ),
+                        PairStream(
+                            developerIds = setOf(dev1.id),
+                            streamId = stream1.id
+                        ),
+                    )
+                )
+            ).shouldBeSuccess()
+
+            underTest.findByStreamIdBetween(
+                streamId = stream0.id,
+                startDate = now,
+                endDate = now.plusDays(2)
+            ).shouldContainExactly(
+                event0,
+                event2
+            )
+        }
+    }
+
+    @Nested
+    inner class GetMostRecentCombinationEvents {
+
+        @Test
+        fun `should return empty list when no combination events exist`() {
+            ensureNoCombinationEventsExist()
+
+            underTest.getMostRecentCombinationEvents(5).shouldBeEmpty()
+        }
+
+        @Test
+        fun `should most recent x combination events when multiple exist`() {
+            ensureNoCombinationEventsExist()
+            val combinationEvent1 = createCombinationEvent(date = now)
+            val combinationEvent2 = createCombinationEvent(date = now.minusDays(1))
+            val combinationEvent3 = createCombinationEvent(date = now.minusDays(2))
+
+            underTest.getMostRecentCombinationEvents(2) shouldBe listOf(combinationEvent1, combinationEvent2)
+        }
+
+        @Test
+        fun `results should be sorted by date descending`() {
+            ensureNoCombinationEventsExist()
+            val combinationEvent1 = createCombinationEvent(date = now)
+            val combinationEvent2 = createCombinationEvent(date = now.plusDays(1))
+            val combinationEvent3 = createCombinationEvent(date = now.minusDays(2))
+
+            underTest.getMostRecentCombinationEvents(3) shouldBe listOf(combinationEvent2, combinationEvent1, combinationEvent3)
+        }
+    }
 
     @Nested
     inner class Create {

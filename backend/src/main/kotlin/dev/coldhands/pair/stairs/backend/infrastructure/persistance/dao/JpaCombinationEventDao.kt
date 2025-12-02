@@ -51,33 +51,35 @@ class JpaCombinationEventDao(
             .toList()
     }
 
-    override fun findByDeveloperId(developerId: DeveloperId): List<CombinationEvent> {
-        TODO("Not yet implemented")
-    }
+    override fun findByDeveloperId(developerId: DeveloperId): List<CombinationEvent> =
+        combinationEventRepository.findByDeveloperId(developerId.value)
+            .map { it.toDomain() }
 
     override fun findByDeveloperIdBetween(
         developerId: DeveloperId,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<CombinationEvent> {
-        TODO("Not yet implemented")
-    }
+    ): List<CombinationEvent> =
+        combinationEventRepository.findByDeveloperIdBetween(
+            developerId = developerId.value,
+            startDate = startDate,
+            endDate = endDate
+        ).map { it.toDomain() }
 
-    override fun findByStreamId(streamId: StreamId): List<CombinationEvent> {
-        TODO("Not yet implemented")
-    }
+    override fun findByStreamId(streamId: StreamId): List<CombinationEvent> =
+        combinationEventRepository.findByStreamId(streamId.value)
+            .map { it.toDomain() }
 
     override fun findByStreamIdBetween(
         streamId: StreamId,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<CombinationEvent> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getMostRecentCombinationEvents(count: Int): List<CombinationEvent> {
-        TODO("Not yet implemented")
-    }
+    ): List<CombinationEvent> =
+        combinationEventRepository.findByStreamIdBetween(
+            streamId = streamId.value,
+            startDate = startDate,
+            endDate = endDate
+        ).map { it.toDomain() }
 
     override fun create(combinationEventDetails: CombinationEventDetails): Result<CombinationEvent, CombinationEventCreateError> {
         val pairStreamEntities: List<PairStreamEntity> = combinationEventDetails.combination.map { pairStream ->
