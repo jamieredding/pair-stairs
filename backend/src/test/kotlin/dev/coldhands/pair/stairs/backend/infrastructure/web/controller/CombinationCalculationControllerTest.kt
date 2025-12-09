@@ -1,10 +1,15 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationInfo
+import io.kotest.inspectors.forAll
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldBeSortedBy
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.shouldBe
@@ -128,6 +133,44 @@ open class CombinationCalculationControllerTest @Autowired constructor(
             val parsed: DocumentContext = JsonPath.parse(contentAsString)
             parsed.read<List<Any>>("$").shouldHaveSize(0)
         }
+
+        @Test
+        fun calculateCombinationsReturnsCombinationsSortedByStreamDisplayNameAndDevelopersSortedByDisplayName() {
+            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+
+            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+
+            val results: List<ScoredCombinationInfo> = mockMvc.perform(
+                post("/api/v1/combinations/calculate")
+                    .with(oidcLogin())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        """
+            {
+              "developerIds": [$dev0Id, $dev1Id, $dev2Id],
+              "streamIds": [$stream0Id, $stream1Id]
+            }
+            """.trimIndent()
+                    )
+            )
+                .andExpect(status().isOk)
+                .andReturn()
+                .response
+                .contentAsString
+                .let { jacksonObjectMapper().readValue<List<ScoredCombinationInfo>>(it) }
+
+            results.shouldBeSortedBy { it.score }
+            results.forAll { scoredCombinationInfo ->
+                scoredCombinationInfo.combination.shouldBeSortedBy { it.stream.displayName }
+                scoredCombinationInfo.combination.forEach { pairStreamInfo ->
+                    pairStreamInfo.developers.shouldBeSortedBy { it.displayName }
+                }
+            }
+        }
+
     }
 
     @Nested

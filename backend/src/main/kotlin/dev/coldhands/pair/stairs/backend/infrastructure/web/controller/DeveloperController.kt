@@ -65,9 +65,9 @@ class DeveloperController(
         return developerDao.findById(id)
             ?.let { _ ->
                 if (requestedStartDate != null && requestedEndDate != null) {
-                    statsService.getDeveloperStatsBetween(id.value, requestedStartDate, requestedEndDate)
+                    statsService.getDeveloperStatsBetween(id, requestedStartDate, requestedEndDate)
                 } else {
-                    statsService.getDeveloperStats(id.value)
+                    statsService.getDeveloperStats(id)
                 }
             }
             ?.let { ResponseEntity.ok(it) }

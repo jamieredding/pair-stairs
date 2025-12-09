@@ -1,19 +1,18 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.*
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
-import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.ScoredCombinationMapper
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toEntity
+import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.Page
+import dev.coldhands.pair.stairs.backend.domain.StreamId
+import dev.coldhands.pair.stairs.backend.domain.combination.CombinationCalculationService
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
+import dev.coldhands.pair.stairs.backend.domain.combination.ScoredCombination
 
 class CoreCombinationCalculationService(
-    private val developerDao: DeveloperDao,
-    private val streamDao: StreamDao,
     private val entryPointFactory: EntryPointFactory
 ) : CombinationCalculationService {
     override fun calculate(
-        developerIds: List<DeveloperId>,
-        streamIds: List<StreamId>,
+        developerIds: Collection<DeveloperId>,
+        streamIds: Collection<StreamId>,
         page: Int,
         pageSize: Int
     ): Page<ScoredCombination> {
@@ -25,9 +24,6 @@ class CoreCombinationCalculationService(
         )
 
         val scoredCombinations = entryPoint.computeScoredCombinations()
-
-        val developerLookup = developerDao.findAllById(developerIds).associateBy { it.id }
-        val streamLookup = streamDao.findAllById(streamIds).associateBy { it.id }
 
         val pages = scoredCombinations.windowed(size = pageSize, step = pageSize, partialWindows = true)
 
@@ -43,10 +39,14 @@ class CoreCombinationCalculationService(
                 .drop(page)
                 .first()
                 .map { sc ->
-                    ScoredCombinationMapper.coreToDomain(
-                        sc,
-                        { id -> developerLookup[DeveloperId(id)]?.toEntity() ?: error("Developer not found") },
-                        {id -> streamLookup[StreamId(id)]?.toEntity() ?: error("Stream not found") },
+                    ScoredCombination(
+                        score = sc.totalScore,
+                        combination = sc.combination.pairs.map { pairStream ->
+                            PairStream(
+                                developerIds = pairStream.developers().map { DeveloperId(it.toLong()) }.toSet(),
+                                streamId = StreamId(pairStream.stream.toLong())
+                            )
+                        }.toSet()
                     )
                 }
         )

@@ -1,8 +1,6 @@
 package dev.coldhands.pair.stairs.backend.domain.combination
 
-import java.time.LocalDate
-
-data class CombinationEventDetails(
-    val date: LocalDate,
+data class ScoredCombination(
+    val score: Int,
     val combination: Set<PairStream>
 )

@@ -1,8 +1,8 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.mapper
 
 import dev.coldhands.pair.stairs.backend.domain.StreamId
-import dev.coldhands.pair.stairs.backend.domain.StreamInfo
 import dev.coldhands.pair.stairs.backend.domain.stream.Stream
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.StreamEntity
 
 
@@ -21,7 +21,7 @@ fun Stream.toEntity(): StreamEntity =
     )
 
 fun Stream.toInfo(): StreamInfo = StreamInfo(
-    id.value,
+    id,
     name,
     archived
 )

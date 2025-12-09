@@ -2,13 +2,15 @@ package dev.coldhands.pair.stairs.backend
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.CombinationEventId
+import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.StreamId
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperInfo
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
 import dev.coldhands.pair.stairs.backend.domain.stream.Stream
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.*
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -69,28 +71,28 @@ abstract class AbstractAcceptanceTest(
 
         val bestCombination = scoredCombinations.first()
 
-        bestCombination.combination()
-            .flatMap { it.developers() }
+        bestCombination.combination
+            .flatMap { it.developers }
             .map(DeveloperInfo::displayName)
             .shouldContainExactlyInAnyOrder("dev-0", "dev-1", "dev-2")
 
-        bestCombination.combination()
-            .map { it.stream().displayName() }
+        bestCombination.combination
+            .map { it.stream.displayName }
             .shouldContainExactlyInAnyOrder("stream-a", "stream-b")
 
         val startingEvents = findAllCombinationEvents()
         startingEvents.shouldBeEmpty()
 
         val today = LocalDate.of(2024, 4, 27)
-        saveCombinationEventFor(today, bestCombination.combination())
+        saveCombinationEventFor(today, bestCombination.combination)
 
         val allCombinationEvents = findAllCombinationEvents()
         allCombinationEvents shouldHaveSize 1
 
         val savedEvent = allCombinationEvents.first()
-        savedEvent.date() shouldBe today
-        savedEvent.combination() shouldHaveSize 2
-        savedEvent.combination() shouldBe bestCombination.combination()
+        savedEvent.date shouldBe today
+        savedEvent.combination shouldHaveSize 2
+        savedEvent.combination shouldBe bestCombination.combination
 
         val developerStats = getDeveloperStatsBetween(dev0Id, today, today)
         developerStats.developerStats shouldHaveSize 4
@@ -117,8 +119,8 @@ abstract class AbstractAcceptanceTest(
             calculateCombinations(developersToIncludeInCombinations, streamsToIncludeInCombinations)
         scoredCombinations.shouldNotBeEmpty()
 
-        val todayCombination = scoredCombinations.first().combination()
-        val yesterdayCombination = yesterdayEvent.combination()
+        val todayCombination = scoredCombinations.first().combination
+        val yesterdayCombination = yesterdayEvent.combination
 
         todayCombination shouldNotBe yesterdayCombination
 
@@ -129,10 +131,10 @@ abstract class AbstractAcceptanceTest(
         allCombinationEvents shouldHaveSize 2
 
         val savedEvent = allCombinationEvents.first()
-        savedEvent.date() shouldBe tomorrow
-        savedEvent.combination() shouldHaveSize 2
+        savedEvent.date shouldBe tomorrow
+        savedEvent.combination shouldHaveSize 2
 
-        deleteCombinationEvent(savedEvent.id())
+        deleteCombinationEvent(savedEvent.id)
 
         val allCombinationEventsAfterDelete = findAllCombinationEvents()
         allCombinationEventsAfterDelete shouldHaveSize 1
@@ -205,7 +207,7 @@ abstract class AbstractAcceptanceTest(
             .map(Stream::id)
     }
 
-    private fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<StreamId>): List<ScoredCombination> {
+    private fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<StreamId>): List<ScoredCombinationInfo> {
         val input = CalculateInputDto(developerIds, streamIds)
 
         val responseBody = mockMvc.perform(
@@ -221,12 +223,11 @@ abstract class AbstractAcceptanceTest(
         return objectMapper.readValue(responseBody)
     }
 
-    private fun saveCombinationEventFor(date: LocalDate, combination: List<PairStream>) {
+    private fun saveCombinationEventFor(date: LocalDate, combination: List<PairStreamInfo>) {
         val combinationByIds: List<SaveCombinationEventDto.PairStreamByIds> =
             combination.map { ps ->
-                val developerIds = ps.developers().map(DeveloperInfo::id)
-                // todo just use DeveloperId directly once DeveloperInfo is kotlin-ed
-                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, StreamId(ps.stream().id()))
+                val developerIds = ps.developers.map(DeveloperInfo::id)
+                SaveCombinationEventDto.PairStreamByIds(developerIds, ps.stream.id)
             }
 
         val dto = SaveCombinationEventDto(date, combinationByIds)
@@ -239,7 +240,7 @@ abstract class AbstractAcceptanceTest(
             .andExpect(status().isCreated)
     }
 
-    private fun findAllCombinationEvents(): List<CombinationEvent> {
+    private fun findAllCombinationEvents(): List<GetCombinationEventDto> {
         val responseBody = mockMvc.perform(get("/api/v1/combinations/event"))
             .andExpect(status().isOk)
             .andReturn()
@@ -249,8 +250,8 @@ abstract class AbstractAcceptanceTest(
         return objectMapper.readValue(responseBody)
     }
 
-    private fun deleteCombinationEvent(id: Long) {
-        mockMvc.perform(delete("/api/v1/combinations/event/{id}", id))
+    private fun deleteCombinationEvent(id: CombinationEventId) {
+        mockMvc.perform(delete("/api/v1/combinations/event/{id}", id.value))
             .andExpect(status().isNoContent)
     }
 

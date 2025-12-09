@@ -1,9 +1,9 @@
 package dev.coldhands.pair.stairs.backend
 
-import dev.coldhands.pair.stairs.backend.domain.CombinationEvent
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
-import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
 import dev.coldhands.pair.stairs.backend.domain.StreamId
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.GetCombinationEventDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationInfo
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.shouldBe
 import org.junit.jupiter.api.Disabled
@@ -47,18 +47,18 @@ class DatabaseSizeTestIT : WithBackendHttpClient {
             ),
         )
 
-        val scoredCombinations: List<ScoredCombination> =
+        val scoredCombinations: List<ScoredCombinationInfo> =
             calculateCombinations(developersToIncludeInCombinations, streamsToIncludeInCombinations)
 
         scoredCombinations.shouldNotBeEmpty()
 
         val bestCombination = scoredCombinations.first()
 
-        saveCombinationEventFor(currentDay, bestCombination.combination())
+        saveCombinationEventFor(currentDay, bestCombination.combination)
 
-        val combinationEvents: List<CombinationEvent> = getCombinationEvents()
+        val combinationEvents: List<GetCombinationEventDto> = getCombinationEvents()
         val savedEvent = combinationEvents.first()
 
-        savedEvent.date() shouldBe currentDay
+        savedEvent.date shouldBe currentDay
     }
 }

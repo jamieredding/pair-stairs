@@ -29,6 +29,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous
 import org.springframework.test.context.TestPropertySource
+import org.springframework.test.json.JsonCompareMode
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
@@ -262,6 +263,124 @@ open class CombinationEventControllerTest @Autowired constructor(
                     ),
                 )
         }
+
+        @Test
+        fun whenCombinationsInEventsWereSavedInUnsortedOrderThenReturnThemSortedByStreamDisplayNameAndDevelopersSortedByDisplayName() {
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
+
+            service.saveEvent(
+                LocalDate.of(2024, 5, 5),
+                listOf(
+                    PairStreamByIds(listOf(dev2Id), stream1Id),
+                    PairStreamByIds(listOf(dev1Id, dev0Id), stream0Id),
+                ),
+            )
+            service.saveEvent(
+                LocalDate.of(2024, 5, 6),
+                listOf(
+                    PairStreamByIds(listOf(dev1Id), stream1Id),
+                    PairStreamByIds(listOf(dev2Id, dev0Id), stream0Id),
+                ),
+            )
+
+            val eventId0 = getEventIdByDate(LocalDate.of(2024, 5, 5))
+            val eventId1 = getEventIdByDate(LocalDate.of(2024, 5, 6))
+
+            mockMvc.perform(get("/api/v1/combinations/event"))
+                .andExpect(status().isOk)
+                .andExpect(
+                    content().json(
+                        """
+                        [
+                          {
+                            "id": $eventId1,
+                            "date": "2024-05-06",
+                            "combination": [
+                              {
+                                "developers": [
+                                  {
+                                    "displayName": "dev-0",
+                                    "id": ${dev0Id.value},
+                                    "archived": false
+                                  },
+                                  {
+                                    "displayName": "dev-2",
+                                    "id": ${dev2Id.value},
+                                    "archived": false
+                                  }
+                                ],
+                                "stream": {
+                                  "displayName": "stream-a",
+                                  "id": ${stream0Id.value},
+                                  "archived": false
+                                }
+                              },
+                              {
+                                "developers": [
+                                  {
+                                    "displayName": "dev-1",
+                                    "id": ${dev1Id.value},
+                                    "archived": false
+                                  }
+                                ],
+                                "stream": {
+                                  "displayName": "stream-b",
+                                  "id": ${stream1Id.value},
+                                  "archived": false
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "id": $eventId0,
+                            "date": "2024-05-05",
+                            "combination": [
+                              {
+                                "developers": [
+                                  {
+                                    "displayName": "dev-0",
+                                    "id": ${dev0Id.value},
+                                    "archived": false
+                                  },
+                                  {
+                                    "displayName": "dev-1",
+                                    "id": ${dev1Id.value},
+                                    "archived": false
+                                  }
+                                ],
+                                "stream": {
+                                  "displayName": "stream-a",
+                                  "id": ${stream0Id.value},
+                                  "archived": false
+                                }
+                              },
+                              {
+                                "developers": [
+                                  {
+                                    "displayName": "dev-2",
+                                    "id": ${dev2Id.value},
+                                    "archived": false
+                                  }
+                                ],
+                                "stream": {
+                                  "displayName": "stream-b",
+                                  "id": ${stream1Id.value},
+                                  "archived": false
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                        """.trimIndent(), JsonCompareMode.STRICT
+                    ),
+                )
+        }
+
     }
 
     @Nested

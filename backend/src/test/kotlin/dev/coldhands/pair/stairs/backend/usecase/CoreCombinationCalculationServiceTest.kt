@@ -4,12 +4,11 @@ import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.aStreamDetails
 import dev.coldhands.pair.stairs.backend.asString
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
-import dev.coldhands.pair.stairs.backend.domain.PairStream
-import dev.coldhands.pair.stairs.backend.domain.ScoredCombination
 import dev.coldhands.pair.stairs.backend.domain.StreamId
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
+import dev.coldhands.pair.stairs.backend.domain.combination.ScoredCombination
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeStreamDao
 import dev.coldhands.pair.stairs.core.domain.Combination
@@ -33,7 +32,7 @@ class CoreCombinationCalculationServiceTest {
     private val developerDao: DeveloperDao = FakeDeveloperDao()
     private val streamDao: StreamDao = FakeStreamDao()
     private var underTest: CoreCombinationCalculationService =
-        CoreCombinationCalculationService(developerDao, streamDao, entryPointFactory)
+        CoreCombinationCalculationService(entryPointFactory)
 
     @Test
     fun runCoreEntryPointUsingInput() {
@@ -60,7 +59,10 @@ class CoreCombinationCalculationServiceTest {
             CoreScoredCombination(
                 Combination(
                     setOf(
-                        CorePairStream(setOf(developerIds[0].asString(), developerIds[1].asString()), streamIds[0].asString()),
+                        CorePairStream(
+                            setOf(developerIds[0].asString(), developerIds[1].asString()),
+                            streamIds[0].asString()
+                        ),
                         CorePairStream(setOf(developerIds[2].asString()), streamIds[1].asString())
                     )
                 ),
@@ -70,7 +72,10 @@ class CoreCombinationCalculationServiceTest {
             CoreScoredCombination(
                 Combination(
                     setOf(
-                        CorePairStream(setOf(developerIds[0].asString(), developerIds[2].asString()), streamIds[0].asString()),
+                        CorePairStream(
+                            setOf(developerIds[0].asString(), developerIds[2].asString()),
+                            streamIds[0].asString()
+                        ),
                         CorePairStream(setOf(developerIds[1].asString()), streamIds[1].asString())
                     )
                 ),
@@ -82,38 +87,38 @@ class CoreCombinationCalculationServiceTest {
 
         underTest.calculate(developerIds, streamIds, 0, 10).data shouldContainExactly listOf(
             ScoredCombination(
-                10,
-                listOf(
+                score = 10,
+                combination = setOf(
                     PairStream(
-                        listOf(
-                            developers[0].toInfo(),
-                            developers[1].toInfo(),
+                        developerIds = setOf(
+                            developers[0].id,
+                            developers[1].id,
                         ),
-                        streams[0].toInfo()
+                        streamId = streams[0].id
                     ),
                     PairStream(
-                        listOf(
-                            developers[2].toInfo(),
+                        developerIds = setOf(
+                            developers[2].id,
                         ),
-                        streams[1].toInfo()
+                        streamId = streams[1].id
                     )
                 )
             ),
             ScoredCombination(
-                20,
-                listOf(
+                score = 20,
+                combination = setOf(
                     PairStream(
-                        listOf(
-                            developers[0].toInfo(),
-                            developers[2].toInfo(),
+                        developerIds = setOf(
+                            developers[0].id,
+                            developers[2].id,
                         ),
-                        streams[0].toInfo()
+                        streamId = streams[0].id
                     ),
                     PairStream(
-                        listOf(
-                            developers[1].toInfo(),
+                        developerIds = setOf(
+                            developers[1].id,
                         ),
-                        streams[1].toInfo()
+                        streamId = streams[1].id
                     )
                 )
             )
@@ -150,7 +155,7 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 2
             val requestedPage = 0
-            val underTest = CoreCombinationCalculationService(developerDao, streamDao, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(entryPointFactory)
 
             underTest.calculate(developerIds, streamIds, requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
@@ -188,7 +193,7 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 2
             val requestedPage = 1
-            val underTest = CoreCombinationCalculationService(developerDao, streamDao, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(entryPointFactory)
 
             underTest.calculate(developerIds, streamIds, requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
@@ -224,7 +229,7 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 1
             val requestedPage = -1
-            val underTest = CoreCombinationCalculationService(developerDao, streamDao, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(entryPointFactory)
 
             underTest.calculate(developerIds, streamIds, requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
@@ -258,7 +263,7 @@ class CoreCombinationCalculationServiceTest {
 
             val pageSize = 1
             val requestedPage = 2
-            val underTest = CoreCombinationCalculationService(developerDao, streamDao, entryPointFactory)
+            val underTest = CoreCombinationCalculationService(entryPointFactory)
 
             underTest.calculate(developerIds, streamIds, requestedPage, pageSize) should { page ->
                 page.metadata should { metadata ->
@@ -270,7 +275,11 @@ class CoreCombinationCalculationServiceTest {
     }
 
     companion object {
-        private fun coreScoredCombinationWithScore(totalScore: Int, developerId: DeveloperId, streamId: StreamId): CoreScoredCombination<CorePairStream> {
+        private fun coreScoredCombinationWithScore(
+            totalScore: Int,
+            developerId: DeveloperId,
+            streamId: StreamId
+        ): CoreScoredCombination<CorePairStream> {
             return CoreScoredCombination(
                 Combination(
                     setOf(

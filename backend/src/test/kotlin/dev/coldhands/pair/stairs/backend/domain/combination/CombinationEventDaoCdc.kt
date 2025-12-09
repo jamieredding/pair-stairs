@@ -7,7 +7,6 @@ import dev.coldhands.pair.stairs.backend.domain.CombinationEventId
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.PageRequest
 import dev.coldhands.pair.stairs.backend.domain.StreamId
-import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEvent.PairStream
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDao.FindAllSort.DATE_DESCENDING
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDaoCdc.TestFixtures.someDeveloperDetails

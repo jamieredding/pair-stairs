@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.CombinationEventId
+import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.StreamId
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
 import dev.coldhands.pair.stairs.backend.domain.stream.Stream
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.*
 import io.kotest.matchers.shouldBe
 import org.springframework.http.*
 import org.springframework.http.HttpMethod.DELETE
@@ -78,7 +79,7 @@ interface WithBackendHttpClient {
             .map(Stream::id)
     }
 
-    fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<StreamId>): List<ScoredCombination> {
+    fun calculateCombinations(developerIds: List<DeveloperId>, streamIds: List<StreamId>): List<ScoredCombinationInfo> {
         val input = CalculateInputDto(developerIds, streamIds)
 
         val headers = HttpHeaders().apply { contentType = MediaType.APPLICATION_JSON }
@@ -92,12 +93,11 @@ interface WithBackendHttpClient {
         return OBJECT_MAPPER.readValue(response.body!!)
     }
 
-    fun saveCombinationEventFor(date: LocalDate, combination: List<PairStream>) {
+    fun saveCombinationEventFor(date: LocalDate, combination: List<PairStreamInfo>) {
         val combinationByIds: List<SaveCombinationEventDto.PairStreamByIds> =
             combination.map { ps ->
-                val developerIds = ps.developers().map(DeveloperInfo::id)
-                // todo just use DeveloperId directly once DeveloperInfo is kotlin-ed
-                SaveCombinationEventDto.PairStreamByIds(developerIds.map { DeveloperId(it) }, StreamId(ps.stream().id()))
+                val developerIds = ps.developers.map { it.id }
+                SaveCombinationEventDto.PairStreamByIds(developerIds.toList(), ps.stream.id)
             }
 
         val dto = SaveCombinationEventDto(date, combinationByIds)
@@ -111,7 +111,7 @@ interface WithBackendHttpClient {
         response.statusCode shouldBe HttpStatus.CREATED
     }
 
-    fun getCombinationEvents(): List<CombinationEvent> {
+    fun getCombinationEvents(): List<GetCombinationEventDto> {
         val response: ResponseEntity<String> =
             REST_TEMPLATE.getForEntity("$BASE_URL/api/v1/combinations/event", String::class.java)
 
@@ -120,9 +120,9 @@ interface WithBackendHttpClient {
         return OBJECT_MAPPER.readValue(response.body!!)
     }
 
-    fun deleteCombinationEvent(id: Long) {
+    fun deleteCombinationEvent(id: CombinationEventId) {
         val response: ResponseEntity<Void> =
-            REST_TEMPLATE.exchange("$BASE_URL/api/v1/combinations/event/{id}", DELETE, null, Void::class.java, id)
+            REST_TEMPLATE.exchange("$BASE_URL/api/v1/combinations/event/{id}", DELETE, null, Void::class.java, id.value)
 
         response.statusCode shouldBe HttpStatus.NO_CONTENT
     }

@@ -1,77 +1,74 @@
 package dev.coldhands.pair.stairs.backend.usecase
 
-import dev.coldhands.pair.stairs.backend.domain.DeveloperInfo
-import dev.coldhands.pair.stairs.backend.domain.StreamInfo
+import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.StreamId
+import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEvent
+import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDao
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperInfo
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperStats
 import dev.coldhands.pair.stairs.backend.domain.developer.RelatedDeveloperStats
 import dev.coldhands.pair.stairs.backend.domain.stream.RelatedStreamStats
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamInfo
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamStats
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.DeveloperMapper
-import dev.coldhands.pair.stairs.backend.infrastructure.mapper.StreamMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEventEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.DeveloperEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.CombinationEventRepository
 import java.time.LocalDate
 
 class StatsService(
     private val developerDao: DeveloperDao,
     private val streamDao: StreamDao,
-    private val combinationEventRepository: CombinationEventRepository,
+    private val combinationEventDao: CombinationEventDao,
 ) {
 
-    fun getDeveloperStats(developerId: Long): DeveloperStats {
-        val events = combinationEventRepository.findByDeveloperId(developerId)
+    fun getDeveloperStats(developerId: DeveloperId): DeveloperStats {
+        val events = combinationEventDao.findByDeveloperId(developerId)
         return getDeveloperStats(developerId, events)
     }
 
     fun getDeveloperStatsBetween(
-        developerId: Long,
+        developerId: DeveloperId,
         startDate: LocalDate,
         endDate: LocalDate,
     ): DeveloperStats {
-        val events = combinationEventRepository.findByDeveloperIdBetween(developerId, startDate, endDate)
+        val events = combinationEventDao.findByDeveloperIdBetween(developerId, startDate, endDate)
         return getDeveloperStats(developerId, events)
     }
 
-    fun getStreamStats(streamId: Long): StreamStats {
-        val events = combinationEventRepository.findByStreamId(streamId)
+    fun getStreamStats(streamId: StreamId): StreamStats {
+        val events = combinationEventDao.findByStreamId(streamId)
         return getStreamStats(streamId, events)
     }
 
     fun getStreamStatsBetween(
-        streamId: Long,
+        streamId: StreamId,
         startDate: LocalDate,
         endDate: LocalDate,
     ): StreamStats {
-        val events = combinationEventRepository.findByStreamIdBetween(streamId, startDate, endDate)
+        val events = combinationEventDao.findByStreamIdBetween(streamId, startDate, endDate)
         return getStreamStats(streamId, events)
     }
 
     private fun getDeveloperStats(
-        developerId: Long,
-        events: List<CombinationEventEntity>,
+        developerId: DeveloperId,
+        events: List<CombinationEvent>,
     ): DeveloperStats {
-        val pairStreamsWithDeveloper: List<PairStreamEntity> = events.map { event ->
-            event.combination.pairs
-                .firstOrNull { pairStreamEntity ->
-                    pairStreamEntity.developers.any { developerEntity ->
-                        developerEntity.id == developerId
-                    }
+        val pairStreamsWithDeveloper: List<PairStream> = events.map { event ->
+            event.combination
+                .firstOrNull { pairStream ->
+                    pairStream.developerIds.any { it == developerId }
                 }
                 ?: error("Should have found a PairStream that had developer with id: $developerId")
         }
 
-        val developerAsSoloOrOtherDeveloperInPair: List<DeveloperEntity> =
-            pairStreamsWithDeveloper.map { pairStreamEntity ->
-                val developers = pairStreamEntity.developers
+        val developerAsSoloOrOtherDeveloperInPair: List<DeveloperId> =
+            pairStreamsWithDeveloper.map { pairStream ->
+                val developers = pairStream.developerIds
                 if (developers.size == 1) {
                     developers.first()
                 } else {
-                    developers.firstOrNull { it.id != developerId }
+                    developers.firstOrNull { it != developerId }
                         ?: error(
                             "Should have found a list of developers that contained developer with id: $developerId",
                         )
@@ -85,13 +82,13 @@ class StatsService(
     }
 
     private fun getRelatedDeveloperStats(
-        allRelevantDeveloperOccurrences: Collection<DeveloperEntity>,
+        allRelevantDeveloperOccurrences: Collection<DeveloperId>,
     ): List<RelatedDeveloperStats> {
         val allDevelopers: List<DeveloperInfo> = developerDao.findAll()
             .map { it.toInfo() }
 
         val developerCounts: MutableMap<DeveloperInfo, Long> = allRelevantDeveloperOccurrences
-            .map(DeveloperMapper::entityToInfo)
+            .map { developerId -> allDevelopers.first { it.id == developerId } }
             .groupingBy { it }
             .eachCount()
             .mapValuesTo(mutableMapOf()) { (_, count) -> count.toLong() }
@@ -106,14 +103,14 @@ class StatsService(
     }
 
     private fun getRelatedStreamStats(
-        pairStreamsWithDeveloper: List<PairStreamEntity>,
+        pairStreamsWithDeveloper: List<PairStream>,
     ): List<RelatedStreamStats> {
         val allStreams: List<StreamInfo> = streamDao.findAll()
             .map { it.toInfo() }
 
         val streamCounts: MutableMap<StreamInfo, Long> = pairStreamsWithDeveloper
-            .map { it.stream }
-            .map(StreamMapper::entityToInfo)
+            .map { it.streamId }
+            .map { streamId -> allStreams.first { it.id == streamId } }
             .groupingBy { it }
             .eachCount()
             .mapValuesTo(mutableMapOf()) { (_, count) -> count.toLong() }
@@ -128,19 +125,19 @@ class StatsService(
     }
 
     private fun getStreamStats(
-        streamId: Long,
-        events: List<CombinationEventEntity>,
+        streamId: StreamId,
+        events: List<CombinationEvent>,
     ): StreamStats {
-        val pairStreamsWithStream: List<PairStreamEntity> = events.map { event ->
-            event.combination.pairs
-                .firstOrNull { pairStreamEntity ->
-                    pairStreamEntity.stream.id == streamId
+        val pairStreamsWithStream: List<PairStream> = events.map { event ->
+            event.combination
+                .firstOrNull { pairStream ->
+                    pairStream.streamId == streamId
                 }
                 ?: error("Should have found a PairStream that had stream with id: $streamId")
         }
 
-        val allDevelopersThatWereInTheStream: List<DeveloperEntity> = pairStreamsWithStream
-            .flatMap { it.developers }
+        val allDevelopersThatWereInTheStream: List<DeveloperId> = pairStreamsWithStream
+            .flatMap { it.developerIds }
 
         return StreamStats(
             developerStats = getRelatedDeveloperStats(allDevelopersThatWereInTheStream),

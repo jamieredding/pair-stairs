@@ -1,7 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import dev.coldhands.pair.stairs.backend.domain.StreamId
-import dev.coldhands.pair.stairs.backend.domain.StreamInfo
 import dev.coldhands.pair.stairs.backend.domain.stream.*
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.PatchStreamDto
@@ -67,9 +66,9 @@ class StreamController(
         return streamDao.findById(id)
             ?.let { _ ->
                 if (requestedStartDate != null && requestedEndDate != null) {
-                    statsService.getStreamStatsBetween(id.value, requestedStartDate, requestedEndDate)
+                    statsService.getStreamStatsBetween(id, requestedStartDate, requestedEndDate)
                 } else {
-                    statsService.getStreamStats(id.value)
+                    statsService.getStreamStats(id)
                 }
             }
             ?.let { ResponseEntity.ok(it) }

@@ -3,7 +3,9 @@ package dev.coldhands.pair.stairs.backend
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import dev.coldhands.pair.stairs.backend.WithBackendHttpClient.Companion.REST_TEMPLATE
-import dev.coldhands.pair.stairs.backend.domain.*
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperInfo
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.GetCombinationEventDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationInfo
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -46,7 +48,7 @@ class ApplicationIT : WithBackendHttpClient {
             ),
         )
 
-        val scoredCombinations: List<ScoredCombination> =
+        val scoredCombinations: List<ScoredCombinationInfo> =
             calculateCombinations(developersToIncludeInCombinations, streamsToIncludeInCombinations)
 
         scoredCombinations.shouldNotBeEmpty()
@@ -54,32 +56,31 @@ class ApplicationIT : WithBackendHttpClient {
         val bestCombination = scoredCombinations.first()
 
         bestCombination
-            .combination()
-            .flatMap { pairStream -> pairStream.developers() }
+            .combination
+            .flatMap { pairStream -> pairStream.developers }
             .map(DeveloperInfo::displayName)
             .shouldContainExactlyInAnyOrder("dev-0", "dev-1", "dev-2")
 
         bestCombination
-            .combination()
-            .map(PairStream::stream)
-            .map(StreamInfo::displayName)
+            .combination
+            .map { it.stream.displayName }
             .shouldContainExactlyInAnyOrder("stream-a", "stream-b")
 
         val today = LocalDate.of(2024, 4, 27)
-        saveCombinationEventFor(today, bestCombination.combination())
+        saveCombinationEventFor(today, bestCombination.combination)
 
-        val combinationEvents: List<CombinationEvent> = getCombinationEvents()
+        val combinationEvents: List<GetCombinationEventDto> = getCombinationEvents()
         combinationEvents shouldHaveSize 1
 
         val savedEvent = combinationEvents.first()
 
-        savedEvent.date() shouldBe today
-        savedEvent.combination() shouldHaveSize 2
-        savedEvent.combination() shouldBe bestCombination.combination()
+        savedEvent.date shouldBe today
+        savedEvent.combination shouldHaveSize 2
+        savedEvent.combination shouldBe bestCombination.combination
 
-        deleteCombinationEvent(savedEvent.id())
+        deleteCombinationEvent(savedEvent.id)
 
-        val combinationEventsAfterDelete: List<CombinationEvent> = getCombinationEvents()
+        val combinationEventsAfterDelete: List<GetCombinationEventDto> = getCombinationEvents()
         combinationEventsAfterDelete.shouldBeEmpty()
 
         val developerStats = getDeveloperStatsBetween(dev0Id, today, today)

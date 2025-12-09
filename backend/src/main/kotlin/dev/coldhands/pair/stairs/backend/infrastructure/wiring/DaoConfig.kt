@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.wiring
 
 import dev.coldhands.pair.stairs.backend.domain.DateProvider
+import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDao
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
@@ -39,4 +40,19 @@ open class DaoConfig {
     @Bean
     open fun streamDao(streamRepository: StreamRepository): StreamDao =
         JpaStreamDao(streamRepository = streamRepository)
+
+    @Bean
+    open fun combinationEventDao(
+        combinationEventRepository: CombinationEventRepository,
+        combinationRepository: CombinationRepository,
+        pairStreamRepository: PairStreamRepository, developerDao: DeveloperDao,
+        streamDao: StreamDao
+    ): CombinationEventDao =
+        JpaCombinationEventDao(
+            combinationEventRepository = combinationEventRepository,
+            combinationRepository = combinationRepository,
+            pairStreamRepository = pairStreamRepository,
+            developerDao = developerDao,
+            streamDao = streamDao
+        )
 }
