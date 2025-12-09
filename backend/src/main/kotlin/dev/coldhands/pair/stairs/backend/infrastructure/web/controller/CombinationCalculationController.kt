@@ -27,12 +27,11 @@ class CombinationCalculationController(
     @Value($$"${app.combinations.calculate.pageSize}") private val pageSize: Int
 ) {
 
-    @PostMapping
-    fun calculate(
-        @RequestParam("page") page: Int? = 0,
-        @RequestParam("projection") projection: SupportedProjection?,
+    @PostMapping(params = ["projection=page"])
+    fun calculateReturningPageProjection(
+        @RequestParam("page") page: Int?,
         @RequestBody request: CalculateInputDto,
-    ): Any { // todo split this method to allow a safer return type
+    ): Page<ScoredCombinationInfo> {
         val requestedPage = page ?: 0
         val developerIds = request.developerIds
         val streamIds = request.streamIds
@@ -43,10 +42,25 @@ class CombinationCalculationController(
                 knownStreamIds = streamIds
             )
 
-        return when (projection) {
-            SupportedProjection.PAGE -> result
-            null -> result.data
-        }
+        return result
+    }
+
+    @PostMapping(params = ["!projection"])
+    fun calculateReturningDefaultProjection(
+        @RequestParam("page") page: Int?,
+        @RequestBody request: CalculateInputDto,
+    ): List<ScoredCombinationInfo> {
+        val requestedPage = page ?: 0
+        val developerIds = request.developerIds
+        val streamIds = request.streamIds
+
+        val result: Page<ScoredCombinationInfo> = service.calculate(developerIds, streamIds, requestedPage, pageSize)
+            .toInfo(
+                knownDeveloperIds = developerIds,
+                knownStreamIds = streamIds
+            )
+
+        return result.data
     }
 
     @ExceptionHandler(NotEnoughDevelopersException::class)
@@ -81,11 +95,5 @@ class CombinationCalculationController(
                 )
             }
         )
-    }
-
-    companion object {
-        enum class SupportedProjection {
-            PAGE
-        }
     }
 }
