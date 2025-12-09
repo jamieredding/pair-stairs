@@ -15,7 +15,4 @@ class CombinationEventEntity(
     @ManyToOne
     @JoinColumn(name = "combination_id")
     val combination: CombinationEntity
-) {
-    // todo remove me once everything is kotlin
-    constructor(date: LocalDate, combination: CombinationEntity) : this(id = null, date = date, combination = combination)
-}
+)

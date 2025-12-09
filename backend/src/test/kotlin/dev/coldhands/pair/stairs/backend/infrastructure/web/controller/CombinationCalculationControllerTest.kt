@@ -74,12 +74,12 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun calculateCombinationsHasADefaultPageSize() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity(name = "dev-2")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity(name = "stream-b")).id
 
             val contentAsString = mockMvc.perform(
                 post("/api/v1/combinations/calculate")
@@ -105,12 +105,12 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun calculateCombinationsRequestingPageWithNoResults() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity(name = "dev-2")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity(name = "stream-b")).id
 
             val contentAsString = mockMvc.perform(
                 post("/api/v1/combinations/calculate")
@@ -136,12 +136,12 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun calculateCombinationsReturnsCombinationsSortedByStreamDisplayNameAndDevelopersSortedByDisplayName() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity(name = "dev-2")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity(name = "stream-b")).id
 
             val results: List<ScoredCombinationInfo> = mockMvc.perform(
                 post("/api/v1/combinations/calculate")
@@ -178,12 +178,12 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun calculateCombinationsHasADefaultPageSize() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity(name = "dev-2")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity(name = "stream-b")).id
 
             val contentAsString = mockMvc.perform(
                 post("/api/v1/combinations/calculate")
@@ -211,12 +211,12 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun calculateCombinationsRequestingPageWithNoResults() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity(name = "dev-2")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity(name = "stream-b")).id
 
             val contentAsString = mockMvc.perform(
                 post("/api/v1/combinations/calculate")
@@ -248,11 +248,11 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun returnBadRequestWhenThereAreNotEnoughDevelopersToBeAbleToPair() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
-            val stream1Id = testEntityManager.persist(StreamEntity("stream-b")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
+            val stream1Id = testEntityManager.persist(StreamEntity(name = "stream-b")).id
 
             val contentAsString = mockMvc.perform(
                 post("/api/v1/combinations/calculate")
@@ -277,11 +277,11 @@ open class CombinationCalculationControllerTest @Autowired constructor(
 
         @Test
         fun returnBadRequestWhenThereAreNotEnoughStreamsToBeAbleToPair() {
-            val dev0Id = testEntityManager.persist(DeveloperEntity("dev-0")).id
-            val dev1Id = testEntityManager.persist(DeveloperEntity("dev-1")).id
-            val dev2Id = testEntityManager.persist(DeveloperEntity("dev-2")).id
+            val dev0Id = testEntityManager.persist(DeveloperEntity(name = "dev-0")).id
+            val dev1Id = testEntityManager.persist(DeveloperEntity(name = "dev-1")).id
+            val dev2Id = testEntityManager.persist(DeveloperEntity(name = "dev-2")).id
 
-            val stream0Id = testEntityManager.persist(StreamEntity("stream-a")).id
+            val stream0Id = testEntityManager.persist(StreamEntity(name = "stream-a")).id
 
             val contentAsString = mockMvc.perform(
                 post("/api/v1/combinations/calculate")

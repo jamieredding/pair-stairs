@@ -15,7 +15,4 @@ class CombinationEntity(
         inverseJoinColumns = [JoinColumn(name = "pair_stream_id", referencedColumnName = "id")]
     )
     val pairs: MutableList<PairStreamEntity>
-) {
-    // todo remove me once everything is kotlin
-    constructor(pairs: List<PairStreamEntity>) : this(id = null, pairs = pairs.toMutableList())
-}
+)

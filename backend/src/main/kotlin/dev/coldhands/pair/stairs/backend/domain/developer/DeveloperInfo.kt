@@ -2,7 +2,6 @@ package dev.coldhands.pair.stairs.backend.domain.developer
 
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 
-// todo should this be called a Dto?
 data class DeveloperInfo(
     val id: DeveloperId,
     val displayName: String,

@@ -88,7 +88,7 @@ class JpaCombinationEventDao(
                     developers = pairStream.developerIds.map { developerId ->
                         developerDao.findById(developerId)?.toEntity()
                             ?: return CombinationEventCreateError.DeveloperNotFound(developerId).asFailure()
-                    },
+                    }.toMutableList(),
                     stream = streamDao.findById(pairStream.streamId)?.toEntity()
                         ?: return CombinationEventCreateError.StreamNotFound(pairStream.streamId).asFailure()
                 )
@@ -96,7 +96,7 @@ class JpaCombinationEventDao(
         }
         val combinationEntity: CombinationEntity = combinationRepository.save(
             CombinationEntity(
-                pairs = pairStreamEntities
+                pairs = pairStreamEntities.toMutableList()
             )
         )
 

@@ -19,11 +19,4 @@ class PairStreamEntity(
     @ManyToOne
     @JoinColumn(name = "stream_id")
     val stream: StreamEntity,
-) {
-    // todo remove me once everything is kotlin
-    constructor(developers: List<DeveloperEntity>, stream: StreamEntity) : this(
-        id = null,
-        developers = developers.toMutableList(),
-        stream = stream
-    )
-}
+)
