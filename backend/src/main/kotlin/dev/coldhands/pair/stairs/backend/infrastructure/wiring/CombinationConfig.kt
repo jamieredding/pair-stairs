@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.domain.combination.CombinationCalculati
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDao
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
+import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
 import dev.coldhands.pair.stairs.backend.usecase.BackendCombinationHistoryRepository
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
 import dev.coldhands.pair.stairs.backend.usecase.CoreCombinationCalculationService
@@ -37,4 +38,11 @@ open class CombinationConfig {
         BackendCombinationHistoryRepository(
             combinationEventDao
         )
+
+    @Bean
+    open fun combinationMapper(
+        developerDao: DeveloperDao,
+        streamDao: StreamDao,
+    ): CombinationMapper =
+        CombinationMapper(developerDao, streamDao)
 }
