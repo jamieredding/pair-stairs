@@ -698,7 +698,7 @@ abstract class CombinationEventDaoCdc<T : CombinationEventDao> {
             ids.forEach { assertCombinationEventExistsWithId(it) }
         }
 
-        // todo should not duplicate combination/pairstreams? is this just something to test in the jpa level?
+        // todo WRAP-REPOS should not duplicate combination/pairstreams? is this just something to test in the jpa level?
 
         @Nested
         inner class SadPath {

@@ -30,8 +30,8 @@ class TeamMembershipController(
         @PathVariable slug: Slug,
         @RequestBody body: CreateTeamMembershipDto
     ): ResponseEntity<*> {
-        val team = teamDao.findBySlug(slug)!! // todo handle missing
-        val user = userDao.findById(body.userId)!! // todo handle missing
+        val team = teamDao.findBySlug(slug)!! // todo TEAMS-FIRST-PASS handle missing
+        val user = userDao.findById(body.userId)!! // todo TEAMS-FIRST-PASS handle missing
 
         return teamMembershipDao.create(
             TeamMembershipDetails(
@@ -46,14 +46,14 @@ class TeamMembershipController(
             }
             .mapFailure {
                 when (it) {
-                    is TeamMembershipCreateError.DisplayNameTooLongError -> TODO()
-                    is TeamMembershipCreateError.TeamNotFoundError -> TODO()
-                    is TeamMembershipCreateError.UserNotFoundError -> TODO()
+                    is TeamMembershipCreateError.DisplayNameTooLongError -> TODO("TEAMS-FIRST-PASS")
+                    is TeamMembershipCreateError.TeamNotFoundError -> TODO("TEAMS-FIRST-PASS")
+                    is TeamMembershipCreateError.UserNotFoundError -> TODO("TEAMS-FIRST-PASS")
                 }
             }
             .mapFailure {
                 status(400)
-                    .body(TODO())
+                    .body(TODO("TEAMS-FIRST-PASS"))
             }
             .get()
     }
