@@ -20,15 +20,15 @@ interface CombinationEventDao {
             )
         )
 
-    fun findByDeveloperId(developerId: DeveloperId): List<CombinationEvent>
+    fun findByDeveloperId(developerId: DeveloperId): Set<CombinationEvent>
     fun findByDeveloperIdBetween(
         developerId: DeveloperId,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<CombinationEvent>
+    ): Set<CombinationEvent>
 
-    fun findByStreamId(streamId: StreamId): List<CombinationEvent>
-    fun findByStreamIdBetween(streamId: StreamId, startDate: LocalDate, endDate: LocalDate): List<CombinationEvent>
+    fun findByStreamId(streamId: StreamId): Set<CombinationEvent>
+    fun findByStreamIdBetween(streamId: StreamId, startDate: LocalDate, endDate: LocalDate): Set<CombinationEvent>
 
     fun create(combinationEventDetails: CombinationEventDetails): Result<CombinationEvent, CombinationEventCreateError>
     fun delete(combinationEventId: CombinationEventId)

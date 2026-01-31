@@ -52,7 +52,7 @@ class StatsService(
 
     private fun getDeveloperStats(
         developerId: DeveloperId,
-        events: List<CombinationEvent>,
+        events: Set<CombinationEvent>,
     ): DeveloperStats {
         val pairStreamsWithDeveloper: List<PairStream> = events.map { event ->
             event.combination
@@ -126,7 +126,7 @@ class StatsService(
 
     private fun getStreamStats(
         streamId: StreamId,
-        events: List<CombinationEvent>,
+        events: Set<CombinationEvent>,
     ): StreamStats {
         val pairStreamsWithStream: List<PairStream> = events.map { event ->
             event.combination

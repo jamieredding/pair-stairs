@@ -820,7 +820,7 @@ abstract class CombinationEventDaoCdc<T : CombinationEventDao> {
     }
 
     abstract fun createDeveloper(developerDetails: DeveloperDetails): Developer
-    abstract fun createStream(streamId: StreamDetails): Stream
+    abstract fun createStream(streamDetails: StreamDetails): Stream
 
     companion object TestFixtures {
         operator fun DeveloperId.plus(number: Long) = DeveloperId(value + number)

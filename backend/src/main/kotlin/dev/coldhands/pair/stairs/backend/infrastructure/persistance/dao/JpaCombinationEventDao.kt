@@ -51,35 +51,41 @@ class JpaCombinationEventDao(
             .toList()
     }
 
-    override fun findByDeveloperId(developerId: DeveloperId): List<CombinationEvent> =
+    override fun findByDeveloperId(developerId: DeveloperId): Set<CombinationEvent> =
         combinationEventRepository.findByDeveloperId(developerId.value)
             .map { it.toDomain() }
+            .toSet()
 
     override fun findByDeveloperIdBetween(
         developerId: DeveloperId,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<CombinationEvent> =
+    ): Set<CombinationEvent> =
         combinationEventRepository.findByDeveloperIdBetween(
             developerId = developerId.value,
             startDate = startDate,
             endDate = endDate
-        ).map { it.toDomain() }
+        )
+            .map { it.toDomain() }
+            .toSet()
 
-    override fun findByStreamId(streamId: StreamId): List<CombinationEvent> =
+    override fun findByStreamId(streamId: StreamId): Set<CombinationEvent> =
         combinationEventRepository.findByStreamId(streamId.value)
             .map { it.toDomain() }
+            .toSet()
 
     override fun findByStreamIdBetween(
         streamId: StreamId,
         startDate: LocalDate,
         endDate: LocalDate
-    ): List<CombinationEvent> =
+    ): Set<CombinationEvent> =
         combinationEventRepository.findByStreamIdBetween(
             streamId = streamId.value,
             startDate = startDate,
             endDate = endDate
-        ).map { it.toDomain() }
+        )
+            .map { it.toDomain() }
+            .toSet()
 
     override fun create(combinationEventDetails: CombinationEventDetails): Result<CombinationEvent, CombinationEventCreateError> {
         val pairStreamEntities: List<PairStreamEntity> = combinationEventDetails.combination.map { pairStream ->

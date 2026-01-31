@@ -118,7 +118,7 @@ open class JpaCombinationEventDaoTest @Autowired constructor(
     override fun createDeveloper(developerDetails: DeveloperDetails): Developer =
         developerDao.create(developerDetails).shouldBeSuccess()
 
-    override fun createStream(streamId: StreamDetails): Stream =
-        streamDao.create(streamId).shouldBeSuccess()
+    override fun createStream(streamDetails: StreamDetails): Stream =
+        streamDao.create(streamDetails).shouldBeSuccess()
 
 }
