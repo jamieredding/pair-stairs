@@ -89,22 +89,32 @@ class JpaCombinationEventDao(
 
     override fun create(combinationEventDetails: CombinationEventDetails): Result<CombinationEvent, CombinationEventCreateError> {
         val pairStreamEntities: List<PairStreamEntity> = combinationEventDetails.combination.map { pairStream ->
-            pairStreamRepository.save(
-                PairStreamEntity(
-                    developers = pairStream.developerIds.map { developerId ->
-                        developerDao.findById(developerId)?.toEntity()
-                            ?: return CombinationEventCreateError.DeveloperNotFound(developerId).asFailure()
-                    }.toMutableList(),
-                    stream = streamDao.findById(pairStream.streamId)?.toEntity()
-                        ?: return CombinationEventCreateError.StreamNotFound(pairStream.streamId).asFailure()
+            pairStreamRepository.findByDevelopersAndStream(
+                pairStream.developerIds.map { it.value }.toSet(),
+                pairStream.streamId.value,
+                pairStream.developerIds.size
+            )
+                ?: pairStreamRepository.save(
+                    PairStreamEntity(
+                        developers = pairStream.developerIds.map { developerId ->
+                            developerDao.findById(developerId)?.toEntity()
+                                ?: return CombinationEventCreateError.DeveloperNotFound(developerId).asFailure()
+                        }.toMutableList(),
+                        stream = streamDao.findById(pairStream.streamId)?.toEntity()
+                            ?: return CombinationEventCreateError.StreamNotFound(pairStream.streamId).asFailure()
+                    )
+                )
+        }
+
+        val combinationEntity: CombinationEntity = combinationRepository.findByPairStreams(
+            pairStreamEntities.map { it.id!! },
+            pairStreamEntities.size
+        )
+            ?: combinationRepository.save(
+                CombinationEntity(
+                    pairs = pairStreamEntities.toMutableList()
                 )
             )
-        }
-        val combinationEntity: CombinationEntity = combinationRepository.save(
-            CombinationEntity(
-                pairs = pairStreamEntities.toMutableList()
-            )
-        )
 
         return combinationEventRepository.save(
             CombinationEventEntity(

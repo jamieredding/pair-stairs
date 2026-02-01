@@ -5,24 +5,36 @@ import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.StreamId
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEvent
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDaoCdc
+import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDetails
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDaoCdc.TestFixtures.someDeveloperDetails
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDetails
 import dev.coldhands.pair.stairs.backend.domain.stream.Stream
+import dev.coldhands.pair.stairs.backend.domain.stream.StreamDaoCdc.TestFixtures.someStreamDetails
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDomain
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEventEntity
+import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.repository.*
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldBeUnique
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.test.context.TestPropertySource
 import org.springframework.transaction.support.TransactionTemplate
+import java.util.concurrent.ConcurrentLinkedDeque
+import kotlin.concurrent.thread
 
 @DataJpaTest
 @TestPropertySource(
@@ -48,6 +60,126 @@ open class JpaCombinationEventDaoTest @Autowired constructor(
         developerDao,
         streamDao
     )
+
+    @Nested
+    inner class JpaOnly {
+
+        @Test
+        fun `creating events with identical combination reuses same combination row`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val dev2 = createDeveloper(someDeveloperDetails(name = "dev-2"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val combination = setOf(
+                PairStream(setOf(dev0.id, dev1.id), stream0.id),
+                PairStream(setOf(dev2.id), stream1.id),
+            )
+
+            val combinationEvent1 =
+                underTest.create(CombinationEventDetails(date = now, combination = combination)).shouldBeSuccess()
+            val combinationEvent2 =
+                underTest.create(CombinationEventDetails(date = now.plusDays(1), combination = combination))
+                    .shouldBeSuccess()
+
+            transactionTemplate.executeWithoutResult {
+                // 1) Only one combination row for this domain combination
+                countPersistedCombinations(combination) shouldBe 1
+
+                // 2) Both events point at the same combination_id
+                val eventEntity1 =
+                    testEntityManager.find(CombinationEventEntity::class.java, combinationEvent1.id.value)
+                val eventEntity2 =
+                    testEntityManager.find(CombinationEventEntity::class.java, combinationEvent2.id.value)
+
+                eventEntity1.combination.id shouldBe eventEntity2.combination.id
+            }
+        }
+
+        @Test
+        fun `creating events reuses existing pairstream rows`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+
+            val shared = PairStream(setOf(dev0.id, dev1.id), stream0.id)
+
+            countPersistedPairStreams(shared) shouldBe 0
+            countPersistedCombinations(setOf(shared)) shouldBe 0
+
+            underTest.create(CombinationEventDetails(now, setOf(shared))).shouldBeSuccess()
+            underTest.create(CombinationEventDetails(now.plusDays(1), setOf(shared))).shouldBeSuccess()
+
+            transactionTemplate.executeWithoutResult {
+                countPersistedPairStreams(shared) shouldBe 1
+                countPersistedCombinations(setOf(shared)) shouldBe 1
+            }
+        }
+
+        @Test
+        fun `shared pairstream is reused across different combinations`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val dev2 = createDeveloper(someDeveloperDetails(name = "dev-2"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+            val stream1 = createStream(someStreamDetails(name = "stream-1"))
+
+            val shared = PairStream(setOf(dev0.id, dev1.id), stream0.id)
+            val other1 = PairStream(setOf(dev2.id), stream1.id)
+            val other2 = PairStream(setOf(dev2.id), stream0.id) // just an example distinct PairStream
+
+            val combA = setOf(shared, other1)
+            val combB = setOf(shared, other2)
+
+            underTest.create(CombinationEventDetails(now, combA)).shouldBeSuccess()
+            underTest.create(CombinationEventDetails(now.plusDays(1), combB)).shouldBeSuccess()
+
+            transactionTemplate.executeWithoutResult {
+                countPersistedPairStreams(shared) shouldBe 1
+
+                // Two different combinations should exist (unless your rules consider them the same)
+                countPersistedCombinations(combA) shouldBe 1
+                countPersistedCombinations(combB) shouldBe 1
+            }
+        }
+
+        @Test
+        @Disabled("todo currently this isn't concurrently safe")
+        fun `concurrent creates do not duplicate combination or pairstream rows`() {
+            val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
+            val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
+            val stream0 = createStream(someStreamDetails(name = "stream-0"))
+
+            val shared = PairStream(setOf(dev0.id, dev1.id), stream0.id)
+            val comb = setOf(shared)
+
+            val ids = ConcurrentLinkedDeque<CombinationEventId>()
+
+            (1..10).map { i ->
+                thread(name = "dedupe-$i") {
+                    repeat(10) { j ->
+                        underTest.create(
+                            CombinationEventDetails(
+                                date = now.plusDays(i.toLong()).plusYears(j.toLong()),
+                                combination = comb
+                            )
+                        ).shouldBeSuccess { ids.add(it.id) }
+                    }
+                }
+            }.forEach { it.join() }
+
+            transactionTemplate.executeWithoutResult {
+                ids.size shouldBe 100
+                ids.shouldBeUnique()
+
+                // The deduped invariants:
+                countPersistedPairStreams(shared) shouldBe 1
+                countPersistedCombinations(comb) shouldBe 1
+            }
+        }
+
+    }
 
     override fun assertNoCombinationEventExistsWithId(combinationEventId: CombinationEventId) {
         transactionTemplate.executeWithoutResult {
@@ -120,5 +252,22 @@ open class JpaCombinationEventDaoTest @Autowired constructor(
 
     override fun createStream(streamDetails: StreamDetails): Stream =
         streamDao.create(streamDetails).shouldBeSuccess()
+
+    private fun findAllPairStreamEntities(): List<PairStreamEntity> =
+        testEntityManager.entityManager
+            .createQuery("SELECT ps FROM PairStreamEntity ps", PairStreamEntity::class.java)
+            .resultList
+
+    private fun findAllCombinationEntities(): List<CombinationEntity> =
+        testEntityManager.entityManager
+            .createQuery("SELECT c FROM CombinationEntity c", CombinationEntity::class.java)
+            .resultList
+
+    private fun countPersistedPairStreams(expected: PairStream): Int =
+        findAllPairStreamEntities().count { it.toDomain() == expected }
+
+    private fun countPersistedCombinations(expected: Set<PairStream>): Int =
+        findAllCombinationEntities().count { it.toDomain() == expected }
+
 
 }
