@@ -12,6 +12,7 @@
         <spring-boot.version>3.5.8</spring-boot.version>
         <dockerImageName>ghcr.io/jamieredding/pair-stairs-web</dockerImageName>
         <git-commit-id-maven-plugin.version>9.0.2</git-commit-id-maven-plugin.version>
+        <http4k.version>6.27.0.0</http4k.version>
     </properties>
 
     <dependencyManagement>
@@ -40,6 +41,35 @@
             <artifactId>result4k-kotest</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- HTTP4K : START -->
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-core</artifactId>
+            <version>${http4k.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-format-jackson</artifactId>
+            <version>${http4k.version}</version>
+        </dependency>
+
+        <!-- HTTP4K-TESTING : START -->
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-testing-kotest</artifactId>
+            <version>${http4k.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-testing-approval</artifactId>
+            <version>${http4k.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- HTTP4K-TESTING : END -->
+
+        <!-- HTTP4K : END -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
