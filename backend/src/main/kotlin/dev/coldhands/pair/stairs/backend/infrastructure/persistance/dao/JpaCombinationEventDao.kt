@@ -92,7 +92,7 @@ class JpaCombinationEventDao(
             pairStreamRepository.findByDevelopersAndStream(
                 pairStream.developerIds.map { it.value }.toSet(),
                 pairStream.streamId.value,
-                pairStream.developerIds.size
+                pairStream.developerIds.size.toLong()
             )
                 .firstOrNull()
                 ?: pairStreamRepository.save(
@@ -109,7 +109,7 @@ class JpaCombinationEventDao(
 
         val combinationEntity: CombinationEntity = combinationRepository.findByPairStreams(
             pairStreamEntities.map { it.id!! },
-            pairStreamEntities.size
+            pairStreamEntities.size.toLong()
         )
             .firstOrNull()
             ?: combinationRepository.save(

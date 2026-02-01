@@ -5,15 +5,26 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
-interface CombinationRepository: JpaRepository<CombinationEntity, Long> {
+interface CombinationRepository : JpaRepository<CombinationEntity, Long> {
 
     @Query(
-        "SELECT c FROM CombinationEntity c WHERE :count = " +
-                "(SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs) AND p.id IN :pairStreamIds) " +
-                "AND :count = (SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs))"
-    )
+        """
+        SELECT c
+        FROM CombinationEntity c
+        JOIN c.pairs p
+        WHERE p.id IN :pairStreamIds
+        GROUP BY c
+        HAVING COUNT(DISTINCT p.id) = :count
+           AND (
+               SELECT COUNT(p2)
+               FROM CombinationEntity c2
+               JOIN c2.pairs p2
+               WHERE c2 = c
+           ) = :count
+        ORDER BY c.id ASC
+    """)
     fun findByPairStreams(
         @Param("pairStreamIds") pairStreamIds: List<Long>,
-        @Param("count") count: Int
+        @Param("count") count: Long,
     ): List<CombinationEntity>
 }
