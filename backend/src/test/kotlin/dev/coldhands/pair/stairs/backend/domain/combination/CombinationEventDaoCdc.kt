@@ -25,7 +25,6 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
@@ -664,7 +663,6 @@ abstract class CombinationEventDaoCdc<T : CombinationEventDao> {
         }
 
         @Test
-        @Disabled("todo currently this isn't concurrently safe")
         fun `can create combination events concurrently`() {
             val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
             val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))

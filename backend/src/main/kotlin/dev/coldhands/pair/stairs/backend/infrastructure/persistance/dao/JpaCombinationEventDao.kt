@@ -94,6 +94,7 @@ class JpaCombinationEventDao(
                 pairStream.streamId.value,
                 pairStream.developerIds.size
             )
+                .firstOrNull()
                 ?: pairStreamRepository.save(
                     PairStreamEntity(
                         developers = pairStream.developerIds.map { developerId ->
@@ -110,6 +111,7 @@ class JpaCombinationEventDao(
             pairStreamEntities.map { it.id!! },
             pairStreamEntities.size
         )
+            .firstOrNull()
             ?: combinationRepository.save(
                 CombinationEntity(
                     pairs = pairStreamEntities.toMutableList()

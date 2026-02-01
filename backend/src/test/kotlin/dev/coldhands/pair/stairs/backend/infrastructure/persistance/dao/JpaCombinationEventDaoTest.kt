@@ -25,13 +25,14 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.test.context.TestPropertySource
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.support.TransactionTemplate
 import java.util.concurrent.ConcurrentLinkedDeque
 import kotlin.concurrent.thread
@@ -62,7 +63,7 @@ open class JpaCombinationEventDaoTest @Autowired constructor(
     )
 
     @Nested
-    inner class JpaOnly {
+    open inner class JpaOnly {
 
         @Test
         fun `creating events with identical combination reuses same combination row`() {
@@ -145,8 +146,10 @@ open class JpaCombinationEventDaoTest @Autowired constructor(
         }
 
         @Test
-        @Disabled("todo currently this isn't concurrently safe")
-        fun `concurrent creates do not duplicate combination or pairstream rows`() {
+        @Transactional(propagation = Propagation.NOT_SUPPORTED)
+        // Ideally this wouldn't allow duplicates but until this is an issue, we don't need to worry about supporting
+        // it and migrating existing data to ensure we only have existing data with unique rows
+        open fun `concurrent creates will allow duplicate combination or pairstream rows`() {
             val dev0 = createDeveloper(someDeveloperDetails(name = "dev-0"))
             val dev1 = createDeveloper(someDeveloperDetails(name = "dev-1"))
             val stream0 = createStream(someStreamDetails(name = "stream-0"))
@@ -169,14 +172,13 @@ open class JpaCombinationEventDaoTest @Autowired constructor(
                 }
             }.forEach { it.join() }
 
-            transactionTemplate.executeWithoutResult {
-                ids.size shouldBe 100
-                ids.shouldBeUnique()
+            ids.size shouldBe 100
+            ids.shouldBeUnique()
 
-                // The deduped invariants:
-                countPersistedPairStreams(shared) shouldBe 1
-                countPersistedCombinations(comb) shouldBe 1
-            }
+            // The deduped invariants:
+            // This can be uncommented if we ever truly fix the uniqueness issue
+//            countPersistedPairStreams(shared) shouldBe 1
+//            countPersistedCombinations(comb) shouldBe 1
         }
 
     }

@@ -8,12 +8,12 @@ import org.springframework.data.repository.query.Param
 interface CombinationRepository: JpaRepository<CombinationEntity, Long> {
 
     @Query(
-        ("SELECT c FROM CombinationEntity c WHERE :count = " +
+        "SELECT c FROM CombinationEntity c WHERE :count = " +
                 "(SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs) AND p.id IN :pairStreamIds) " +
-                "AND :count = (SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs))")
+                "AND :count = (SELECT COUNT(p) FROM PairStreamEntity p WHERE p IN elements(c.pairs))"
     )
     fun findByPairStreams(
         @Param("pairStreamIds") pairStreamIds: List<Long>,
         @Param("count") count: Int
-    ): CombinationEntity? // todo this should be a list and I take the first so I avoid concurrency exceptions
+    ): List<CombinationEntity>
 }
