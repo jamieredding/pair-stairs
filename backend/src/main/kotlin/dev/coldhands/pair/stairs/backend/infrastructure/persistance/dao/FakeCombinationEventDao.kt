@@ -13,13 +13,14 @@ import dev.forkhandles.result4k.asFailure
 import dev.forkhandles.result4k.asSuccess
 import java.time.LocalDate
 import java.util.Collections.unmodifiableMap
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 
 class FakeCombinationEventDao(
     private val developerDao: FakeDeveloperDao,
     private val streamDao: FakeStreamDao
 ) : CombinationEventDao {
-    private val combinationEvents = mutableMapOf<CombinationEventId, CombinationEvent>()
+    private val combinationEvents = ConcurrentHashMap<CombinationEventId, CombinationEvent>()
     val combinationEventsView: Map<CombinationEventId, CombinationEvent> = unmodifiableMap(combinationEvents)
     private var nextId = AtomicLong(0)
 
