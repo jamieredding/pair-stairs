@@ -56,7 +56,7 @@ class DeveloperHandlerTest {
         }
 
         @Test
-        fun `when multiple developers then them`(approver: Approver) {
+        fun `when multiple developers then return them all`(approver: Approver) {
             developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess()
             developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess()
 
@@ -90,7 +90,7 @@ class DeveloperHandlerTest {
         }
 
         @Test
-        fun `when multiple developers then them`(approver: Approver) {
+        fun `when multiple developers then return them all`(approver: Approver) {
             developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess()
             developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess()
 
@@ -137,7 +137,7 @@ class DeveloperHandlerTest {
     @Nested
     inner class Patch {
 
-        @ParameterizedTest
+        @ParameterizedTest(name = "set archived to {0}")
         @ValueSource(booleans = [true, false])
         fun archived(newArchivedValue: Boolean, approver: Approver) {
             val pathIdLens = Path.long().of("id")

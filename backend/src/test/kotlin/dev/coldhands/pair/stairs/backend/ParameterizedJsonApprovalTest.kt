@@ -27,16 +27,24 @@ class ParameterizedJsonApprovalTest : BaseApprovalTest {
         val testClass = requiredTestClass
         val testMethod = requiredTestMethod
         val nestedClassName = testClass.name.split('.').last()
-        val methodName = if (AnnotationSupport.isAnnotated(testMethod, ParameterizedTest::class.java)) {
+        val nestedClassInSubDirectories = nestedClassName.replace("$", "/")
+        val simpleApprovalFilePath =
+            testClass.`package`.name.replace('.', '/') + '/' + nestedClassInSubDirectories + "/" + testMethod.name
+
+        return if (AnnotationSupport.isAnnotated(testMethod, ParameterizedTest::class.java)) {
             // adding the display name here is extremely hacky based on the issue raised
             // here: https://github.com/junit-team/junit-framework/issues/1139
             // Using org.junit.jupiter.params.ParameterInfo.get(...) is returning null for now
             // so leaving with a basic working version
-            testMethod.name + "." + displayName
+            val annotation = AnnotationSupport.findAnnotation(testMethod, ParameterizedTest::class.java).get()
+            if (annotation.name == "{default_display_name}") {
+                throw IllegalArgumentException("$nestedClassName#${testMethod.name}'s @ParameterizedTest annotation must specify a name so that you have a reliable file name generated in your approval file.")
+            }
+
+            "$simpleApprovalFilePath/$displayName"
         } else {
-            testMethod.name
+            simpleApprovalFilePath
         }
-        return testClass.`package`.name.replace('.', '/') + '/' + nestedClassName + "." + methodName
     }
 
     fun format(input: String): String = try {
