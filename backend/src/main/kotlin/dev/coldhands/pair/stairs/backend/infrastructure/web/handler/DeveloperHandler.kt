@@ -4,8 +4,11 @@ import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDetails
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperInfo
+import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperUpdateError
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode.DEVELOPER_NOT_FOUND
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
@@ -14,6 +17,7 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Method.*
 import org.http4k.core.Response
 import org.http4k.core.Status.Companion.CREATED
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.format.Jackson.auto
@@ -30,6 +34,7 @@ object DeveloperHandler {
     private val patchDeveloperArchived = Body.auto<PatchDeveloperDetails>().map { it.archived }.toLens()
     private val developerLens = Body.auto<Developer>().toLens()
     private val developerInfoListLens = Body.auto<List<DeveloperInfo>>().toLens()
+    private val errorBodyLens = Body.auto<ErrorDto>().toLens()
 
     private data class PostDeveloperDetails(
         val name: String,
@@ -67,15 +72,18 @@ object DeveloperHandler {
                 val developerId = pathDeveloperIdLens(request)
                 val newArchived = patchDeveloperArchived(request)
 
-//                val developer = developerDao.findById(developerId)!!
-
-                val updatedDeveloper = developerDao.update(developerId, newArchived)
-                    .mapFailure { TODO("Currently unsupported?") }
+                developerDao.update(developerId, newArchived)
+                    .map { updatedDeveloper ->
+                        Response(OK)
+                            .with(developerLens of updatedDeveloper)
+                    }
+                    .mapFailure {
+                        when (it) {
+                            is DeveloperUpdateError.DeveloperNotFound -> Response(NOT_FOUND)
+                                .with(errorBodyLens of ErrorDto(errorCode = DEVELOPER_NOT_FOUND))
+                        }
+                    }
                     .get()
-
-
-                Response(OK)
-                    .with(developerLens of updatedDeveloper)
             },
 
             "/api/v1/developers/info" bind GET to {

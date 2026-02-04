@@ -6,7 +6,7 @@ import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamDto
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.LegacyErrorDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
@@ -38,7 +38,7 @@ class TeamController(private val teamDao: TeamDao) {
             }
             .mapFailure {
                 badRequest()
-                    .body(ErrorDto(errorCode = it))
+                    .body(LegacyErrorDto(errorCode = it))
             }
             .get()
 

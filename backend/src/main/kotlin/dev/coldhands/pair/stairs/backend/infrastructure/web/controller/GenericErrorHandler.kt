@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.LegacyErrorDto
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.badRequest
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 class GenericErrorHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleError(e: MethodArgumentNotValidException): ResponseEntity<ErrorDto> {
+    fun handleError(e: MethodArgumentNotValidException): ResponseEntity<LegacyErrorDto> {
         val errorCode: String = e.bindingResult.allErrors.firstOrNull()?.defaultMessage
             ?: "UNKNOWN_VALIDATION_ERROR"
-        return badRequest().body(ErrorDto(errorCode))
+        return badRequest().body(LegacyErrorDto(errorCode))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
-    fun handleError(): ResponseEntity<ErrorDto> {
-        return badRequest().body(ErrorDto("INVALID_REQUEST_BODY"))
+    fun handleError(): ResponseEntity<LegacyErrorDto> {
+        return badRequest().body(LegacyErrorDto("INVALID_REQUEST_BODY"))
     }
 }

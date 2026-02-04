@@ -1,3 +1,3 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.dto
 
-data class ErrorDto(val errorCode: ErrorCode)
+data class LegacyErrorDto(val errorCode: String)

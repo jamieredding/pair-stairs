@@ -2,9 +2,11 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import dev.coldhands.pair.stairs.backend.ParameterizedJsonApprovalTest
 import dev.coldhands.pair.stairs.backend.aDeveloperDetails
+import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import org.http4k.core.Body
@@ -13,6 +15,7 @@ import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.CREATED
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.format.Jackson.auto
@@ -26,10 +29,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import kotlin.random.Random
 
 @ExtendWith(ParameterizedJsonApprovalTest::class)
 class DeveloperHandlerTest {
 
+    // todo refactor to use "AppContext" concept
     private val developerDao = FakeDeveloperDao()
     private val underTest = DeveloperHandler(developerDao)
 
@@ -136,17 +141,16 @@ class DeveloperHandlerTest {
 
     @Nested
     inner class Patch {
+        private val pathIdLens = Path.long().of("id")
+        private val bodyPatchDeveloperLens = Body.auto<PatchDeveloper>().toLens()
+        private val responseBodyLens = Body.auto<Developer>().toLens()
 
         @ParameterizedTest(name = "set archived to {0}")
         @ValueSource(booleans = [true, false])
         fun archived(newArchivedValue: Boolean, approver: Approver) {
-            val pathIdLens = Path.long().of("id")
-            val bodyPatchDeveloperLens = Body.auto<PatchDeveloper>().toLens()
-            val responseBodyLens = Body.auto<Developer>().toLens()
-
-            val developer = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess()
-
-            developer.archived shouldBe false
+            val developer = developerDao.create(aDeveloperDetails("dev-0"))
+                .shouldBeSuccess()
+                .also { it.archived shouldBe false }
 
             val response = underTest(
                 Request(
@@ -168,6 +172,25 @@ class DeveloperHandlerTest {
                 name shouldBe "dev-0"
                 archived shouldBe newArchivedValue
             }
+        }
+
+        @Test
+        fun `when developer does not exist with id then return not found`(approver: Approver) {
+            val madeUpDeveloperId = DeveloperId(Random.nextLong())
+            developerDao.findById(madeUpDeveloperId).shouldBeNull()
+
+            val response = underTest(
+                Request(
+                    method = Method.PATCH,
+                    uri = "/api/v1/developers/{id}",
+                ).with(
+                    pathIdLens of madeUpDeveloperId.value,
+                    bodyPatchDeveloperLens of PatchDeveloper(archived = false)
+                )
+            )
+
+            response shouldHaveStatus NOT_FOUND
+            approver.assertApproved(response)
         }
     }
 

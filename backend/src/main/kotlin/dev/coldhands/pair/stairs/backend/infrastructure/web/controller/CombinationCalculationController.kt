@@ -5,7 +5,7 @@ import dev.coldhands.pair.stairs.backend.domain.combination.CombinationCalculati
 import dev.coldhands.pair.stairs.backend.domain.combination.ScoredCombination
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CalculateInputDto
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.LegacyErrorDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ScoredCombinationInfo
 import dev.coldhands.pair.stairs.core.domain.pairstream.NotEnoughDevelopersException
 import dev.coldhands.pair.stairs.core.domain.pairstream.NotEnoughStreamsException
@@ -54,12 +54,12 @@ class CombinationCalculationController(
     }
 
     @ExceptionHandler(NotEnoughDevelopersException::class)
-    fun handleNotEnoughDevelopersException(): ResponseEntity<ErrorDto> =
-        ResponseEntity.badRequest().body(ErrorDto("NOT_ENOUGH_DEVELOPERS"))
+    fun handleNotEnoughDevelopersException(): ResponseEntity<LegacyErrorDto> =
+        ResponseEntity.badRequest().body(LegacyErrorDto("NOT_ENOUGH_DEVELOPERS"))
 
     @ExceptionHandler(NotEnoughStreamsException::class)
-    fun handleNotEnoughStreamsException(): ResponseEntity<ErrorDto> =
-        ResponseEntity.badRequest().body(ErrorDto("NOT_ENOUGH_STREAMS"))
+    fun handleNotEnoughStreamsException(): ResponseEntity<LegacyErrorDto> =
+        ResponseEntity.badRequest().body(LegacyErrorDto("NOT_ENOUGH_STREAMS"))
 
     fun Page<ScoredCombination>.toInfo(): Page<ScoredCombinationInfo> {
         return Page(
