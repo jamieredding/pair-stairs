@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.developer.*
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode.DEVELOPER_NOT_FOUND
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import dev.coldhands.pair.stairs.backend.usecase.StatsService
@@ -14,18 +15,23 @@ import org.http4k.core.Body
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method.*
 import org.http4k.core.Response
+import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
+import org.http4k.lens.Query
+import org.http4k.lens.localDate
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 object DeveloperHandler {
 
     private val pathDeveloperIdLens = Path.map { DeveloperId(it.toLong()) }.of("id")
+    private val queryStartDateLens = Query.localDate().optional("startDate")
+    private val queryEndDateLens = Query.localDate().optional("endDate")
 
     private val developerListLens = Body.auto<List<Developer>>().toLens()
     private val postDeveloperDetailsName = Body.auto<PostDeveloperDetails>().map { it.name }.toLens()
@@ -93,12 +99,42 @@ object DeveloperHandler {
             },
 
             "/api/v1/developers/{id}/stats" bind GET to { request ->
-                val developerId = pathDeveloperIdLens(request)
+                val startDate = queryStartDateLens(request)
+                val endDate = queryEndDateLens(request)
+                when {
+                    (startDate == null) != (endDate == null) -> Response(BAD_REQUEST).with(
+                        errorBodyLens of ErrorDto(
+                            errorCode = ErrorCode.BAD_REQUEST,
+                            errorMessage = "startDate and endDate must be provided"
+                        )
+                    )
 
-                developerDao.findById(developerId)?.let { statsService.getDeveloperStats(developerId).toResponse() }
-                    ?: Response(NOT_FOUND)
-                        .with(errorBodyLens of ErrorDto(errorCode = DEVELOPER_NOT_FOUND))
+                    startDate != null && startDate > endDate -> Response(BAD_REQUEST).with(
+                        errorBodyLens of ErrorDto(
+                            errorCode = ErrorCode.BAD_REQUEST,
+                            errorMessage = "startDate must be before endDate"
+                        )
+                    )
 
+                    else -> {
+                        val developerId = pathDeveloperIdLens(request)
+
+                        developerDao.findById(developerId)?.let {
+                            when {
+                                startDate != null && endDate != null -> statsService.getDeveloperStatsBetween(
+                                    developerId,
+                                    startDate,
+                                    endDate
+                                )
+
+                                else -> statsService.getDeveloperStats(developerId)
+                            }.toResponse()
+                        }
+                            ?: Response(NOT_FOUND)
+                                .with(errorBodyLens of ErrorDto(errorCode = DEVELOPER_NOT_FOUND))
+
+                    }
+                }
             }
         )
 
