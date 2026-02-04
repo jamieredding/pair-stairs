@@ -4,7 +4,7 @@ import dev.coldhands.pair.stairs.backend.ParameterizedJsonApprovalTest
 import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
-import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
+import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -34,10 +34,6 @@ import kotlin.random.Random
 @ExtendWith(ParameterizedJsonApprovalTest::class)
 class DeveloperHandlerTest {
 
-    // todo refactor to use "AppContext" concept
-    private val developerDao = FakeDeveloperDao()
-    private val underTest = DeveloperHandler(developerDao)
-
     @Test
     @Disabled
     fun `when anonymous user then return unauthorized`() {
@@ -48,7 +44,7 @@ class DeveloperHandlerTest {
     inner class Read {
 
         @Test
-        fun `when no developers then return empty array`(approver: Approver) {
+        fun `when no developers then return empty array`(approver: Approver) = testContext {
             val response = underTest(
                 Request(
                     method = GET,
@@ -61,7 +57,7 @@ class DeveloperHandlerTest {
         }
 
         @Test
-        fun `when multiple developers then return them all`(approver: Approver) {
+        fun `when multiple developers then return them all`(approver: Approver) = testContext {
             developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess()
             developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess()
 
@@ -82,7 +78,7 @@ class DeveloperHandlerTest {
     inner class ReadDeveloperInfo {
 
         @Test
-        fun `when no developers then return empty array`(approver: Approver) {
+        fun `when no developers then return empty array`(approver: Approver) = testContext {
             val response = underTest(
                 Request(
                     method = GET,
@@ -95,7 +91,7 @@ class DeveloperHandlerTest {
         }
 
         @Test
-        fun `when multiple developers then return them all`(approver: Approver) {
+        fun `when multiple developers then return them all`(approver: Approver) = testContext {
             developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess()
             developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess()
 
@@ -115,7 +111,7 @@ class DeveloperHandlerTest {
     inner class Write {
 
         @Test
-        fun `save a developer`(approver: Approver) {
+        fun `save a developer`(approver: Approver) = testContext {
             val requestBodyLens = Body.auto<PostDeveloper>().toLens()
             val responseBodyLens = Body.auto<Developer>().toLens()
 
@@ -147,7 +143,7 @@ class DeveloperHandlerTest {
 
         @ParameterizedTest(name = "set archived to {0}")
         @ValueSource(booleans = [true, false])
-        fun archived(newArchivedValue: Boolean, approver: Approver) {
+        fun archived(newArchivedValue: Boolean, approver: Approver) = testContext {
             val developer = developerDao.create(aDeveloperDetails("dev-0"))
                 .shouldBeSuccess()
                 .also { it.archived shouldBe false }
@@ -175,7 +171,7 @@ class DeveloperHandlerTest {
         }
 
         @Test
-        fun `when developer does not exist with id then return not found`(approver: Approver) {
+        fun `when developer does not exist with id then return not found`(approver: Approver) = testContext {
             val madeUpDeveloperId = DeveloperId(Random.nextLong())
             developerDao.findById(madeUpDeveloperId).shouldBeNull()
 
