@@ -1,0 +1,62 @@
+{
+  "developerStats": [
+    {
+      "developer": {
+        "id": 0,
+        "displayName": "dev-3",
+        "archived": false
+      },
+      "count": 0
+    },
+    {
+      "developer": {
+        "id": 1,
+        "displayName": "dev-2",
+        "archived": false
+      },
+      "count": 0
+    },
+    {
+      "developer": {
+        "id": 2,
+        "displayName": "dev-1",
+        "archived": false
+      },
+      "count": 0
+    },
+    {
+      "developer": {
+        "id": 3,
+        "displayName": "dev-0",
+        "archived": false
+      },
+      "count": 0
+    }
+  ],
+  "streamStats": [
+    {
+      "stream": {
+        "id": 0,
+        "displayName": "stream-c",
+        "archived": false
+      },
+      "count": 0
+    },
+    {
+      "stream": {
+        "id": 1,
+        "displayName": "stream-b",
+        "archived": false
+      },
+      "count": 0
+    },
+    {
+      "stream": {
+        "id": 2,
+        "displayName": "stream-a",
+        "archived": false
+      },
+      "count": 0
+    }
+  ]
+}

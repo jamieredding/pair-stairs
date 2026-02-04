@@ -1,14 +1,12 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
-import dev.coldhands.pair.stairs.backend.domain.developer.Developer
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDetails
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperInfo
-import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperUpdateError
+import dev.coldhands.pair.stairs.backend.domain.developer.*
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode.DEVELOPER_NOT_FOUND
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
+import dev.coldhands.pair.stairs.backend.usecase.StatsService
 import dev.forkhandles.result4k.get
 import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.mapFailure
@@ -34,6 +32,7 @@ object DeveloperHandler {
     private val patchDeveloperArchived = Body.auto<PatchDeveloperDetails>().map { it.archived }.toLens()
     private val developerLens = Body.auto<Developer>().toLens()
     private val developerInfoListLens = Body.auto<List<DeveloperInfo>>().toLens()
+    private val developerStatsLens = Body.auto<DeveloperStats>().toLens()
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
 
     private data class PostDeveloperDetails(
@@ -44,7 +43,7 @@ object DeveloperHandler {
         val archived: Boolean,
     )
 
-    operator fun invoke(developerDao: FakeDeveloperDao): HttpHandler =
+    operator fun invoke(developerDao: FakeDeveloperDao, statsService: StatsService): HttpHandler =
         routes(
             "/api/v1/developers" bind GET to {
                 val developers = developerDao.findAll()
@@ -91,6 +90,20 @@ object DeveloperHandler {
                     .map { it.toInfo() }
 
                 Response(OK).with(developerInfoListLens of developers)
+            },
+
+            "/api/v1/developers/{id}/stats" bind GET to { request ->
+                val developerId = pathDeveloperIdLens(request)
+
+                developerDao.findById(developerId)?.let { statsService.getDeveloperStats(developerId).toResponse() }
+                    ?: Response(NOT_FOUND)
+                        .with(errorBodyLens of ErrorDto(errorCode = DEVELOPER_NOT_FOUND))
+
             }
         )
+
+    private fun DeveloperStats.toResponse(): Response {
+        return Response(OK)
+            .with(developerStatsLens of this)
+    }
 }
