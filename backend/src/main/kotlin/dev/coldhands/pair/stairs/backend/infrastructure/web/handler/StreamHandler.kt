@@ -1,10 +1,10 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
-import dev.coldhands.pair.stairs.backend.domain.DeveloperId
-import dev.coldhands.pair.stairs.backend.domain.developer.*
+import dev.coldhands.pair.stairs.backend.domain.StreamId
+import dev.coldhands.pair.stairs.backend.domain.stream.*
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toInfo
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode.DEVELOPER_NOT_FOUND
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode.STREAM_NOT_FOUND
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import dev.coldhands.pair.stairs.backend.usecase.StatsService
 import dev.forkhandles.result4k.get
@@ -26,78 +26,78 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
-object DeveloperHandler {
+object StreamHandler {
 
-    private val pathDeveloperIdLens = Path.map { DeveloperId(it.toLong()) }.of("id")
+    private val pathStreamIdLens = Path.map { StreamId(it.toLong()) }.of("id")
     private val queryStartDateLens = Query.localDate().optional("startDate")
     private val queryEndDateLens = Query.localDate().optional("endDate")
 
-    private val developerListLens = Body.auto<List<Developer>>().toLens()
-    private val postDeveloperDetailsName = Body.auto<PostDeveloperDetails>().map { it.name }.toLens()
-    private val patchDeveloperArchived = Body.auto<PatchDeveloperDetails>().map { it.archived }.toLens()
-    private val developerLens = Body.auto<Developer>().toLens()
-    private val developerInfoListLens = Body.auto<List<DeveloperInfo>>().toLens()
-    private val developerStatsLens = Body.auto<DeveloperStats>().toLens()
+    private val streamListLens = Body.auto<List<Stream>>().toLens()
+    private val postStreamDetailsName = Body.auto<PostStreamDetails>().map { it.name }.toLens()
+    private val patchStreamArchived = Body.auto<PatchStreamDetails>().map { it.archived }.toLens()
+    private val streamLens = Body.auto<Stream>().toLens()
+    private val streamInfoListLens = Body.auto<List<StreamInfo>>().toLens()
+    private val streamStatsLens = Body.auto<StreamStats>().toLens()
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
 
-    private data class PostDeveloperDetails(
+    private data class PostStreamDetails(
         val name: String,
     )
 
-    private data class PatchDeveloperDetails(
+    private data class PatchStreamDetails(
         val archived: Boolean,
     )
 
-    operator fun invoke(developerDao: DeveloperDao, statsService: StatsService): RoutingHttpHandler =
+    operator fun invoke(streamDao: StreamDao, statsService: StatsService): RoutingHttpHandler =
         routes(
-            "/api/v1/developers" bind GET to {
-                val developers = developerDao.findAll()
+            "/api/v1/streams" bind GET to {
+                val streams = streamDao.findAll()
 
-                Response(OK).with(developerListLens of developers)
+                Response(OK).with(streamListLens of streams)
             },
 
-            "/api/v1/developers" bind POST to { request ->
-                val requestedName = postDeveloperDetailsName(request)
+            "/api/v1/streams" bind POST to { request ->
+                val requestedName = postStreamDetailsName(request)
 
-                developerDao.create(
-                    DeveloperDetails(
+                streamDao.create(
+                    StreamDetails(
                         name = requestedName,
                         archived = false
                     )
                 ).map {
                     Response(CREATED)
-                        .with(developerLens of it)
+                        .with(streamLens of it)
                 }
-                    .mapFailure { TODO("TEAMS-FIRST-PASS Currently not handling errors when creating developer") }
+                    .mapFailure { TODO("TEAMS-FIRST-PASS Currently not handling errors when creating stream") }
                     .get()
             },
 
-            "/api/v1/developers/{id}" bind PATCH to { request ->
-                val developerId = pathDeveloperIdLens(request)
-                val newArchived = patchDeveloperArchived(request)
+            "/api/v1/streams/{id}" bind PATCH to { request ->
+                val streamId = pathStreamIdLens(request)
+                val newArchived = patchStreamArchived(request)
 
-                developerDao.update(developerId, newArchived)
-                    .map { updatedDeveloper ->
+                streamDao.update(streamId, newArchived)
+                    .map { updatedStream ->
                         Response(OK)
-                            .with(developerLens of updatedDeveloper)
+                            .with(streamLens of updatedStream)
                     }
                     .mapFailure {
                         when (it) {
-                            is DeveloperUpdateError.DeveloperNotFound -> Response(NOT_FOUND)
-                                .with(errorBodyLens of ErrorDto(errorCode = DEVELOPER_NOT_FOUND))
+                            is StreamUpdateError.StreamNotFound -> Response(NOT_FOUND)
+                                .with(errorBodyLens of ErrorDto(errorCode = STREAM_NOT_FOUND))
                         }
                     }
                     .get()
             },
 
-            "/api/v1/developers/info" bind GET to {
-                val developers = developerDao.findAll()
+            "/api/v1/streams/info" bind GET to {
+                val streams = streamDao.findAll()
                     .map { it.toInfo() }
 
-                Response(OK).with(developerInfoListLens of developers)
+                Response(OK).with(streamInfoListLens of streams)
             },
 
-            "/api/v1/developers/{id}/stats" bind GET to { request ->
+            "/api/v1/streams/{id}/stats" bind GET to { request ->
                 val startDate = queryStartDateLens(request)
                 val endDate = queryEndDateLens(request)
                 when {
@@ -116,29 +116,29 @@ object DeveloperHandler {
                     )
 
                     else -> {
-                        val developerId = pathDeveloperIdLens(request)
+                        val streamId = pathStreamIdLens(request)
 
-                        developerDao.findById(developerId)?.let {
+                        streamDao.findById(streamId)?.let {
                             when {
-                                startDate != null && endDate != null -> statsService.getDeveloperStatsBetween(
-                                    developerId,
+                                startDate != null && endDate != null -> statsService.getStreamStatsBetween(
+                                    streamId,
                                     startDate,
                                     endDate
                                 )
 
-                                else -> statsService.getDeveloperStats(developerId)
+                                else -> statsService.getStreamStats(streamId)
                             }.toResponse()
                         }
                             ?: Response(NOT_FOUND)
-                                .with(errorBodyLens of ErrorDto(errorCode = DEVELOPER_NOT_FOUND))
+                                .with(errorBodyLens of ErrorDto(errorCode = STREAM_NOT_FOUND))
 
                     }
                 }
             }
         )
 
-    private fun DeveloperStats.toResponse(): Response {
+    private fun StreamStats.toResponse(): Response {
         return Response(OK)
-            .with(developerStatsLens of this)
+            .with(streamStatsLens of this)
     }
 }

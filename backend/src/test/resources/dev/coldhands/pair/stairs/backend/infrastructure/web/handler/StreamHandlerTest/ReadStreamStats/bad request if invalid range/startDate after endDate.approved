@@ -1,0 +1,4 @@
+{
+  "errorCode": "BAD_REQUEST",
+  "errorMessage": "startDate must be before endDate"
+}
