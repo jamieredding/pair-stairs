@@ -1,0 +1,83 @@
+{
+  "metadata": {
+    "nextPageNumber": 1
+  },
+  "data": [
+    {
+      "score": -2,
+      "combination": [
+        {
+          "developers": [
+            {
+              "id": 0,
+              "displayName": "dev-0",
+              "archived": false
+            }
+          ],
+          "stream": {
+            "id": 0,
+            "displayName": "stream-0",
+            "archived": false
+          }
+        },
+        {
+          "developers": [
+            {
+              "id": 1,
+              "displayName": "dev-1",
+              "archived": false
+            },
+            {
+              "id": 2,
+              "displayName": "dev-2",
+              "archived": false
+            }
+          ],
+          "stream": {
+            "id": 1,
+            "displayName": "stream-1",
+            "archived": false
+          }
+        }
+      ]
+    },
+    {
+      "score": -2,
+      "combination": [
+        {
+          "developers": [
+            {
+              "id": 1,
+              "displayName": "dev-1",
+              "archived": false
+            },
+            {
+              "id": 2,
+              "displayName": "dev-2",
+              "archived": false
+            }
+          ],
+          "stream": {
+            "id": 0,
+            "displayName": "stream-0",
+            "archived": false
+          }
+        },
+        {
+          "developers": [
+            {
+              "id": 0,
+              "displayName": "dev-0",
+              "archived": false
+            }
+          ],
+          "stream": {
+            "id": 1,
+            "displayName": "stream-1",
+            "archived": false
+          }
+        }
+      ]
+    }
+  ]
+}
