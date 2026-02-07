@@ -13,11 +13,15 @@ import org.http4k.core.Response
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.format.Jackson.auto
+import org.http4k.lens.Query
+import org.http4k.lens.int
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
 object CombinationCalculationHandler {
+    private val queryOptionalPageLens = Query.int().optional("page")
+
     private val postRequestBodyLens = Body.auto<PostCombinationCalculation>().toLens()
     private val defaultResponseLens = Body.auto<List<ScoredCombinationInfo>>().toLens()
 
@@ -31,9 +35,10 @@ object CombinationCalculationHandler {
         combinationMapper: CombinationMapper
     ): RoutingHttpHandler = routes(
         "/api/v1/combinations/calculate" bind POST to {
+            val page = queryOptionalPageLens(it) ?: 0
             val requestBody = postRequestBodyLens(it)
 
-            val results = service.calculate(requestBody.developerIds, requestBody.streamIds, 0, 2)
+            val results = service.calculate(requestBody.developerIds, requestBody.streamIds, page, 2)
                 .toInfoUsing(combinationMapper)
 
             Response(OK)
