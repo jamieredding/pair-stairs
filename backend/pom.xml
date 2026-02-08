@@ -53,6 +53,11 @@
             <artifactId>http4k-format-jackson</artifactId>
             <version>${http4k.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.http4k</groupId>
+            <artifactId>http4k-config</artifactId>
+            <version>${http4k.version}</version>
+        </dependency>
 
         <!-- HTTP4K-TESTING : START -->
         <dependency>

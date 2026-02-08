@@ -6,13 +6,19 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeve
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeStreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.web.handler.AppHttpHandler
 import dev.coldhands.pair.stairs.backend.usecase.*
+import org.http4k.config.Environment
+import org.http4k.config.EnvironmentKey
 import org.http4k.core.HttpHandler
+import org.http4k.lens.int
 
 fun testContext(testBody: TestContext.() -> Unit) {
     testBody(TestContext())
 }
 
 class TestContext {
+
+    val combinationsCalculatePageSizeLens = EnvironmentKey.int().required("app.combinations.calculate.pageSize")
+    var environment: Environment = Environment.fromResource("application.properties")
 
     val developerDao = FakeDeveloperDao()
     val streamDao = FakeStreamDao()
@@ -21,8 +27,22 @@ class TestContext {
     val statsService = StatsService(developerDao, streamDao, combinationEventDao)
     val combinationEventService = CombinationEventService(combinationEventDao)
     val combinationHistoryRepository = BackendCombinationHistoryRepository(combinationEventDao)
-    val combinationCalculationService = CoreCombinationCalculationService(EntryPointFactory(combinationHistoryRepository))
+    val combinationCalculationService =
+        CoreCombinationCalculationService(EntryPointFactory(combinationHistoryRepository))
     val combinationMapper = CombinationMapper(developerDao, streamDao)
 
-    val underTest: HttpHandler = AppHttpHandler(developerDao, streamDao, statsService, combinationCalculationService, combinationMapper)
+
+    val underTest: HttpHandler = { request ->
+        val combinationsCalculatePageSize = combinationsCalculatePageSizeLens(environment)
+
+        val appHttpHandler = AppHttpHandler(
+            developerDao,
+            streamDao,
+            statsService,
+            combinationCalculationService,
+            combinationMapper,
+            combinationsCalculatePageSize
+        )
+        appHttpHandler(request)
+    }
 }

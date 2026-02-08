@@ -15,10 +15,11 @@ object AppHttpHandler {
         streamDao: StreamDao,
         statsService: StatsService,
         combinationCalculationService: CombinationCalculationService,
-        mapper: CombinationMapper
+        mapper: CombinationMapper,
+        combinationsCalculatePageSize: Int,
     ): HttpHandler = routes(
         DeveloperHandler(developerDao, statsService),
         StreamHandler(streamDao, statsService),
-        CombinationCalculationHandler(combinationCalculationService, mapper),
+        CombinationCalculationHandler(combinationCalculationService, mapper, combinationsCalculatePageSize),
     )
 }

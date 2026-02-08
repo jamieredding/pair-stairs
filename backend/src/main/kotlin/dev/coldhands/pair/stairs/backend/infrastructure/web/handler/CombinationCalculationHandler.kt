@@ -40,7 +40,8 @@ object CombinationCalculationHandler {
 
     operator fun invoke(
         service: CombinationCalculationService,
-        combinationMapper: CombinationMapper
+        combinationMapper: CombinationMapper,
+        defaultPageSize: Int,
     ): RoutingHttpHandler = routes(
         "/api/v1/combinations/calculate" bind POST to {
             val requestedProjection = queryOptionalProjectionLens(it)
@@ -56,7 +57,7 @@ object CombinationCalculationHandler {
                     val requestBody = postRequestBodyLens(it)
 
                     resultFrom {
-                        service.calculate(requestBody.developerIds, requestBody.streamIds, page, 2)
+                        service.calculate(requestBody.developerIds, requestBody.streamIds, page, defaultPageSize)
                             .toInfoUsing(combinationMapper)
                     }.mapFailure { exception ->
                         val errorCode = when (exception) {
