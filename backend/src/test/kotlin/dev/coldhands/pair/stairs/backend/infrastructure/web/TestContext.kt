@@ -18,6 +18,7 @@ fun testContext(testBody: TestContext.() -> Unit) {
 class TestContext {
 
     val combinationsCalculatePageSizeLens = EnvironmentKey.int().required("app.combinations.calculate.pageSize")
+    val combinationsEventPageSizeLens = EnvironmentKey.int().required("app.combinations.event.pageSize")
     var environment: Environment = Environment.fromResource("application.properties")
 
     val developerDao = FakeDeveloperDao()
@@ -34,14 +35,17 @@ class TestContext {
 
     val underTest: HttpHandler = { request ->
         val combinationsCalculatePageSize = combinationsCalculatePageSizeLens(environment)
+        val combinationsEventPageSize = combinationsEventPageSizeLens(environment)
 
         val appHttpHandler = AppHttpHandler(
             developerDao,
             streamDao,
             statsService,
             combinationCalculationService,
+            combinationEventService,
             combinationMapper,
-            combinationsCalculatePageSize
+            combinationsCalculatePageSize,
+            combinationsEventPageSize,
         )
         appHttpHandler(request)
     }
