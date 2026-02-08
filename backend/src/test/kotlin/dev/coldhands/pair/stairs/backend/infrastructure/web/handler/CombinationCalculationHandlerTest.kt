@@ -8,6 +8,7 @@ import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import org.http4k.core.Body
 import org.http4k.core.Method.POST
 import org.http4k.core.Request
+import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.format.Jackson.auto
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class CombinationCalculationHandlerTest {
     private val requestBodyLens = Body.auto<PostCombinationCalculation>().toLens()
     private val queryPageLens = Query.int().required("page")
+    private val queryProjectionLens = Query.required("projection")
 
     @Test
     @Disabled
@@ -112,7 +114,6 @@ class CombinationCalculationHandlerTest {
 
     @Nested
     inner class CalculateReturningPage {
-        private val queryProjectionLens = Query.required("projection")
 
         @Test
         fun `calculate combinations has a default page size`(approver: Approver) = testContext {
@@ -166,6 +167,79 @@ class CombinationCalculationHandlerTest {
             )
 
             response shouldHaveStatus OK
+            approver.assertApproved(response)
+        }
+    }
+
+    @Nested
+    inner class BadRequest {
+
+        @Test
+        fun `return bad request when projection is not supported`(approver: Approver) = testContext {
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+
+            val stream0Id = streamDao.create(aStreamDetails("stream-0")).shouldBeSuccess().id
+
+            val response = underTest(
+                Request(
+                    method = POST,
+                    uri = "/api/v1/combinations/calculate",
+                ).with(
+                    queryProjectionLens of "unsupported",
+
+                    requestBodyLens of PostCombinationCalculation(
+                    developerIds = listOf(dev0Id.value, dev1Id.value),
+                    streamIds = listOf(stream0Id.value)
+                ))
+            )
+
+            response shouldHaveStatus BAD_REQUEST
+            approver.assertApproved(response)
+        }
+
+
+        @Test
+        fun `return bad request when there are not enough developers to be able to pair`(approver: Approver) = testContext {
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+
+            val stream0Id = streamDao.create(aStreamDetails("stream-0")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-1")).shouldBeSuccess().id
+
+            val response = underTest(
+                Request(
+                    method = POST,
+                    uri = "/api/v1/combinations/calculate",
+                ).with(requestBodyLens of PostCombinationCalculation(
+                    developerIds = listOf(dev0Id.value, dev1Id.value),
+                    streamIds = listOf(stream0Id.value, stream1Id.value)
+                ))
+            )
+
+            response shouldHaveStatus BAD_REQUEST
+            approver.assertApproved(response)
+        }
+
+        @Test
+        fun `return bad request when there are not enough streams to be able to pair`(approver: Approver) = testContext {
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+
+            val stream0Id = streamDao.create(aStreamDetails("stream-0")).shouldBeSuccess().id
+
+            val response = underTest(
+                Request(
+                    method = POST,
+                    uri = "/api/v1/combinations/calculate",
+                ).with(requestBodyLens of PostCombinationCalculation(
+                    developerIds = listOf(dev0Id.value, dev1Id.value, dev2Id.value),
+                    streamIds = listOf(stream0Id.value)
+                ))
+            )
+
+            response shouldHaveStatus BAD_REQUEST
             approver.assertApproved(response)
         }
     }
