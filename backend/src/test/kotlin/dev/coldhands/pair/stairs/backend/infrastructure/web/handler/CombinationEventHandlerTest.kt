@@ -12,21 +12,26 @@ import io.kotest.inspectors.forOne
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import org.http4k.config.Environment
 import org.http4k.core.Body
-import org.http4k.core.Method.GET
-import org.http4k.core.Method.POST
+import org.http4k.core.Method.*
 import org.http4k.core.Request
 import org.http4k.core.Status.Companion.CREATED
+import org.http4k.core.Status.Companion.NOT_FOUND
+import org.http4k.core.Status.Companion.NO_CONTENT
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
 import org.http4k.format.Jackson.auto
 import org.http4k.kotest.shouldHaveStatus
+import org.http4k.lens.Path
 import org.http4k.lens.Query
 import org.http4k.lens.int
+import org.http4k.lens.long
 import org.http4k.testing.Approver
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
@@ -325,9 +330,66 @@ class CombinationEventHandlerTest {
                 }
             }
         }
-
-
     }
+
+    @Nested
+    inner class Delete {
+
+        private val idPathLens = Path.long().of("id")
+
+        @Test
+        fun `delete a combination event`() = testContext {
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
+
+            val eventToDelete = combinationEventService.saveEvent(
+                date = LocalDate.of(2024, 5, 5),
+                pairStreams = listOf(
+                    PairStream(setOf(dev0Id, dev1Id), stream0Id),
+                    PairStream(setOf(dev2Id), stream1Id),
+                ),
+            ).shouldBeSuccess()
+
+            combinationEventDao.findById(eventToDelete.id).shouldNotBeNull()
+
+            val response = underTest(
+                Request(
+                    method = DELETE,
+                    uri = "/api/v1/combinations/event/{id}",
+                )
+                    .with(
+                        idPathLens of eventToDelete.id.value
+                    )
+            )
+
+            response shouldHaveStatus NO_CONTENT
+            response.bodyString().shouldBeEmpty()
+
+            combinationEventDao.findById(eventToDelete.id).shouldBeNull()
+        }
+
+        @Test
+        fun `return not found if event does not exist`() = testContext {
+            combinationEventService.getCombinationEvents(0, 1000).shouldBeEmpty()
+
+            val response = underTest(
+                Request(
+                    method = DELETE,
+                    uri = "/api/v1/combinations/event/{id}",
+                )
+                    .with(
+                        idPathLens of 1L
+                    )
+            )
+
+            response shouldHaveStatus NOT_FOUND
+        }
+    }
+
 
     data class PostCombinationEvent(
         val date: LocalDate,

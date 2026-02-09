@@ -6,7 +6,9 @@ import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.GetCombinationEventDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
-import jakarta.persistence.EntityNotFoundException
+import dev.forkhandles.result4k.get
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.mapFailure
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -40,6 +42,7 @@ class CombinationEventController(
     fun saveEvent(
         @RequestBody request: SaveCombinationEventDto,
     ): ResponseEntity<Void> {
+        // todo HTTP4K-MIGRATION what about return of this?
         combinationEventService.saveEvent(request.date(), request.combination().map {
             PairStream(
                 it.developerIds().toSet(),
@@ -52,11 +55,15 @@ class CombinationEventController(
     @DeleteMapping("/{id}")
     fun deleteEvent(
         @PathVariable("id") id: CombinationEventId,
-    ): ResponseEntity<Void> =
-        try {
-            combinationEventService.deleteEvent(id)
-            ResponseEntity.noContent().build()
-        } catch (e: EntityNotFoundException) {
-            ResponseEntity.notFound().build()
-        }
+    ): ResponseEntity<*> =
+        combinationEventService.deleteEvent(id)
+            .map {
+                ResponseEntity.noContent().build<Void>()
+            }
+            .mapFailure {
+                when (it) {
+                    is CombinationEventService.CombinationEventNotFound -> ResponseEntity.notFound().build<Void>()
+                }
+            }
+            .get()
 }

@@ -2,11 +2,10 @@ package dev.coldhands.pair.stairs.backend.usecase
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationEventId
 import dev.coldhands.pair.stairs.backend.domain.PageRequest
-import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEvent
-import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDao
-import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDetails
-import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
-import jakarta.persistence.EntityNotFoundException
+import dev.coldhands.pair.stairs.backend.domain.combination.*
+import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.asFailure
+import dev.forkhandles.result4k.asSuccess
 import java.time.LocalDate
 
 class CombinationEventService(
@@ -23,19 +22,21 @@ class CombinationEventService(
         )
     }
 
-    fun saveEvent(date: LocalDate, pairStreams: Collection<PairStream>) {
+    fun saveEvent(date: LocalDate, pairStreams: Collection<PairStream>): Result<CombinationEvent, CombinationEventCreateError> =
         combinationEventDao.create(
             CombinationEventDetails(
                 date = date,
                 combination = pairStreams.toSet()
             )
-        ) // todo HTTP4K-MIGRATION what about return of this?
-    }
+        )
 
-    fun deleteEvent(id: CombinationEventId) {
+    fun deleteEvent(id: CombinationEventId): Result<Unit, CombinationEventNotFound>{
         if (combinationEventDao.findById(id) == null) {
-            throw EntityNotFoundException()
+            return CombinationEventNotFound.asFailure()
         }
         combinationEventDao.delete(id)
+        return Unit.asSuccess()
     }
+
+    object CombinationEventNotFound
 }
