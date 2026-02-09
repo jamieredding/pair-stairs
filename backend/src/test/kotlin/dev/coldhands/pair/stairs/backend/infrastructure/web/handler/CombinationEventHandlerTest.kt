@@ -12,6 +12,7 @@ import io.kotest.inspectors.forOne
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldBeSingleton
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldBeEmpty
 import org.http4k.config.Environment
@@ -250,6 +251,81 @@ class CombinationEventHandlerTest {
                     }
                 }
         }
+
+        @Test
+        fun `save event with solo member who was not solo previously`() = testContext {
+            val dev0Id = developerDao.create(aDeveloperDetails("dev-0")).shouldBeSuccess().id
+            val dev1Id = developerDao.create(aDeveloperDetails("dev-1")).shouldBeSuccess().id
+            val dev2Id = developerDao.create(aDeveloperDetails("dev-2")).shouldBeSuccess().id
+            val dev3Id = developerDao.create(aDeveloperDetails("dev-3")).shouldBeSuccess().id
+
+            val stream0Id = streamDao.create(aStreamDetails("stream-a")).shouldBeSuccess().id
+            val stream1Id = streamDao.create(aStreamDetails("stream-b")).shouldBeSuccess().id
+
+            combinationEventDao.findAll(PageRequest(0, 1000, CombinationEventDao.FindAllSort.DATE_DESCENDING))
+                .shouldBeEmpty()
+
+            underTest(
+                Request(
+                    method = POST,
+                    uri = "/api/v1/combinations/event",
+                )
+                    .with(
+                        requestBodyLens of PostCombinationEvent(
+                            date = LocalDate.of(2024, 4, 27),
+                            combination = listOf(
+                                PairStreamByIds(
+                                    developerIds = listOf(dev0Id.value, dev1Id.value),
+                                    streamId = stream0Id.value,
+                                ),
+                                PairStreamByIds(
+                                    developerIds = listOf(dev2Id.value, dev3Id.value),
+                                    streamId = stream1Id.value,
+                                )
+                            )
+                        )
+                    )
+            ).shouldHaveStatus(CREATED)
+
+            underTest(
+                Request(
+                    method = POST,
+                    uri = "/api/v1/combinations/event",
+                )
+                    .with(
+                        requestBodyLens of PostCombinationEvent(
+                            date = LocalDate.of(2024, 4, 28),
+                            combination = listOf(
+                                PairStreamByIds(
+                                    developerIds = listOf(dev0Id.value, dev1Id.value),
+                                    streamId = stream0Id.value,
+                                ),
+                                PairStreamByIds(
+                                    developerIds = listOf(dev2Id.value),
+                                    streamId = stream1Id.value,
+                                )
+                            )
+                        )
+                    )
+            ).shouldHaveStatus(CREATED)
+
+            combinationEventDao.findAll(PageRequest(0, 1000, CombinationEventDao.FindAllSort.DATE_DESCENDING))
+                .first() should {
+                it.date shouldBe LocalDate.of(2024, 4, 28)
+                with(it.combination) {
+                    shouldHaveSize(2)
+                    forOne { pairStream ->
+                        pairStream.developerIds shouldBe setOf(dev0Id, dev1Id)
+                        pairStream.streamId shouldBe stream0Id
+                    }
+                    forOne { pairStream ->
+                        pairStream.developerIds shouldBe setOf(dev2Id)
+                        pairStream.streamId shouldBe stream1Id
+                    }
+                }
+            }
+        }
+
 
     }
 
