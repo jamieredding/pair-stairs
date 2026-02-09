@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import dev.coldhands.pair.stairs.backend.domain.CombinationEventId
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.GetCombinationEventDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
@@ -39,7 +40,12 @@ class CombinationEventController(
     fun saveEvent(
         @RequestBody request: SaveCombinationEventDto,
     ): ResponseEntity<Void> {
-        combinationEventService.saveEvent(request.date(), request.combination())
+        combinationEventService.saveEvent(request.date(), request.combination().map {
+            PairStream(
+                it.developerIds().toSet(),
+                it.streamId()
+            )
+        })
         return ResponseEntity.status(201).build()
     }
 

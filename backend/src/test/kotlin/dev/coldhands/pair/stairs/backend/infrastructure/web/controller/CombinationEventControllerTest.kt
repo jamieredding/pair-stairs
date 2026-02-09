@@ -2,13 +2,12 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 
 import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.aStreamDetails
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.CombinationEventEntity
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.entity.PairStreamEntity
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.nulls.shouldBeNull
@@ -36,6 +35,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.net.URI
 import java.time.LocalDate
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream as CorePairStream
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -87,15 +87,15 @@ open class CombinationEventControllerTest @Autowired constructor(
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
-                    PairStreamByIds(listOf(dev2Id), stream1Id),
+                    PairStream(setOf(dev0Id, dev1Id), stream0Id),
+                    PairStream(setOf(dev2Id), stream1Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 6),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), stream0Id),
-                    PairStreamByIds(listOf(dev1Id), stream1Id),
+                    PairStream(setOf(dev0Id, dev2Id), stream0Id),
+                    PairStream(setOf(dev1Id), stream1Id),
                 ),
             )
 
@@ -194,22 +194,22 @@ open class CombinationEventControllerTest @Autowired constructor(
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
-                    PairStreamByIds(listOf(dev2Id), stream1Id),
+                    PairStream(setOf(dev0Id, dev1Id), stream0Id),
+                    PairStream(setOf(dev2Id), stream1Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 6),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), stream0Id),
-                    PairStreamByIds(listOf(dev1Id), stream1Id),
+                    PairStream(setOf(dev0Id, dev2Id), stream0Id),
+                    PairStream(setOf(dev1Id), stream1Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 7),
                 listOf(
-                    PairStreamByIds(listOf(dev1Id, dev2Id), stream0Id),
-                    PairStreamByIds(listOf(dev0Id), stream1Id),
+                    PairStream(setOf(dev1Id, dev2Id), stream0Id),
+                    PairStream(setOf(dev0Id), stream1Id),
                 ),
             )
 
@@ -276,15 +276,15 @@ open class CombinationEventControllerTest @Autowired constructor(
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev2Id), stream1Id),
-                    PairStreamByIds(listOf(dev1Id, dev0Id), stream0Id),
+                    PairStream(setOf(dev2Id), stream1Id),
+                    PairStream(setOf(dev1Id, dev0Id), stream0Id),
                 ),
             )
             service.saveEvent(
                 LocalDate.of(2024, 5, 6),
                 listOf(
-                    PairStreamByIds(listOf(dev1Id), stream1Id),
-                    PairStreamByIds(listOf(dev2Id, dev0Id), stream0Id),
+                    PairStream(setOf(dev1Id), stream1Id),
+                    PairStream(setOf(dev2Id, dev0Id), stream0Id),
                 ),
             )
 
@@ -433,8 +433,8 @@ open class CombinationEventControllerTest @Autowired constructor(
             val pairStreams = pairs.toSimpleDomain()
 
             pairStreams.shouldContainExactly(
-                PairStream(setOf("dev-0", "dev-1"), "stream-a"),
-                PairStream(setOf("dev-2"), "stream-b"),
+                CorePairStream(setOf("dev-0", "dev-1"), "stream-a"),
+                CorePairStream(setOf("dev-2"), "stream-b"),
             )
         }
 
@@ -509,8 +509,8 @@ open class CombinationEventControllerTest @Autowired constructor(
             val pairStreams = pairs.toSimpleDomain()
 
             pairStreams.shouldContainExactly(
-                PairStream(setOf("dev-0", "dev-1"), "stream-a"),
-                PairStream(setOf("dev-2"), "stream-b"),
+                CorePairStream(setOf("dev-0", "dev-1"), "stream-a"),
+                CorePairStream(setOf("dev-2"), "stream-b"),
             )
         }
     }
@@ -530,8 +530,8 @@ open class CombinationEventControllerTest @Autowired constructor(
             service.saveEvent(
                 LocalDate.of(2024, 5, 5),
                 listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
-                    PairStreamByIds(listOf(dev2Id), stream1Id),
+                    PairStream(setOf(dev0Id, dev1Id), stream0Id),
+                    PairStream(setOf(dev2Id), stream1Id),
                 ),
             )
 
@@ -561,8 +561,8 @@ open class CombinationEventControllerTest @Autowired constructor(
             )
     }
 
-    private fun List<PairStreamEntity>.toSimpleDomain(): List<PairStream> =
-        map { pair -> PairStream(pair.developers.map { it.name }.toSet(), pair.stream.name) }
+    private fun List<PairStreamEntity>.toSimpleDomain(): List<CorePairStream> =
+        map { pair -> CorePairStream(pair.developers.map { it.name }.toSet(), pair.stream.name) }
 
     private fun getEventIdByDate(date: LocalDate): Long? =
         testEntityManager.entityManager

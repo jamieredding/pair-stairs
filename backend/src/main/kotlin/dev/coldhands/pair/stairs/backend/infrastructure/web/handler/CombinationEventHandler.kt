@@ -1,11 +1,14 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateCombinationEventDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.GetCombinationEventDto
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
 import org.http4k.core.Body
 import org.http4k.core.Method.GET
+import org.http4k.core.Method.POST
 import org.http4k.core.Response
+import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.OK
 import org.http4k.format.Jackson.auto
 import org.http4k.lens.Query
@@ -17,6 +20,7 @@ import org.http4k.routing.routes
 object CombinationEventHandler {
     private val queryOptionalPageLens = Query.int().optional("page")
     private val getEventsResponseLens = Body.auto<List<GetCombinationEventDto>>().toLens()
+    private val createCombinationEventDto = Body.auto<CreateCombinationEventDto>().toLens()
 
     operator fun invoke(
         combinationEventService: CombinationEventService,
@@ -37,6 +41,14 @@ object CombinationEventHandler {
 
 
             getEventsResponseLens(results, Response(OK))
+        },
+
+        "/api/v1/combinations/event" bind POST to {
+            val requestBody = createCombinationEventDto(it)
+
+            combinationEventService.saveEvent(requestBody.date, requestBody.combination)
+
+            Response(CREATED)
         }
     )
 }

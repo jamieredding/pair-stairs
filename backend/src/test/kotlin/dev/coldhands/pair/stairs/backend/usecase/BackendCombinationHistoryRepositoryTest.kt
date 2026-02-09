@@ -3,11 +3,10 @@ package dev.coldhands.pair.stairs.backend.usecase
 import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.aStreamDetails
 import dev.coldhands.pair.stairs.backend.asString
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
 import dev.coldhands.pair.stairs.core.domain.Combination
-import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldContainExactly
 import jakarta.transaction.Transactional
@@ -17,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
 import org.springframework.boot.test.context.SpringBootTest
 import java.time.LocalDate
+import dev.coldhands.pair.stairs.core.domain.pairstream.PairStream as CorePairStream
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -41,16 +41,16 @@ open class BackendCombinationHistoryRepositoryTest @Autowired constructor(
         combinationEventService.saveEvent(
             LocalDate.of(2024, 4, 27),
             listOf(
-                PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
-                PairStreamByIds(listOf(dev2Id), stream1Id),
+                PairStream(setOf(dev0Id, dev1Id), stream0Id),
+                PairStream(setOf(dev2Id), stream1Id),
             ),
         )
 
         combinationEventService.saveEvent(
             LocalDate.of(2024, 4, 20),
             listOf(
-                PairStreamByIds(listOf(dev0Id, dev2Id), stream0Id),
-                PairStreamByIds(listOf(dev1Id), stream1Id),
+                PairStream(setOf(dev0Id, dev2Id), stream0Id),
+                PairStream(setOf(dev1Id), stream1Id),
             ),
         )
 
@@ -59,14 +59,14 @@ open class BackendCombinationHistoryRepositoryTest @Autowired constructor(
         mostRecentCombinations shouldContainExactly listOf(
             Combination(
                 setOf(
-                    PairStream(setOf(dev0Id.asString(), dev1Id.asString()), stream0Id.asString()),
-                    PairStream(setOf(dev2Id.asString()), stream1Id.asString()),
+                    CorePairStream(setOf(dev0Id.asString(), dev1Id.asString()), stream0Id.asString()),
+                    CorePairStream(setOf(dev2Id.asString()), stream1Id.asString()),
                 ),
             ),
             Combination(
                 setOf(
-                    PairStream(setOf(dev0Id.asString(), dev2Id.asString()), stream0Id.asString()),
-                    PairStream(setOf(dev1Id.asString()), stream1Id.asString()),
+                    CorePairStream(setOf(dev0Id.asString(), dev2Id.asString()), stream0Id.asString()),
+                    CorePairStream(setOf(dev1Id.asString()), stream1Id.asString()),
                 ),
             ),
         )
@@ -84,16 +84,16 @@ open class BackendCombinationHistoryRepositoryTest @Autowired constructor(
         combinationEventService.saveEvent(
             LocalDate.of(2024, 4, 27),
             listOf(
-                PairStreamByIds(listOf(dev0Id, dev1Id), stream0Id),
-                PairStreamByIds(listOf(dev2Id), stream1Id),
+                PairStream(setOf(dev0Id, dev1Id), stream0Id),
+                PairStream(setOf(dev2Id), stream1Id),
             ),
         )
 
         combinationEventService.saveEvent(
             LocalDate.of(2024, 4, 20),
             listOf(
-                PairStreamByIds(listOf(dev0Id, dev2Id), stream0Id),
-                PairStreamByIds(listOf(dev1Id), stream1Id),
+                PairStream(setOf(dev0Id, dev2Id), stream0Id),
+                PairStream(setOf(dev1Id), stream1Id),
             ),
         )
 
@@ -102,8 +102,8 @@ open class BackendCombinationHistoryRepositoryTest @Autowired constructor(
         mostRecentCombinations shouldContainExactly listOf(
             Combination(
                 setOf(
-                    PairStream(setOf(dev0Id.asString(), dev1Id.asString()), stream0Id.asString()),
-                    PairStream(setOf(dev2Id.asString()), stream1Id.asString()),
+                    CorePairStream(setOf(dev0Id.asString(), dev1Id.asString()), stream0Id.asString()),
+                    CorePairStream(setOf(dev2Id.asString()), stream1Id.asString()),
                 ),
             ),
         )

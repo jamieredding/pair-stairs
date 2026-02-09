@@ -6,7 +6,6 @@ import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEvent
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDao
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationEventDetails
 import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto
 import jakarta.persistence.EntityNotFoundException
 import java.time.LocalDate
 
@@ -24,16 +23,11 @@ class CombinationEventService(
         )
     }
 
-    fun saveEvent(date: LocalDate, combinationByIds: List<SaveCombinationEventDto.PairStreamByIds>) {
+    fun saveEvent(date: LocalDate, pairStreams: Collection<PairStream>) {
         combinationEventDao.create(
             CombinationEventDetails(
                 date = date,
-                combination = combinationByIds.map {
-                    PairStream(
-                        it.developerIds().toSet(),
-                        it.streamId()
-                    )
-                }.toSet()
+                combination = pairStreams.toSet()
             )
         ) // todo HTTP4K-MIGRATION what about return of this?
     }

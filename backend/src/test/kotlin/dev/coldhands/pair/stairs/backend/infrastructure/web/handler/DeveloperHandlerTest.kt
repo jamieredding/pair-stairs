@@ -4,8 +4,8 @@ import dev.coldhands.pair.stairs.backend.ParameterizedJsonApprovalTest
 import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.aStreamDetails
 import dev.coldhands.pair.stairs.backend.domain.DeveloperId
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.domain.developer.Developer
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
 import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.nulls.shouldBeNull
@@ -249,20 +249,20 @@ class DeveloperHandlerTest {
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
-                    PairStreamByIds(listOf(dev1Id), streamBId)
+                    PairStream(setOf(dev0Id, dev2Id), streamAId),
+                    PairStream(setOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
 
@@ -322,26 +322,26 @@ class DeveloperHandlerTest {
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
-                    PairStreamByIds(listOf(dev1Id), streamBId)
+                    PairStream(setOf(dev0Id, dev2Id), streamAId),
+                    PairStream(setOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 8), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
-                    PairStreamByIds(listOf(dev1Id), streamBId)
+                    PairStream(setOf(dev0Id, dev2Id), streamAId),
+                    PairStream(setOf(dev1Id), streamBId)
                 )
             )
 

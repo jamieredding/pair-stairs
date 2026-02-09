@@ -3,10 +3,10 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import dev.coldhands.pair.stairs.backend.aDeveloperDetails
 import dev.coldhands.pair.stairs.backend.aStreamDetails
+import dev.coldhands.pair.stairs.backend.domain.combination.PairStream
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.Stream
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
-import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.SaveCombinationEventDto.PairStreamByIds
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -265,20 +265,20 @@ open class StreamControllerTest @Autowired constructor(
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
-                    PairStreamByIds(listOf(dev1Id), streamBId)
+                    PairStream(setOf(dev0Id, dev2Id), streamAId),
+                    PairStream(setOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
 
@@ -395,26 +395,26 @@ open class StreamControllerTest @Autowired constructor(
 
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 5), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 6), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
-                    PairStreamByIds(listOf(dev1Id), streamBId)
+                    PairStream(setOf(dev0Id, dev2Id), streamAId),
+                    PairStream(setOf(dev1Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 7), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev1Id), streamAId),
-                    PairStreamByIds(listOf(dev2Id), streamBId)
+                    PairStream(setOf(dev0Id, dev1Id), streamAId),
+                    PairStream(setOf(dev2Id), streamBId)
                 )
             )
             combinationEventService.saveEvent(
                 LocalDate.of(2024, 5, 8), listOf(
-                    PairStreamByIds(listOf(dev0Id, dev2Id), streamAId),
-                    PairStreamByIds(listOf(dev1Id), streamBId)
+                    PairStream(setOf(dev0Id, dev2Id), streamAId),
+                    PairStream(setOf(dev1Id), streamBId)
                 )
             )
 
