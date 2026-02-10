@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationCalculationService
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
 import dev.coldhands.pair.stairs.backend.domain.stream.StreamDao
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
 import dev.coldhands.pair.stairs.backend.usecase.CombinationEventService
 import dev.coldhands.pair.stairs.backend.usecase.StatsService
@@ -14,6 +15,7 @@ object AppHttpHandler {
     operator fun invoke(
         developerDao: DeveloperDao,
         streamDao: StreamDao,
+        teamDao: TeamDao,
         statsService: StatsService,
         combinationCalculationService: CombinationCalculationService,
         combinationEventService: CombinationEventService,
@@ -25,5 +27,6 @@ object AppHttpHandler {
         StreamHandler(streamDao, statsService),
         CombinationCalculationHandler(combinationCalculationService, combinationMapper, combinationsCalculatePageSize),
         CombinationEventHandler(combinationEventService, combinationMapper, combinationsEventPageSize),
+        TeamHandler(teamDao)
     )
 }
