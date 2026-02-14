@@ -9,9 +9,7 @@ import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
-import dev.forkhandles.result4k.get
-import dev.forkhandles.result4k.map
-import dev.forkhandles.result4k.mapFailure
+import dev.forkhandles.result4k.*
 import org.http4k.core.Body
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
@@ -26,49 +24,44 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 
+private inline fun <reified T, E> BiDiBodyLensSpec<T>.validate(crossinline validator: T.() -> Result<Any, E>): BiDiBodyLensSpec<T> =
+    map({
+        validator.invoke(it)
+            .failureOrNull()
+            ?.let { errorType ->
+                throw LensFailure(
+                    Invalid(
+                        Meta(
+                            required = true,
+                            location = "validator",
+                            paramMeta = ParamMeta(
+                                description = "blah"
+                            ),
+                            name = "some name?",
+                            description = "some description",
+                            metadata = mapOf(errorType::class.simpleName!! to errorType)
+                        )
+                    )
+
+                )
+            }
+            ?: it
+    }, { it })
+
 object TeamHandler {
     private val pathSlugLens = Path.map { Slug(it) }.of("slug")
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
     private val teamDtoLens = Body.auto<TeamDto>().toLens()
     private val teamsListLens = Body.auto<List<TeamDto>>().toLens()
-    private val createTeamDtoLens = Body.auto<CreateTeamDto>().map({
-        when {
-            // todo refactor this mess
-            it.name.isBlank() -> throw LensFailure(
-                Invalid(
-                    Meta(
-                        required = true,
-                        location = "body name",
-                        paramMeta = ParamMeta(
-                            description = "blah"
-                        ),
-                        name = "some name?",
-                        description = "some description",
-                        metadata = mapOf(ErrorCode::class.simpleName!! to ErrorCode.INVALID_NAME)
-                    )
-                )
-            )
-            // todo refactor this mess
-            it.slug.isBlank() || Regex("^[a-z0-9-]+$").matches(it.slug).not() -> throw LensFailure(
-                Invalid(
-                    Meta(
-                        required = true,
-                        location = "body slug",
-                        paramMeta = ParamMeta(
-                            description = "blah"
-                        ),
-                        name = "some name?",
-                        description = "some description",
-                        metadata = mapOf(ErrorCode::class.simpleName!! to ErrorCode.INVALID_SLUG)
-                    )
-                )
-            )
-
-            else -> it
-        }
-
-    }, { it })
-        .toLens()
+    private val createTeamDtoLens = Body.auto<CreateTeamDto>()
+        .validate {
+            when {
+                name.isBlank() -> ErrorCode.INVALID_NAME.asFailure()
+                slug.isBlank() -> ErrorCode.INVALID_SLUG.asFailure()
+                slug.matches(Regex("^[a-z0-9-]+$")).not() -> ErrorCode.INVALID_SLUG.asFailure()
+                else -> asSuccess()
+            }
+        }.toLens()
 
     operator fun invoke(
         teamDao: TeamDao,
