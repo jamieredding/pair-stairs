@@ -2,13 +2,20 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import dev.coldhands.pair.stairs.backend.domain.Slug
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDto
+import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.CreateTeamDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorCode
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.ErrorDto
 import dev.coldhands.pair.stairs.backend.infrastructure.web.dto.TeamDto
+import dev.forkhandles.result4k.get
+import dev.forkhandles.result4k.map
+import dev.forkhandles.result4k.mapFailure
 import org.http4k.core.Body
 import org.http4k.core.Method.GET
+import org.http4k.core.Method.POST
 import org.http4k.core.Response
+import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.format.Jackson.auto
@@ -22,6 +29,7 @@ object TeamHandler {
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
     private val teamDtoLens = Body.auto<TeamDto>().toLens()
     private val teamsListLens = Body.auto<List<TeamDto>>().toLens()
+    private val createTeamDtoLens = Body.auto<CreateTeamDto>().toLens()
 
     operator fun invoke(
         teamDao: TeamDao,
@@ -40,6 +48,20 @@ object TeamHandler {
                     .map { team -> team.toDto() },
                 Response(OK)
             )
+        },
+
+        "api/v1/teams" bind POST to {
+            val dto = createTeamDtoLens(it)
+
+            teamDao.create(
+                TeamDetails(
+                    name = dto.name,
+                    slug = Slug(dto.slug),
+                )
+            ).map { createdTeam -> teamDtoLens(createdTeam.toDto(), Response(CREATED)) }
+                .mapFailure { TODO() }
+                .get()
+
         }
     )
 }

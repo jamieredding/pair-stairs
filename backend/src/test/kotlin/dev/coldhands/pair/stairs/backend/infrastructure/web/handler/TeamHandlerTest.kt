@@ -2,18 +2,28 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import dev.coldhands.pair.stairs.backend.ParameterizedJsonApprovalTest
 import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.TeamId
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import org.http4k.core.Body
+import org.http4k.core.ContentType.Companion.APPLICATION_JSON
 import org.http4k.core.Method.GET
+import org.http4k.core.Method.POST
 import org.http4k.core.Request
+import org.http4k.core.Status.Companion.BAD_REQUEST
+import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.core.with
+import org.http4k.format.Jackson.auto
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.Path
+import org.http4k.lens.contentType
 import org.http4k.testing.Approver
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
@@ -116,5 +126,66 @@ class TeamHandlerTest {
         }
 
     }
+
+    @Nested
+    inner class Write {
+
+        private val postTeamLens = Body.auto<PostTeam>().toLens()
+        private val withIdLens = Body.auto<WithId>().toLens()
+
+        @Test
+        fun `save a team`(approver: Approver) = testContext {
+            teamDao.findAll().shouldBeEmpty()
+
+            val response = underTest(
+                Request(
+                    method = POST,
+                    uri = "/api/v1/teams",
+                ).with(
+                    postTeamLens of PostTeam(
+                        name = "Team 0",
+                        slug = "team-0",
+                    )
+                )
+            )
+
+            response shouldHaveStatus CREATED
+            approver.assertApproved(response)
+
+            val id = TeamId(withIdLens(response).id)
+
+            teamDao.findById(id) shouldNotBeNull {
+                this.id shouldBe id
+                name shouldBe "Team 0"
+                slug shouldBe Slug("team-0")
+            }
+        }
+
+        @Nested
+        inner class BadRequest {
+
+            @Test
+            fun `when body is empty`(approver: Approver) = testContext {
+                val response = underTest(
+                    Request(
+                        method = POST,
+                        uri = "/api/v1/teams",
+                    ).contentType(APPLICATION_JSON)
+                        .body("{}")
+                )
+
+                response shouldHaveStatus BAD_REQUEST
+                approver.assertApproved(response)
+            }
+        }
+
+    }
+
+    data class PostTeam(
+        val name: String,
+        val slug: String,
+    )
+
+    data class WithId(val id: Long)
 
 }
