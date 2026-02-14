@@ -26,10 +26,18 @@ import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.Path
 import org.http4k.lens.contentType
 import org.http4k.testing.Approver
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.ArgumentsProvider
+import org.junit.jupiter.params.provider.ArgumentsSource
 import org.junit.jupiter.params.provider.ValueSource
+import org.junit.jupiter.params.support.ParameterDeclarations
+import java.util.stream.Stream
 
 @ExtendWith(ParameterizedJsonApprovalTest::class)
 class TeamHandlerTest {
@@ -179,56 +187,44 @@ class TeamHandlerTest {
                 approver.assertApproved(response)
             }
 
-            // todo approval test
-            @TestFactory
-            fun `when name is`() = listOf(
-                WhenNameIs("blank", "", "INVALID_NAME"),
-                WhenNameIs("too long", "a".repeat(256), "NAME_TOO_LONG"),
-            ).map { (description, name, errorCode) ->
-                DynamicTest.dynamicTest("when name is $description") {
-                    testContext {
-                        val response = underTest(
-                            Request(
-                                method = POST,
-                                uri = "/api/v1/teams",
-                            ).with(
-                                postTeamLens of PostTeam(
-                                    name = name,
-                                    slug = "team-0",
-                                )
-                            )
+            @Suppress("unused")
+            @ParameterizedTest(name = "when name is {0}")
+            @ArgumentsSource(BadRequestWhenNameIs::class)
+            fun `when name is`(description: String, name: String, approver: Approver) = testContext {
+                val response = underTest(
+                    Request(
+                        method = POST,
+                        uri = "/api/v1/teams",
+                    ).with(
+                        postTeamLens of PostTeam(
+                            name = name,
+                            slug = "team-0",
                         )
+                    )
+                )
 
-                        response shouldHaveStatus BAD_REQUEST
-//                    approver.assertApproved(response)
-                    }
-                }
+                response shouldHaveStatus BAD_REQUEST
+                approver.assertApproved(response)
             }
 
-            // todo approval test
-            @TestFactory
-            fun `when slug is`() = listOf(
-                WhenSlugIs("blank", "", "INVALID_SLUG"),
-                WhenSlugIs("too long", "a".repeat(256), "SLUG_TOO_LONG"),
-            ).map { (description, slug, errorCode) ->
-                DynamicTest.dynamicTest("when slug is $description") {
-                    testContext {
-                        val response = underTest(
-                            Request(
-                                method = POST,
-                                uri = "/api/v1/teams",
-                            ).with(
-                                postTeamLens of PostTeam(
-                                    name = "Team 0",
-                                    slug = slug,
-                                )
-                            )
+            @Suppress("unused")
+            @ParameterizedTest(name = "when slug is {0}")
+            @ArgumentsSource(BadRequestWhenSlugIs::class)
+            fun `when slug is`(description: String, slug: String, approver: Approver) = testContext {
+                val response = underTest(
+                    Request(
+                        method = POST,
+                        uri = "/api/v1/teams",
+                    ).with(
+                        postTeamLens of PostTeam(
+                            name = "Team 0",
+                            slug = slug,
                         )
+                    )
+                )
 
-                        response shouldHaveStatus BAD_REQUEST
-//                    approver.assertApproved(response)
-                    }
-                }
+                response shouldHaveStatus BAD_REQUEST
+                approver.assertApproved(response)
             }
 
             @Test
@@ -283,16 +279,27 @@ class TeamHandlerTest {
 
     data class WithId(val id: Long)
 
-    data class WhenNameIs(
-        val description: String,
-        val name: String,
-        val errorCode: String,
-    )
+    class BadRequestWhenNameIs : ArgumentsProvider {
+        override fun provideArguments(
+            parameters: ParameterDeclarations?,
+            context: ExtensionContext?
+        ): Stream<out Arguments?>? {
+            return Stream.of(
+                Arguments.of("blank", ""),
+                Arguments.of("too long", "a".repeat(256)),
+            )
+        }
+    }
 
-    data class WhenSlugIs(
-        val description: String,
-        val slug: String,
-        val errorCode: String,
-    )
-
+    class BadRequestWhenSlugIs : ArgumentsProvider {
+        override fun provideArguments(
+            parameters: ParameterDeclarations?,
+            context: ExtensionContext?
+        ): Stream<out Arguments?>? {
+            return Stream.of(
+                Arguments.of("blank", ""),
+                Arguments.of("too long", "a".repeat(256)),
+            )
+        }
+    }
 }
