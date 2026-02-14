@@ -19,49 +19,17 @@ import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.format.Jackson.auto
-import org.http4k.lens.*
+import org.http4k.lens.Path
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-
-private inline fun <reified T, E> BiDiBodyLensSpec<T>.validate(crossinline validator: T.() -> Result<Any, E>): BiDiBodyLensSpec<T> =
-    map({
-        validator.invoke(it)
-            .failureOrNull()
-            ?.let { errorType ->
-                throw LensFailure(
-                    Invalid(
-                        Meta(
-                            required = true,
-                            location = "validator",
-                            paramMeta = ParamMeta(
-                                description = "blah"
-                            ),
-                            name = "some name?",
-                            description = "some description",
-                            metadata = mapOf(errorType::class.simpleName!! to errorType)
-                        )
-                    )
-
-                )
-            }
-            ?: it
-    }, { it })
 
 object TeamHandler {
     private val pathSlugLens = Path.map { Slug(it) }.of("slug")
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
     private val teamDtoLens = Body.auto<TeamDto>().toLens()
     private val teamsListLens = Body.auto<List<TeamDto>>().toLens()
-    private val createTeamDtoLens = Body.auto<CreateTeamDto>()
-        .validate {
-            when {
-                name.isBlank() -> ErrorCode.INVALID_NAME.asFailure()
-                slug.isBlank() -> ErrorCode.INVALID_SLUG.asFailure()
-                slug.matches(Regex("^[a-z0-9-]+$")).not() -> ErrorCode.INVALID_SLUG.asFailure()
-                else -> asSuccess()
-            }
-        }.toLens()
+    private val createTeamDtoLens = Body.auto<CreateTeamDto>().toLens()
 
     operator fun invoke(
         teamDao: TeamDao,
@@ -82,8 +50,22 @@ object TeamHandler {
             )
         },
 
-        "api/v1/teams" bind POST to {
+        "api/v1/teams" bind POST to route@{
             val dto = createTeamDtoLens(it)
+
+            with(dto) {
+                when {
+                    name.isBlank() -> ErrorCode.INVALID_NAME.asFailure()
+                    slug.isBlank() -> ErrorCode.INVALID_SLUG.asFailure()
+                    slug.matches(Regex("^[a-z0-9-]+$")).not() -> ErrorCode.INVALID_SLUG.asFailure()
+                    else -> asSuccess()
+                }
+                    .failureOrNull()
+                    ?.let { errorCode ->
+                        return@route errorBodyLens(ErrorDto(errorCode), Response(BAD_REQUEST))
+                    }
+            }
+
 
             teamDao.create(
                 TeamDetails(
