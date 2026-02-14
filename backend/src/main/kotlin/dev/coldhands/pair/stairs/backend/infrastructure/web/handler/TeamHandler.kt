@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import dev.coldhands.pair.stairs.backend.domain.Slug
+import dev.coldhands.pair.stairs.backend.domain.team.TeamCreateError
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDao
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.toDto
@@ -15,11 +16,12 @@ import org.http4k.core.Body
 import org.http4k.core.Method.GET
 import org.http4k.core.Method.POST
 import org.http4k.core.Response
+import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.CREATED
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.format.Jackson.auto
-import org.http4k.lens.Path
+import org.http4k.lens.*
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
@@ -29,7 +31,29 @@ object TeamHandler {
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
     private val teamDtoLens = Body.auto<TeamDto>().toLens()
     private val teamsListLens = Body.auto<List<TeamDto>>().toLens()
-    private val createTeamDtoLens = Body.auto<CreateTeamDto>().toLens()
+    private val createTeamDtoLens = Body.auto<CreateTeamDto>().map({
+        when {
+            // todo refactor this mess
+            it.name.isBlank() -> throw LensFailure(
+                Invalid(
+                    Meta(
+                        required = true,
+                        location = "body name",
+                        paramMeta = ParamMeta(
+                            description = "blah"
+                        ),
+                        name = "some name?",
+                        description = "some description",
+                        metadata = mapOf(ErrorCode::class.simpleName!! to ErrorCode.INVALID_NAME)
+                    )
+                )
+            )
+
+            else -> it
+        }
+
+    }, { it })
+        .toLens()
 
     operator fun invoke(
         teamDao: TeamDao,
@@ -59,7 +83,14 @@ object TeamHandler {
                     slug = Slug(dto.slug),
                 )
             ).map { createdTeam -> teamDtoLens(createdTeam.toDto(), Response(CREATED)) }
-                .mapFailure { TODO() }
+                .mapFailure { teamCreateError ->
+                    val errorCode = when(teamCreateError) {
+                        is TeamCreateError.DuplicateSlug -> TODO()
+                        is TeamCreateError.NameTooLong -> ErrorCode.NAME_TOO_LONG
+                        is TeamCreateError.SlugTooLong -> TODO()
+                    }
+                    errorBodyLens(ErrorDto(errorCode), Response(BAD_REQUEST))
+                }
                 .get()
 
         }

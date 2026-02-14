@@ -25,9 +25,7 @@ import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.Path
 import org.http4k.lens.contentType
 import org.http4k.testing.Approver
-import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(ParameterizedJsonApprovalTest::class)
@@ -177,6 +175,31 @@ class TeamHandlerTest {
                 response shouldHaveStatus BAD_REQUEST
                 approver.assertApproved(response)
             }
+
+            // todo approval test
+            @TestFactory
+            fun `when name is`() = listOf(
+                WhenNameIs("blank", "", "INVALID_NAME"),
+                WhenNameIs("too long", "a".repeat(256), "NAME_TOO_LONG"),
+            ).map { (description, name, errorCode) ->
+                DynamicTest.dynamicTest("when name is $description") { testContext {
+                    val response = underTest(
+                        Request(
+                            method = POST,
+                            uri = "/api/v1/teams",
+                        ).with(
+                            postTeamLens of PostTeam(
+                                name = name,
+                                slug = "team-0",
+                            )
+                        )
+                    )
+
+                    response shouldHaveStatus BAD_REQUEST
+//                    approver.assertApproved(response)
+                }
+                }
+            }
         }
 
     }
@@ -187,5 +210,11 @@ class TeamHandlerTest {
     )
 
     data class WithId(val id: Long)
+
+    data class WhenNameIs(
+        val description: String,
+        val name: String,
+        val errorCode: String,
+    )
 
 }
