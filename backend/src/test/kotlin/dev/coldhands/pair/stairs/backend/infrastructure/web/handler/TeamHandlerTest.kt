@@ -1,5 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
+import dev.coldhands.pair.stairs.backend.InlineArgumentsProvider
 import dev.coldhands.pair.stairs.backend.ParameterizedJsonApprovalTest
 import dev.coldhands.pair.stairs.backend.domain.Slug
 import dev.coldhands.pair.stairs.backend.domain.TeamId
@@ -30,13 +31,10 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.ArgumentsProvider
 import org.junit.jupiter.params.provider.ArgumentsSource
 import org.junit.jupiter.params.provider.ValueSource
-import org.junit.jupiter.params.support.ParameterDeclarations
 import java.util.stream.Stream
 
 @ExtendWith(ParameterizedJsonApprovalTest::class)
@@ -279,27 +277,18 @@ class TeamHandlerTest {
 
     data class WithId(val id: Long)
 
-    class BadRequestWhenNameIs : ArgumentsProvider {
-        override fun provideArguments(
-            parameters: ParameterDeclarations?,
-            context: ExtensionContext?
-        ): Stream<out Arguments?>? {
-            return Stream.of(
-                Arguments.of("blank", ""),
-                Arguments.of("too long", "a".repeat(256)),
-            )
-        }
-    }
+    class BadRequestWhenNameIs : InlineArgumentsProvider({
+        Stream.of(
+            Arguments.of("blank", ""),
+            Arguments.of("too long", "a".repeat(256)),
+        )
+    })
 
-    class BadRequestWhenSlugIs : ArgumentsProvider {
-        override fun provideArguments(
-            parameters: ParameterDeclarations?,
-            context: ExtensionContext?
-        ): Stream<out Arguments?>? {
-            return Stream.of(
-                Arguments.of("blank", ""),
-                Arguments.of("too long", "a".repeat(256)),
-            )
-        }
-    }
+    class BadRequestWhenSlugIs : InlineArgumentsProvider({
+        Stream.of(
+            Arguments.of("blank", ""),
+            Arguments.of("too long", "a".repeat(256)),
+        )
+    })
+
 }
