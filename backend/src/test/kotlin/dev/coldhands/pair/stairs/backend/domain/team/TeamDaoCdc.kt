@@ -193,10 +193,10 @@ abstract class TeamDaoCdc<T : TeamDao> {
     abstract fun createTeam(teamDetails: TeamDetails): Team
 
     companion object TestFixtures {
-        fun someTeamDetails() = TeamDetails(
+        fun someTeamDetails(init: TeamDetails.() -> TeamDetails = {this}) = TeamDetails(
             slug = aSlug(),
             name = "some-name"
-        )
+        ).init()
 
         fun someTeam() = Team(
             id = aTeamId(),

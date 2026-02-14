@@ -3,6 +3,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 import dev.coldhands.pair.stairs.backend.ParameterizedJsonApprovalTest
 import dev.coldhands.pair.stairs.backend.domain.Slug
 import dev.coldhands.pair.stairs.backend.domain.TeamId
+import dev.coldhands.pair.stairs.backend.domain.team.TeamDaoCdc.TestFixtures.someTeamDetails
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
@@ -27,6 +28,8 @@ import org.http4k.lens.contentType
 import org.http4k.testing.Approver
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 @ExtendWith(ParameterizedJsonApprovalTest::class)
 class TeamHandlerTest {
@@ -182,23 +185,92 @@ class TeamHandlerTest {
                 WhenNameIs("blank", "", "INVALID_NAME"),
                 WhenNameIs("too long", "a".repeat(256), "NAME_TOO_LONG"),
             ).map { (description, name, errorCode) ->
-                DynamicTest.dynamicTest("when name is $description") { testContext {
-                    val response = underTest(
-                        Request(
-                            method = POST,
-                            uri = "/api/v1/teams",
-                        ).with(
-                            postTeamLens of PostTeam(
-                                name = name,
-                                slug = "team-0",
+                DynamicTest.dynamicTest("when name is $description") {
+                    testContext {
+                        val response = underTest(
+                            Request(
+                                method = POST,
+                                uri = "/api/v1/teams",
+                            ).with(
+                                postTeamLens of PostTeam(
+                                    name = name,
+                                    slug = "team-0",
+                                )
                             )
                         )
-                    )
 
-                    response shouldHaveStatus BAD_REQUEST
+                        response shouldHaveStatus BAD_REQUEST
 //                    approver.assertApproved(response)
+                    }
                 }
+            }
+
+            // todo approval test
+            @TestFactory
+            fun `when slug is`() = listOf(
+                WhenSlugIs("blank", "", "INVALID_SLUG"),
+                WhenSlugIs("too long", "a".repeat(256), "SLUG_TOO_LONG"),
+            ).map { (description, slug, errorCode) ->
+                DynamicTest.dynamicTest("when slug is $description") {
+                    testContext {
+                        val response = underTest(
+                            Request(
+                                method = POST,
+                                uri = "/api/v1/teams",
+                            ).with(
+                                postTeamLens of PostTeam(
+                                    name = "Team 0",
+                                    slug = slug,
+                                )
+                            )
+                        )
+
+                        response shouldHaveStatus BAD_REQUEST
+//                    approver.assertApproved(response)
+                    }
                 }
+            }
+
+            @Test
+            fun `when slug already exists`(approver: Approver) = testContext {
+                teamDao.create(someTeamDetails { copy(slug = Slug("team-0")) }).shouldBeSuccess()
+
+                val response = underTest(
+                    Request(
+                        method = POST,
+                        uri = "/api/v1/teams",
+                    ).with(
+                        postTeamLens of PostTeam(
+                            name = "Team 0",
+                            slug = "team-0",
+                        )
+                    )
+                )
+
+                response shouldHaveStatus BAD_REQUEST
+                approver.assertApproved(response)
+            }
+
+
+            @ParameterizedTest(name = "slug is {0}")
+            @ValueSource(
+                strings = ["A", "abc#", "abc "]
+            )
+            fun `when slug is invalid format`(slug: String, approver: Approver) = testContext {
+                val response = underTest(
+                    Request(
+                        method = POST,
+                        uri = "/api/v1/teams",
+                    ).with(
+                        postTeamLens of PostTeam(
+                            name = "Team 0",
+                            slug = slug,
+                        )
+                    )
+                )
+
+                response shouldHaveStatus BAD_REQUEST
+                approver.assertApproved(response)
             }
         }
 
@@ -214,6 +286,12 @@ class TeamHandlerTest {
     data class WhenNameIs(
         val description: String,
         val name: String,
+        val errorCode: String,
+    )
+
+    data class WhenSlugIs(
+        val description: String,
+        val slug: String,
         val errorCode: String,
     )
 

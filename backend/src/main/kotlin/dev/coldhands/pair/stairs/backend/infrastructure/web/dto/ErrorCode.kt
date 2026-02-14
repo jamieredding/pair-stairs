@@ -11,4 +11,7 @@ enum class ErrorCode {
     INVALID_REQUEST_BODY,
     INVALID_NAME,
     NAME_TOO_LONG,
+    INVALID_SLUG,
+    SLUG_TOO_LONG,
+    DUPLICATE_SLUG,
 }

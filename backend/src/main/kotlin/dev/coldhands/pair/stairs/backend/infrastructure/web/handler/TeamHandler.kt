@@ -48,6 +48,21 @@ object TeamHandler {
                     )
                 )
             )
+            // todo refactor this mess
+            it.slug.isBlank() || Regex("^[a-z0-9-]+$").matches(it.slug).not() -> throw LensFailure(
+                Invalid(
+                    Meta(
+                        required = true,
+                        location = "body slug",
+                        paramMeta = ParamMeta(
+                            description = "blah"
+                        ),
+                        name = "some name?",
+                        description = "some description",
+                        metadata = mapOf(ErrorCode::class.simpleName!! to ErrorCode.INVALID_SLUG)
+                    )
+                )
+            )
 
             else -> it
         }
@@ -84,10 +99,10 @@ object TeamHandler {
                 )
             ).map { createdTeam -> teamDtoLens(createdTeam.toDto(), Response(CREATED)) }
                 .mapFailure { teamCreateError ->
-                    val errorCode = when(teamCreateError) {
-                        is TeamCreateError.DuplicateSlug -> TODO()
+                    val errorCode = when (teamCreateError) {
+                        is TeamCreateError.DuplicateSlug -> ErrorCode.DUPLICATE_SLUG
                         is TeamCreateError.NameTooLong -> ErrorCode.NAME_TOO_LONG
-                        is TeamCreateError.SlugTooLong -> TODO()
+                        is TeamCreateError.SlugTooLong -> ErrorCode.SLUG_TOO_LONG
                     }
                     errorBodyLens(ErrorDto(errorCode), Response(BAD_REQUEST))
                 }
