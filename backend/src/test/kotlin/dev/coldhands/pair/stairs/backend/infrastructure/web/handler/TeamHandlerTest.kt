@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.domain.Slug
 import dev.coldhands.pair.stairs.backend.domain.team.TeamDetails
 import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.nulls.shouldBeNull
 import org.http4k.core.Method.GET
 import org.http4k.core.Request
@@ -68,6 +69,52 @@ class TeamHandlerTest {
             response shouldHaveStatus OK
             approver.assertApproved(response)
         }
+    }
+
+    @Nested
+    inner class ReadTeams {
+
+        @Test
+        fun `when no teams exist return empty array`(approver: Approver) = testContext {
+            teamDao.findAll().shouldBeEmpty()
+
+            val response = underTest(
+                Request(
+                    method = GET,
+                    uri = "/api/v1/teams",
+                )
+            )
+
+            response shouldHaveStatus OK
+            approver.assertApproved(response)
+        }
+
+        @Test
+        fun `when multiple teams exist then return them`(approver: Approver) = testContext {
+            teamDao.create(
+                TeamDetails(
+                    name = "Team 0",
+                    slug = Slug("team-0"),
+                )
+            ).shouldBeSuccess()
+            teamDao.create(
+                TeamDetails(
+                    name = "Team 1",
+                    slug = Slug("team-1"),
+                )
+            ).shouldBeSuccess()
+
+            val response = underTest(
+                Request(
+                    method = GET,
+                    uri = "/api/v1/teams",
+                )
+            )
+
+            response shouldHaveStatus OK
+            approver.assertApproved(response)
+        }
 
     }
+
 }

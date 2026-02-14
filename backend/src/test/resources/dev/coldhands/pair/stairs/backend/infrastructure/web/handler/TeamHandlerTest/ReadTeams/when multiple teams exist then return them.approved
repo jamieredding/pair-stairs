@@ -1,0 +1,12 @@
+[
+  {
+    "id": 0,
+    "name": "Team 0",
+    "slug": "team-0"
+  },
+  {
+    "id": 1,
+    "name": "Team 1",
+    "slug": "team-1"
+  }
+]

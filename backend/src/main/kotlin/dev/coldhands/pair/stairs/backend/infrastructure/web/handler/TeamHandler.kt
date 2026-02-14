@@ -21,6 +21,7 @@ object TeamHandler {
     private val pathSlugLens = Path.map { Slug(it) }.of("slug")
     private val errorBodyLens = Body.auto<ErrorDto>().toLens()
     private val teamDtoLens = Body.auto<TeamDto>().toLens()
+    private val teamsListLens = Body.auto<List<TeamDto>>().toLens()
 
     operator fun invoke(
         teamDao: TeamDao,
@@ -32,5 +33,13 @@ object TeamHandler {
             }
                 ?: errorBodyLens(ErrorDto(ErrorCode.TEAM_NOT_FOUND), Response(NOT_FOUND))
         },
+
+        "/api/v1/teams" bind GET to {
+            teamsListLens(
+                teamDao.findAll()
+                    .map { team -> team.toDto() },
+                Response(OK)
+            )
+        }
     )
 }
