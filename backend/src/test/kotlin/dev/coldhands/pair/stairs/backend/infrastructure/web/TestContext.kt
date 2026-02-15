@@ -12,6 +12,7 @@ import org.http4k.config.Environment
 import org.http4k.config.EnvironmentKey
 import org.http4k.core.HttpHandler
 import org.http4k.lens.int
+import java.nio.file.Path
 import java.time.temporal.ChronoUnit
 
 fun testContext(testBody: TestContext.() -> Unit) {
@@ -22,7 +23,10 @@ class TestContext {
 
     val combinationsCalculatePageSizeLens = EnvironmentKey.int().required("app.combinations.calculate.pageSize")
     val combinationsEventPageSizeLens = EnvironmentKey.int().required("app.combinations.event.pageSize")
-    var environment: Environment = Environment.fromResource("application.properties")
+    val staticContentPathLens = EnvironmentKey.map { Path.of(it) }.required("static.content.path")
+
+    var environment: Environment = Environment.from("static.content.path" to "src/test/resources/static-test")
+        .overrides(Environment.fromResource("application.properties"))
 
     val developerDao = FakeDeveloperDao()
     val streamDao = FakeStreamDao()
@@ -40,6 +44,7 @@ class TestContext {
     val underTest: HttpHandler = { request ->
         val combinationsCalculatePageSize = combinationsCalculatePageSizeLens(environment)
         val combinationsEventPageSize = combinationsEventPageSizeLens(environment)
+        val staticContentPath = staticContentPathLens(environment)
 
         val appHttpHandler = AppHttpHandler(
             developerDao,
@@ -51,6 +56,7 @@ class TestContext {
             combinationMapper,
             combinationsCalculatePageSize,
             combinationsEventPageSize,
+            staticContentPath,
         )
         appHttpHandler(request)
     }

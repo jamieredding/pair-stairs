@@ -11,7 +11,10 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.then
+import org.http4k.routing.ResourceLoader
 import org.http4k.routing.routes
+import org.http4k.routing.singlePageApp
+import java.nio.file.Path
 
 class AppHttpHandler(
     developerDao: DeveloperDao,
@@ -23,9 +26,10 @@ class AppHttpHandler(
     combinationMapper: CombinationMapper,
     combinationsCalculatePageSize: Int,
     combinationsEventPageSize: Int,
-): HttpHandler {
+    staticContentPath: Path,
+) : HttpHandler {
 
-    private val mainAppRoutes = routes(
+    private val apiRoutes = routes(
         DeveloperHandler(developerDao, statsService),
         StreamHandler(streamDao, statsService),
         CombinationCalculationHandler(combinationCalculationService, combinationMapper, combinationsCalculatePageSize),
@@ -34,7 +38,12 @@ class AppHttpHandler(
     )
 
     private val appStack: HttpHandler = CatchLensFailureFilter()
-        .then(mainAppRoutes)
+        .then(
+            routes(
+                apiRoutes,
+                singlePageApp(ResourceLoader.Directory(staticContentPath.toFile().absolutePath))
+            )
+        )
 
     override fun invoke(request: Request): Response = appStack(request)
 
