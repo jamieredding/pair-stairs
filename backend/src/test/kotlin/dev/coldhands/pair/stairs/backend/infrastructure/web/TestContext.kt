@@ -1,6 +1,7 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web
 
 import dev.coldhands.pair.stairs.backend.FakeDateProvider
+import dev.coldhands.pair.stairs.backend.infrastructure.Settings
 import dev.coldhands.pair.stairs.backend.infrastructure.mapper.CombinationMapper
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeCombinationEventDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeveloperDao
@@ -8,23 +9,18 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeStre
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeTeamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.web.handler.AppHttpHandler
 import dev.coldhands.pair.stairs.backend.usecase.*
+import org.http4k.client.JavaHttpClient
 import org.http4k.config.Environment
-import org.http4k.config.EnvironmentKey
 import org.http4k.core.HttpHandler
-import org.http4k.lens.int
-import java.nio.file.Path
+import org.http4k.security.AccessToken
 import java.time.temporal.ChronoUnit
+import kotlin.time.Clock
 
 fun testContext(testBody: TestContext.() -> Unit) {
     testBody(TestContext())
 }
 
 class TestContext {
-
-    val combinationsCalculatePageSizeLens = EnvironmentKey.int().required("app.combinations.calculate.pageSize")
-    val combinationsEventPageSizeLens = EnvironmentKey.int().required("app.combinations.event.pageSize")
-    val staticContentPathLens = EnvironmentKey.map { Path.of(it) }.required("static.content.path")
-
     var environment: Environment = Environment.from("static.content.path" to "src/test/resources/static-test")
         .overrides(Environment.fromResource("application.properties"))
 
@@ -39,12 +35,10 @@ class TestContext {
     val combinationCalculationService =
         CoreCombinationCalculationService(EntryPointFactory(combinationHistoryRepository))
     val combinationMapper = CombinationMapper(developerDao, streamDao)
-
+    val cookieTokenStore = mutableMapOf<String, AccessToken>() // todo don't expose http4k access token here
 
     val underTest: HttpHandler = { request ->
-        val combinationsCalculatePageSize = combinationsCalculatePageSizeLens(environment)
-        val combinationsEventPageSize = combinationsEventPageSizeLens(environment)
-        val staticContentPath = staticContentPathLens(environment)
+        val settings = Settings(environment)
 
         val appHttpHandler = AppHttpHandler(
             developerDao,
@@ -54,9 +48,10 @@ class TestContext {
             combinationCalculationService,
             combinationEventService,
             combinationMapper,
-            combinationsCalculatePageSize,
-            combinationsEventPageSize,
-            staticContentPath,
+            JavaHttpClient(), // todo inject this
+            Clock.System,
+            settings,
+            cookieTokenStore,
         )
         appHttpHandler(request)
     }
