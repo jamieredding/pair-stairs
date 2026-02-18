@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.time.Duration.Companion.milliseconds
 
-class RealAuthUiIT {
+class UiAuthIT {
 
     private val testContext = TestContext()
 

@@ -1,21 +1,29 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import org.http4k.client.JavaHttpClient
 import org.http4k.core.*
+import org.http4k.core.ContentType.Companion.APPLICATION_FORM_URLENCODED
 import org.http4k.core.ContentType.Companion.APPLICATION_JSON
+import org.http4k.core.Status.Companion.OK
+import org.http4k.core.Status.Companion.UNAUTHORIZED
+import org.http4k.core.body.form
 import org.http4k.filter.ClientFilters
 import org.http4k.filter.cookie.BasicCookieStorage
+import org.http4k.format.Jackson.auto
+import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.*
 import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
-class RealAuthApiIT {
+class ApiAuthIT {
 
     @Test
-    fun `can handle token authentication for api`() = testContext {
+    @Disabled
+    fun `api request without authorization should 401`() = testContext {
         val server = underTest.asServer(SunHttp(8080)).start()
 
         val appBaseUri = Uri.of("http://localhost:${server.port()}")
@@ -23,11 +31,60 @@ class RealAuthApiIT {
         val client = ClientFilters.SetBaseUriFrom(appBaseUri)
             .then(JavaHttpClient())
 
-        val unauthedResponse = client(Request(Method.GET, "/api/v1/teams")
+        val response = client(Request(Method.GET, "/api/v1/teams")
             .accept(APPLICATION_JSON))
 
-        println(unauthedResponse)
+        response shouldHaveStatus UNAUTHORIZED
     }
+
+    @Test
+    @Disabled
+    fun `unprotected route without authorization should return successfully`() = testContext {
+        TODO()
+    }
+
+    @Test
+    fun `api route with bearer token should return successfully`() = testContext {
+        val server = underTest.asServer(SunHttp(8080)).start()
+
+        val appBaseUri = Uri.of("http://localhost:${server.port()}")
+        val authBaseUri = Uri.of("http://localhost:5556")
+        val accessTokenLens = Body.auto<TokenResponse>().map { it.accessToken }.toLens()
+
+        val authClient = ClientFilters.SetBaseUriFrom(authBaseUri)
+            .then(ClientFilters.BasicAuth("pair-stairs", "ZXhhbXBsZS1hcHAtc2VjcmV0"))
+            .then(JavaHttpClient())
+
+        val authResponse = authClient(
+            Request(Method.POST, "/dex/token")
+                .contentType(APPLICATION_FORM_URLENCODED)
+                .form(
+                    "grant_type" to "password",
+                    "username" to "admin@example.com",
+                    "password" to "password",
+                    "scope" to "openid profile email",
+                )
+        )
+
+        authResponse shouldHaveStatus OK
+        val accessToken = accessTokenLens(authResponse)
+
+        val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
+            .then(ClientFilters.BearerAuth(accessToken))
+            .then(JavaHttpClient())
+
+        val response = appClient(Request(Method.GET, "/api/v1/teams")
+            .accept(APPLICATION_JSON))
+
+        response shouldHaveStatus OK
+    }
+
+    @Test
+    @Disabled
+    fun `api route with cookie should return successfully`() = testContext {
+        TODO()
+    }
+
 
     @Test
     @Disabled
@@ -79,5 +136,8 @@ class RealAuthApiIT {
 
         println(loginResponse)
     }
+
+    data class TokenResponse(
+        @JsonProperty("access_token") val accessToken: String)
 
 }
