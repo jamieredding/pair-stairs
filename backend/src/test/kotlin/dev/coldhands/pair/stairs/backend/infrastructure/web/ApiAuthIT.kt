@@ -14,10 +14,16 @@ import org.http4k.filter.cookie.BasicCookieStorage
 import org.http4k.format.Jackson.auto
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.*
+import org.http4k.security.CredentialsProvider
+import org.http4k.security.ExpiringCredentials
+import org.http4k.security.Refreshing
 import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.toJavaInstant
 
 class ApiAuthIT {
 
@@ -31,8 +37,10 @@ class ApiAuthIT {
         val client = ClientFilters.SetBaseUriFrom(appBaseUri)
             .then(JavaHttpClient())
 
-        val response = client(Request(Method.GET, "/api/v1/teams")
-            .accept(APPLICATION_JSON))
+        val response = client(
+            Request(Method.GET, "/api/v1/teams")
+                .accept(APPLICATION_JSON)
+        )
 
         response shouldHaveStatus UNAUTHORIZED
     }
@@ -48,33 +56,14 @@ class ApiAuthIT {
         val server = underTest.asServer(SunHttp(8080)).start()
 
         val appBaseUri = Uri.of("http://localhost:${server.port()}")
-        val authBaseUri = Uri.of("http://localhost:5556")
-        val accessTokenLens = Body.auto<TokenResponse>().map { it.accessToken }.toLens()
-
-        val authClient = ClientFilters.SetBaseUriFrom(authBaseUri)
-            .then(ClientFilters.BasicAuth("pair-stairs", "ZXhhbXBsZS1hcHAtc2VjcmV0"))
-            .then(JavaHttpClient())
-
-        val authResponse = authClient(
-            Request(Method.POST, "/dex/token")
-                .contentType(APPLICATION_FORM_URLENCODED)
-                .form(
-                    "grant_type" to "password",
-                    "username" to "admin@example.com",
-                    "password" to "password",
-                    "scope" to "openid profile email",
-                )
-        )
-
-        authResponse shouldHaveStatus OK
-        val accessToken = accessTokenLens(authResponse)
 
         val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
-            .then(ClientFilters.BearerAuth(accessToken))
-            .then(JavaHttpClient())
+            .then(dexAuthenticatedClient())
 
-        val response = appClient(Request(Method.GET, "/api/v1/teams")
-            .accept(APPLICATION_JSON))
+        val response = appClient(
+            Request(Method.GET, "/api/v1/teams")
+                .accept(APPLICATION_JSON)
+        )
 
         response shouldHaveStatus OK
     }
@@ -137,7 +126,38 @@ class ApiAuthIT {
         println(loginResponse)
     }
 
-    data class TokenResponse(
-        @JsonProperty("access_token") val accessToken: String)
+    private fun dexAuthenticatedClient(): HttpHandler {
+        val authBaseUri = Uri.of("http://localhost:5556")
+        val authClient = ClientFilters.SetBaseUriFrom(authBaseUri)
+            .then(ClientFilters.BasicAuth("pair-stairs", "ZXhhbXBsZS1hcHAtc2VjcmV0"))
+            .then(JavaHttpClient())
+        data class TokenResponse(
+            @JsonProperty("access_token") val accessToken: String,
+            @JsonProperty("expires_in") val expiresIn: Long,
+        )
+        val tokenResponseLens = Body.auto<TokenResponse>().toLens()
+
+        val appClient = ClientFilters.BearerAuth(CredentialsProvider.Refreshing(refreshFn = {
+            val authResponse = authClient(
+                Request(Method.POST, "/dex/token")
+                    .contentType(APPLICATION_FORM_URLENCODED)
+                    .form(
+                        "grant_type" to "password",
+                        "username" to "admin@example.com",
+                        "password" to "password",
+                        "scope" to "openid profile email",
+                    )
+            )
+            authResponse shouldHaveStatus OK
+            val tokenResponse = tokenResponseLens(authResponse)
+            ExpiringCredentials(
+                credentials = tokenResponse.accessToken,
+                expiry = Clock.System.now().plus(tokenResponse.expiresIn.milliseconds).toJavaInstant()
+            )
+        }))
+            .then(JavaHttpClient())
+
+        return appClient
+    }
 
 }
