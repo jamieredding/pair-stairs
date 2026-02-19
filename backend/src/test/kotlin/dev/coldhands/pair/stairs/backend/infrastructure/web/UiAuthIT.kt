@@ -10,7 +10,6 @@ import org.http4k.playwright.LaunchPlaywrightBrowser
 import org.http4k.server.SunHttp
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import kotlin.time.Duration.Companion.milliseconds
 
 class UiAuthIT {
 
@@ -21,8 +20,8 @@ class UiAuthIT {
         http = testContext.underTest,
         serverFn = { SunHttp(8080) },
         launchOptions = BrowserType.LaunchOptions().apply {
-            headless = false
-            slowMo = 500.milliseconds.inWholeMilliseconds.toDouble()
+//            headless = false
+//            slowMo = 500.milliseconds.inWholeMilliseconds.toDouble()
         }
     )
 

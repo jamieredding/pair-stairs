@@ -19,10 +19,12 @@ import dev.forkhandles.result4k.map
 import dev.forkhandles.result4k.resultFromCatching
 import org.http4k.core.*
 import org.http4k.core.Status.Companion.UNAUTHORIZED
-import org.http4k.filter.DebuggingFilters
 import org.http4k.lens.RequestKey
 import org.http4k.lens.RequestLens
-import org.http4k.routing.*
+import org.http4k.routing.ResourceLoader
+import org.http4k.routing.bind
+import org.http4k.routing.routes
+import org.http4k.routing.singlePageApp
 import org.http4k.security.AccessToken
 import org.http4k.security.OAuthProvider
 import org.http4k.security.OAuthProviderConfig
@@ -80,6 +82,7 @@ class AppHttpHandler(
         CombinationEventHandler(combinationEventService, combinationMapper, settings.combinationsEventPageSize),
         TeamHandler(teamDao)
     )
+
     data class OidcUser(val userInfo: UserInfo) {
         data class UserInfo(
             val subject: String,
@@ -91,15 +94,8 @@ class AppHttpHandler(
 
     val oidcUserLens = RequestKey.required<OidcUser>("oidcUser")
 
-    private val appStack: RoutingHttpHandler = CatchLensFailureFilter()
-        .then(
-            routes(
-                apiRoutes,
-                singlePageApp(ResourceLoader.Directory(settings.staticContentPath.toFile().absolutePath))
-            )
-        )
-
     fun decodeFromToken(token: String): OidcUser? {
+        // todo should we actually be verifying here as bearer tokens might not be verified?
         // decode only here as verification happens elsewhere
         val result = resultFromCatching<JWTDecodeException, DecodedJWT> { JWT.decode(token) }
             .map {
@@ -131,18 +127,26 @@ class AppHttpHandler(
         }
     }
 
-    private val secureApp: HttpHandler = DebuggingFilters.PrintRequestAndResponse()
-        .then(
-            routes(
-                "/logout" bind {request -> oAuthPersistence.logout(request)},
-                oAuthProvider.callbackEndpoint,
-                oAuthProvider.authFilter
-                    .then(assignUserPrincipal(oidcUserLens))
-                    .then(
-                        appStack
-                    )
+    private val secureApp: HttpHandler = routes(
+        "/logout" bind { request -> oAuthPersistence.logout(request) },
+        oAuthProvider.callbackEndpoint,
+        Filter { next ->
+            { request ->
+                if (oAuthPersistence.getAccessToken(request) != null) {
+                    next(request)
+                } else {
+                    Response(UNAUTHORIZED)
+                }
+            }
+        }
+            .then(CatchLensFailureFilter())
+            .then(assignUserPrincipal(oidcUserLens))
+            .then(apiRoutes),
+        oAuthProvider.authFilter
+            .then(
+                singlePageApp(ResourceLoader.Directory(settings.staticContentPath.toFile().absolutePath))
             )
-        )
+    )
 
     override fun invoke(request: Request): Response = secureApp(request)
 

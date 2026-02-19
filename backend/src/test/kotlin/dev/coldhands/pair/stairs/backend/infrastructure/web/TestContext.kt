@@ -12,6 +12,8 @@ import dev.coldhands.pair.stairs.backend.usecase.*
 import org.http4k.client.JavaHttpClient
 import org.http4k.config.Environment
 import org.http4k.core.HttpHandler
+import org.http4k.core.then
+import org.http4k.filter.DebuggingFilters
 import org.http4k.security.AccessToken
 import java.time.temporal.ChronoUnit
 import kotlin.time.Clock
@@ -53,6 +55,9 @@ class TestContext {
             settings,
             cookieTokenStore,
         )
-        appHttpHandler(request)
+        val loggingAppHandler = DebuggingFilters.PrintRequestAndResponse()
+            .then(appHttpHandler)
+        loggingAppHandler(request)
+
     }
 }
