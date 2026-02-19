@@ -116,58 +116,6 @@ class ApiAuthIT {
         return validJwt
     }
 
-
-    @Test
-    @Disabled
-    // todo delete me
-    fun `manual stuff`() = testContext {
-        val server = underTest.asServer(SunHttp(8080)).start()
-
-        val appBaseUri = Uri.of("http://localhost:${server.port()}")
-        val cookieStorage = BasicCookieStorage()
-
-        val client = ClientFilters.FollowRedirects()
-            .then(ClientFilters.Cookies(storage = cookieStorage))
-            .then(JavaHttpClient())
-
-        val unauthedResponse = client(Request(Method.GET, appBaseUri.appendToPath("/")))
-
-        println(unauthedResponse)
-
-        val actionRegex = Regex("<form method=\"post\".*action=\"(.+)\">")
-        val action = actionRegex.find(unauthedResponse.bodyString())
-            ?.groups?.get(1)?.value
-            .shouldNotBeNull()
-
-        val login = "admin@example.com"
-        val password = "password"
-        println(action)
-
-        val oAuthBaseUri = Uri.of("http://localhost:5556")
-        val webFormLens = Body.webForm(
-            Validator.Ignore,
-            FormField.required("login"),
-            FormField.required("password"),
-        )
-            .toLens()
-
-        val loginUri = oAuthBaseUri.appendToPath(action)
-        println(loginUri)
-
-        val loginRequest = webFormLens(
-            WebForm(
-                mapOf(
-                    "login" to listOf(login),
-                    "password" to listOf(password),
-                )
-            ), Request(Method.POST, loginUri)
-        )
-
-        val loginResponse = client(loginRequest)
-
-        println(loginResponse)
-    }
-
     private fun dexAuthenticatedClient(): HttpHandler {
         val authBaseUri = Uri.of("http://localhost:5556")
         val authClient = ClientFilters.SetBaseUriFrom(authBaseUri)
