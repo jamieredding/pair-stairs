@@ -2,6 +2,7 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.handler
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
 import dev.coldhands.pair.stairs.backend.domain.combination.CombinationCalculationService
 import dev.coldhands.pair.stairs.backend.domain.developer.DeveloperDao
@@ -47,7 +48,8 @@ class AppHttpHandler(
     private val verifier = jwtVerifier(
         jwkUri = settings.oauthJwkUri,
         issuer = settings.oauthIssuerUri,
-        audience = settings.oauthAudience
+        audience = settings.oauthAudience,
+        client = oAuthClient
     )
 
     private val oAuthPersistence = InMemoryOAuthPersistence(
@@ -132,11 +134,15 @@ class AppHttpHandler(
         oAuthProvider.callbackEndpoint,
         Filter { next ->
             { request ->
-                if (oAuthPersistence.getAccessToken(request) != null) {
-                    next(request)
-                } else {
-                    Response(UNAUTHORIZED)
-                }
+                oAuthPersistence.getAccessToken(request)
+                    ?.takeIf {
+                        when (resultFromCatching<JWTVerificationException, Any> { verifier.verify(it.value) }) {
+                            is Success<*> -> true
+                            is Failure<*> -> false // todo ignoring the failure reason
+                        }
+                    }
+                    ?.let { next(request) }
+                    ?: Response(UNAUTHORIZED)
             }
         }
             .then(CatchLensFailureFilter())

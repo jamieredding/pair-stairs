@@ -8,10 +8,11 @@ import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeDeve
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeStreamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.persistance.dao.FakeTeamDao
 import dev.coldhands.pair.stairs.backend.infrastructure.web.handler.AppHttpHandler
+import dev.coldhands.pair.stairs.backend.infrastructure.web.security.FakeIdpServer
 import dev.coldhands.pair.stairs.backend.usecase.*
-import org.http4k.client.JavaHttpClient
 import org.http4k.config.Environment
 import org.http4k.core.HttpHandler
+import org.http4k.core.Uri
 import org.http4k.core.then
 import org.http4k.filter.DebuggingFilters
 import org.http4k.security.AccessToken
@@ -37,6 +38,8 @@ class TestContext {
     val combinationCalculationService =
         CoreCombinationCalculationService(EntryPointFactory(combinationHistoryRepository))
     val combinationMapper = CombinationMapper(developerDao, streamDao)
+    // todo this shouldn't really be var, test context should be instantiated with this
+    var oauthClient: HttpHandler = FakeIdpServer(Uri.of("/some/path"))
     val cookieTokenStore = mutableMapOf<String, AccessToken>() // todo don't expose http4k access token here
 
     val underTest: HttpHandler = { request ->
@@ -50,7 +53,7 @@ class TestContext {
             combinationCalculationService,
             combinationEventService,
             combinationMapper,
-            JavaHttpClient(), // todo inject this
+            oauthClient,
             Clock.System,
             settings,
             cookieTokenStore,
