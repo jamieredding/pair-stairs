@@ -24,9 +24,10 @@ class HttpJwkProviderIT {
     @ArgumentsSource(IdentityProviderArgumentsProvider::class)
     fun `can get all keys and find key in that key set`(
         @Suppress("unused") idpName: String,
-        jwksUri: Uri
+        jwksUri: Uri,
+        client: HttpHandler
     ) {
-        val underTest = HttpJwkProvider(jwksUri, JavaHttpClient())
+        val underTest = HttpJwkProvider(jwksUri, client)
 
         val firstKey = underTest.getAll().shouldNotBeEmpty().first()
 
@@ -41,8 +42,16 @@ class HttpJwkProviderIT {
 
 class IdentityProviderArgumentsProvider : InlineArgumentsProvider({
     Stream.of(
-        Arguments.of("local dex", Uri.of("http://localhost:5556/dex/keys")),
-        Arguments.of("azure", discoverAzureJwksUri())
+        Arguments.of("fake idp", Uri.of("/some/keys"), FakeIdpServer(Uri.of("/some/keys")).apply {
+            repeat(2) {
+                primeJwks(
+                    PrimedJwk(),
+                    PrimedJwk(kid = "second")
+                )
+            }
+        }),
+        Arguments.of("local dex", Uri.of("http://localhost:5556/dex/keys"), JavaHttpClient()),
+        Arguments.of("azure", discoverAzureJwksUri(), JavaHttpClient())
     )
 })
 

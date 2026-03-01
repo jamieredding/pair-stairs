@@ -7,26 +7,28 @@ import org.http4k.routing.routes
 
 class FakeIdpServer(jwksUri: Uri) : HttpHandler {
 
-    private var primedResponse: HttpHandler? = null
+    private var primedResponses: ArrayDeque<HttpHandler> = ArrayDeque()
     private val jwksLens = Body.auto<Jwks>().toLens()
 
     private val app = routes(
         jwksUri.path bind Method.GET to {
-            primedResponse!!(it).also { primedResponse = null }
+            primedResponses.removeFirst()(it)
         }
     )
 
     override fun invoke(request: Request) = app(request)
 
     fun primeJwks(vararg jwksToPrime: PrimedJwk) {
-        primedResponse = { jwksLens(
-            Jwks(jwksToPrime.toList()),
-            Response.Companion(Status.OK)
-        ) }
+        primedResponses.addLast {
+            jwksLens(
+                Jwks(jwksToPrime.toList()),
+                Response.Companion(Status.OK)
+            )
+        }
     }
 
     fun primeJwks(httpHandler: HttpHandler) {
-        primedResponse = httpHandler
+        primedResponses.addLast(httpHandler)
     }
 
 }
