@@ -1,9 +1,10 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web
+package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
 import com.microsoft.playwright.BrowserType
 import com.microsoft.playwright.Page
 import com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat
 import com.microsoft.playwright.options.AriaRole.*
+import dev.coldhands.pair.stairs.backend.infrastructure.web.TestContext
 import io.kotest.matchers.url.haveRef
 import org.http4k.playwright.Http4kBrowser
 import org.http4k.playwright.LaunchPlaywrightBrowser
@@ -11,7 +12,7 @@ import org.http4k.server.SunHttp
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class UiAuthIT {
+class OAuthSecureHandlerUiIT {
 
     private val testContext = TestContext()
 
@@ -31,7 +32,11 @@ class UiAuthIT {
         with(browser.newPage()) {
             navigate("/")
 
-            assertThat(getByRole(HEADING, Page.GetByRoleOptions().apply { name = "Log in to Your Account" }))
+            assertThat(
+                getByRole(
+                    HEADING,
+                    Page.GetByRoleOptions().apply { name = "Log in to Your Account" })
+            )
                 .isVisible()
 
             getByPlaceholder("email address").apply {
@@ -50,13 +55,21 @@ class UiAuthIT {
             getByRole(BUTTON, Page.GetByRoleOptions().apply { name = "Grant Access" })
                 .click()
 
-            assertThat(getByRole(HEADING, Page.GetByRoleOptions().apply { name = "This is a test index page"}))
+            assertThat(
+                getByRole(
+                    HEADING,
+                    Page.GetByRoleOptions().apply { name = "This is a test index page" })
+            )
                 .isVisible()
 
             getByRole(LINK, Page.GetByRoleOptions().apply { haveRef("/logout") })
                 .click()
 
-            assertThat(getByRole(HEADING, Page.GetByRoleOptions().apply { name = "Log in to Your Account" }))
+            assertThat(
+                getByRole(
+                    HEADING,
+                    Page.GetByRoleOptions().apply { name = "Log in to Your Account" })
+            )
                 .isVisible()
         }
     }

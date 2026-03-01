@@ -1,6 +1,8 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web
+package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import dev.coldhands.pair.stairs.backend.infrastructure.web.TestContext
+import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import org.http4k.client.JavaHttpClient
 import org.http4k.core.*
 import org.http4k.core.ContentType.Companion.APPLICATION_FORM_URLENCODED
@@ -19,7 +21,7 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.toJavaInstant
 
-class ApiAuthIT : ApiAuthCdc {
+class OAuthSecureHandlerIT : OAuthSecureHandlerCdc {
     override fun withHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit) {
         testContext {
             oauthClient = JavaHttpClient()
@@ -42,8 +44,8 @@ class ApiAuthIT : ApiAuthCdc {
                 server.start()
                 val appBaseUri = Uri.of("http://localhost:${server.port()}")
 
-            val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
-                .then(dexAuthenticatedClient())
+                val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
+                    .then(dexAuthenticatedClient())
 
                 block(appClient, this)
             }

@@ -1,5 +1,6 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web
+package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
+import dev.coldhands.pair.stairs.backend.infrastructure.web.TestContext
 import org.http4k.core.*
 import org.http4k.core.ContentType.Companion.APPLICATION_JSON
 import org.http4k.core.Status.Companion.OK
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test
 import java.util.*
 
 
-interface ApiAuthCdc {
+interface OAuthSecureHandlerCdc {
 
     fun withHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit)
     fun withBearerAuthHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit)

@@ -49,7 +49,7 @@ class AppHttpHandler(
             apiRoutes = apiRoutes,
             authFilteredRoutes = singlePageApp(ResourceLoader.Directory(settings.staticContentPath.toFile().absolutePath))
         ),
-        settings = settings,
+        oAuthSettings = settings.oauth,
         oAuthClient = oAuthClient,
         clock = clock,
         cookieTokenStore = cookieTokenStore

@@ -4,7 +4,6 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
-import dev.coldhands.pair.stairs.backend.infrastructure.Settings
 import dev.coldhands.pair.stairs.backend.infrastructure.web.handler.CatchLensFailureFilter
 import dev.forkhandles.result4k.Failure
 import dev.forkhandles.result4k.Success
@@ -23,22 +22,22 @@ import kotlin.time.Clock
 
 class OAuthSecureHandler(
     routes: Routes,
-    settings: Settings,
+    oAuthSettings: OAuthSettings,
     oAuthClient: HttpHandler,
     clock: Clock,
     cookieTokenStore: MutableMap<String, AccessToken>
-): HttpHandler {
+) : HttpHandler {
 
     private val verifier = jwtVerifier(
-        jwkUri = settings.oauthJwkUri,
-        issuer = settings.oauthIssuerUri,
-        audience = settings.oauthAudience,
+        jwkUri = oAuthSettings.jwkUri,
+        issuer = oAuthSettings.issuerUri,
+        audience = oAuthSettings.audience,
         client = oAuthClient
     )
 
     private val oAuthPersistence = InMemoryOAuthPersistence(
         cookieNamePrefix = "pair-stairs",
-        cookieValidity = settings.loginTokenCookieValidity,
+        cookieValidity = oAuthSettings.loginTokenCookieValidity,
         clock = clock,
         verifier = verifier,
         cookieTokenStore = cookieTokenStore
@@ -46,13 +45,13 @@ class OAuthSecureHandler(
 
     private val oAuthProvider = OAuthProvider(
         providerConfig = OAuthProviderConfig(
-            authBase = settings.oauthIssuerUri,
+            authBase = oAuthSettings.issuerUri,
             authPath = "/auth",
             tokenPath = "/token",
-            credentials = Credentials(settings.oauthClientId, settings.oauthClientSecret),
+            credentials = Credentials(oAuthSettings.clientId, oAuthSettings.clientSecret),
         ),
         client = oAuthClient,
-        callbackUri = settings.oauthCallbackUri,
+        callbackUri = oAuthSettings.callbackUri,
         scopes = listOf("openid", "profile", "email"), // todo unsure about these
         oAuthPersistence = oAuthPersistence
     )

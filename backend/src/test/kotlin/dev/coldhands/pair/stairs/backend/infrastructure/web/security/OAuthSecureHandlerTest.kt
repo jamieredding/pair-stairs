@@ -1,9 +1,9 @@
-package dev.coldhands.pair.stairs.backend.infrastructure.web
+package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.coldhands.pair.stairs.backend.infrastructure.web.security.FakeIdpServer
-import dev.coldhands.pair.stairs.backend.infrastructure.web.security.PrimedJwk
+import dev.coldhands.pair.stairs.backend.infrastructure.web.TestContext
+import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import org.http4k.config.Environment
 import org.http4k.core.ContentType.Companion.APPLICATION_JSON
 import org.http4k.core.HttpHandler
@@ -22,7 +22,7 @@ import java.security.interfaces.RSAPublicKey
 import java.util.*
 import kotlin.io.encoding.Base64
 
-class ApiAuthTest : ApiAuthCdc {
+class OAuthSecureHandlerTest : OAuthSecureHandlerCdc {
     private val rsaKeyPair = generateRsaKeyPair()
     private val keyId = UUID.randomUUID().toString()
 
@@ -31,12 +31,14 @@ class ApiAuthTest : ApiAuthCdc {
             val public = rsaKeyPair.public as RSAPublicKey
 
             // todo you shouldn't need to cast this here
-            (oauthClient as FakeIdpServer).primeJwks(PrimedJwk(
-                kid = keyId,
-                alg = "RS256",
-                n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
-            ))
+            (oauthClient as FakeIdpServer).primeJwks(
+                PrimedJwk(
+                    kid = keyId,
+                    alg = "RS256",
+                    n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
+                    e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
+                )
+            )
 
             environment = Environment.from(
                 "oauth.jwk.uri" to "/some/path", // todo use a proper path here
@@ -54,12 +56,14 @@ class ApiAuthTest : ApiAuthCdc {
             val private = rsaKeyPair.private as RSAPrivateKey
 
             // todo you shouldn't need to cast this here
-            (oauthClient as FakeIdpServer).primeJwks(PrimedJwk(
-                kid = keyId,
-                alg = "RS256",
-                n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
-            ))
+            (oauthClient as FakeIdpServer).primeJwks(
+                PrimedJwk(
+                    kid = keyId,
+                    alg = "RS256",
+                    n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
+                    e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
+                )
+            )
 
             environment = Environment.from(
                 "oauth.jwk.uri" to "/some/path", // todo use a proper path here
@@ -87,12 +91,14 @@ class ApiAuthTest : ApiAuthCdc {
             val anotherPrivateKey = generateRsaKeyPair().private as RSAPrivateKey
 
             // todo you shouldn't need to cast this here
-            (oauthClient as FakeIdpServer).primeJwks(PrimedJwk(
-                kid = keyId,
-                alg = "RS256",
-                n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
-            ))
+            (oauthClient as FakeIdpServer).primeJwks(
+                PrimedJwk(
+                    kid = keyId,
+                    alg = "RS256",
+                    n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
+                    e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
+                )
+            )
 
             environment = Environment.from(
                 "oauth.jwk.uri" to "/some/path" // todo use a proper path here
