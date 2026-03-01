@@ -6,7 +6,6 @@ import io.kotest.matchers.collections.shouldMatchEach
 import io.kotest.matchers.maps.shouldContain
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
-import org.http4k.core.HttpHandler
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.Uri
@@ -18,32 +17,24 @@ import java.util.*
 
 class HttpJwkProviderTest {
     private val uri = Uri.of("/some/path/to/keys")
+    private val idpServer = FakeIdpServer(uri)
+    private val underTest = HttpJwkProvider(uri, idpServer)
 
     @Nested
     inner class HappyPath {
 
         @Test
         fun `return jwk when keyId exists in jwks`() {
-            val underTest = HttpJwkProvider(uri) {
-                Response(Status.OK)
-                    .body(
-                        """
-                            {
-                              "keys": [
-                                {
-                                  "use": "sig",
-                                  "kty": "RSA",
-                                  "kid": "first",
-                                  "alg": "RS256",
-                                  "n": "abc",
-                                  "e": "def"
-                                }
-                              ]
-                            }
-                        """.trimIndent()
-                    )
-
-            }
+            idpServer.primeJwks(
+                PrimedJwk(
+                    use = "sig",
+                    kty = "RSA",
+                    kid = "first",
+                    alg = "RS256",
+                    n = "abc",
+                    e = "def"
+                )
+            )
 
             underTest.get("first") should {
                 it.id shouldBe "first"
@@ -63,33 +54,20 @@ class HttpJwkProviderTest {
 
         @Test
         fun `return jwk when keyId is second in jwks`() {
-            val underTest = HttpJwkProvider(uri) {
-                Response(Status.OK)
-                    .body(
-                        """
-                            {
-                              "keys": [
-                                {
-                                  "use": "sig",
-                                  "kty": "RSA",
-                                  "kid": "first",
-                                  "alg": "RS256",
-                                  "n": "abc",
-                                  "e": "def"
-                                },
-                                {
-                                  "use": "sig",
-                                  "kty": "RSA",
-                                  "kid": "second",
-                                  "alg": "RS256",
-                                  "n": "ghi",
-                                  "e": "jkl"
-                                }
-                              ]
-                            }
-                        """.trimIndent()
-                    )
-            }
+            idpServer.primeJwks(
+                PrimedJwk(
+                    kid = "first",
+                    n = "abc",
+                ),
+                PrimedJwk(
+                    use = "sig",
+                    kty = "RSA",
+                    kid = "second",
+                    alg = "RS256",
+                    n = "ghi",
+                    e = "jkl"
+                )
+            )
 
             underTest.get("second") should {
                 it.id shouldBe "second"
@@ -105,33 +83,16 @@ class HttpJwkProviderTest {
 
         @Test
         fun `get all returns all jwk in jwks`() {
-            val underTest = HttpJwkProvider(uri) {
-                Response(Status.OK)
-                    .body(
-                        """
-                            {
-                              "keys": [
-                                {
-                                  "use": "sig",
-                                  "kty": "RSA",
-                                  "kid": "first",
-                                  "alg": "RS256",
-                                  "n": "abc",
-                                  "e": "def"
-                                },
-                                {
-                                  "use": "sig",
-                                  "kty": "RSA",
-                                  "kid": "second",
-                                  "alg": "RS256",
-                                  "n": "ghi",
-                                  "e": "jkl"
-                                }
-                              ]
-                            }
-                        """.trimIndent()
-                    )
-            }
+            idpServer.primeJwks(
+                PrimedJwk(
+                    kid = "first",
+                    n = "abc",
+                ),
+                PrimedJwk(
+                    kid = "second",
+                    n = "ghi",
+                ),
+            )
 
             underTest.getAll().shouldMatchEach(
                 {
@@ -151,32 +112,15 @@ class HttpJwkProviderTest {
 
         @Test
         fun `throw exception when keyId is null`() {
-            val underTest = HttpJwkProvider(uri) { error("unused") }
+            idpServer.primeJwks { error("unused") }
+
             shouldThrow<SigningKeyNotFoundException> { underTest.get(null) }
                 .message shouldBe "No key found in $uri with kid ${null}"
         }
 
         @Test
         fun `throw exception when keyId is not found in jwks`() {
-            val underTest = HttpJwkProvider(uri) {
-                Response(Status.OK)
-                    .body(
-                        """
-                            {
-                              "keys": [
-                                {
-                                  "use": "sig",
-                                  "kty": "RSA",
-                                  "kid": "first",
-                                  "alg": "RS256",
-                                  "n": "abc",
-                                  "e": "def"
-                                }
-                              ]
-                            }
-                        """.trimIndent()
-                    )
-            }
+            idpServer.primeJwks(PrimedJwk(kid = "first"))
 
             val randomKeyId = UUID.randomUUID().toString()
 
@@ -187,7 +131,7 @@ class HttpJwkProviderTest {
         @Test
         fun `throw exception when exception happens while interacting with server`() {
             val cause = RuntimeException("some-error")
-            val underTest = HttpJwkProvider(uri) { throw cause }
+            idpServer.primeJwks { throw cause }
 
             shouldThrow<SigningKeyNotFoundException> { underTest.get("some-key") }.should {
                 it.message shouldBe "Cannot obtain jwks from url $uri"
@@ -197,7 +141,16 @@ class HttpJwkProviderTest {
 
         @Test
         fun `throw exception when response body is not json`() {
-            val underTest = HttpJwkProvider(uri) { Response(Status.OK).body("<xml/>") }
+            idpServer.primeJwks { Response(Status.OK).body("<xml/>") }
+
+            shouldThrow<SigningKeyNotFoundException> { underTest.get("some-key") }.should {
+                it.message shouldBe "Cannot obtain jwks from url $uri"
+            }
+        }
+
+        @Test
+        fun `throw exception when status code is not OK`() {
+            idpServer.primeJwks { Response(Status.BAD_REQUEST) }
 
             shouldThrow<SigningKeyNotFoundException> { underTest.get("some-key") }.should {
                 it.message shouldBe "Cannot obtain jwks from url $uri"
@@ -206,7 +159,7 @@ class HttpJwkProviderTest {
 
         @Test
         fun `throw exception when no 'keys' in json`() {
-            val underTest = HttpJwkProvider(uri) { Response(Status.OK).body("{}") }
+            idpServer.primeJwks { Response(Status.OK).body("{}") }
 
             shouldThrow<SigningKeyNotFoundException> { underTest.get("some-key") }.should {
                 it.message shouldBe "No keys found in $uri"
@@ -215,7 +168,7 @@ class HttpJwkProviderTest {
 
         @Test
         fun `throw exception when 'keys' is not an array`() {
-            val underTest = HttpJwkProvider(uri) {
+            idpServer.primeJwks {
                 Response(Status.OK).body(
                     """
                         { "keys": "abc" }
@@ -230,7 +183,7 @@ class HttpJwkProviderTest {
 
         @Test
         fun `throw exception when 'keys' is an empty array`() {
-            val underTest = HttpJwkProvider(uri) {
+            idpServer.primeJwks {
                 Response(Status.OK).body(
                     """
                         { "keys": [] }
@@ -253,7 +206,7 @@ class HttpJwkProviderTest {
             ]
         )
         fun `throw exception when 'keys' is not an list of string maps`(keys: String) {
-            val underTest = HttpJwkProvider(uri) {
+            idpServer.primeJwks {
                 Response(Status.OK).body(
                     """
                         { "keys": [$keys] }
@@ -268,7 +221,7 @@ class HttpJwkProviderTest {
 
         @Test
         fun `throw exception when a jwk is invalid`() {
-            val httpHandler: HttpHandler = {
+            idpServer.primeJwks {
                 Response(Status.OK)
                     .body(
                         """
@@ -282,8 +235,6 @@ class HttpJwkProviderTest {
                         """.trimIndent()
                     )
             }
-
-            val underTest = HttpJwkProvider(uri, httpHandler)
 
             shouldThrow<SigningKeyNotFoundException> { underTest.get("some-key") }.should {
                 it.message shouldBe "Failed to parse jwk from json"
