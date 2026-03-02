@@ -2,18 +2,12 @@ package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import dev.coldhands.pair.stairs.backend.infrastructure.web.TestContext
-import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
-import org.http4k.config.Environment
-import org.http4k.core.ContentType.Companion.APPLICATION_JSON
-import org.http4k.core.HttpHandler
-import org.http4k.core.Method
-import org.http4k.core.Request
+import org.http4k.core.*
 import org.http4k.core.Status.Companion.UNAUTHORIZED
-import org.http4k.core.then
 import org.http4k.filter.ClientFilters
 import org.http4k.kotest.shouldHaveStatus
-import org.http4k.lens.accept
+import org.http4k.routing.bind
+import org.http4k.security.AccessToken
 import org.junit.jupiter.api.Test
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -21,103 +15,127 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.util.*
 import kotlin.io.encoding.Base64
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 
 class OAuthSecureHandlerTest : OAuthSecureHandlerCdc {
     private val rsaKeyPair = generateRsaKeyPair()
     private val keyId = UUID.randomUUID().toString()
+    private val oAuthSettings = OAuthSettings(
+        issuerUri = Uri.of("/issuer"),
+        jwkUri = Uri.of("/keys"),
+        callbackUri = Uri.of("/login/oauth2/code/oauth"),
+        audience = "pair-stairs",
+        clientId = "some-client-id",
+        clientSecret = "some-client-secret",
+        loginTokenCookieValidity = 1.minutes
+    )
+    val fakeIdpServer = FakeIdpServer(oAuthSettings.jwkUri)
+    val public = rsaKeyPair.public as RSAPublicKey
 
-    override fun withHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit) {
-        testContext {
-            val public = rsaKeyPair.public as RSAPublicKey
-
-            // todo you shouldn't need to cast this here
-            (oauthClient as FakeIdpServer).primeJwks(
-                PrimedJwk(
-                    kid = keyId,
-                    alg = "RS256",
-                    n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                    e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
-                )
+    override fun withHttpClient(block: (client: HttpHandler, cookieTokenStore: MutableMap<String, AccessToken>, oAuthSettings: OAuthSettings) -> Unit) {
+        fakeIdpServer.primeJwks(
+            PrimedJwk(
+                kid = keyId,
+                alg = "RS256",
+                n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
+                e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
             )
+        )
 
-            environment = Environment.from(
-                "oauth.jwk.uri" to "/some/path", // todo use a proper path here
-                "oauth.issuer.uri" to "/another/path", // todo use a proper path here
-                "oauth.audience" to "pair-stairs", // todo use a proper path here
-            ).overrides(environment)
+        val cookieTokenStore = mutableMapOf<String, AccessToken>()
+        val underTest = OAuthSecureHandler(
+            routes = OAuthSecureHandler.Routes(
+                apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
+                authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
+            ),
+            oAuthSettings = oAuthSettings,
+            oAuthClient = fakeIdpServer,
+            clock = Clock.System,
+            cookieTokenStore = cookieTokenStore,
+        )
 
-            block(underTest, this)
-        }
+        block(underTest, cookieTokenStore, oAuthSettings)
     }
 
-    override fun withBearerAuthHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit) {
-        testContext {
-            val public = rsaKeyPair.public as RSAPublicKey
-            val private = rsaKeyPair.private as RSAPrivateKey
+    override fun withBearerAuthHttpClient(block: (client: HttpHandler) -> Unit) {
+        val private = rsaKeyPair.private as RSAPrivateKey
 
-            // todo you shouldn't need to cast this here
-            (oauthClient as FakeIdpServer).primeJwks(
-                PrimedJwk(
-                    kid = keyId,
-                    alg = "RS256",
-                    n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                    e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
+        fakeIdpServer.primeJwks(
+            PrimedJwk(
+                kid = keyId,
+                alg = "RS256",
+                n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
+                e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
+            )
+        )
+
+        val cookieTokenStore = mutableMapOf<String, AccessToken>()
+        val underTest = OAuthSecureHandler(
+            routes = OAuthSecureHandler.Routes(
+                apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
+                authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
+            ),
+            oAuthSettings = oAuthSettings,
+            oAuthClient = fakeIdpServer,
+            clock = Clock.System,
+            cookieTokenStore = cookieTokenStore,
+        )
+
+        block(
+            ClientFilters.BearerAuth(
+                generateSignedJwt(
+                    private,
+                    keyId,
+                    oAuthSettings.issuerUri.toString(),
+                    oAuthSettings.audience
                 )
             )
-
-            environment = Environment.from(
-                "oauth.jwk.uri" to "/some/path", // todo use a proper path here
-                "oauth.issuer.uri" to "/another/path", // todo use a proper path here
-                "oauth.audience" to "pair-stairs", // todo use a proper path here
-            ).overrides(environment)
-
-            // todo configure jwks lookup to return public part of the generated private key
-            block(
-                ClientFilters.BearerAuth(generateSignedJwt(private, keyId, "/another/path", "pair-stairs"))
-                    .then(underTest),
-                this
-            )
-        }
+                .then(underTest),
+        )
     }
 
-    override fun retrieveValidJwt(): String =
-        generateSignedJwt(rsaKeyPair.private as RSAPrivateKey, keyId, "/another/path", "pair-stairs")
+    override fun retrieveValidJwt(oAuthSettings: OAuthSettings): String =
+        generateSignedJwt(
+            rsaKeyPair.private as RSAPrivateKey,
+            keyId,
+            oAuthSettings.issuerUri.toString(),
+            oAuthSettings.audience
+        )
 
     @Test
     fun `api request with bearer token not signed by trusted source should 401`() {
-        testContext {
-            val public = rsaKeyPair.public as RSAPublicKey
+        val anotherPrivateKey = generateRsaKeyPair().private as RSAPrivateKey
 
-            val anotherPrivateKey = generateRsaKeyPair().private as RSAPrivateKey
+        val cookieTokenStore = mutableMapOf<String, AccessToken>()
+        val underTest = OAuthSecureHandler(
+            routes = OAuthSecureHandler.Routes(
+                apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
+                authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
+            ),
+            oAuthSettings = oAuthSettings,
+            oAuthClient = fakeIdpServer,
+            clock = Clock.System,
+            cookieTokenStore = cookieTokenStore,
+        )
 
-            // todo you shouldn't need to cast this here
-            (oauthClient as FakeIdpServer).primeJwks(
-                PrimedJwk(
-                    kid = keyId,
-                    alg = "RS256",
-                    n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                    e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
-                )
-            )
+        val client =
+            ClientFilters.BearerAuth(generateSignedJwt(privateKey = anotherPrivateKey, keyId = "some-id"))
+                .then(underTest)
 
-            environment = Environment.from(
-                "oauth.jwk.uri" to "/some/path" // todo use a proper path here
-            ).overrides(environment)
+        val response = client(
+            Request(Method.GET, "/api/test")
+        )
 
-            val client =
-                ClientFilters.BearerAuth(generateSignedJwt(privateKey = anotherPrivateKey, keyId = "some-id"))
-                    .then(underTest)
-
-            val response = client(
-                Request(Method.GET, "/api/v1/teams")
-                    .accept(APPLICATION_JSON)
-            )
-
-            response shouldHaveStatus UNAUTHORIZED
-        }
+        response shouldHaveStatus UNAUTHORIZED
     }
 
-    fun generateSignedJwt(privateKey: RSAPrivateKey, keyId: String? = null, issuer: String? = null, audience: String? = null): String {
+    fun generateSignedJwt(
+        privateKey: RSAPrivateKey,
+        keyId: String? = null,
+        issuer: String? = null,
+        audience: String? = null
+    ): String {
         val algorithm = Algorithm.RSA256(privateKey)
         val validJwt = JWT.create()
             .apply {

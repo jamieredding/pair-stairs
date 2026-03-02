@@ -1,8 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.web.security
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import dev.coldhands.pair.stairs.backend.infrastructure.web.TestContext
-import dev.coldhands.pair.stairs.backend.infrastructure.web.testContext
 import org.http4k.client.JavaHttpClient
 import org.http4k.core.*
 import org.http4k.core.ContentType.Companion.APPLICATION_FORM_URLENCODED
@@ -12,6 +10,8 @@ import org.http4k.filter.ClientFilters
 import org.http4k.format.Jackson.auto
 import org.http4k.kotest.shouldHaveStatus
 import org.http4k.lens.contentType
+import org.http4k.routing.bind
+import org.http4k.security.AccessToken
 import org.http4k.security.CredentialsProvider
 import org.http4k.security.ExpiringCredentials
 import org.http4k.security.Refreshing
@@ -19,45 +19,71 @@ import org.http4k.server.SunHttp
 import org.http4k.server.asServer
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.toJavaInstant
 
 class OAuthSecureHandlerIT : OAuthSecureHandlerCdc {
-    override fun withHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit) {
-        testContext {
-            oauthClient = JavaHttpClient()
-            underTest.asServer(SunHttp(8080)).use { server ->
-                server.start()
-                val appBaseUri = Uri.of("http://localhost:${server.port()}")
+    private val appBaseUri = Uri.of("http://localhost:8080")
+    private val oAuthSettings = OAuthSettings(
+        issuerUri = Uri.of("http://localhost:5556/dex"),
+        jwkUri = Uri.of("http://localhost:5556/dex/keys"),
+        callbackUri = appBaseUri.appendToPath("/login/oauth2/code/oauth"),
+        audience = "pair-stairs",
+        clientId = "pair-stairs",
+        clientSecret = "ZXhhbXBsZS1hcHAtc2VjcmV0",
+        loginTokenCookieValidity = 1.minutes
+    )
 
-                val client = ClientFilters.SetBaseUriFrom(appBaseUri)
-                    .then(JavaHttpClient())
+    override fun withHttpClient(block: (client: HttpHandler, cookieTokenStore: MutableMap<String, AccessToken>, oAuthSettings: OAuthSettings) -> Unit) {
+        val cookieTokenStore = mutableMapOf<String, AccessToken>()
+        val underTest = OAuthSecureHandler(
+            routes = OAuthSecureHandler.Routes(
+                apiRoutes = "/api/test" bind Method.GET to { Response(OK) },
+                authFilteredRoutes = "/api/other" bind Method.GET to { Response(OK) },
+            ),
+            oAuthSettings = oAuthSettings,
+            oAuthClient = JavaHttpClient(),
+            clock = Clock.System,
+            cookieTokenStore = cookieTokenStore,
+        )
 
-                block(client, this)
-            }
+        underTest.asServer(SunHttp(appBaseUri.port!!)).use { server ->
+            server.start()
+
+            val client = ClientFilters.SetBaseUriFrom(appBaseUri)
+                .then(JavaHttpClient())
+
+            block(client, cookieTokenStore, oAuthSettings)
         }
     }
 
-    override fun withBearerAuthHttpClient(block: (client: HttpHandler, testContext: TestContext) -> Unit) {
-        testContext {
-            oauthClient = JavaHttpClient()
-            underTest.asServer(SunHttp(8080)).use { server ->
-                server.start()
-                val appBaseUri = Uri.of("http://localhost:${server.port()}")
+    override fun withBearerAuthHttpClient(block: (client: HttpHandler) -> Unit) {
+        val cookieTokenStore = mutableMapOf<String, AccessToken>()
+        val underTest = OAuthSecureHandler(
+            routes = OAuthSecureHandler.Routes(
+                apiRoutes = "/api/test" bind Method.GET to { Response(OK) },
+                authFilteredRoutes = "/api/other" bind Method.GET to { Response(OK) },
+            ),
+            oAuthSettings = oAuthSettings,
+            oAuthClient = JavaHttpClient(),
+            clock = Clock.System,
+            cookieTokenStore = cookieTokenStore,
+        )
 
-                val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
-                    .then(dexAuthenticatedClient())
+        underTest.asServer(SunHttp(appBaseUri.port!!)).use { server ->
+            server.start()
+            val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
+                .then(dexAuthenticatedClient(oAuthSettings))
 
-                block(appClient, this)
-            }
+            block(appClient)
         }
     }
 
-    override fun retrieveValidJwt(): String {
-        return dexClient().getJwt().accessToken
-    }
+    override fun retrieveValidJwt(oAuthSettings: OAuthSettings): String =
+        dexClient(oAuthSettings).getJwt().accessToken
 
-    private fun dexAuthenticatedClient(): HttpHandler {
-        val dexClient = dexClient()
+    private fun dexAuthenticatedClient(oAuthSettings: OAuthSettings): HttpHandler {
+        val dexClient = dexClient(oAuthSettings)
 
         val appClient = ClientFilters.BearerAuth(CredentialsProvider.Refreshing(refreshFn = {
             val tokenResponse = dexClient.getJwt()
@@ -71,10 +97,10 @@ class OAuthSecureHandlerIT : OAuthSecureHandlerCdc {
         return appClient
     }
 
-    private fun dexClient(): HttpHandler {
-        val authBaseUri = Uri.of("http://localhost:5556")
+    private fun dexClient(oAuthSettings: OAuthSettings): HttpHandler {
+        val authBaseUri = oAuthSettings.issuerUri.copy(path = "")
         val authClient = ClientFilters.SetBaseUriFrom(authBaseUri)
-            .then(ClientFilters.BasicAuth("pair-stairs", "ZXhhbXBsZS1hcHAtc2VjcmV0"))
+            .then(ClientFilters.BasicAuth(oAuthSettings.clientId, oAuthSettings.clientSecret))
             .then(JavaHttpClient())
         return authClient
     }
