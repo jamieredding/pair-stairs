@@ -20,6 +20,7 @@ import kotlin.time.Duration.Companion.minutes
 
 class OAuthSecureHandlerTest : OAuthSecureHandlerCdc {
     private val rsaKeyPair = generateRsaKeyPair()
+    private val public = rsaKeyPair.public as RSAPublicKey
     private val keyId = UUID.randomUUID().toString()
     private val oAuthSettings = OAuthSettings(
         issuerUri = Uri.of("/issuer"),
@@ -30,11 +31,8 @@ class OAuthSecureHandlerTest : OAuthSecureHandlerCdc {
         clientSecret = "some-client-secret",
         loginTokenCookieValidity = 1.minutes
     )
-    val fakeIdpServer = FakeIdpServer(oAuthSettings.jwkUri)
-    val public = rsaKeyPair.public as RSAPublicKey
-
-    override fun withHttpClient(block: (client: HttpHandler, cookieTokenStore: MutableMap<String, AccessToken>, oAuthSettings: OAuthSettings) -> Unit) {
-        fakeIdpServer.primeJwks(
+    private val fakeIdpServer = FakeIdpServer(oAuthSettings.jwkUri).apply {
+        primeJwks(
             PrimedJwk(
                 kid = keyId,
                 alg = "RS256",
@@ -42,45 +40,25 @@ class OAuthSecureHandlerTest : OAuthSecureHandlerCdc {
                 e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
             )
         )
+    }
+    private val cookieTokenStore = mutableMapOf<String, AccessToken>()
+    private val underTest = OAuthSecureHandler(
+        routes = OAuthSecureHandler.Routes(
+            apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
+            authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
+        ),
+        oAuthSettings = oAuthSettings,
+        oAuthClient = fakeIdpServer,
+        clock = Clock.System,
+        cookieTokenStore = cookieTokenStore,
+    )
 
-        val cookieTokenStore = mutableMapOf<String, AccessToken>()
-        val underTest = OAuthSecureHandler(
-            routes = OAuthSecureHandler.Routes(
-                apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
-                authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
-            ),
-            oAuthSettings = oAuthSettings,
-            oAuthClient = fakeIdpServer,
-            clock = Clock.System,
-            cookieTokenStore = cookieTokenStore,
-        )
-
+    override fun withHttpClient(block: (client: HttpHandler, cookieTokenStore: MutableMap<String, AccessToken>, oAuthSettings: OAuthSettings) -> Unit) {
         block(underTest, cookieTokenStore, oAuthSettings)
     }
 
     override fun withBearerAuthHttpClient(block: (client: HttpHandler) -> Unit) {
         val private = rsaKeyPair.private as RSAPrivateKey
-
-        fakeIdpServer.primeJwks(
-            PrimedJwk(
-                kid = keyId,
-                alg = "RS256",
-                n = Base64.UrlSafe.encode(public.modulus.toByteArray()),
-                e = Base64.UrlSafe.encode(public.publicExponent.toByteArray()),
-            )
-        )
-
-        val cookieTokenStore = mutableMapOf<String, AccessToken>()
-        val underTest = OAuthSecureHandler(
-            routes = OAuthSecureHandler.Routes(
-                apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
-                authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
-            ),
-            oAuthSettings = oAuthSettings,
-            oAuthClient = fakeIdpServer,
-            clock = Clock.System,
-            cookieTokenStore = cookieTokenStore,
-        )
 
         block(
             ClientFilters.BearerAuth(
@@ -106,18 +84,6 @@ class OAuthSecureHandlerTest : OAuthSecureHandlerCdc {
     @Test
     fun `api request with bearer token not signed by trusted source should 401`() {
         val anotherPrivateKey = generateRsaKeyPair().private as RSAPrivateKey
-
-        val cookieTokenStore = mutableMapOf<String, AccessToken>()
-        val underTest = OAuthSecureHandler(
-            routes = OAuthSecureHandler.Routes(
-                apiRoutes = "/api/test" bind Method.GET to { Response(Status.OK) },
-                authFilteredRoutes = "/api/other" bind Method.GET to { Response(Status.OK) },
-            ),
-            oAuthSettings = oAuthSettings,
-            oAuthClient = fakeIdpServer,
-            clock = Clock.System,
-            cookieTokenStore = cookieTokenStore,
-        )
 
         val client =
             ClientFilters.BearerAuth(generateSignedJwt(privateKey = anotherPrivateKey, keyId = "some-id"))

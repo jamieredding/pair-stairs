@@ -33,20 +33,19 @@ class OAuthSecureHandlerIT : OAuthSecureHandlerCdc {
         clientSecret = "ZXhhbXBsZS1hcHAtc2VjcmV0",
         loginTokenCookieValidity = 1.minutes
     )
+    private val cookieTokenStore = mutableMapOf<String, AccessToken>()
+    private val underTest = OAuthSecureHandler(
+        routes = OAuthSecureHandler.Routes(
+            apiRoutes = "/api/test" bind Method.GET to { Response(OK) },
+            authFilteredRoutes = "/api/other" bind Method.GET to { Response(OK) },
+        ),
+        oAuthSettings = oAuthSettings,
+        oAuthClient = JavaHttpClient(),
+        clock = Clock.System,
+        cookieTokenStore = cookieTokenStore,
+    )
 
     override fun withHttpClient(block: (client: HttpHandler, cookieTokenStore: MutableMap<String, AccessToken>, oAuthSettings: OAuthSettings) -> Unit) {
-        val cookieTokenStore = mutableMapOf<String, AccessToken>()
-        val underTest = OAuthSecureHandler(
-            routes = OAuthSecureHandler.Routes(
-                apiRoutes = "/api/test" bind Method.GET to { Response(OK) },
-                authFilteredRoutes = "/api/other" bind Method.GET to { Response(OK) },
-            ),
-            oAuthSettings = oAuthSettings,
-            oAuthClient = JavaHttpClient(),
-            clock = Clock.System,
-            cookieTokenStore = cookieTokenStore,
-        )
-
         underTest.asServer(SunHttp(appBaseUri.port!!)).use { server ->
             server.start()
 
@@ -58,18 +57,6 @@ class OAuthSecureHandlerIT : OAuthSecureHandlerCdc {
     }
 
     override fun withBearerAuthHttpClient(block: (client: HttpHandler) -> Unit) {
-        val cookieTokenStore = mutableMapOf<String, AccessToken>()
-        val underTest = OAuthSecureHandler(
-            routes = OAuthSecureHandler.Routes(
-                apiRoutes = "/api/test" bind Method.GET to { Response(OK) },
-                authFilteredRoutes = "/api/other" bind Method.GET to { Response(OK) },
-            ),
-            oAuthSettings = oAuthSettings,
-            oAuthClient = JavaHttpClient(),
-            clock = Clock.System,
-            cookieTokenStore = cookieTokenStore,
-        )
-
         underTest.asServer(SunHttp(appBaseUri.port!!)).use { server ->
             server.start()
             val appClient = ClientFilters.SetBaseUriFrom(appBaseUri)
