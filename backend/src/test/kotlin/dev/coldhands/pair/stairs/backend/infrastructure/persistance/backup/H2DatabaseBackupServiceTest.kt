@@ -1,11 +1,14 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.backup
 
+import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService
+import dev.forkhandles.result4k.kotest.shouldBeFailure
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldMatchInOrder
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.paths.shouldExist
 import io.kotest.matchers.paths.shouldNotExist
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.BufferedInputStream
@@ -19,10 +22,10 @@ import kotlin.io.path.inputStream
 import kotlin.io.path.outputStream
 
 
-class H2DatabaseBackupServiceTest {
+class H2DatabaseBackupServiceTest(@TempDir private var tempDir: Path) {
 
     @Test
-    fun backupAllDataToFile(@TempDir tempDir: Path) {
+    fun backupAllDataToFile() {
         val h2DbFile = tempDir.resolve("originalFile")
         val outputFile = tempDir.resolve("h2-db-backup-all-data.zip")
         val unzipDestination = tempDir.resolve("unzip")
@@ -44,7 +47,11 @@ class H2DatabaseBackupServiceTest {
 
             prepareStatement("INSERT INTO some_table (name) VALUES ('some-name')").execute()
 
-            val underTest = H2DatabaseBackupService(jdbcUrl = "jdbc:h2:$h2DbFile")
+            val underTest = H2DatabaseBackupService(
+                jdbcUrl = "jdbc:h2:$h2DbFile",
+                username = "",
+                password = ""
+            )
 
             underTest.backup(outputFile).shouldBeSuccess()
 
@@ -77,10 +84,32 @@ class H2DatabaseBackupServiceTest {
         }
     }
 
+    @Test
+    fun `invalid jdbc url`() {
+        val underTest = H2DatabaseBackupService(jdbcUrl = "jdbc:h2::::", username = "unused", password = "unused")
+
+        underTest.backup(tempDir.resolve("some-path"))
+            .shouldBeFailure {
+                it.shouldBeInstanceOf<DatabaseBackupService.Companion.HadException>()
+            }
+    }
+
+    @Test
+    fun `database is not h2`() {
+        val underTest = H2DatabaseBackupService(
+            jdbcUrl = "jdbc:mysql://localhost:3306/pair_stairs",
+            username = "pair_stairs_user",
+            password = "some-password"
+        )
+
+        underTest.backup(tempDir.resolve("some-path"))
+            .shouldBeFailure {
+                it.shouldBeInstanceOf<DatabaseBackupService.Companion.UnsupportedDatabase>()
+            }
+    }
+
     /*
     todo
-        - jdbc url invalid
-        - jdbc url is mysql (it is running but doesn't support backup)
         - exception when executing statement
         - do I need to check return value on execute?
         - what happens when I backup to an existing file

@@ -2,16 +2,35 @@ package dev.coldhands.pair.stairs.backend.infrastructure.persistance.backup
 
 import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService
 import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.BackupError
-import dev.forkhandles.result4k.Result
-import dev.forkhandles.result4k.asSuccess
+import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.HadException
+import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.UnsupportedDatabase
+import dev.forkhandles.result4k.*
+import org.h2.engine.Constants
+import org.slf4j.LoggerFactory
 import java.nio.file.Path
 import java.sql.DriverManager
 
-class H2DatabaseBackupService(private val jdbcUrl: String) : DatabaseBackupService {
+class H2DatabaseBackupService(
+    private val jdbcUrl: String,
+    private val username: String,
+    private val password: String
+) :
+    DatabaseBackupService {
+    private val logger = LoggerFactory.getLogger(H2DatabaseBackupService::class.java)
     override fun backup(path: Path): Result<Unit, BackupError> {
-        DriverManager.getConnection(jdbcUrl).use {
-            it.prepareStatement("BACKUP TO '$path'").execute()
+        if (!jdbcUrl.startsWith(Constants.START_URL))
+            return UnsupportedDatabase(jdbcUrl).asFailure()
+
+        return resultFrom {
+            DriverManager.getConnection(jdbcUrl, username, password)
+                .use {
+                    it.prepareStatement("BACKUP TO '$path'").execute()
+                }
         }
-        return Unit.asSuccess()
+            .map { }
+            .mapFailure {
+                logger.error("Unable to backup to '$path'", it)
+                HadException(it)
+            }
     }
 }
