@@ -8,18 +8,18 @@ import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.paths.shouldExist
 import io.kotest.matchers.paths.shouldNotExist
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.BufferedInputStream
+import java.nio.file.AccessDeniedException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.sql.Connection
 import java.sql.DriverManager
 import java.util.zip.ZipInputStream
-import kotlin.io.path.createDirectories
-import kotlin.io.path.inputStream
-import kotlin.io.path.outputStream
+import kotlin.io.path.*
 
 
 class H2DatabaseBackupServiceTest(@TempDir private var tempDir: Path) {
@@ -103,23 +103,57 @@ class H2DatabaseBackupServiceTest(@TempDir private var tempDir: Path) {
         )
 
         underTest.backup(tempDir.resolve("some-path"))
-            .shouldBeFailure {
-                it.shouldBeInstanceOf<DatabaseBackupService.Companion.UnsupportedDatabase>()
+            .shouldBeFailure { error ->
+                error.shouldBeInstanceOf<DatabaseBackupService.Companion.UnsupportedDatabase>() {
+                    it.providedDatabase shouldStartWith "jdbc:mysql"
+                }
             }
     }
 
-    /*
-    todo
-        - exception when executing statement
-        - do I need to check return value on execute?
-        - what happens when I backup to an existing file
-        - what if the existing file is read only?
-     */
+    @Test
+    fun `backup file already exists`() {
+        val backupFile = tempDir.resolve("some-path").also {
+            it.writeText("some text")
+        }
+
+        val underTest = H2DatabaseBackupService(
+            jdbcUrl = "jdbc:h2:${tempDir.resolve("originalFile")}",
+            username = "",
+            password = ""
+        )
+
+        underTest.backup(backupFile)
+            .shouldBeFailure { error ->
+                error.shouldBeInstanceOf<DatabaseBackupService.Companion.BackupAlreadyExists> {
+                    it.backupFile.toString() shouldBe backupFile.toString()
+                }
+            }
+    }
+
+    @Test
+    fun `unable to write backup file due to exception while backing up`() {
+        val backupDir = tempDir.resolve("read-only-directory").also {
+            it.createDirectory()
+            it.toFile().setWritable(false)
+        }
+
+        val underTest = H2DatabaseBackupService(
+            jdbcUrl = "jdbc:h2:${tempDir.resolve("originalFile")}",
+            username = "",
+            password = ""
+        )
+
+        underTest.backup(backupDir.resolve("backupFile"))
+            .shouldBeFailure { error ->
+                error.shouldBeInstanceOf<DatabaseBackupService.Companion.HadException>() {
+                    it.cause.cause.shouldBeInstanceOf<AccessDeniedException>()
+                }
+            }
+    }
 
     fun withConnection(h2DbFile: Path, block: Connection.() -> Unit) {
         DriverManager.getConnection("jdbc:h2:$h2DbFile").use { block(it) }
     }
-
 
     fun Path.unzipTo(destinationDir: Path) {
         require(Files.exists(this)) { "Zip file does not exist: $this" }

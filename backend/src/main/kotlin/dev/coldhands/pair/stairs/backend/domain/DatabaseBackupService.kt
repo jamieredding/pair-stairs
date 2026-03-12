@@ -9,7 +9,8 @@ interface DatabaseBackupService {
 
     companion object {
         sealed interface BackupError
-        class HadException(cause: Throwable) : BackupError
-        class UnsupportedDatabase(providedDatabase: String): BackupError
+        class HadException(val cause: Throwable) : BackupError
+        class UnsupportedDatabase(val providedDatabase: String): BackupError
+        class BackupAlreadyExists(val backupFile: Path): BackupError
     }
 }
