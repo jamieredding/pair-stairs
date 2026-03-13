@@ -1,10 +1,10 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.backup
 
-import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService
-import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.BackupAlreadyExists
-import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.BackupError
-import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.HadException
-import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService.Companion.UnsupportedDatabase
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.BackupAlreadyExists
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.BackupError
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.HadException
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.UnsupportedDatabase
 import dev.forkhandles.result4k.*
 import org.h2.engine.Constants
 import org.slf4j.LoggerFactory

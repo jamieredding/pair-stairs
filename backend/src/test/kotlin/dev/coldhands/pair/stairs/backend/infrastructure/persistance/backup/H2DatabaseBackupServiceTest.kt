@@ -1,6 +1,6 @@
 package dev.coldhands.pair.stairs.backend.infrastructure.persistance.backup
 
-import dev.coldhands.pair.stairs.backend.domain.DatabaseBackupService
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
 import dev.forkhandles.result4k.kotest.shouldBeFailure
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldMatchInOrder
