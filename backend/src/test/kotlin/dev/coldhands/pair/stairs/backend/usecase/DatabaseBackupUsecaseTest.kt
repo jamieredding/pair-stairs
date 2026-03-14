@@ -3,8 +3,15 @@ package dev.coldhands.pair.stairs.backend.usecase
 import dev.coldhands.pair.stairs.backend.FakeDateProvider
 import dev.coldhands.pair.stairs.backend.domain.FileOperations
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.BackupError
+import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.HadException
+import dev.coldhands.pair.stairs.backend.usecase.DatabaseBackupUsecase.UnableToBackupError
+import dev.forkhandles.result4k.asFailure
 import dev.forkhandles.result4k.asSuccess
+import dev.forkhandles.result4k.kotest.shouldBeFailure
+import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
@@ -29,7 +36,7 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
             givenBackupIsSuccessful()
             givenFilesExist(listOf())
 
-            underTest.backup()
+            underTest.backup().shouldBeSuccess()
 
             databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
         }
@@ -47,7 +54,7 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
                 )
             )
 
-            underTest.backup()
+            underTest.backup().shouldBeSuccess()
 
             databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_13.zip"))
         }
@@ -64,7 +71,7 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
                 )
             )
 
-            underTest.backup()
+            underTest.backup().shouldBeSuccess()
 
             databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
         }
@@ -87,9 +94,27 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
                 )
             )
 
-            underTest.backup()
+            underTest.backup().shouldBeSuccess()
 
             databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
+        }
+    }
+
+    @Nested
+    inner class ErrorHandling {
+        @Test
+        fun `return backup failed when backup service returns failure`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
+            val serviceBackupError = HadException(RuntimeException())
+            givenBackupFailsWith(serviceBackupError)
+            givenFilesExist(listOf())
+
+            underTest.backup().shouldBeFailure { backupError ->
+                backupError.shouldBeInstanceOf<UnableToBackupError> {
+                    it.cause shouldBe serviceBackupError
+                }
+            }
         }
     }
 
@@ -99,7 +124,6 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
             - oldest date
             - oldest date + oldest counter
         - if max = 5 and 10 are found, delete oldest 5
-        - error while backing up
         - create backup directory if it doesn't exist
             - multiple nested directories
         - concurrent requests should sequential
@@ -119,6 +143,12 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
 
     private fun givenBackupIsSuccessful() {
         every { databaseBackupService.backup(any()) }.returns(Unit.asSuccess())
+    }
+
+    private fun givenBackupFailsWith(backupError: BackupError) {
+        every { databaseBackupService.backup(any()) }.returns(
+            backupError.asFailure()
+        )
     }
 
     private fun givenFilesExist(listOf: List<String>) {

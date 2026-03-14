@@ -30,8 +30,9 @@ class DatabaseBackupUsecase(
         val backupPath = backupBaseDir.resolve("pair-stairs-backup_${localDateString}_${backupCounter}.zip")
 
         return databaseBackupService.backup(backupPath)
-            .mapFailure { TODO() }
+            .mapFailure { UnableToBackupError(it) }
     }
 
     sealed class BackupError
+    class UnableToBackupError(val cause: DatabaseBackupService.Companion.BackupError) : BackupError()
 }
