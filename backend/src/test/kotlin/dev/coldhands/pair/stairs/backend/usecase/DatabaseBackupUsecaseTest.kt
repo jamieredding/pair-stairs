@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -19,74 +20,77 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
     private val fileOperations = mockk<FileOperations>(relaxed = true)
     private val fakeDateProvider = FakeDateProvider()
 
-    @Test
-    fun `backup when no backups exist`() {
-        val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
-        fakeDateProvider.set("2026-01-01")
-        givenBackupIsSuccessful()
-        givenFilesExist(listOf())
+    @Nested
+    inner class SimpleBackup {
+        @Test
+        fun `backup when no backups exist`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
+            givenBackupIsSuccessful()
+            givenFilesExist(listOf())
 
-        underTest.backup()
+            underTest.backup()
 
-        databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
-    }
+            databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
+        }
 
-    @Test
-    fun `backup when backup for today already exists`() {
-        val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
-        fakeDateProvider.set("2026-01-01")
+        @Test
+        fun `backup when backup for today already exists`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
 
-        givenBackupIsSuccessful()
-        givenFilesExist(
-            listOf(
-                "pair-stairs-backup_2026-01-01_0.zip",
-                "pair-stairs-backup_2026-01-01_12.zip"
+            givenBackupIsSuccessful()
+            givenFilesExist(
+                listOf(
+                    "pair-stairs-backup_2026-01-01_0.zip",
+                    "pair-stairs-backup_2026-01-01_12.zip"
+                )
             )
-        )
 
-        underTest.backup()
+            underTest.backup()
 
-        databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_13.zip"))
-    }
+            databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_13.zip"))
+        }
 
-    @Test
-    fun `backup when backup for another day already exists`() {
-        val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
-        fakeDateProvider.set("2026-01-01")
+        @Test
+        fun `backup when backup for another day already exists`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
 
-        givenBackupIsSuccessful()
-        givenFilesExist(
-            listOf(
-                "pair-stairs-backup_2025-12-31_0.zip",
+            givenBackupIsSuccessful()
+            givenFilesExist(
+                listOf(
+                    "pair-stairs-backup_2025-12-31_0.zip",
+                )
             )
-        )
 
-        underTest.backup()
+            underTest.backup()
 
-        databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
-    }
+            databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
+        }
 
-    @Test
-    fun `ignore irrelevant or invalid file names in backup directory`() {
-        val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
-        fakeDateProvider.set("2026-01-01")
+        @Test
+        fun `ignore irrelevant or invalid file names in backup directory`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
 
-        givenBackupIsSuccessful()
-        givenFilesExist(
-            listOf(
-                "not a normal file name",
+            givenBackupIsSuccessful()
+            givenFilesExist(
+                listOf(
+                    "not a normal file name",
 
-                "pair-stairs-backupZZZ_2026-01-01_12.zip",
-                "pair-stairs-backup_abd-01-01_12.zip",
-                "pair-stairs-backup_2026-01-01_abc.zip",
-                "pair-stairs-backup_2026-01-01_12.txt",
-                "pair-stairs-backup_2026-01-01_-2.zip",
+                    "pair-stairs-backupZZZ_2026-01-01_12.zip",
+                    "pair-stairs-backup_abd-01-01_12.zip",
+                    "pair-stairs-backup_2026-01-01_abc.zip",
+                    "pair-stairs-backup_2026-01-01_12.txt",
+                    "pair-stairs-backup_2026-01-01_-2.zip",
+                )
             )
-        )
 
-        underTest.backup()
+            underTest.backup()
 
-        databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
+            databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
+        }
     }
 
     /*
