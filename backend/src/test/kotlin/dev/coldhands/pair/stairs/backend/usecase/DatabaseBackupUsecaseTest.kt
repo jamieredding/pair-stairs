@@ -5,6 +5,7 @@ import dev.coldhands.pair.stairs.backend.domain.FileOperations
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.BackupError
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService.Companion.HadException
+import dev.coldhands.pair.stairs.backend.usecase.DatabaseBackupUsecase.CannotCreateBackupDirectory
 import dev.coldhands.pair.stairs.backend.usecase.DatabaseBackupUsecase.UnableToBackupError
 import dev.forkhandles.result4k.asFailure
 import dev.forkhandles.result4k.asSuccess
@@ -12,10 +13,7 @@ import dev.forkhandles.result4k.kotest.shouldBeFailure
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.slot
-import io.mockk.verify
+import io.mockk.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -24,7 +22,9 @@ import kotlin.io.path.absolutePathString
 
 class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
     private val databaseBackupService = mockk<DatabaseBackupService>(relaxed = true)
-    private val fileOperations = mockk<FileOperations>(relaxed = true)
+    private val fileOperations = mockk<FileOperations>(relaxed = true) {
+        every { createDirectory(any()) }.returns(Unit.asSuccess())
+    }
     private val fakeDateProvider = FakeDateProvider()
 
     @Nested
@@ -98,6 +98,22 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
 
             databaseBackupService.backedUp(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
         }
+
+        @Test
+        fun `create backup base dir`() {
+            val backupBaseDir = tempDir.resolve("some-other-directory")
+
+            val underTest =
+                DatabaseBackupUsecase(backupBaseDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
+            givenBackupIsSuccessful()
+            givenFilesExist(listOf())
+
+            underTest.backup().shouldBeSuccess()
+
+            databaseBackupService.backedUp(backupBaseDir.resolve("pair-stairs-backup_2026-01-01_0.zip"))
+            verify { fileOperations.createDirectory(backupBaseDir) }
+        }
     }
 
     @Nested
@@ -116,6 +132,27 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
                 }
             }
         }
+
+        @Test
+        fun `return backup failed when create directory returns failure`() {
+            val backupBaseDir = tempDir.resolve("some-other-directory")
+
+            val createDirectoryError = FileOperations.CreateDirectoryError(RuntimeException())
+            val fileOperations = mockk<FileOperations> {
+                every { createDirectory(any()) }.returns(createDirectoryError.asFailure())
+            }
+            val underTest =
+                DatabaseBackupUsecase(backupBaseDir, fakeDateProvider, databaseBackupService, fileOperations)
+            fakeDateProvider.set("2026-01-01")
+
+            underTest.backup().shouldBeFailure { backupError ->
+                backupError.shouldBeInstanceOf<CannotCreateBackupDirectory> {
+                    it.cause shouldBe createDirectoryError
+                }
+            }
+
+            verify { databaseBackupService wasNot Called }
+        }
     }
 
     /*
@@ -124,8 +161,6 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
             - oldest date
             - oldest date + oldest counter
         - if max = 5 and 10 are found, delete oldest 5
-        - create backup directory if it doesn't exist
-            - multiple nested directories
         - concurrent requests should sequential
         - error from backup service
         - what to do about skipped numbers/days

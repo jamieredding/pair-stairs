@@ -4,6 +4,7 @@ import dev.coldhands.pair.stairs.backend.domain.DateProvider
 import dev.coldhands.pair.stairs.backend.domain.FileOperations
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
 import dev.forkhandles.result4k.Result
+import dev.forkhandles.result4k.asFailure
 import dev.forkhandles.result4k.mapFailure
 import java.nio.file.Path
 import java.time.ZoneOffset
@@ -17,6 +18,9 @@ class DatabaseBackupUsecase(
 ) {
 
     fun backup(): Result<Unit, BackupError> {
+        fileOperations.createDirectory(backupBaseDir)
+            .mapFailure { return CannotCreateBackupDirectory(it).asFailure() }
+
         val localDate = dateProvider.instant().atZone(ZoneOffset.UTC).toLocalDate()
         val localDateString = DateTimeFormatter.ISO_DATE.format(localDate)
         val filePattern = "pair-stairs-backup_${localDateString}_(\\d+).zip".toRegex()
@@ -34,5 +38,6 @@ class DatabaseBackupUsecase(
     }
 
     sealed class BackupError
+    class CannotCreateBackupDirectory(val cause: FileOperations.CreateDirectoryError) : BackupError()
     class UnableToBackupError(val cause: DatabaseBackupService.Companion.BackupError) : BackupError()
 }
