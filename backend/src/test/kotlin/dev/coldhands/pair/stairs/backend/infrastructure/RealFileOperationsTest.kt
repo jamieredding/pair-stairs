@@ -1,11 +1,14 @@
 package dev.coldhands.pair.stairs.backend.infrastructure
 
+import dev.coldhands.pair.stairs.backend.domain.FileOperations
 import dev.forkhandles.result4k.kotest.shouldBeFailure
 import dev.forkhandles.result4k.kotest.shouldBeSuccess
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.paths.shouldBeADirectory
+import io.kotest.matchers.paths.shouldBeAFile
 import io.kotest.matchers.paths.shouldExist
 import io.kotest.matchers.paths.shouldNotExist
+import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Nested
@@ -82,7 +85,7 @@ class RealFileOperationsTest(@TempDir private var tempDir: Path) {
         }
 
         @Test
-        fun `return true if directory already exists`() {
+        fun `return success if directory already exists`() {
             val toBeCreated = tempDir.resolve("some-directory")
             toBeCreated.createDirectory().shouldExist()
 
@@ -90,13 +93,58 @@ class RealFileOperationsTest(@TempDir private var tempDir: Path) {
         }
 
         @Test
-        fun `return false if unable to create a directory`() {
+        fun `return failure if unable to create a directory`() {
             val toBeCreated = tempDir.resolve("some-directory")
             toBeCreated.createFile().shouldExist()
 
             RealFileOperations.createDirectory(toBeCreated).shouldBeFailure {
                 it.cause.shouldBeInstanceOf<FileAlreadyExistsException>()
             }
+        }
+    }
+
+
+    @Nested
+    inner class DeleteFile {
+
+        @Test
+        fun `successfully delete a file`() {
+            val toBeDeleted = tempDir.resolve("some-file.txt")
+            toBeDeleted.createFile().should {
+                it.shouldExist()
+                it.shouldBeAFile()
+            }
+
+            RealFileOperations.deleteFile(toBeDeleted).shouldBeSuccess()
+
+            toBeDeleted.shouldNotExist()
+        }
+
+        @Test
+        fun `return success if file does not exist`() {
+            val toBeDeleted = tempDir.resolve("some-file.txt")
+            toBeDeleted.shouldNotExist()
+
+            RealFileOperations.deleteFile(toBeDeleted).shouldBeSuccess()
+
+            toBeDeleted.shouldNotExist()
+        }
+
+        @Test
+        fun `return failure if file to delete is a directory`() {
+            val toBeDeleted = tempDir.resolve("some-directory")
+            toBeDeleted.createDirectory().should {
+                it.shouldExist()
+                it.shouldBeADirectory()
+            }
+
+            RealFileOperations.deleteFile(toBeDeleted).shouldBeFailure { error ->
+                error.shouldBeInstanceOf<FileOperations.DeleteFileError.NotAFileError> {
+                    it.path shouldBe toBeDeleted
+                }
+            }
+
+            toBeDeleted.shouldExist()
         }
     }
 }
