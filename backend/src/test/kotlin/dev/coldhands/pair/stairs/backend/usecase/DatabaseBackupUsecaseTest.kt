@@ -17,6 +17,8 @@ import io.mockk.*
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 
@@ -107,7 +109,7 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
                 DatabaseBackupUsecase(backupBaseDir, fakeDateProvider, databaseBackupService, fileOperations)
             fakeDateProvider.set("2026-01-01")
             givenBackupIsSuccessful()
-            givenFilesExist(listOf())
+            every { fileOperations.listFiles(backupBaseDir) } returns setOf()
 
             underTest.backup().shouldBeSuccess()
 
@@ -115,6 +117,86 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
             verify { fileOperations.createDirectory(backupBaseDir) }
         }
     }
+
+    @Nested
+    inner class RetainBackups {
+
+        @ParameterizedTest
+        @ValueSource(ints = [0, 1])
+        fun `do not delete if number of backups less than specified`(backupsToRetain: Int) {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            givenFilesExist((0..<backupsToRetain).map { "file-$it" })
+
+            underTest.retainMostRecentBackups(backupsToRetain).shouldBeSuccess()
+
+            verify(exactly = 0) { fileOperations.deleteFile(any()) }
+        }
+
+        @Test
+        fun `delete oldest backup when oldest backup is same day`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            givenFilesExist(
+                listOf(
+                    "pair-stairs-backup_2026-01-01_0.zip",
+                    "pair-stairs-backup_2026-01-01_1.zip",
+                )
+            )
+
+            underTest.retainMostRecentBackups(1).shouldBeSuccess()
+
+            verify { fileOperations.deleteFile(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip")) }
+            verify(exactly = 0) { fileOperations.deleteFile(tempDir.resolve("pair-stairs-backup_2026-01-01_1.zip")) }
+        }
+
+        @Test
+        fun `delete oldest backup when oldest backup is different day`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            givenFilesExist(
+                listOf(
+                    "pair-stairs-backup_2025-12-31_0.zip",
+                    "pair-stairs-backup_2026-01-01_0.zip",
+                )
+            )
+
+            underTest.retainMostRecentBackups(1).shouldBeSuccess()
+
+            verify { fileOperations.deleteFile(tempDir.resolve("pair-stairs-backup_2025-12-31_0.zip")) }
+            verify(exactly = 0) { fileOperations.deleteFile(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip")) }
+        }
+
+        @Test
+        fun `delete all old backups until only remaining count`() {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            givenFilesExist(
+                listOf(
+                    "pair-stairs-backup_2026-01-01_0.zip",
+                    "pair-stairs-backup_2026-01-02_0.zip",
+                    "pair-stairs-backup_2026-01-02_1.zip",
+                    "pair-stairs-backup_2026-01-03_0.zip",
+                    "pair-stairs-backup_2026-01-04_0.zip",
+                    "pair-stairs-backup_2026-01-05_0.zip",
+                )
+            )
+
+            underTest.retainMostRecentBackups(2).shouldBeSuccess()
+
+            listOf(
+                "pair-stairs-backup_2026-01-01_0.zip",
+                "pair-stairs-backup_2026-01-02_0.zip",
+                "pair-stairs-backup_2026-01-02_1.zip",
+                "pair-stairs-backup_2026-01-03_0.zip",
+            ).forEach {
+                verify { fileOperations.deleteFile(tempDir.resolve(it)) }
+            }
+            listOf(
+                "pair-stairs-backup_2026-01-04_0.zip",
+                "pair-stairs-backup_2026-01-05_0.zip",
+            ).forEach {
+                verify(exactly = 0) { fileOperations.deleteFile(tempDir.resolve(it)) }
+            }
+        }
+    }
+
 
     @Nested
     inner class ErrorHandling {
@@ -157,15 +239,10 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
 
     /*
     todo
-        - backup when > max retained backups, should delete oldest file
-            - oldest date
-            - oldest date + oldest counter
-        - if max = 5 and 10 are found, delete oldest 5
         - concurrent requests should sequential
-        - error from backup service
-        - what to do about skipped numbers/days
         - do not delete if error happened while backing up
         - return delete errors
+        - ignore files that don't match regex
      */
 
     private fun DatabaseBackupService.backedUp(expected: Path) {

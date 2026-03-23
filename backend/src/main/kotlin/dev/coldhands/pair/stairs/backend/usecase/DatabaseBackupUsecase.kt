@@ -5,16 +5,18 @@ import dev.coldhands.pair.stairs.backend.domain.FileOperations
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
 import dev.forkhandles.result4k.Result
 import dev.forkhandles.result4k.asFailure
+import dev.forkhandles.result4k.asSuccess
 import dev.forkhandles.result4k.mapFailure
 import java.nio.file.Path
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlin.io.path.name
 
 class DatabaseBackupUsecase(
     private val backupBaseDir: Path,
     private val dateProvider: DateProvider,
     private val databaseBackupService: DatabaseBackupService,
-    private val fileOperations: FileOperations
+    private val fileOperations: FileOperations,
 ) {
 
     fun backup(): Result<Unit, BackupError> {
@@ -35,6 +37,15 @@ class DatabaseBackupUsecase(
 
         return databaseBackupService.backup(backupPath)
             .mapFailure { UnableToBackupError(it) }
+    }
+
+    fun retainMostRecentBackups(count: Int): Result<Unit, Unit> {
+        fileOperations.listFiles(backupBaseDir)
+            .sortedByDescending { it.name }
+            .drop(count)
+            .forEach { fileOperations.deleteFile(it) }
+
+        return Unit.asSuccess()
     }
 
     sealed class BackupError
