@@ -195,6 +195,37 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
                 verify(exactly = 0) { fileOperations.deleteFile(tempDir.resolve(it)) }
             }
         }
+
+        @ParameterizedTest
+        @ValueSource(
+            strings = [
+                "2026-01-01_0.zip",
+                "pair-stairs-backup_.zip",
+                "pair-stairs-backup_2026-01-01_0",
+                "pair-stairs-backup_yyyy-MM-dd_0.zip",
+                "pair-stairs-backup_2026-01-01_abc.zip",
+                "pair-stairs-backup_12-13-1_0.zip",
+                "pair-stairs-backup_a----2_0.zip",
+                "not at all correct",
+            ]
+        )
+        fun `do not delete files that don't match pattern`(filename: String) {
+            val underTest = DatabaseBackupUsecase(tempDir, fakeDateProvider, databaseBackupService, fileOperations)
+            givenFilesExist(
+                listOf(
+                    filename,
+                    "pair-stairs-backup_2026-01-01_0.zip",
+                    "pair-stairs-backup_2026-01-01_1.zip",
+                )
+            )
+
+            underTest.retainMostRecentBackups(1).shouldBeSuccess()
+
+            verify(exactly = 0) { fileOperations.deleteFile(tempDir.resolve(filename)) }
+            verify(exactly = 0) { fileOperations.deleteFile(tempDir.resolve("pair-stairs-backup_2026-01-01_1.zip")) }
+            verify { fileOperations.deleteFile(tempDir.resolve("pair-stairs-backup_2026-01-01_0.zip")) }
+        }
+
     }
 
 
@@ -242,7 +273,6 @@ class DatabaseBackupUsecaseTest(@TempDir private var tempDir: Path) {
         - concurrent requests should sequential
         - do not delete if error happened while backing up
         - return delete errors
-        - ignore files that don't match regex
      */
 
     private fun DatabaseBackupService.backedUp(expected: Path) {

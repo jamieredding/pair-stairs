@@ -3,10 +3,7 @@ package dev.coldhands.pair.stairs.backend.usecase
 import dev.coldhands.pair.stairs.backend.domain.DateProvider
 import dev.coldhands.pair.stairs.backend.domain.FileOperations
 import dev.coldhands.pair.stairs.backend.domain.backup.DatabaseBackupService
-import dev.forkhandles.result4k.Result
-import dev.forkhandles.result4k.asFailure
-import dev.forkhandles.result4k.asSuccess
-import dev.forkhandles.result4k.mapFailure
+import dev.forkhandles.result4k.*
 import java.nio.file.Path
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -18,6 +15,7 @@ class DatabaseBackupUsecase(
     private val databaseBackupService: DatabaseBackupService,
     private val fileOperations: FileOperations,
 ) {
+    private val deleteRegex = Regex("pair-stairs-backup_([\\d-]+)_\\d+.zip")
 
     fun backup(): Result<Unit, BackupError> {
         fileOperations.createDirectory(backupBaseDir)
@@ -41,12 +39,24 @@ class DatabaseBackupUsecase(
 
     fun retainMostRecentBackups(count: Int): Result<Unit, Unit> {
         fileOperations.listFiles(backupBaseDir)
+            .filter { it.name.isBackupFilename() }
             .sortedByDescending { it.name }
             .drop(count)
             .forEach { fileOperations.deleteFile(it) }
 
         return Unit.asSuccess()
     }
+
+    private fun String.isBackupFilename(): Boolean =
+        deleteRegex.find(this)
+            ?.groupValues
+            ?.getOrNull(1)
+            ?.let {
+                resultFrom { DateTimeFormatter.ISO_DATE.parse(it) }
+                    .map { true }
+                    .mapFailure { false }
+                    .get()
+            } ?: false
 
     sealed class BackupError
     class CannotCreateBackupDirectory(val cause: FileOperations.CreateDirectoryError) : BackupError()
